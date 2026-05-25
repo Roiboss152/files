@@ -604,59 +604,53 @@ function submitForm(){
   if(!document.getElementById('agreeRequired').checked){alert('주차권 발송을 위한 개인정보 수집·이용에 동의해 주세요. (필수)');return;}
 
   const FORM_URL = 'https://docs.google.com/forms/u/0/d/e/1FAIpQLSeyyIZxosWeB6fym_KX7rrlrrT8iLtTYNOEBQ1MJd-_0C2WVQ/formResponse';
-
   const interests = [...document.querySelectorAll('input[name=interest]:checked')].map(el=>el.value);
   const status = document.querySelector('input[name=status]:checked')?.value || '';
   const marketing = document.getElementById('agreeMarketing').checked ? '동의합니다' : '';
 
-  // 숨겨진 iframe + form 방식 (CORS 우회)
-  const iframe = document.createElement('iframe');
-  iframe.name = 'hidden_iframe_' + Date.now();
-  iframe.style.display = 'none';
-  document.body.appendChild(iframe);
+  // iframe 생성 (페이지 이동 방지)
+  let iframe = document.getElementById('_gform_iframe');
+  if(!iframe){
+    iframe = document.createElement('iframe');
+    iframe.id = '_gform_iframe';
+    iframe.name = '_gform_iframe';
+    iframe.style.cssText = 'display:none;width:0;height:0;border:0;position:absolute;';
+    document.body.appendChild(iframe);
+  }
 
+  // form 생성
   const form = document.createElement('form');
-  form.action = FORM_URL;
   form.method = 'POST';
-  form.target = iframe.name;
+  form.action = FORM_URL;
+  form.target = '_gform_iframe';
   form.style.display = 'none';
 
-  const fields = {
-    'entry.772437318': phone,
-    'entry.306357824': document.getElementById('storeName').value.trim(),
-    'entry.458430525': document.getElementById('carNumber').value.trim(),
-    'entry.2120324906': status,
-    'entry.1606870495': '동의합니다'
-  };
-  if(marketing) fields['entry.1202446744'] = marketing;
+  function addField(name, value){
+    const el = document.createElement('input');
+    el.type = 'hidden';
+    el.name = name;
+    el.value = value;
+    form.appendChild(el);
+  }
 
-  Object.entries(fields).forEach(([k,v]) => {
-    const input = document.createElement('input');
-    input.type = 'hidden';
-    input.name = k;
-    input.value = v;
-    form.appendChild(input);
-  });
-
-  interests.forEach(v => {
-    const input = document.createElement('input');
-    input.type = 'hidden';
-    input.name = 'entry.58705049';
-    input.value = v;
-    form.appendChild(input);
-  });
+  addField('entry.772437318', phone);
+  addField('entry.306357824', document.getElementById('storeName').value.trim());
+  addField('entry.458430525', document.getElementById('carNumber').value.trim());
+  addField('entry.2120324906', status);
+  addField('entry.1606870495', '동의합니다');
+  if(marketing) addField('entry.1202446744', marketing);
+  interests.forEach(v => addField('entry.58705049', v));
 
   document.body.appendChild(form);
   document.getElementById('loading').classList.add('show');
 
   form.submit();
+  document.body.removeChild(form);
 
-  setTimeout(() => {
+  setTimeout(()=>{
     document.getElementById('loading').classList.remove('show');
     document.getElementById('successOverlay').classList.add('show');
-    if(document.body.contains(form)) document.body.removeChild(form);
-    if(document.body.contains(iframe)) document.body.removeChild(iframe);
-  }, 2000);
+  }, 1500);
 }
 
 function closePopup(){
