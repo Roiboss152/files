@@ -22,7 +22,8 @@ body{font-family:'DIGICO',sans-serif;background:#fff;color:var(--dark);overflow-
 
 /* ── 히어로 ── */
 .hero{position:relative;height:100vh;min-height:700px;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;background:var(--dark);}
-.hero-bg{position:absolute;inset:0;background-image:url('assets/image/files/bulding01.png');background-size:cover;background-position:center;opacity:0.55;animation:heroZoom 8s ease-in-out infinite;}
+.hero-bg{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity 1.5s ease-in-out;animation:heroZoom 8s ease-in-out infinite;}
+.hero-bg.active{opacity:0.55;}
 @keyframes heroZoom{0%{transform:scale(1.0);}50%{transform:scale(1.08);}100%{transform:scale(1.0);}}
 .hero-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.1) 0%,rgba(0,0,0,0.65) 100%);}
 .hero-ci{position:absolute;top:40px;left:48px;z-index:10;opacity:0;animation:fadeUp 0.8s 0.2s ease forwards;}
@@ -149,7 +150,9 @@ footer strong{color:rgba(255,255,255,0.7);}
 
 <!-- 히어로 -->
 <section class="hero">
-  <div class="hero-bg"></div>
+  <div class="hero-bg active" style="background-image:url('assets/image/files/city_airplane.png')"></div>
+  <div class="hero-bg" style="background-image:url('assets/image/files/handshake_double_exposure.png')"></div>
+  <div class="hero-bg" style="background-image:url('assets/image/files/sign01.png')"></div>
   <div class="hero-overlay"></div>
   <div class="hero-ci"><img src="assets/image/CI_BI/KT_CI_WR01.png" alt="KT"/></div>
   <div class="hero-content">
@@ -195,12 +198,11 @@ footer strong{color:rgba(255,255,255,0.7);}
         <h2 class="event-title">KT 소상공인 대리점 창업설명회</h2>
         <table class="event-table">
           <tr><td>일시</td><td>2026년 6월 24일 (화) 오전 10:00</td></tr>
-          <tr><td>장소</td><td>KT 인천지사 컨벤션홀 <span style="color:var(--gray);font-size:12px;">※ 세미나실 등으로 변경 가능</span></td></tr>
-          <tr><td>참가 대상</td><td>창업 및 비즈니스 확장에 관심 있는 분 <span class="tag">누구나 참가 가능</span></td></tr>
+          <tr><td>장소</td><td>KT 인천지사 컨벤션홀</td></tr>
+          <tr><td>참가 대상</td><td>창업 및 비즈니스 확장에 관심 있는 분 누구나</td></tr>
           <tr><td>참가비</td><td>전액 무료</td></tr>
-          <tr><td>참가 혜택</td><td>참석자 전원 <span class="tag">고급 우산 증정</span></td></tr>
-          <tr><td>담당자</td><td>KT 신규채널운영2파트 송용의 과장</td></tr>
-          <tr><td>문의</td><td>032-772-2299</td></tr>
+          <tr><td>참가 혜택</td><td>참석자 전원 고급 우산 증정</td></tr>
+          <tr><td>문의처</td><td>KT 신규채널운영2파트 송용의 과장 (032-772-2299)</td></tr>
         </table>
       </div>
       <div class="event-right">
@@ -228,9 +230,9 @@ footer strong{color:rgba(255,255,255,0.7);}
       <div class="privacy-body">
         <div class="p-row"><div class="p-label">수집 항목</div><div class="p-value">성명, 연락처</div></div>
         <div class="p-row"><div class="p-label">수집 목적</div><div class="p-value">설명회 참가 확인 및 개별 안내 연락</div></div>
-        <div class="p-row"><div class="p-label">보유 및 이용 기간</div><div class="p-value">설명회 종료 즉시 파기</div></div>
+        <div class="p-row"><div class="p-label">보유 기간</div><div class="p-value">설명회 종료 즉시 파기</div></div>
         <div class="privacy-note">※ 위 개인정보 수집 및 이용에 동의하지 않으실 경우 신청이 제한될 수 있습니다.</div>
-        <div style="margin-top:8px;font-size:13px;color:var(--gray);font-weight:300;line-height:1.8;">※ 안내 사항: 귀하는 개인정보 수집 및 이용 동의를 거부할 권리가 있으며, 동의를 거부하실 경우 설명회 참가 신청이 제한될 수 있습니다.</div>
+        <div style="margin-top:8px;font-size:13px;color:var(--gray);font-weight:300;line-height:1.8;">• ※ 안내 사항: 귀하는 개인정보 수집 및 이용 동의를 거부할 권리가 있으며, 동의를 거부하실 경우 설명회 참가 신청이 제한될 수 있습니다.</div>
       </div>
     </div>
     <div class="privacy-agree">
@@ -281,9 +283,8 @@ footer strong{color:rgba(255,255,255,0.7);}
 
 <!-- 푸터 -->
 <footer>
-  <strong>주식회사 케이티 (KT)</strong><br>
-  인천광역시 남동구 경인로 508 KT인천지사<br>
-  문의: 032-772-2299 &nbsp;|&nbsp; 신규채널운영 2파트 송용의 과장<br><br>
+  <strong>주식회사 케이티</strong><br>
+  인천광역시 남동구 경인로 508 KT인천지사<br><br>
   © 2026 KT Corporation. All rights reserved.
 </footer>
 
@@ -298,6 +299,15 @@ footer strong{color:rgba(255,255,255,0.7);}
 </div>
 
 <script>
+  // 히어로 슬라이드쇼
+  const slides = document.querySelectorAll('.hero-bg');
+  let current = 0;
+  setInterval(() => {
+    slides[current].classList.remove('active');
+    current = (current + 1) % slides.length;
+    slides[current].classList.add('active');
+  }, 6000);
+
   // 모바일 자동재생 fallback
   const vid = document.getElementById('heroVideo');
   if(vid){
