@@ -34,19 +34,16 @@ body{font-family:'DIGICO',sans-serif;background:#fff;color:var(--dark);overflow-
 .hero-blur-layer{position:absolute;inset:0;background-size:cover;background-position:center;background-image:url('assets/image/files/city_airplane.png');filter:blur(18px);transform:scale(1.08);z-index:0;opacity:0;transition:opacity 0s;}
 
 @keyframes pulseGlow{0%,100%{box-shadow:0 12px 48px rgba(0,0,0,0.3),0 0 15px rgba(255,255,255,0.1);}50%{box-shadow:0 12px 48px rgba(0,0,0,0.3),0 0 60px rgba(255,255,255,0.35);}}
-.hero-glass{background:rgba(255,255,255,0.18);backdrop-filter:none;-webkit-backdrop-filter:none;border-radius:20px;padding:0;overflow:hidden;display:inline-block;width:clamp(320px,44vw,520px);text-align:center;position:relative;z-index:3;border:1.5px solid rgba(255,255,255,0.45);box-shadow:0 12px 48px rgba(0,0,0,0.3);}
-.hero-blur-slide{position:absolute;inset:0;background-repeat:no-repeat;z-index:1;opacity:0;transition:opacity 1.5s ease-in-out;pointer-events:none;}
-.hero-blur-slide.active{opacity:1;}
-.hero-glass-row{position:relative;z-index:2;padding:clamp(12px,2vh,22px) clamp(20px,3vw,40px);}
-.hero-glass-divider{width:100%;height:1px;background:rgba(255,255,255,0.45);position:relative;z-index:2;}
+.hero-glass{background:rgba(255,255,255,0.18);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:20px;padding:0;overflow:hidden;display:inline-block;width:clamp(320px,44vw,520px);text-align:center;position:relative;z-index:3;border:1.5px solid rgba(255,255,255,0.45);box-shadow:0 12px 48px rgba(0,0,0,0.3);animation:pulseGlow 3s ease-in-out infinite;}
+.hero-glass-row{position:relative;z-index:1;padding:clamp(12px,2vh,22px) clamp(20px,3vw,40px);}
+.hero-glass-divider{width:100%;height:1px;background:rgba(255,255,255,0.25);}
 .hero-glass-badge{font-size:13px;font-weight:600;letter-spacing:3px;color:rgba(255,255,255,0.7);text-transform:uppercase;}
-.hero-glass-btn{display:inline-block;color:#fff;font-size:16px;font-weight:600;font-family:'DIGICO',sans-serif;cursor:pointer;background:none;border:none;padding:4px 0;letter-spacing:1px;position:relative;transition:color 0.3s ease,letter-spacing 0.3s ease;}
-.hero-glass-btn::after{content:'';position:absolute;bottom:0;left:0;width:0;height:1.5px;background:#fff;transition:width 0.35s ease;}
-.hero-glass-btn:hover::after{width:100%;}
-.hero-glass-btn:hover{letter-spacing:2.5px;color:rgba(255,255,255,0.9);}
-.hero-glass-btn .arrow{display:inline-block;transition:transform 0.35s ease;}
-.hero-glass-btn:hover .arrow{transform:translateX(8px);}
-.hero-glass-btn-row{padding:20px 40px;position:relative;z-index:2;}.hero-title{font-size:clamp(28px,5.5vw,68px);font-weight:700;line-height:1.18;letter-spacing:-2px;margin-bottom:0;opacity:1;transform:none;animation:none;}
+.hero-glass-btn{display:inline-block;color:#fff;font-size:16px;font-weight:600;font-family:'DIGICO',sans-serif;cursor:pointer;background:none;border:none;padding:0;letter-spacing:1px;position:relative;overflow:hidden;}
+.hero-glass-btn::before{content:'';position:absolute;inset:0;background:rgba(255,255,255,0.2);transform:translateX(-100%);transition:transform 0.35s ease;}
+.hero-glass-btn:hover::before{transform:translateX(0);}
+.hero-glass-btn-row{padding:20px 40px;position:relative;overflow:hidden;cursor:pointer;transition:background 0.35s ease;}
+.hero-glass-btn-row::before{content:'';position:absolute;inset:0;background:rgba(255,255,255,0.12);transform:translateX(-100%);transition:transform 0.35s ease;}
+.hero-glass-btn-row:hover::before{transform:translateX(0);}.hero-title{font-size:clamp(28px,5.5vw,68px);font-weight:700;line-height:1.18;letter-spacing:-2px;margin-bottom:0;opacity:1;transform:none;animation:none;}
 .hero-title em{color:var(--red);font-style:normal;}
 .hero-sub{font-size:clamp(14px,1.6vw,18px);font-weight:300;color:rgba(255,255,255,0.75);line-height:1.9;max-width:480px;margin:0 auto 40px;opacity:0;transform:translateY(30px);animation:fadeUp 0.9s 0.7s ease forwards;}
 .hero-btn{display:inline-block;background:rgba(255,255,255,0.15);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:#fff;padding:18px 52px;border-radius:6px;font-size:17px;font-weight:600;border:2px solid rgba(255,255,255,0.4);box-shadow:0 8px 32px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.2);opacity:0;transform:translateY(30px);animation:fadeUp 0.9s 0.9s ease forwards;transition:transform 0.2s,box-shadow 0.2s,background 0.2s;cursor:pointer;font-family:'DIGICO',sans-serif;}
@@ -168,16 +165,13 @@ footer strong{color:rgba(255,255,255,0.7);}
 
 <!-- 히어로 -->
 <section class="hero" id="heroSection">
-  <div class="hero-slide" id="slide0" style="background-image:url('assets/image/files/city_airplane.png')"></div>
+  <div class="hero-slide active" id="slide0" style="background-image:url('assets/image/files/city_airplane.png')"></div>
   <div class="hero-slide" id="slide1" style="background-image:url('assets/image/files/handshake_double_exposure.png')"></div>
   <div class="hero-slide" id="slide2" style="background-image:url('assets/image/files/sign01.png')"></div>
   <div class="hero-overlay"></div>
   <div class="hero-ci"><img src="assets/image/CI_BI/KT_CI_WR01.png" alt="KT"/></div>
   <div class="hero-content" style="opacity:0;transform:translateY(30px);animation:fadeUp 0.9s 0.5s ease forwards;">
     <div class="hero-glass">
-      <div class="hero-blur-slide active" id="bslide0"></div>
-      <div class="hero-blur-slide" id="bslide1"></div>
-      <div class="hero-blur-slide" id="bslide2"></div>
       <div class="hero-glass-row">
         <div class="hero-glass-badge">KT 소상공인 창업설명회</div>
       </div>
@@ -190,8 +184,8 @@ footer strong{color:rgba(255,255,255,0.7);}
         <p class="hero-sub" style="opacity:1;transform:none;animation:none;margin:0;">소자본·무점포 1인 창업이 가능하며,<br>기존 사업자도 병행할 수 있습니다.</p>
       </div>
       <div class="hero-glass-divider"></div>
-      <div class="hero-glass-row">
-        <button class="hero-glass-btn" onclick="document.getElementById('form').scrollIntoView({behavior:'smooth'})">설명회 신청하기 <span class="arrow">→</span></button>
+      <div class="hero-glass-row hero-glass-btn-row">
+        <button class="hero-glass-btn" onclick="document.getElementById('form').scrollIntoView({behavior:'smooth'})">설명회 신청하기 →</button>
       </div>
     </div>
   </div>
@@ -335,66 +329,13 @@ footer strong{color:rgba(255,255,255,0.7);}
 <script>
   // 히어로 슬라이드쇼
   const slides = document.querySelectorAll('.hero-slide');
-  const blurSlides = document.querySelectorAll('.hero-blur-slide');
-  const blurImages = [
-    "assets/image/files/city_airplane_blur.png",
-    "assets/image/files/handshake_double_exposure_blur.png",
-    "assets/image/files/sign01_blur.png"
-  ];
   let heroCurrent = 0;
-  const slideStartTimes = [Date.now(), Date.now(), Date.now()];
-
-  // 첫 슬라이드 딜레이 후 활성화
-  setTimeout(() => {
-    slides[0].classList.add('active');
-    slideStartTimes[0] = Date.now();
-  }, 100);
-
-  function syncBlur() {
-    const hero = document.getElementById('heroSection');
-    const glass = document.querySelector('.hero-glass');
-    if (!hero || !glass) return;
-    const heroW = hero.offsetWidth;
-    const heroH = hero.offsetHeight;
-    const glassRect = glass.getBoundingClientRect();
-    const heroRect = hero.getBoundingClientRect();
-    const imgRatio = 2560 / 1440;
-    const heroRatio = heroW / heroH;
-    let bgW, bgH;
-    if (heroRatio > imgRatio) { bgW = heroW; bgH = heroW / imgRatio; }
-    else { bgH = heroH; bgW = heroH * imgRatio; }
-    const bgX = (heroW - bgW) / 2;
-    const bgY = (heroH - bgH) / 2;
-    const glassX = glassRect.left - heroRect.left;
-    const glassY = glassRect.top - heroRect.top;
-    blurSlides.forEach((bl, i) => {
-      const elapsed = Math.min((Date.now() - slideStartTimes[i]) / 7000, 1.0);
-      const eased = elapsed < 0.5 ? 2*elapsed*elapsed : 1 - Math.pow(-2*elapsed+2, 2)/2;
-      const zoomScale = 1.0 + eased * 0.1;
-      const zW = bgW * zoomScale;
-      const zH = bgH * zoomScale;
-      const zX = (heroW - zW) / 2;
-      const zY = (heroH - zH) / 2;
-      bl.style.backgroundSize = `${zW}px ${zH}px`;
-      bl.style.backgroundPosition = `${zX - glassX}px ${zY - glassY}px`;
-      bl.style.backgroundImage = `url('${blurImages[i]}')`;
-    });
-  }
-
-  syncBlur();
-  window.addEventListener('resize', syncBlur);
 
   setInterval(() => {
     slides[heroCurrent].classList.remove('active');
-    blurSlides[heroCurrent].classList.remove('active');
     heroCurrent = (heroCurrent + 1) % slides.length;
     slides[heroCurrent].classList.add('active');
-    blurSlides[heroCurrent].classList.add('active');
-    slideStartTimes[heroCurrent] = Date.now();
   }, 6000);
-
-  function animateBlur() { syncBlur(); requestAnimationFrame(animateBlur); }
-  animateBlur();
 
   const vid = document.getElementById('heroVideo');
   if(vid){
