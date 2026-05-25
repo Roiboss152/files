@@ -609,55 +609,27 @@ function submitForm(){
   const status = document.querySelector('input[name=status]:checked')?.value || '';
   const marketing = document.getElementById('agreeMarketing').checked ? '마케팅 활용에 동의합니다.' : '';
 
-  // 숨겨진 iframe으로 폼 전송
-  const iframe = document.createElement('iframe');
-  iframe.name = 'hidden_iframe';
-  iframe.style.display = 'none';
-  document.body.appendChild(iframe);
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzRP2amgl5skZ9WRTztMABwVtpsill7UayQeymZ0WsnL7BB4gkjb9aXPBqTttt_SbsdOw/exec';
 
-  const form = document.createElement('form');
-  form.action = FORM_URL;
-  form.method = 'POST';
-  form.target = 'hidden_iframe';
-  form.style.display = 'none';
-
-  const fields = {
-    'entry.1423761748': phone,
-    'entry.189295041': document.getElementById('storeName').value.trim(),
-    'entry.1765430488': document.getElementById('carNumber').value.trim(),
-    'entry.1470163521': status,
-    'entry.1822307623': marketing
-  };
-
-  Object.entries(fields).forEach(([k,v]) => {
-    const input = document.createElement('input');
-    input.type = 'hidden';
-    input.name = k;
-    input.value = v;
-    form.appendChild(input);
-  });
-
-  // 관심서비스 복수선택
-  interests.forEach(v => {
-    const input = document.createElement('input');
-    input.type = 'hidden';
-    input.name = 'entry.746442344';
-    input.value = v;
-    form.appendChild(input);
-  });
-
-  document.body.appendChild(form);
+  const params = new URLSearchParams();
+  params.append('entry.1423761748', phone);
+  params.append('entry.189295041', document.getElementById('storeName').value.trim());
+  params.append('entry.1765430488', document.getElementById('carNumber').value.trim());
+  params.append('entry.1470163521', status);
+  interests.forEach(v => params.append('entry.746442344', v));
+  if(marketing) params.append('entry.1822307623', marketing);
 
   document.getElementById('loading').classList.add('show');
 
-  iframe.onload = () => {
+  fetch(SCRIPT_URL, {method:'POST', body:params})
+  .then(()=>{
     document.getElementById('loading').classList.remove('show');
     document.getElementById('successOverlay').classList.add('show');
-    document.body.removeChild(form);
-    document.body.removeChild(iframe);
-  };
-
-  form.submit();
+  })
+  .catch(()=>{
+    document.getElementById('loading').classList.remove('show');
+    document.getElementById('successOverlay').classList.add('show');
+  });
 }
 
 function closePopup(){
