@@ -609,26 +609,55 @@ function submitForm(){
   const status = document.querySelector('input[name=status]:checked')?.value || '';
   const marketing = document.getElementById('agreeMarketing').checked ? '마케팅 활용에 동의합니다.' : '';
 
-  const formData = new FormData();
-  formData.append('entry.1423761748', phone);
-  formData.append('entry.189295041', document.getElementById('storeName').value.trim());
-  formData.append('entry.1765430488', document.getElementById('carNumber').value.trim());
-  formData.append('entry.1470163521', status);
-  interests.forEach(v => formData.append('entry.746442344', v));
-  if(marketing) formData.append('entry.1822307623', marketing);
+  // 숨겨진 iframe으로 폼 전송
+  const iframe = document.createElement('iframe');
+  iframe.name = 'hidden_iframe';
+  iframe.style.display = 'none';
+  document.body.appendChild(iframe);
+
+  const form = document.createElement('form');
+  form.action = FORM_URL;
+  form.method = 'POST';
+  form.target = 'hidden_iframe';
+  form.style.display = 'none';
+
+  const fields = {
+    'entry.1423761748': phone,
+    'entry.189295041': document.getElementById('storeName').value.trim(),
+    'entry.1765430488': document.getElementById('carNumber').value.trim(),
+    'entry.1470163521': status,
+    'entry.1822307623': marketing
+  };
+
+  Object.entries(fields).forEach(([k,v]) => {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = k;
+    input.value = v;
+    form.appendChild(input);
+  });
+
+  // 관심서비스 복수선택
+  interests.forEach(v => {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'entry.746442344';
+    input.value = v;
+    form.appendChild(input);
+  });
+
+  document.body.appendChild(form);
 
   document.getElementById('loading').classList.add('show');
 
-  fetch(FORM_URL, {method:'POST', mode:'no-cors', body:formData})
-  .then(()=>{
+  iframe.onload = () => {
     document.getElementById('loading').classList.remove('show');
     document.getElementById('successOverlay').classList.add('show');
-  })
-  .catch(()=>{
-    // no-cors 모드에서는 항상 성공으로 처리
-    document.getElementById('loading').classList.remove('show');
-    document.getElementById('successOverlay').classList.add('show');
-  });
+    document.body.removeChild(form);
+    document.body.removeChild(iframe);
+  };
+
+  form.submit();
 }
 
 function closePopup(){
