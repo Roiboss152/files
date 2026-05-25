@@ -419,10 +419,11 @@ footer strong{color:rgba(255,255,255,0.7);}
     if(!name){ alert('성함을 입력해주세요.'); document.getElementById('nameInput').focus(); return; }
     if(!phone){ alert('연락처를 입력해주세요.'); document.getElementById('phoneInput').focus(); return; }
     const formData = new FormData();
-    formData.append('entry.1798041175', name);
-    formData.append('entry.742335359', phone);
-    formData.append('entry.1261065321', comment);
-    fetch('https://docs.google.com/forms/d/e/1FAIpQLScmcjtrGMZPJIpfIaBYxsTcdgfoGhWDsQsi1lIGGuOtI73jxA/formResponse', {method:'POST',mode:'no-cors',body:formData})
+    formData.append('entry.1783994946', '개인정보 수집 및 이용에 동의합니다.');
+    formData.append('entry.587869605', name);
+    formData.append('entry.242520811', phone);
+    formData.append('entry.852608875', comment);
+    fetch('https://docs.google.com/forms/u/0/d/e/1FAIpQLSfBiAoIJxsqf6B-XS5rJ3IaWuI2n8EInfF4cvLXYrbJjphg8g/formResponse', {method:'POST',mode:'no-cors',body:formData})
     .finally(() => {
       document.getElementById('successOverlay').classList.add('show');
       document.getElementById('nameInput').value='';
