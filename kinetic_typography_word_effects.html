@@ -1,0 +1,172 @@
+
+<style>
+  .kt-wrap{
+    background:#f8f9fa;
+    min-height:560px;
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    justify-content:center;
+    padding:40px 28px;
+    position:relative;
+    overflow:hidden;
+    font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  }
+  .kt-bg-p{
+    position:absolute;right:-20px;top:-40px;
+    font-size:320px;font-weight:700;
+    color:rgba(0,0,0,0.04);line-height:1;
+    user-select:none;pointer-events:none;
+  }
+  .kt-sub{
+    font-size:11px;font-weight:500;
+    color:#adb5bd;letter-spacing:2px;
+    text-transform:uppercase;
+    opacity:0;
+    animation:none;
+  }
+  .kt-divider{
+    display:block;width:0;height:1px;
+    background:#dee2e6;margin:12px 0;
+    transition:width 0.6s cubic-bezier(0.4,0,0.2,1);
+  }
+  .kt-divider.show{width:100%;}
+
+  /* 각 줄 */
+  .kt-row{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px;margin:2px 0;}
+
+  /* 단어 기본 */
+  .w{
+    display:inline-block;
+    font-weight:700;
+    color:#343a40;
+    opacity:0;
+    will-change:transform,opacity,filter;
+  }
+
+  /* 효과 1: 아래서 위로 (fadeUp) */
+  .fx-up{transform:translateY(30px);}
+  .fx-up.show{opacity:1;transform:translateY(0);transition:opacity 0.5s ease,transform 0.5s cubic-bezier(0.34,1.56,0.64,1);}
+
+  /* 효과 2: 왼쪽에서 (slideRight) */
+  .fx-right{transform:translateX(-30px);}
+  .fx-right.show{opacity:1;transform:translateX(0);transition:opacity 0.4s ease,transform 0.5s cubic-bezier(0.25,0.46,0.45,0.94);}
+
+  /* 효과 3: 오른쪽에서 (slideLeft) */
+  .fx-left{transform:translateX(30px);}
+  .fx-left.show{opacity:1;transform:translateX(0);transition:opacity 0.4s ease,transform 0.5s cubic-bezier(0.25,0.46,0.45,0.94);}
+
+  /* 효과 4: 스케일업 */
+  .fx-scale{transform:scale(0.5);transform-origin:left center;}
+  .fx-scale.show{opacity:1;transform:scale(1);transition:opacity 0.4s ease,transform 0.5s cubic-bezier(0.34,1.56,0.64,1);}
+
+  /* 효과 5: 블러 → 선명 */
+  .fx-blur{filter:blur(8px);transform:scale(1.05);}
+  .fx-blur.show{opacity:1;filter:blur(0);transform:scale(1);transition:opacity 0.5s ease,filter 0.6s ease,transform 0.5s ease;}
+
+  /* 효과 6: 회전 등장 */
+  .fx-rotate{transform:rotate(-8deg) translateY(20px);}
+  .fx-rotate.show{opacity:1;transform:rotate(0deg) translateY(0);transition:opacity 0.4s ease,transform 0.5s cubic-bezier(0.34,1.56,0.64,1);}
+
+  /* 효과 7: 드롭 (위에서 아래로) */
+  .fx-drop{transform:translateY(-30px);}
+  .fx-drop.show{opacity:1;transform:translateY(0);transition:opacity 0.4s ease,transform 0.6s cubic-bezier(0.34,1.56,0.64,1);}
+
+  /* 크기 */
+  .sz-xs{font-size:13px;font-weight:500;color:#adb5bd;}
+  .sz-sm{font-size:24px;letter-spacing:-0.5px;}
+  .sz-md{font-size:38px;letter-spacing:-1.5px;}
+  .sz-lg{font-size:56px;letter-spacing:-2.5px;}
+  .sz-xl{font-size:72px;letter-spacing:-3px;}
+
+  .cl-accent{color:#6c757d;}
+  .cl-dark{color:#212529;}
+
+  .kt-replay{
+    margin-top:28px;
+    font-size:12px;color:#adb5bd;
+    background:none;border:0.5px solid #ced4da;
+    padding:8px 18px;border-radius:20px;
+    cursor:pointer;font-family:inherit;
+    opacity:0;transition:opacity 0.4s ease;
+  }
+  .kt-replay.show{opacity:1;}
+  .kt-replay:hover{color:#343a40;border-color:#adb5bd;}
+</style>
+
+<div class="kt-wrap">
+  <div class="kt-bg-p">P</div>
+
+  <!-- 서브 라인 -->
+  <div class="kt-row" style="margin-bottom:4px;">
+    <span class="w sz-xs fx-right" id="w0">Free Parking</span>
+    <span class="w sz-xs fx-right cl-accent" id="w1" style="font-weight:400;">· KT 인천지사</span>
+  </div>
+
+  <div class="kt-divider" id="div1"></div>
+
+  <!-- 사장님의 성공적인 -->
+  <div class="kt-row">
+    <span class="w sz-sm fx-drop" id="w2">사장님의</span>
+    <span class="w sz-md fx-blur" id="w3">성공적인</span>
+  </div>
+
+  <!-- 첫걸음을 응원하며 -->
+  <div class="kt-row">
+    <span class="w sz-lg fx-scale cl-dark" id="w4">첫걸음을</span>
+    <span class="w sz-sm fx-rotate cl-accent" id="w5">응원하며,</span>
+  </div>
+
+  <div class="kt-divider" id="div2"></div>
+
+  <!-- 오늘 문학구장 -->
+  <div class="kt-row">
+    <span class="w sz-sm fx-left" id="w6">오늘</span>
+    <span class="w sz-md fx-up" id="w7">문학구장</span>
+  </div>
+
+  <!-- 주차비는 -->
+  <div class="kt-row">
+    <span class="w sz-sm fx-right cl-accent" id="w8">주차비는</span>
+  </div>
+
+  <!-- KT가 지원합니다 -->
+  <div class="kt-row" style="align-items:baseline;gap:4px;">
+    <span class="w sz-xl fx-scale cl-dark" id="w9">KT가</span>
+    <span class="w sz-lg fx-blur cl-accent" id="w10">지원합니다</span>
+  </div>
+
+  <button class="kt-replay" id="replayBtn" onclick="replay()">↺ 다시 보기</button>
+</div>
+
+<script>
+  const seq = [
+    {id:'w0', d:100},
+    {id:'w1', d:250},
+    {id:'div1', d:400},
+    {id:'w2', d:600},
+    {id:'w3', d:850},
+    {id:'w4', d:1100},
+    {id:'w5', d:1350},
+    {id:'div2', d:1550},
+    {id:'w6', d:1750},
+    {id:'w7', d:1950},
+    {id:'w8', d:2200},
+    {id:'w9', d:2500},
+    {id:'w10', d:2800},
+    {id:'replayBtn', d:3300},
+  ];
+
+  function play(){
+    seq.forEach(({id,d})=>{
+      setTimeout(()=>document.getElementById(id).classList.add('show'), d);
+    });
+  }
+
+  function replay(){
+    seq.forEach(({id})=>document.getElementById(id).classList.remove('show'));
+    setTimeout(play, 400);
+  }
+
+  play();
+</script>
