@@ -649,14 +649,14 @@ function submitForm(){
   document.body.appendChild(form);
   document.getElementById('loading').classList.add('show');
 
-  iframe.onload = () => {
+  form.submit();
+
+  setTimeout(() => {
     document.getElementById('loading').classList.remove('show');
     document.getElementById('successOverlay').classList.add('show');
-    document.body.removeChild(form);
-    document.body.removeChild(iframe);
-  };
-
-  form.submit();
+    if(document.body.contains(form)) document.body.removeChild(form);
+    if(document.body.contains(iframe)) document.body.removeChild(iframe);
+  }, 2000);
 }
 
 function closePopup(){
