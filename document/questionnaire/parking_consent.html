@@ -609,55 +609,26 @@ function submitForm(){
   const status = document.querySelector('input[name=status]:checked')?.value || '';
   const marketing = document.getElementById('agreeMarketing').checked ? '동의합니다' : '';
 
-  const iframe = document.createElement('iframe');
-  iframe.name = 'hidden_iframe';
-  iframe.style.display = 'none';
-  document.body.appendChild(iframe);
+  const formData = new FormData();
+  formData.append('entry.772437318', phone);
+  formData.append('entry.306357824', document.getElementById('storeName').value.trim());
+  formData.append('entry.458430525', document.getElementById('carNumber').value.trim());
+  formData.append('entry.2120324906', status);
+  formData.append('entry.1606870495', '동의합니다');
+  if(marketing) formData.append('entry.1202446744', marketing);
+  interests.forEach(v => formData.append('entry.58705049', v));
 
-  const form = document.createElement('form');
-  form.action = FORM_URL;
-  form.method = 'POST';
-  form.target = 'hidden_iframe';
-  form.style.display = 'none';
-
-  const fields = {
-    'entry.772437318': phone,
-    'entry.306357824': document.getElementById('storeName').value.trim(),
-    'entry.458430525': document.getElementById('carNumber').value.trim(),
-    'entry.2120324906': status,
-    'entry.1606870495': '동의합니다',
-    'entry.1202446744': marketing
-  };
-
-  Object.entries(fields).forEach(([k,v]) => {
-    if(v) {
-      const input = document.createElement('input');
-      input.type = 'hidden';
-      input.name = k;
-      input.value = v;
-      form.appendChild(input);
-    }
-  });
-
-  interests.forEach(v => {
-    const input = document.createElement('input');
-    input.type = 'hidden';
-    input.name = 'entry.58705049';
-    input.value = v;
-    form.appendChild(input);
-  });
-
-  document.body.appendChild(form);
   document.getElementById('loading').classList.add('show');
 
-  setTimeout(() => {
+  fetch(FORM_URL, {method:'POST', mode:'no-cors', body:formData})
+  .then(()=>{
     document.getElementById('loading').classList.remove('show');
     document.getElementById('successOverlay').classList.add('show');
-    document.body.removeChild(form);
-    document.body.removeChild(iframe);
-  }, 1500);
-
-  form.submit();
+  })
+  .catch(()=>{
+    document.getElementById('loading').classList.remove('show');
+    document.getElementById('successOverlay').classList.add('show');
+  });
 }
 
 function closePopup(){
