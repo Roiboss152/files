@@ -603,33 +603,61 @@ function submitForm(){
   if(phone.replace(/\D/g,'').length<10){alert('올바른 휴대전화 번호를 입력해 주세요.');return;}
   if(!document.getElementById('agreeRequired').checked){alert('주차권 발송을 위한 개인정보 수집·이용에 동의해 주세요. (필수)');return;}
 
-  const FORM_URL = 'https://docs.google.com/forms/u/0/d/e/1FAIpQLSc4JRlsXQ1pBIHXHc72NbnT7Xav1VvDBaKC6VI3l4-yi8Eg2A/formResponse';
+  const FORM_URL = 'https://docs.google.com/forms/u/0/d/e/1FAIpQLSeyyIZxosWeB6fym_KX7rrlrrT8iLtTYNOEBQ1MJd-_0C2WVQ/formResponse';
 
   const interests = [...document.querySelectorAll('input[name=interest]:checked')].map(el=>el.value);
   const status = document.querySelector('input[name=status]:checked')?.value || '';
-  const marketing = document.getElementById('agreeMarketing').checked ? '마케팅 활용에 동의합니다.' : '';
+  const marketing = document.getElementById('agreeMarketing').checked ? '동의합니다' : '';
 
-  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzRP2amgl5skZ9WRTztMABwVtpsill7UayQeymZ0WsnL7BB4gkjb9aXPBqTttt_SbsdOw/exec';
+  const iframe = document.createElement('iframe');
+  iframe.name = 'hidden_iframe';
+  iframe.style.display = 'none';
+  document.body.appendChild(iframe);
 
-  const params = new URLSearchParams();
-  params.append('phone', phone);
-  params.append('storeName', document.getElementById('storeName').value.trim());
-  params.append('carNumber', document.getElementById('carNumber').value.trim());
-  params.append('status', status);
-  params.append('interests', interests.join(', '));
-  params.append('marketing', marketing);
+  const form = document.createElement('form');
+  form.action = FORM_URL;
+  form.method = 'POST';
+  form.target = 'hidden_iframe';
+  form.style.display = 'none';
 
+  const fields = {
+    'entry.772437318': phone,
+    'entry.306357824': document.getElementById('storeName').value.trim(),
+    'entry.458430525': document.getElementById('carNumber').value.trim(),
+    'entry.2120324906': status,
+    'entry.1606870495': '동의합니다',
+    'entry.1202446744': marketing
+  };
+
+  Object.entries(fields).forEach(([k,v]) => {
+    if(v) {
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = k;
+      input.value = v;
+      form.appendChild(input);
+    }
+  });
+
+  interests.forEach(v => {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'entry.58705049';
+    input.value = v;
+    form.appendChild(input);
+  });
+
+  document.body.appendChild(form);
   document.getElementById('loading').classList.add('show');
 
-  fetch(SCRIPT_URL, {method:'POST', body:params})
-  .then(()=>{
+  setTimeout(() => {
     document.getElementById('loading').classList.remove('show');
     document.getElementById('successOverlay').classList.add('show');
-  })
-  .catch(()=>{
-    document.getElementById('loading').classList.remove('show');
-    document.getElementById('successOverlay').classList.add('show');
-  });
+    document.body.removeChild(form);
+    document.body.removeChild(iframe);
+  }, 1500);
+
+  form.submit();
 }
 
 function closePopup(){
