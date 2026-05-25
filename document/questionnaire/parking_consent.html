@@ -612,12 +612,12 @@ function submitForm(){
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzRP2amgl5skZ9WRTztMABwVtpsill7UayQeymZ0WsnL7BB4gkjb9aXPBqTttt_SbsdOw/exec';
 
   const params = new URLSearchParams();
-  params.append('entry.1423761748', phone);
-  params.append('entry.189295041', document.getElementById('storeName').value.trim());
-  params.append('entry.1765430488', document.getElementById('carNumber').value.trim());
-  params.append('entry.1470163521', status);
-  interests.forEach(v => params.append('entry.746442344', v));
-  if(marketing) params.append('entry.1822307623', marketing);
+  params.append('phone', phone);
+  params.append('storeName', document.getElementById('storeName').value.trim());
+  params.append('carNumber', document.getElementById('carNumber').value.trim());
+  params.append('status', status);
+  params.append('interests', interests.join(', '));
+  params.append('marketing', marketing);
 
   document.getElementById('loading').classList.add('show');
 
