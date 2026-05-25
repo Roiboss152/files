@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>주차권 QR | KT 인천지사</title>
+<style>
+@font-face{font-family:'DIGICO';src:url('assets/fonts/digicottf-light.ttf') format('truetype');font-weight:300;}
+@font-face{font-family:'DIGICO';src:url('assets/fonts/digicottf-medium.ttf') format('truetype');font-weight:500;}
+@font-face{font-family:'DIGICO';src:url('assets/fonts/digicottf-bold.ttf') format('truetype');font-weight:700;}
+:root{--accent:#6c757d;--dark:#343a40;--gray:#868e96;--border:#ced4da;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  font-family:'DIGICO','Apple SD Gothic Neo',sans-serif;
+  background:linear-gradient(160deg,#f8f9fa 0%,#e9ecef 60%,#dee2e6 100%);
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  padding:32px 20px;position:relative;overflow:hidden;
+}
+body::before{
+  content:'';position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 15% 20%,rgba(255,255,255,0.9) 0%,transparent 60%),
+    radial-gradient(ellipse 60% 80% at 85% 80%,rgba(210,215,225,0.5) 0%,transparent 60%);
+  pointer-events:none;
+}
+.geo{position:fixed;pointer-events:none;border-radius:50%;border:1px solid rgba(0,0,0,0.04);}
+.geo.a{width:360px;height:360px;top:-100px;right:-100px;}
+.geo.b{width:220px;height:220px;top:-40px;right:-40px;}
+.geo.c{width:500px;height:500px;bottom:-220px;left:-220px;}
+.card{
+  position:relative;z-index:1;
+  background:rgba(255,255,255,0.75);
+  backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,0.9);
+  border-radius:28px;
+  padding:40px 32px;
+  text-align:center;
+  max-width:380px;width:100%;
+  box-shadow:0 8px 40px rgba(0,0,0,0.08);
+  animation:fadeUp 0.7s ease forwards;opacity:0;transform:translateY(20px);
+}
+@keyframes fadeUp{to{opacity:1;transform:none;}}
+.kt-row{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:28px;}
+.kt-row img{height:24px;width:auto;opacity:0.45;filter:grayscale(1);}
+.kt-row span{font-size:11px;color:var(--gray);letter-spacing:1.5px;font-weight:500;}
+.eyebrow{font-size:11px;font-weight:500;color:var(--accent);letter-spacing:3px;text-transform:uppercase;margin-bottom:12px;}
+.title{font-size:24px;font-weight:700;color:var(--dark);letter-spacing:-1px;line-height:1.3;margin-bottom:6px;}
+.subtitle{font-size:14px;font-weight:300;color:var(--gray);line-height:1.7;margin-bottom:28px;}
+.qr-wrap{
+  display:inline-block;padding:16px;
+  background:#fff;border-radius:20px;
+  border:1.5px solid var(--border);
+  margin-bottom:24px;
+  box-shadow:0 2px 16px rgba(0,0,0,0.06);
+}
+.qr-wrap img{width:180px;height:180px;display:block;}
+.divider{height:1px;background:linear-gradient(to right,transparent,var(--border),transparent);margin:20px 0;}
+.info-list{text-align:left;display:flex;flex-direction:column;gap:10px;margin-bottom:20px;}
+.info-item{display:flex;gap:12px;font-size:14px;}
+.info-item .ik{font-weight:700;color:var(--dark);min-width:52px;}
+.info-item .iv{font-weight:300;color:var(--gray);}
+.url{font-size:11px;color:#bbb;letter-spacing:0.5px;margin-top:4px;}
+.footer{margin-top:24px;font-size:11px;color:#bbb;line-height:1.8;}
+</style>
+</head>
+<body>
+<div class="geo a"></div>
+<div class="geo b"></div>
+<div class="geo c"></div>
+<div class="card">
+  <div class="kt-row">
+    <img src="assets/image/CI_BI/kt_ci_g02.png" alt="KT"/>
+    <span>인천지사 · 시너지영업3팀</span>
+  </div>
+  <div class="eyebrow">Free Parking</div>
+  <div class="title">종일 주차권<br>무료 신청</div>
+  <div class="subtitle">QR코드를 스캔하시면<br>30초 안에 완료됩니다</div>
+  <div class="qr-wrap">
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAjoAAAI6AQAAAAAGM99tAAAFnElEQVR4nO2dXYrrRhCFT0UCP8qQBcxSpB1kSWGWlB1IS5kFXJAeDS1OHqr6xzOBXGKbdDKnYYxltT5aUFNU118b8ZSx/fIcDiCQQAIJJJBAAgkkkED/F5DFGIHtCvg3ALAFAHCMMWXBaXHjyA8tr1iRQAI9BTSTJHcA88cIzLwVKT5ddrliIHCMAA4zAANJkvegp61IIIEeGqGbcVyB+Q8AcHkeaNv1R9zAlGCYdnB7S6NhSv6YAUN69ooEEugZY/zyi4vtORKA/9lmQyJwjpj302cRx4tWJJBArwCZ2YXY7EJza8QtjzBJsF0HAhi+esH7fzWBvhUIbiuHnT2Q60Ry9XshxW6AYyIxM7nF7ZPrs2t/rybQtwah3QViIOb9Zz/yQ5JsgToEuZ3dGhdTAoDTCCQ3p4njNG5vNwOmBAI34/1DPb6aQAIhzOn8EdbIMcIWnGaWrWu+u6N7IDYbYcsLVySQQA+N1hqZErhO4cfjCvhluLIxuJ0NZFOc3AMga0SgLkGxbzzCB5ilPYdm5v00/8Axujzb7zuQlfkLViSQQA+O6t/IOrte0l0lPm9FeE5iB1lUvXaQAnUIyvp5Sojo+g7kyzA//JtPLlPihqwRgfoEhWCSCSQT4DZI1t5hbGPIbuuJ2cftFneSzhaoS1Brjcz7wLpvbER53vOG0vVzjdTs0tkC9QkqOrsV72p2h1BPKf8HZOFH6Pb8sCRboB5Bthxm2NxZnV0gazNtILbrGY7uUOY385TXl6xIIIEeHFkXA2FdI0LnVZlXf3bjGynqWna2QD2Cip2dSmgmu7JdvKuDpPpQmktJtkB9gtoY5JzjMzkQObD6/yIaOWWPSAlYys4WqF+QOzlWjzdGgJHkzcIQyRH3mPxxYfVxv2ZFAgn04GisEdaPJspYyh2Lzp4/uf6kswXqD9RIto/q1GaOMqKEZrIoFxUur59AnYKaneHnVBDmKoOwPCayySq51+iSbIE6AzXR9fDmNd0WhiLeAJq6MQC1sEaSLVDPoOPC6vNocle3aw2s38zsrRoi4T6x5TUrEkigh0aNtsQPRbxLtghK0cGdbm8B0tkCdQo6xkju48cI8iP6oDXprTgurp/5Xm/Uf4h+X02gbwkq6Xs53ngfganBybZQbCIjzW8fFIMUqEtQzmiadhimBG6/DTRMA6PdmQ3ETACbDcS2GMqGsg3fdPhqAn1rUJOd2trPU5jTTY5Io733XDxWbHTpbIE6A7U1NTULJHzcxald9o0lXRsl9U87SIF6BN1lsZaiMHeBkKyNz5rd4rzfRdwl2QJ1DPKd4a20fb8Qm5nZMpFcS13CTJLvbwlmXoigrgwC9QlqugybV8gcVwA4DfOab8T+8odxsyHZvJ/RP3vevRvxM1ckkEBPGa1NzTY/OxvRuSThU0NWz3tV3ohAnYI+l6PHbrFWzdw1PmtqI6sjRb4RgboF2QLAfX2bXcpxNLkZ2jqlEnms0h5nMb1mRQIJ9OAInT3lQGRtcvYlbTV9bkRSvd3S2QJ1BionMBk4E7CZgAHm7bFt/hgTcVyB7bp7cDI/WjaPz12RQAI9ZTT7xkgFaXeLbU1N+a36+krbHelsgToDtW1FPGbDUjxWyta9T2VNYP2LAhxJtkA9gtozfM2M73Yh12OE2bUe5HvxYE575mktau/11QT63qASSec6JdjvvFnbXac4Q+I4PaDW1LxoRQIJ9Nho8kbm2l7VC9hr4WNtd9a201aPKIH+MyBbMBBxjtjNbJmq4s52yfZ2s7a+7LUrEkigfzK+nE69XWEEBprfPH6lp4x4johnlQDx7RiT8kYE6hH09QxfoHF81EhNkzfiIzduVaRGoB5Bn8/wbUzsptyRrRTXtKh8Yo0kW6DuQMa/n/MzY+vv1QQSSCCBBBJIIIEEEuhfA/0J7rrS79nGhSoAAAAASUVORK5CYII=" alt="QR코드"/>
+  </div>
+  <div class="divider"></div>
+  <div class="info-list">
+    <div class="info-item"><span class="ik">장소</span><span class="iv">문학구장 주차장</span></div>
+    <div class="info-item"><span class="ik">혜택</span><span class="iv">종일 주차권 모바일 발송</span></div>
+    <div class="info-item"><span class="ik">소요</span><span class="iv">약 30초</span></div>
+  </div>
+  
+  <div class="footer">KT 인천지사 시너지영업3팀<br>문의: 010-7300-2632 · 이대희 과장</div>
+</div>
+</body>
+</html>
