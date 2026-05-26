@@ -394,7 +394,7 @@ input::placeholder{color:#c0c0c5;}
       <span class="hero-kt-label">인천지사 · 시너지영업3팀</span>
     </div>
     <div class="hero-eyebrow fade-in">Free Parking Voucher</div>
-    <h1 class="hero-title fade-in">주차권 지원<br>설문조사 <span style="font-size:14px;font-weight:400;opacity:0.7;letter-spacing:0;">v1.13</span></h1>
+    <h1 class="hero-title fade-in">주차권 지원<br>설문조사 <span style="font-size:14px;font-weight:400;opacity:0.7;letter-spacing:0;">v1.14</span></h1>
     <p class="hero-desc fade-in">
       아래 간단한 정보를 입력해 주시면<br>종일 주차권을 모바일로 보내드립니다
     </p>
@@ -464,28 +464,28 @@ input::placeholder{color:#c0c0c5;}
 
     <div class="option-group">
       <label class="option-item">
-        <input type="checkbox" name="entry.655997215" value="통신 / 결제 패키지">
+        <input type="checkbox" name="entry.1123939569" value="통신 / 결제 패키지">
         <div>
           <div class="option-label">통신 / 결제 패키지</div>
           <div class="option-desc">인터넷, VAN, POS 등</div>
         </div>
       </label>
       <label class="option-item">
-        <input type="checkbox" name="entry.655997215" value="마케팅 프로모션">
+        <input type="checkbox" name="entry.1123939569" value="마케팅 프로모션">
         <div>
           <div class="option-label">마케팅 프로모션</div>
           <div class="option-desc">블로그, 숏폼 홍보 등</div>
         </div>
       </label>
       <label class="option-item">
-        <input type="checkbox" name="entry.655997215" value="프랜차이즈 솔루션">
+        <input type="checkbox" name="entry.1123939569" value="프랜차이즈 솔루션">
         <div>
           <div class="option-label">프랜차이즈 솔루션</div>
           <div class="option-desc">가맹점 운영 시스템</div>
         </div>
       </label>
       <label class="option-item">
-        <input type="checkbox" name="entry.655997215" value="해당 없음">
+        <input type="checkbox" name="entry.1123939569" value="해당 없음">
         <div>
           <div class="option-label">해당 없음</div>
         </div>
@@ -608,6 +608,10 @@ function submitForm(){
   formData.append('entry.1481871015', phone);
   formData.append('entry.512242654', document.getElementById('storeName').value.trim());
   formData.append('entry.234552476', document.getElementById('carNumber').value.trim());
+  // 관심 서비스 다중선택 - 동일 key로 여러번 append
+  document.querySelectorAll('input[name="entry.1123939569"]:checked').forEach(el => {
+    formData.append('entry.1123939569', el.value);
+  });
   formData.append('entry.290432997', '동의합니다');
   if(document.getElementById('agreeMarketing').checked) formData.append('entry.926480215', '동의합니다');
 
