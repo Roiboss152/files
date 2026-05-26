@@ -394,7 +394,7 @@ input::placeholder{color:#c0c0c5;}
       <span class="hero-kt-label">인천지사 · 시너지영업3팀</span>
     </div>
     <div class="hero-eyebrow fade-in">Free Parking Voucher</div>
-    <h1 class="hero-title fade-in">주차권 지원<br>설문조사 <span style="font-size:14px;font-weight:400;opacity:0.7;letter-spacing:0;">v1.07</span></h1>
+    <h1 class="hero-title fade-in">주차권 지원<br>설문조사 <span style="font-size:14px;font-weight:400;opacity:0.7;letter-spacing:0;">v1.08</span></h1>
     <p class="hero-desc fade-in">
       아래 간단한 정보를 입력해 주시면<br>종일 주차권을 모바일로 보내드립니다
     </p>
@@ -615,6 +615,7 @@ function submitForm(){
   formData.append('entry.1481871015', phone);
   formData.append('entry.512242654', storeName);
   formData.append('entry.234552476', carNumber);
+  interests.forEach(v => formData.append('entry.1166584013', v));
   formData.append('entry.290432997', '동의합니다');
   formData.append('entry.926480215', marketing);
 
