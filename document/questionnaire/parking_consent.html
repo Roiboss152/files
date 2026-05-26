@@ -394,7 +394,7 @@ input::placeholder{color:#c0c0c5;}
       <span class="hero-kt-label">인천지사 · 시너지영업3팀</span>
     </div>
     <div class="hero-eyebrow fade-in">Free Parking Voucher</div>
-    <h1 class="hero-title fade-in">주차권 지원<br>설문조사 <span style="font-size:14px;font-weight:400;opacity:0.7;letter-spacing:0;">v1.06</span></h1>
+    <h1 class="hero-title fade-in">주차권 지원<br>설문조사 <span style="font-size:14px;font-weight:400;opacity:0.7;letter-spacing:0;">v1.07</span></h1>
     <p class="hero-desc fade-in">
       아래 간단한 정보를 입력해 주시면<br>종일 주차권을 모바일로 보내드립니다
     </p>
@@ -612,10 +612,11 @@ function submitForm(){
 
   const formData = new FormData();
   formData.append('entry.1746244752', '동의합니다');
-  formData.append('entry.1481871015', storeName);
-  formData.append('entry.512242654', phone);
-  formData.append('entry.234552476', '차량:'+carNumber+' / 관심:'+interests.join(',')+' / 마케팅:'+marketing);
-  formData.append('entry.290432997', status);
+  formData.append('entry.1481871015', phone);
+  formData.append('entry.512242654', storeName);
+  formData.append('entry.234552476', carNumber);
+  formData.append('entry.290432997', '동의합니다');
+  formData.append('entry.926480215', marketing);
 
   fetch('https://docs.google.com/forms/u/0/d/e/1FAIpQLSd8HEH1D0eMU-lLT_jroH1qf4kMrJIyzO35n9ADPdyMYPjRpA/formResponse', {method:'POST',mode:'no-cors',body:formData})
   .finally(() => {
