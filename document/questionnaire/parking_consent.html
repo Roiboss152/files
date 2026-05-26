@@ -603,54 +603,31 @@ function submitForm(){
   if(phone.replace(/\D/g,'').length<10){alert('올바른 휴대전화 번호를 입력해 주세요.');return;}
   if(!document.getElementById('agreeRequired').checked){alert('주차권 발송을 위한 개인정보 수집·이용에 동의해 주세요. (필수)');return;}
 
-  const FORM_URL = 'https://docs.google.com/forms/u/0/d/e/1FAIpQLSeyyIZxosWeB6fym_KX7rrlrrT8iLtTYNOEBQ1MJd-_0C2WVQ/formResponse';
   const interests = [...document.querySelectorAll('input[name=interest]:checked')].map(el=>el.value);
   const status = document.querySelector('input[name=status]:checked')?.value || '';
   const marketing = document.getElementById('agreeMarketing').checked ? '동의합니다' : '';
 
-  // iframe 생성 (페이지 이동 방지)
-  let iframe = document.getElementById('_gform_iframe');
-  if(!iframe){
-    iframe = document.createElement('iframe');
-    iframe.id = '_gform_iframe';
-    iframe.name = '_gform_iframe';
-    iframe.style.cssText = 'display:none;width:0;height:0;border:0;position:absolute;';
-    document.body.appendChild(iframe);
-  }
+  const formData = new FormData();
+  formData.append('entry.772437318', phone);
+  formData.append('entry.306357824', document.getElementById('storeName').value.trim());
+  formData.append('entry.458430525', document.getElementById('carNumber').value.trim());
+  formData.append('entry.2120324906', status);
+  formData.append('entry.1606870495', '동의합니다');
+  if(marketing) formData.append('entry.1202446744', marketing);
+  interests.forEach(v => formData.append('entry.58705049', v));
 
-  // form 생성
-  const form = document.createElement('form');
-  form.method = 'POST';
-  form.action = FORM_URL;
-  form.target = '_gform_iframe';
-  form.style.display = 'none';
-
-  function addField(name, value){
-    const el = document.createElement('input');
-    el.type = 'hidden';
-    el.name = name;
-    el.value = value;
-    form.appendChild(el);
-  }
-
-  addField('entry.772437318', phone);
-  addField('entry.306357824', document.getElementById('storeName').value.trim());
-  addField('entry.458430525', document.getElementById('carNumber').value.trim());
-  addField('entry.2120324906', status);
-  addField('entry.1606870495', '동의합니다');
-  if(marketing) addField('entry.1202446744', marketing);
-  interests.forEach(v => addField('entry.58705049', v));
-
-  document.body.appendChild(form);
-  document.getElementById('loading').classList.add('show');
-
-  form.submit();
-  document.body.removeChild(form);
-
-  setTimeout(()=>{
-    document.getElementById('loading').classList.remove('show');
+  fetch('https://docs.google.com/forms/u/0/d/e/1FAIpQLSeyyIZxosWeB6fym_KX7rrlrrT8iLtTYNOEBQ1MJd-_0C2WVQ/formResponse', {method:'POST', mode:'no-cors', body:formData})
+  .finally(() => {
     document.getElementById('successOverlay').classList.add('show');
-  }, 1500);
+    document.getElementById('phone').value='';
+    document.getElementById('storeName').value='';
+    document.getElementById('carNumber').value='';
+    document.querySelectorAll('input[name=status]').forEach(el=>el.checked=false);
+    document.querySelectorAll('input[name=interest]').forEach(el=>el.checked=false);
+    document.getElementById('agreeRequired').checked=false;
+    document.getElementById('agreeMarketing').checked=false;
+    document.getElementById('agreeAll').checked=false;
+  });
 }
 
 function closePopup(){
