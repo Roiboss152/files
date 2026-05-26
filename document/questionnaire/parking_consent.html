@@ -394,7 +394,7 @@ input::placeholder{color:#c0c0c5;}
       <span class="hero-kt-label">인천지사 · 시너지영업3팀</span>
     </div>
     <div class="hero-eyebrow fade-in">Free Parking Voucher</div>
-    <h1 class="hero-title fade-in">주차권 지원<br>설문조사 <span style="font-size:14px;font-weight:400;opacity:0.7;letter-spacing:0;">v1.01</span></h1>
+    <h1 class="hero-title fade-in">주차권 지원<br>설문조사 <span style="font-size:14px;font-weight:400;opacity:0.7;letter-spacing:0;">v1.02</span></h1>
     <p class="hero-desc fade-in">
       아래 간단한 정보를 입력해 주시면<br>종일 주차권을 모바일로 보내드립니다
     </p>
@@ -607,16 +607,16 @@ function submitForm(){
   const status = document.querySelector('input[name=status]:checked')?.value || '';
   const marketing = document.getElementById('agreeMarketing').checked ? '동의합니다' : '';
 
-  const formData = new FormData();
-  formData.append('entry.772437318', phone);
-  formData.append('entry.306357824', document.getElementById('storeName').value.trim());
-  formData.append('entry.458430525', document.getElementById('carNumber').value.trim());
-  formData.append('entry.2120324906', status);
-  formData.append('entry.1606870495', '동의합니다');
-  formData.append('entry.1202446744', marketing);
-  formData.append('entry.58705049', interests.join(', '));
+  const storeName = document.getElementById('storeName').value.trim();
+  const carNumber = document.getElementById('carNumber').value.trim();
 
-  fetch('https://docs.google.com/forms/u/0/d/e/1FAIpQLSeyyIZxosWeB6fym_KX7rrlrrT8iLtTYNOEBQ1MJd-_0C2WVQ/formResponse', {method:'POST',mode:'no-cors',body:formData})
+  const formData = new FormData();
+  formData.append('entry.1783994946', '개인정보 수집 및 이용에 동의합니다.');
+  formData.append('entry.587869605', storeName);
+  formData.append('entry.242520811', phone);
+  formData.append('entry.852608875', '차량:'+carNumber+' / 상태:'+status+' / 관심:'+interests.join(',')+' / 마케팅:'+marketing);
+
+  fetch('https://docs.google.com/forms/u/0/d/e/1FAIpQLSfBiAoIJxsqf6B-XS5rJ3IaWuI2n8EInfF4cvLXYrbJjphg8g/formResponse', {method:'POST',mode:'no-cors',body:formData})
   .finally(() => {
     document.getElementById('successOverlay').classList.add('show');
     document.getElementById('phone').value='';
