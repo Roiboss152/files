@@ -616,7 +616,7 @@ function submitForm(){
   if(marketing) formData.append('entry.1202446744', marketing);
   interests.forEach(v => formData.append('entry.58705049', v));
 
-  fetch('https://docs.google.com/forms/u/0/d/e/1FAIpQLSeyyIZxosWeB6fym_KX7rrlrrT8iLtTYNOEBQ1MJd-_0C2WVQ/formResponse', {method:'POST', mode:'no-cors', body:formData})
+  fetch('https://script.google.com/macros/s/AKfycbySlMOn4_O1z7Q2aQz3MwZXTRNTbCf9bz00Gv78ZRO28RKNlmGyWg1--dPvmoEr1zM/exec', {method:'POST', mode:'no-cors', body:formData})
   .finally(() => {
     document.getElementById('successOverlay').classList.add('show');
     document.getElementById('phone').value='';
