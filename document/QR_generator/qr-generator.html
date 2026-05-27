@@ -165,7 +165,7 @@ footer{text-align:center;padding:32px 32px 56px;font-size:13px;font-weight:300;c
     <img src="https://www.kt-synergy.com/assets/image/CI_BI/kt_ci_g02.png" alt="KT" onerror="this.style.display='none'"/>
     <span class="hero-kt-label">인천지사 · 시너지영업3팀</span>
   </div>
-  <div class="hero-eyebrow fade-in">QR Generator <span class="version">v1.05</span></div>
+  <div class="hero-eyebrow fade-in">QR Generator <span class="version">v1.06</span></div>
   <h1 class="hero-title ml11 fade-in">
     <span class="text-wrapper">
       <span class="line line1"></span>
@@ -470,7 +470,7 @@ function getInfo(){
     case 'wifi':return{type:'Wi-Fi',title:document.getElementById('wifi-ssid').value.trim(),line1:document.getElementById('wifi-ssid').value.trim(),line2:document.getElementById('wifi-pw').value?'비밀번호: '+'•'.repeat(Math.min(8,document.getElementById('wifi-pw').value.length)):'개방 네트워크',line3:'',name:'',org:'',tel:'',email:'',addr:''};
     case 'url':return{type:'URL',title:document.getElementById('url-val').value.trim(),line1:document.getElementById('url-val').value.trim(),line2:'',line3:'',name:'',org:'',tel:'',email:'',addr:''};
     case 'vcard':return{type:'디지털 명함',title:document.getElementById('vcard-name').value.trim(),name:document.getElementById('vcard-name').value.trim(),org:(document.getElementById('vcard-org').value.trim()||'')+(document.getElementById('vcard-title').value.trim()?' · '+document.getElementById('vcard-title').value.trim():''),tel:document.getElementById('vcard-tel').value.trim(),email:document.getElementById('vcard-email').value.trim(),addr:document.getElementById('vcard-addr').value.trim(),line1:document.getElementById('vcard-name').value.trim(),line2:document.getElementById('vcard-org').value.trim(),line3:document.getElementById('vcard-tel').value.trim()};
-    case 'tel':return{type:'전화',title:document.getElementById('tel-val').value.trim(),line1:document.getElementById('tel-val').value.trim(),line2:'',line3:'',name:'',org:'',tel:document.getElementById('tel-val').value.trim(),email:'',addr:''};
+    case 'tel':return{type:'전화',title:document.getElementById('tel-val').value.trim(),line1:'',line2:'',line3:'',name:'',org:'',tel:document.getElementById('tel-val').value.trim(),email:'',addr:''};
     case 'sms':return{type:'문자(SMS)',title:document.getElementById('sms-tel').value.trim(),line1:document.getElementById('sms-tel').value.trim(),line2:document.getElementById('sms-body').value.trim().substring(0,40),line3:'',name:'',org:'',tel:document.getElementById('sms-tel').value.trim(),email:'',addr:''};
   }
 }
@@ -515,6 +515,10 @@ function generate(){
       }
     }
     else document.getElementById('layout-output-wrap').classList.remove('show');
+    // 템플릿 선택 시 QR 단독 미리보기 숨김
+    document.getElementById('qr-stage-wrap').style.display = currentTpl==='none' ? 'block' : 'none';
+    document.getElementById('qr-meta-tag').style.display = currentTpl==='none' ? 'block' : 'none';
+    document.getElementById('qr-meta-title').style.display = currentTpl==='none' ? 'block' : 'none';
     const sec=document.getElementById('result-section');
     sec.classList.add('show');
     sec.scrollIntoView({behavior:'smooth',block:'start'});
@@ -616,13 +620,17 @@ async function drawTpl01(canvas,info){
   const detTop=orgTop+W*0.065*2+H*0.022;
   sf(ctx,W*0.028,300,'#555');
   const detLines=[];
-  if(info.name) detLines.push(info.name+(info.org?' '+info.org.split('·')[1]?.trim()||'':''));
-  else if(info.line1) detLines.push(info.type+': '+info.line1);
+  if(info.name){
+    // 명함: 이름은 이미 위에 표시됨, 상세만
+    if(info.org) detLines.push(info.org.replace('·','').trim());
+  } else if(info.line1){
+    detLines.push(info.line1);
+  }
   if(info.tel) detLines.push(info.tel);
-  else if(info.line2) detLines.push(info.line2);
+  else if(info.line2 && info.line2!==info.line1) detLines.push(info.line2);
   if(info.email) detLines.push(info.email);
   if(info.addr) detLines.push(info.addr);
-  else if(info.line3) detLines.push(info.line3);
+  else if(info.line3 && info.line3!==info.line1) detLines.push(info.line3);
   detLines.filter(Boolean).forEach((l,i)=>{
     sf(ctx,W*0.028,300,'#444');
     ctx.fillText(l,tx,detTop+i*W*0.038);
