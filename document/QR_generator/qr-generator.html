@@ -165,7 +165,7 @@ footer{text-align:center;padding:32px 32px 56px;font-size:13px;font-weight:300;c
     <img src="https://www.kt-synergy.com/assets/image/CI_BI/kt_ci_g02.png" alt="KT" onerror="this.style.display='none'"/>
     <span class="hero-kt-label">인천지사 · 시너지영업3팀</span>
   </div>
-  <div class="hero-eyebrow fade-in">QR Generator <span class="version">v1.06</span></div>
+  <div class="hero-eyebrow fade-in">QR Generator <span class="version">v1.07</span></div>
   <h1 class="hero-title ml11 fade-in">
     <span class="text-wrapper">
       <span class="line line1"></span>
@@ -500,21 +500,13 @@ function generate(){
     document.getElementById('qr-meta-title').textContent=getMetaTitle();
     document.getElementById('copy-string-box').textContent=str;
     // flat QR canvas
-    console.log('[QR] buildFlatQR 시작');
-    qrFlatCanvas=await buildFlatQR(480);
-    console.log('[QR] buildFlatQR 완료:', qrFlatCanvas);
-    console.log('[QR] currentTpl:', currentTpl);
-    // render template if selected
+    qrFlatCanvas = await buildFlatQR(480);
     if(currentTpl!=='none'){
-      console.log('[QR] renderTemplate 시작');
-      try{
-        await renderTemplate();
-        console.log('[QR] renderTemplate 완료');
-      }catch(e){
-        console.error('[QR] renderTemplate 오류:', e);
-      }
+      try{ await renderTemplate(); }
+      catch(e){ console.error('[QR] renderTemplate 오류:', e); }
+    } else {
+      document.getElementById('layout-output-wrap').classList.remove('show');
     }
-    else document.getElementById('layout-output-wrap').classList.remove('show');
     // 템플릿 선택 시 QR 단독 미리보기 숨김
     document.getElementById('qr-stage-wrap').style.display = currentTpl==='none' ? 'block' : 'none';
     document.getElementById('qr-meta-tag').style.display = currentTpl==='none' ? 'block' : 'none';
@@ -527,21 +519,42 @@ function generate(){
 
 /* ── FLAT QR ── */
 function buildFlatQR(sz){
-  const container=document.getElementById('qr-canvas-container');
-  const qc=container.querySelector('canvas');
-  if(!qc)return Promise.resolve(null);
-  const out=document.createElement('canvas');out.width=out.height=sz;
-  const ctx=out.getContext('2d');
-  ctx.fillStyle='#fff';ctx.fillRect(0,0,sz,sz);
-  ctx.drawImage(qc,0,0,sz,sz);
-  if(logoMode==='none')return Promise.resolve(out);
-  const pct=parseInt(document.getElementById('logo-size').value)/100;
-  const lsz=Math.round(sz*pct),lx=(sz-lsz)/2,ly=(sz-lsz)/2,pad=Math.round(lsz*0.1);
-  ctx.fillStyle='#fff';
-  if(ctx.roundRect)ctx.roundRect(lx-pad,ly-pad,lsz+pad*2,lsz+pad*2,6);else ctx.rect(lx-pad,ly-pad,lsz+pad*2,lsz+pad*2);
-  ctx.fill();
-  const src=logoMode==='custom'?logoDataUrl:DEFAULT_LOGO;
-  return new Promise(res=>{const img=new Image();img.onload=()=>{ctx.drawImage(img,lx,ly,lsz,lsz);res(out);};img.onerror=()=>res(out);img.src=src;});
+  return new Promise(res=>{
+    const container=document.getElementById('qr-canvas-container');
+    const qc=container.querySelector('canvas');
+    if(!qc){res(null);return;}
+    const out=document.createElement('canvas');out.width=out.height=sz;
+    const ctx=out.getContext('2d');
+    ctx.fillStyle='#fff';ctx.fillRect(0,0,sz,sz);
+    ctx.drawImage(qc,0,0,sz,sz);
+    if(logoMode==='none'){res(out);return;}
+    const pct=parseInt(document.getElementById('logo-size').value)/100;
+    const lsz=Math.round(sz*pct),lx=(sz-lsz)/2,ly=(sz-lsz)/2,pad=Math.round(lsz*0.1);
+    ctx.fillStyle='#fff';
+    if(ctx.roundRect)ctx.roundRect(lx-pad,ly-pad,lsz+pad*2,lsz+pad*2,6);
+    else{ctx.beginPath();ctx.rect(lx-pad,ly-pad,lsz+pad*2,lsz+pad*2);ctx.fill();}
+    // 로고: DOM img 우선, 없으면 새 Image
+    const drawLogo=(imgEl)=>{
+      if(imgEl && imgEl.complete && imgEl.naturalWidth>0){
+        try{ctx.drawImage(imgEl,lx,ly,lsz,lsz);}catch(e){}
+      }
+      res(out);
+    };
+    if(logoMode==='custom' && logoDataUrl){
+      const i=new Image();i.onload=()=>drawLogo(i);i.onerror=()=>res(out);i.src=logoDataUrl;
+    } else {
+      // DEFAULT_LOGO: DOM에 이미 로드된 kt_ci_g02 img 재사용
+      const domLogo=document.getElementById('logo-thumb-img');
+      if(domLogo && domLogo.complete && domLogo.naturalWidth>0){
+        drawLogo(domLogo);
+      } else {
+        const i=new Image();
+        i.onload=()=>drawLogo(i);
+        i.onerror=()=>res(out);
+        i.src=DEFAULT_LOGO;
+      }
+    }
+  });
 }
 
 /* ── LOAD IMAGE ── */
