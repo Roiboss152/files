@@ -146,6 +146,12 @@ footer{text-align:center;padding:32px 32px 56px;font-size:13px;font-weight:300;c
 </style>
 </head>
 <body>
+<!-- 템플릿 이미지 preload (crossOrigin 없이 DOM에서 로드) -->
+<div style="display:none;" aria-hidden="true">
+  <img id="tpl-img-01" src="../../assets/image/qr_templates/qr_template_01.png" alt="">
+  <img id="tpl-img-02" src="../../assets/image/qr_templates/qr_template_02.png" alt="">
+  <img id="tpl-img-03" src="../../assets/image/qr_templates/qr_template_03.png" alt="">
+</div>
 <div class="geo-deco circle1"></div>
 <div class="geo-deco circle2"></div>
 <div class="geo-deco circle3"></div>
@@ -386,24 +392,22 @@ footer{text-align:center;padding:32px 32px 56px;font-size:13px;font-weight:300;c
 let currentType='wifi', currentString='', logoMode='default', logoDataUrl=null, currentTpl='none', qrFlatCanvas=null;
 const DEFAULT_LOGO='https://www.kt-synergy.com/assets/image/CI_BI/kt_ci_g02.png';
 const TPATH='../../assets/image/qr_templates/';
-const _imgCache={};
 function loadImg(src){
-  if(_imgCache[src]) return Promise.resolve(_imgCache[src]);
+  // DOM에 preload된 img 태그 참조 (canvas taint 없음)
+  const domMap={
+    [TPATH+'qr_template_01.png']: document.getElementById('tpl-img-01'),
+    [TPATH+'qr_template_02.png']: document.getElementById('tpl-img-02'),
+    [TPATH+'qr_template_03.png']: document.getElementById('tpl-img-03'),
+  };
+  const domImg = domMap[src];
+  if(domImg && domImg.complete && domImg.naturalWidth>0) return Promise.resolve(domImg);
+  if(domImg) return new Promise(res=>{
+    domImg.onload=()=>res(domImg);
+    domImg.onerror=()=>res(null);
+  });
+  // fallback
   return new Promise(res=>{
-    // blob fetch로 CORS taint 우회
-    fetch(src).then(r=>r.blob()).then(blob=>{
-      const url=URL.createObjectURL(blob);
-      const i=new Image();
-      i.onload=()=>{_imgCache[src]=i;res(i);};
-      i.onerror=()=>res(null);
-      i.src=url;
-    }).catch(()=>{
-      // fetch 실패 시 직접 로드 시도
-      const i=new Image();
-      i.onload=()=>{_imgCache[src]=i;res(i);};
-      i.onerror=()=>res(null);
-      i.src=src;
-    });
+    const i=new Image(); i.onload=()=>res(i); i.onerror=()=>res(null); i.src=src;
   });
 }
 const typeNames={wifi:'Wi-Fi',url:'URL',vcard:'디지털 명함',tel:'전화',sms:'문자 (SMS)'};
@@ -484,9 +488,20 @@ function generate(){
     document.getElementById('qr-meta-title').textContent=getMetaTitle();
     document.getElementById('copy-string-box').textContent=str;
     // flat QR canvas
+    console.log('[QR] buildFlatQR 시작');
     qrFlatCanvas=await buildFlatQR(480);
+    console.log('[QR] buildFlatQR 완료:', qrFlatCanvas);
+    console.log('[QR] currentTpl:', currentTpl);
     // render template if selected
-    if(currentTpl!=='none') await renderTemplate();
+    if(currentTpl!=='none'){
+      console.log('[QR] renderTemplate 시작');
+      try{
+        await renderTemplate();
+        console.log('[QR] renderTemplate 완료');
+      }catch(e){
+        console.error('[QR] renderTemplate 오류:', e);
+      }
+    }
     else document.getElementById('layout-output-wrap').classList.remove('show');
     const sec=document.getElementById('result-section');
     sec.classList.add('show');
@@ -514,15 +529,17 @@ function buildFlatQR(sz){
 }
 
 /* ── LOAD IMAGE ── */
-/* loadImg defined above */
+
 
 /* ── RENDER TEMPLATE ── */
 async function renderTemplate(){
   const canvas=document.getElementById('layout-canvas');
   const info=getInfo();
-  if(currentTpl==='tpl01') await drawTpl01(canvas,info);
-  else if(currentTpl==='tpl02') await drawTpl02(canvas,info);
-  else if(currentTpl==='tpl03') await drawTpl03(canvas,info);
+  console.log('[TPL] info:', info);
+  if(currentTpl==='tpl01'){console.log('[TPL] drawTpl01');await drawTpl01(canvas,info);}
+  else if(currentTpl==='tpl02'){console.log('[TPL] drawTpl02');await drawTpl02(canvas,info);}
+  else if(currentTpl==='tpl03'){console.log('[TPL] drawTpl03');await drawTpl03(canvas,info);}
+  console.log('[TPL] canvas size:',canvas.width,canvas.height);
   document.getElementById('layout-output-wrap').classList.add('show');
 }
 
@@ -615,6 +632,7 @@ async function drawTpl02(canvas,info){
   const H=bg?(bg.naturalHeight||bg.height):1600;
   canvas.width=W; canvas.height=H;
   const ctx=canvas.getContext('2d');
+  console.log('[TPL02] bg:',bg,'W:',W,'H:',H);
   if(bg) ctx.drawImage(bg,0,0,W,H);
   else{ctx.fillStyle='#1a3a1a';ctx.fillRect(0,0,W,H);}
 
