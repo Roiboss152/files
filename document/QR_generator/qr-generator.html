@@ -10,7 +10,7 @@
 @font-face{font-family:'DIGICO';src:url('../../assets/fonts/digicottf-light.ttf') format('truetype');font-weight:300;}
 @font-face{font-family:'DIGICO';src:url('../../assets/fonts/digicottf-medium.ttf') format('truetype');font-weight:500;}
 @font-face{font-family:'DIGICO';src:url('../../assets/fonts/digicottf-bold.ttf') format('truetype');font-weight:700;}
-:root{--accent:#6c757d;--dark:#343a40;--gray:#868e96;--light-gray:#f8f9fa;--border:#ced4da;--white:#fff;}
+:root{--accent:#6c757d;--dark:#343a40;--gray:#868e96;--border:#ced4da;--white:#fff;}
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'DIGICO','Apple SD Gothic Neo','Malgun Gothic',sans-serif;background:#f0f1f3;color:var(--dark);min-height:100vh;position:relative;overflow-x:hidden;}
 body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 60% at 15% 20%,rgba(255,255,255,0.9) 0%,transparent 60%),radial-gradient(ellipse 60% 80% at 85% 80%,rgba(210,215,225,0.5) 0%,transparent 60%),linear-gradient(160deg,#f8f9fa 0%,#e9ecef 60%,#dee2e6 100%);pointer-events:none;z-index:0;}
@@ -36,8 +36,6 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .ml11 .line{opacity:0;position:absolute;left:0;top:0;height:100%;width:3px;background-color:var(--dark);transform-origin:0 50%;}
 .ml11 .line1{top:0;left:0;}
 .ml11 .letter{display:inline-block;line-height:1em;}
-
-/* DIVIDER */
 .divider{height:1px;background:linear-gradient(to right,transparent,var(--border),transparent);margin:0 32px;}
 
 /* STEP */
@@ -73,50 +71,39 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .field-hint{font-size:14px;color:var(--gray);margin-top:8px;font-weight:300;}
 .pw-wrap{position:relative;}
 .pw-wrap input{padding-right:44px;}
-.pw-eye{position:absolute;right:0;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:8px;color:var(--gray);}
+.pw-eye{position:absolute;right:0;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:8px;}
 .pw-eye svg{width:20px;height:20px;stroke:var(--gray);stroke-width:1.5;fill:none;stroke-linecap:round;stroke-linejoin:round;}
 .field-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-
-/* OPTION ITEMS */
 .option-item{display:flex;align-items:center;gap:16px;padding:16px 20px;background:rgba(255,255,255,0.7);border:1.5px solid var(--border);border-radius:12px;cursor:pointer;transition:border-color 0.2s,background 0.2s;}
 .option-item:has(input:checked){border-color:var(--dark);background:#fff;}
 .option-item input[type=radio],.option-item input[type=checkbox]{width:20px;height:20px;accent-color:var(--dark);cursor:pointer;flex-shrink:0;}
 .option-label{font-size:17px;font-weight:500;color:var(--dark);}
 .option-desc{font-size:14px;color:var(--gray);font-weight:300;margin-top:2px;}
-
-/* LOGO SECTION */
 .logo-preview-row{display:flex;align-items:center;gap:16px;margin-bottom:20px;}
 .logo-thumb{width:60px;height:60px;background:rgba(255,255,255,0.8);border:1.5px solid var(--border);border-radius:12px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;}
 .logo-thumb img{max-width:100%;max-height:100%;object-fit:contain;}
-.logo-thumb-text{font-size:11px;font-weight:500;color:var(--gray);}
 .size-row{display:flex;align-items:center;gap:16px;margin-top:8px;}
 .size-row label{font-size:14px;font-weight:500;color:var(--dark);white-space:nowrap;}
 input[type=range]{flex:1;height:4px;-webkit-appearance:none;appearance:none;background:var(--border);border-radius:2px;border:none;padding:0;accent-color:var(--dark);}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--dark);cursor:pointer;border:2px solid #fff;box-shadow:0 0 0 1px var(--border);}
 .size-val{font-size:14px;font-weight:500;color:var(--accent);min-width:36px;text-align:right;}
 
-/* STEP 5 - LAYOUT */
-.layout-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:32px;}
-.layout-card{position:relative;cursor:pointer;border-radius:12px;overflow:hidden;border:2px solid var(--border);transition:border-color 0.2s;background:#fff;}
-.layout-card:has(input:checked){border-color:var(--dark);}
-.layout-card input[type=radio]{position:absolute;opacity:0;width:0;height:0;}
-.layout-preview{width:100%;aspect-ratio:1/1.414;position:relative;overflow:hidden;background:#f8f9fa;}
-.layout-label{padding:10px 12px;font-size:13px;font-weight:500;color:var(--dark);text-align:center;border-top:1px solid var(--border);}
-.layout-check{position:absolute;top:8px;right:8px;width:22px;height:22px;border-radius:50%;background:var(--dark);display:none;align-items:center;justify-content:center;z-index:10;}
-.layout-card:has(input:checked) .layout-check{display:flex;}
-.layout-check svg{width:12px;height:12px;stroke:#fff;stroke-width:2.5;fill:none;}
-
-/* BG UPLOAD */
-.bg-upload-wrap{margin-top:24px;}
-.bg-thumb{width:100%;height:120px;background:rgba(255,255,255,0.7);border:1.5px dashed var(--border);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;transition:border-color 0.2s;overflow:hidden;position:relative;}
-.bg-thumb:hover{border-color:var(--dark);}
-.bg-thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
-.bg-thumb-icon{font-size:28px;color:var(--gray);}
-.bg-thumb-text{font-size:13px;font-weight:300;color:var(--gray);}
-.bg-controls{margin-top:16px;display:none;}
-.bg-controls.show{display:block;}
-.bg-slider-row{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
-.bg-slider-row label{font-size:13px;font-weight:500;color:var(--dark);min-width:48px;}
+/* ── STEP 05: 템플릿 선택 ── */
+.template-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;}
+.tpl-card{position:relative;cursor:pointer;border-radius:12px;overflow:hidden;border:2px solid var(--border);transition:border-color 0.2s,box-shadow 0.2s;background:#fff;}
+.tpl-card:has(input:checked){border-color:var(--dark);box-shadow:0 0 0 3px rgba(52,58,64,0.1);}
+.tpl-card input[type=radio]{position:absolute;opacity:0;width:0;height:0;}
+.tpl-sample{width:100%;aspect-ratio:9/16;object-fit:cover;display:block;transition:opacity 0.2s;}
+.tpl-card:hover .tpl-sample{opacity:0.85;}
+.tpl-check{position:absolute;top:8px;right:8px;width:22px;height:22px;border-radius:50%;background:var(--dark);display:none;align-items:center;justify-content:center;z-index:10;}
+.tpl-card:has(input:checked) .tpl-check{display:flex;}
+.tpl-check svg{width:12px;height:12px;stroke:#fff;stroke-width:2.5;fill:none;}
+.tpl-name{padding:8px 10px;font-size:12px;font-weight:500;color:var(--dark);text-align:center;background:#fff;border-top:1px solid var(--border);}
+.tpl-none-card{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;border-radius:12px;border:2px solid var(--border);transition:border-color 0.2s;background:#fff;padding:16px 8px;}
+.tpl-none-card:has(input:checked){border-color:var(--dark);}
+.tpl-none-card input[type=radio]{position:absolute;opacity:0;width:0;height:0;}
+.tpl-none-icon{font-size:24px;color:var(--gray);}
+.tpl-none-text{font-size:12px;font-weight:500;color:var(--gray);text-align:center;}
 
 /* QR RESULT */
 .qr-result-wrap{background:rgba(255,255,255,0.85);border:1.5px solid var(--border);border-radius:16px;padding:32px 24px;display:flex;flex-direction:column;align-items:center;gap:20px;}
@@ -128,10 +115,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 .qr-meta-tag{font-size:11px;font-weight:500;color:var(--accent);letter-spacing:2px;text-transform:uppercase;}
 .qr-meta-title{font-size:20px;font-weight:700;color:var(--dark);letter-spacing:-0.5px;margin-top:4px;text-align:center;word-break:break-all;}
 
-/* LAYOUT PREVIEW CANVAS */
-.layout-output-wrap{width:100%;background:rgba(255,255,255,0.7);border:1.5px solid var(--border);border-radius:12px;overflow:hidden;display:none;}
+/* layout output */
+.layout-output-wrap{width:100%;border-radius:12px;overflow:hidden;display:none;border:1px solid var(--border);}
 .layout-output-wrap.show{display:block;}
-#layout-preview-canvas{width:100%;height:auto;display:block;}
+#layout-canvas{width:100%;height:auto;display:block;}
 
 /* DL BUTTONS */
 .dl-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;}
@@ -150,7 +137,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 .generate-btn:hover::after{left:150%;transition:left 0.5s ease;}
 .generate-btn:active{transform:scale(0.99);opacity:0.9;}
 .generate-btn svg{width:22px;height:22px;stroke:#fff;stroke-width:1.5;fill:none;stroke-linecap:round;stroke-linejoin:round;}
-
 footer{text-align:center;padding:32px 32px 56px;font-size:13px;font-weight:300;color:var(--gray);line-height:2;}
 .fade-in{opacity:0;transform:translateY(20px);animation:fadeIn 0.6s ease forwards;}
 .fade-in:nth-child(1){animation-delay:0.1s;}.fade-in:nth-child(2){animation-delay:0.2s;}.fade-in:nth-child(3){animation-delay:0.3s;}.fade-in:nth-child(4){animation-delay:0.4s;}
@@ -164,7 +150,6 @@ footer{text-align:center;padding:32px 32px 56px;font-size:13px;font-weight:300;c
 <div class="geo-deco circle2"></div>
 <div class="geo-deco circle3"></div>
 <div class="geo-deco line1"></div>
-
 <div class="page">
 
 <!-- HERO -->
@@ -174,7 +159,7 @@ footer{text-align:center;padding:32px 32px 56px;font-size:13px;font-weight:300;c
     <img src="https://www.kt-synergy.com/assets/image/CI_BI/kt_ci_g02.png" alt="KT" onerror="this.style.display='none'"/>
     <span class="hero-kt-label">인천지사 · 시너지영업3팀</span>
   </div>
-  <div class="hero-eyebrow fade-in">QR Generator <span class="version">v1.02</span></div>
+  <div class="hero-eyebrow fade-in">QR Generator <span class="version">v1.03</span></div>
   <h1 class="hero-title ml11 fade-in">
     <span class="text-wrapper">
       <span class="line line1"></span>
@@ -232,7 +217,7 @@ footer{text-align:center;padding:32px 32px 56px;font-size:13px;font-weight:300;c
       <div class="field"><div class="field-label">숨김 네트워크</div><select id="wifi-hidden"><option value="false">아니오</option><option value="true">예</option></select></div>
     </div>
     <div class="field" id="pw-field"><div class="field-label">비밀번호 <span class="req">필수</span></div>
-      <div class="pw-wrap"><input type="password" id="wifi-pw" placeholder="Wi-Fi 비밀번호"><button class="pw-eye" onclick="togglePw()" type="button"><svg id="eye-icon" viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+      <div class="pw-wrap"><input type="password" id="wifi-pw" placeholder="Wi-Fi 비밀번호"><button class="pw-eye" onclick="togglePw()" type="button"><svg viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
     </div>
   </div>
 
@@ -257,7 +242,7 @@ footer{text-align:center;padding:32px 32px 56px;font-size:13px;font-weight:300;c
 
   <div class="field-group" id="group-sms">
     <div class="field"><div class="field-label">수신 번호 <span class="req">필수</span></div><input type="tel" id="sms-tel" placeholder="010-0000-0000"></div>
-    <div class="field"><div class="field-label">문자 내용 <span class="opt-tag">선택</span></div><textarea id="sms-body" placeholder="미리 입력할 메시지를 작성하세요"></textarea><div class="field-hint">내용은 수정 가능한 초안으로 전달됩니다</div></div>
+    <div class="field"><div class="field-label">문자 내용 <span class="opt-tag">선택</span></div><textarea id="sms-body" placeholder="미리 입력할 메시지를 작성하세요"></textarea></div>
   </div>
 </div>
 
@@ -270,10 +255,7 @@ footer{text-align:center;padding:32px 32px 56px;font-size:13px;font-weight:300;c
   <div class="step-title">QR 코드 중앙에<br>로고를 넣어보세요</div>
   <div class="step-sub">오류 정정 기능으로 스캔에 영향이 없습니다</div>
   <div class="logo-preview-row">
-    <div class="logo-thumb" id="logo-thumb">
-      <img src="https://www.kt-synergy.com/assets/image/CI_BI/kt_ci_g02.png" id="logo-thumb-img" onerror="this.style.display='none';document.getElementById('logo-thumb-txt').style.display='block';" alt="로고">
-      <span class="logo-thumb-text" id="logo-thumb-txt" style="display:none;">KT</span>
-    </div>
+    <div class="logo-thumb"><img src="https://www.kt-synergy.com/assets/image/CI_BI/kt_ci_g02.png" id="logo-thumb-img" onerror="this.style.display='none';document.getElementById('logo-thumb-txt').style.display='block';" alt="로고"><span id="logo-thumb-txt" style="display:none;font-size:11px;font-weight:500;color:var(--gray);">KT</span></div>
     <div style="font-size:14px;font-weight:300;color:var(--gray);line-height:1.6;">KT 인천지사 시너지영업3팀<br>기본 CI 로고가 적용됩니다</div>
   </div>
   <div style="display:flex;flex-direction:column;gap:10px;">
@@ -281,7 +263,7 @@ footer{text-align:center;padding:32px 32px 56px;font-size:13px;font-weight:300;c
     <label class="option-item"><input type="radio" name="logo-mode" value="custom" onchange="document.getElementById('logo-file-input').click()"><div><div class="option-label">직접 업로드</div><div class="option-desc">PNG, JPG, SVG 지원</div></div></label>
     <label class="option-item"><input type="radio" name="logo-mode" value="none" onchange="setLogoMode('none')"><div><div class="option-label">로고 없음</div><div class="option-desc">순수 QR 코드만 생성</div></div></label>
   </div>
-  <input type="file" id="logo-file-input" accept="image/*" onchange="handleLogoUpload(event)">
+  <input type="file" id="logo-file-input" accept="image/*" onchange="handleLogoUpload(event)" style="display:none;">
 </div>
 
 <div class="divider"></div>
@@ -297,7 +279,7 @@ footer{text-align:center;padding:32px 32px 56px;font-size:13px;font-weight:300;c
     <input type="range" id="logo-size" min="10" max="28" value="20" step="1" oninput="updateLogoSize()">
     <span class="size-val" id="logo-size-val">20%</span>
   </div>
-  <div class="field-hint" style="margin-top:12px;">권장 범위: 15 ~ 25% &nbsp;·&nbsp; 25% 초과 시 스캔 오류 가능성 있음</div>
+  <div class="field-hint" style="margin-top:12px;">권장 범위: 15 ~ 25%</div>
 </div>
 
 <div class="divider"></div>
@@ -305,94 +287,46 @@ footer{text-align:center;padding:32px 32px 56px;font-size:13px;font-weight:300;c
 <!-- STEP 05 -->
 <div class="step-section">
   <span class="step-num">0<strong>5</strong></span>
-  <div class="step-label">출력 레이아웃</div>
+  <div class="step-label">출력 템플릿</div>
   <div class="step-title">출력 디자인을<br>선택해 주세요</div>
-  <div class="step-sub">QR 코드와 정보가 함께 담긴 A4 레이아웃입니다</div>
+  <div class="step-sub">샘플 이미지를 참고해 원하는 레이아웃을 고르세요</div>
 
-  <!-- 레이아웃 선택 그리드 -->
-  <div class="layout-grid">
-
-    <!-- A: 기본형 -->
-    <label class="layout-card">
-      <input type="radio" name="layout" value="basic" checked onchange="selectLayout('basic')">
-      <div class="layout-check"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
-      <div class="layout-preview" id="prev-basic">
-        <canvas id="thumb-basic" style="width:100%;height:100%;"></canvas>
+  <div class="template-grid">
+    <!-- 템플릿 없음 -->
+    <label class="tpl-none-card" style="position:relative;">
+      <input type="radio" name="tpl" value="none" checked onchange="selectTpl('none')">
+      <div class="tpl-check"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
+      <div class="tpl-none-icon">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--gray)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
       </div>
-      <div class="layout-label">기본형</div>
+      <div class="tpl-none-text">QR만<br>저장</div>
     </label>
 
-    <!-- B: 블러배경형 -->
-    <label class="layout-card">
-      <input type="radio" name="layout" value="blur" onchange="selectLayout('blur')">
-      <div class="layout-check"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
-      <div class="layout-preview" id="prev-blur">
-        <canvas id="thumb-blur" style="width:100%;height:100%;"></canvas>
-      </div>
-      <div class="layout-label">블러배경형</div>
+    <!-- 템플릿 01: 컵 -->
+    <label class="tpl-card">
+      <input type="radio" name="tpl" value="tpl01" onchange="selectTpl('tpl01')">
+      <div class="tpl-check"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
+      <img class="tpl-sample" src="../../assets/image/qr_templates/qr_template_01_sample.png" alt="템플릿 01 샘플" onerror="this.src=''; this.style.background='#f0f1f3'; this.style.minHeight='120px';">
+      <div class="tpl-name">템플릿 01</div>
     </label>
 
-    <!-- C: 하단사진형 -->
-    <label class="layout-card">
-      <input type="radio" name="layout" value="bottom" onchange="selectLayout('bottom')">
-      <div class="layout-check"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
-      <div class="layout-preview" id="prev-bottom">
-        <canvas id="thumb-bottom" style="width:100%;height:100%;"></canvas>
-      </div>
-      <div class="layout-label">하단사진형</div>
+    <!-- 템플릿 02: 숲 -->
+    <label class="tpl-card">
+      <input type="radio" name="tpl" value="tpl02" onchange="selectTpl('tpl02')">
+      <div class="tpl-check"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
+      <img class="tpl-sample" src="../../assets/image/qr_templates/qr_template_02_sample.png" alt="템플릿 02 샘플" onerror="this.src=''; this.style.background='#f0f1f3'; this.style.minHeight='120px';">
+      <div class="tpl-name">템플릿 02</div>
     </label>
 
-    <!-- D: 포스터형 -->
-    <label class="layout-card">
-      <input type="radio" name="layout" value="poster" onchange="selectLayout('poster')">
-      <div class="layout-check"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
-      <div class="layout-preview" id="prev-poster">
-        <canvas id="thumb-poster" style="width:100%;height:100%;"></canvas>
-      </div>
-      <div class="layout-label">포스터형</div>
+    <!-- 템플릿 03: 빌딩 -->
+    <label class="tpl-card">
+      <input type="radio" name="tpl" value="tpl03" onchange="selectTpl('tpl03')">
+      <div class="tpl-check"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
+      <img class="tpl-sample" src="../../assets/image/qr_templates/qr_template_03_sample.png" alt="템플릿 03 샘플" onerror="this.src=''; this.style.background='#f0f1f3'; this.style.minHeight='120px';">
+      <div class="tpl-name">템플릿 03</div>
     </label>
-
-    <!-- E: 분할형 -->
-    <label class="layout-card">
-      <input type="radio" name="layout" value="split" onchange="selectLayout('split')">
-      <div class="layout-check"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
-      <div class="layout-preview" id="prev-split">
-        <canvas id="thumb-split" style="width:100%;height:100%;"></canvas>
-      </div>
-      <div class="layout-label">분할형</div>
-    </label>
-
   </div>
-
-  <!-- 배경 이미지 업로드 -->
-  <div class="step-label" style="margin-bottom:16px;">배경 이미지 <span class="opt-tag">선택</span></div>
-  <div class="bg-upload-wrap">
-    <div class="bg-thumb" id="bg-thumb" onclick="document.getElementById('bg-file-input').click()">
-      <img id="bg-thumb-img" src="" alt="" style="display:none;">
-      <div class="bg-thumb-icon">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--gray)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-      </div>
-      <div class="bg-thumb-text">클릭하여 배경 이미지 업로드</div>
-    </div>
-    <input type="file" id="bg-file-input" accept="image/*" onchange="handleBgUpload(event)" style="display:none;">
-
-    <div class="bg-controls" id="bg-controls">
-      <div class="bg-slider-row">
-        <label>밝기</label>
-        <input type="range" id="bg-brightness" min="0.3" max="2" value="1" step="0.05" oninput="updateBgFilter()">
-        <span class="size-val" id="bg-brightness-val">100%</span>
-      </div>
-      <div class="bg-slider-row">
-        <label>블러</label>
-        <input type="range" id="bg-blur" min="0" max="20" value="0" step="0.5" oninput="updateBgFilter()">
-        <span class="size-val" id="bg-blur-val">0px</span>
-      </div>
-      <button class="dl-btn" onclick="removeBg()" style="width:100%;margin-top:4px;">
-        <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
-        배경 이미지 제거
-      </button>
-    </div>
-  </div>
+  <div class="field-hint">샘플 이미지를 클릭해서 선택하세요 · 생성 후 PNG로 저장 또는 인쇄할 수 있습니다</div>
 </div>
 
 <div class="divider"></div>
@@ -408,8 +342,8 @@ footer{text-align:center;padding:32px 32px 56px;font-size:13px;font-weight:300;c
 <!-- RESULT -->
 <div class="step-section result-hidden" id="result-section">
   <div class="qr-result-wrap">
-    <!-- QR only preview -->
-    <div class="qr-stage">
+    <!-- QR only (항상 표시) -->
+    <div class="qr-stage" id="qr-stage-wrap">
       <div id="qr-canvas-container">
         <div id="logo-overlay"><img id="logo-overlay-img" src="" alt="로고"></div>
       </div>
@@ -417,13 +351,13 @@ footer{text-align:center;padding:32px 32px 56px;font-size:13px;font-weight:300;c
     <div class="qr-meta-tag" id="qr-meta-tag">Wi-Fi</div>
     <div class="qr-meta-title" id="qr-meta-title"></div>
 
-    <!-- Layout preview canvas -->
+    <!-- 템플릿 적용 결과 캔버스 -->
     <div class="layout-output-wrap" id="layout-output-wrap">
-      <canvas id="layout-preview-canvas"></canvas>
+      <canvas id="layout-canvas"></canvas>
     </div>
 
     <div class="dl-grid">
-      <button class="dl-btn primary" onclick="downloadLayoutPNG()">
+      <button class="dl-btn primary" onclick="downloadMain()">
         <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         PNG 저장
       </button>
@@ -431,9 +365,9 @@ footer{text-align:center;padding:32px 32px 56px;font-size:13px;font-weight:300;c
         <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         QR만 저장
       </button>
-      <button class="dl-btn" onclick="printLayout()">
+      <button class="dl-btn" onclick="printMain()">
         <svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-        A4 인쇄
+        인쇄
       </button>
       <button class="dl-btn" onclick="printCard()">
         <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
@@ -449,115 +383,72 @@ footer{text-align:center;padding:32px 32px 56px;font-size:13px;font-weight:300;c
 
 <script>
 /* ── STATE ── */
-let currentType = 'wifi';
-let currentString = '';
-let logoMode = 'default';
-let logoDataUrl = null;
-let bgImageData = null;
-let bgBrightness = 1;
-let bgBlur = 0;
-let currentLayout = 'basic';
-let qrImageData = null;
-const DEFAULT_LOGO = 'https://www.kt-synergy.com/assets/image/CI_BI/kt_ci_g02.png';
-const A4W = 595, A4H = 842;
+let currentType='wifi', currentString='', logoMode='default', logoDataUrl=null, currentTpl='none', qrFlatCanvas=null;
+const DEFAULT_LOGO='https://www.kt-synergy.com/assets/image/CI_BI/kt_ci_g02.png';
+const TPATH='../../assets/image/qr_templates/';
+const typeNames={wifi:'Wi-Fi',url:'URL',vcard:'디지털 명함',tel:'전화',sms:'문자 (SMS)'};
 
 /* ── ML11 ── */
-window.addEventListener('load', () => {
-  if(typeof anime === 'undefined') return;
-  var tw = document.querySelector('.ml11 .letters');
-  tw.innerHTML = tw.textContent.replace(/([^\x00-\x80]|\w|\s)/g, m => m.trim()==='' ? m : "<span class='letter'>"+m+"</span>");
+window.addEventListener('load',()=>{
+  if(typeof anime==='undefined')return;
+  var tw=document.querySelector('.ml11 .letters');
+  tw.innerHTML=tw.textContent.replace(/([^\x00-\x80]|\w|\s)/g,m=>m.trim()===''?m:"<span class='letter'>"+m+"</span>");
   anime.timeline({loop:true})
     .add({targets:'.ml11 .line',scaleY:[0,1],opacity:[0.5,1],easing:'easeOutExpo',duration:700})
     .add({targets:'.ml11 .line',translateX:[0,document.querySelector('.ml11 .letters').getBoundingClientRect().width+10],easing:'easeOutExpo',duration:700,delay:100})
     .add({targets:'.ml11 .letter',opacity:[0,1],easing:'easeOutExpo',duration:600,delay:(el,i)=>34*(i+1)},'-=775')
     .add({targets:'.ml11',opacity:0,duration:1000,easing:'easeOutExpo',delay:1000});
-
-  // draw thumbnail previews on load
-  setTimeout(drawAllThumbs, 300);
 });
 
 /* ── TYPE ── */
-const step2Labels={wifi:'정보 입력',url:'URL 입력',vcard:'명함 정보',tel:'전화번호 입력',sms:'문자 발송 설정'};
-const step2Titles={wifi:'Wi-Fi 정보를\n입력해 주세요',url:'URL 주소를\n입력해 주세요',vcard:'명함 정보를\n입력해 주세요',tel:'전화번호를\n입력해 주세요',sms:'문자 발송 정보를\n입력해 주세요'};
-const step2Subs={wifi:'스캔 시 자동으로 Wi-Fi에 접속됩니다',url:'스캔 시 해당 페이지로 이동합니다',vcard:'스캔 시 연락처가 자동으로 저장됩니다',tel:'스캔 시 전화 연결 화면이 바로 열립니다',sms:'스캔 시 문자 작성 화면이 열립니다'};
-function setType(t){
-  currentType=t;
-  document.querySelectorAll('.field-group').forEach(g=>g.classList.remove('active'));
-  document.getElementById('group-'+t).classList.add('active');
-  document.getElementById('step2-label').textContent=step2Labels[t];
-  document.getElementById('step2-title').innerHTML=step2Titles[t].replace('\n','<br>');
-  document.getElementById('step2-sub').textContent=step2Subs[t];
-}
+const s2l={wifi:'정보 입력',url:'URL 입력',vcard:'명함 정보',tel:'전화번호 입력',sms:'문자 발송 설정'};
+const s2t={wifi:'Wi-Fi 정보를\n입력해 주세요',url:'URL 주소를\n입력해 주세요',vcard:'명함 정보를\n입력해 주세요',tel:'전화번호를\n입력해 주세요',sms:'문자 발송 정보를\n입력해 주세요'};
+const s2s={wifi:'스캔 시 자동으로 Wi-Fi에 접속됩니다',url:'스캔 시 해당 페이지로 이동합니다',vcard:'스캔 시 연락처가 자동으로 저장됩니다',tel:'스캔 시 전화 연결 화면이 바로 열립니다',sms:'스캔 시 문자 작성 화면이 열립니다'};
+function setType(t){currentType=t;document.querySelectorAll('.field-group').forEach(g=>g.classList.remove('active'));document.getElementById('group-'+t).classList.add('active');document.getElementById('step2-label').textContent=s2l[t];document.getElementById('step2-title').innerHTML=s2t[t].replace('\n','<br>');document.getElementById('step2-sub').textContent=s2s[t];}
 function togglePwField(){document.getElementById('pw-field').style.display=document.getElementById('wifi-sec').value==='nopass'?'none':'block';}
 function togglePw(){const p=document.getElementById('wifi-pw');p.type=p.type==='password'?'text':'password';}
 function escW(s){return s.replace(/\\/g,'\\\\').replace(/"/g,'\\"').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/:/g,'\\:');}
 
 /* ── LOGO ── */
-function setLogoMode(m){
-  logoMode=m;
-  if(m==='default'){logoDataUrl=null;const i=document.getElementById('logo-thumb-img');i.style.display='block';i.src=DEFAULT_LOGO;document.getElementById('logo-thumb-txt').style.display='none';}
-  if(document.getElementById('result-section').classList.contains('show'))applyLogoOverlay();
+function setLogoMode(m){logoMode=m;if(m==='default'){logoDataUrl=null;const i=document.getElementById('logo-thumb-img');i.style.display='block';i.src=DEFAULT_LOGO;document.getElementById('logo-thumb-txt').style.display='none';}if(document.getElementById('result-section').classList.contains('show'))applyLogoOverlay();}
+function handleLogoUpload(e){const f=e.target.files[0];if(!f)return;logoMode='custom';document.querySelector('input[name=logo-mode][value=custom]').checked=true;const r=new FileReader();r.onload=ev=>{logoDataUrl=ev.target.result;const i=document.getElementById('logo-thumb-img');i.style.display='block';i.src=logoDataUrl;document.getElementById('logo-thumb-txt').style.display='none';if(document.getElementById('result-section').classList.contains('show'))applyLogoOverlay();};r.readAsDataURL(f);}
+function updateLogoSize(){document.getElementById('logo-size-val').textContent=document.getElementById('logo-size').value+'%';if(document.getElementById('result-section').classList.contains('show'))applyLogoOverlay();}
+function applyLogoOverlay(){
+  const ov=document.getElementById('logo-overlay');if(!ov)return;
+  if(logoMode==='none'){ov.style.display='none';return;}
+  const pct=parseInt(document.getElementById('logo-size').value)/100,sz=Math.round(240*pct);
+  Object.assign(ov.style,{display:'block',width:sz+'px',height:sz+'px',padding:'4px',background:'white',position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-50%)',zIndex:'10',borderRadius:'6px'});
+  const img=document.getElementById('logo-overlay-img');
+  img.src=logoMode==='custom'?logoDataUrl:DEFAULT_LOGO;
+  Object.assign(img.style,{width:'100%',height:'100%',objectFit:'contain',display:'block',position:'static'});
+  img.onerror=()=>{ov.style.display='none';};
 }
-function handleLogoUpload(e){
-  const f=e.target.files[0];if(!f)return;
-  logoMode='custom';document.querySelector('input[name=logo-mode][value=custom]').checked=true;
-  const r=new FileReader();r.onload=ev=>{logoDataUrl=ev.target.result;const i=document.getElementById('logo-thumb-img');i.style.display='block';i.src=logoDataUrl;document.getElementById('logo-thumb-txt').style.display='none';if(document.getElementById('result-section').classList.contains('show'))applyLogoOverlay();};r.readAsDataURL(f);
-}
-function updateLogoSize(){const v=document.getElementById('logo-size').value;document.getElementById('logo-size-val').textContent=v+'%';if(document.getElementById('result-section').classList.contains('show'))applyLogoOverlay();}
 
-/* ── LAYOUT ── */
-function selectLayout(l){currentLayout=l;if(qrImageData)renderLayout();}
-
-/* ── BG IMAGE ── */
-function handleBgUpload(e){
-  const f=e.target.files[0];if(!f)return;
-  const r=new FileReader();r.onload=ev=>{
-    bgImageData=ev.target.result;
-    const img=document.getElementById('bg-thumb-img');
-    img.src=bgImageData;img.style.display='block';
-    document.getElementById('bg-controls').classList.add('show');
-    drawAllThumbs();
-    if(qrImageData)renderLayout();
-  };r.readAsDataURL(f);
-}
-function removeBg(){
-  bgImageData=null;
-  const img=document.getElementById('bg-thumb-img');img.style.display='none';img.src='';
-  document.getElementById('bg-controls').classList.remove('show');
-  document.getElementById('bg-brightness').value=1;document.getElementById('bg-blur').value=0;
-  bgBrightness=1;bgBlur=0;
-  drawAllThumbs();if(qrImageData)renderLayout();
-}
-function updateBgFilter(){
-  bgBrightness=parseFloat(document.getElementById('bg-brightness').value);
-  bgBlur=parseFloat(document.getElementById('bg-blur').value);
-  document.getElementById('bg-brightness-val').textContent=Math.round(bgBrightness*100)+'%';
-  document.getElementById('bg-blur-val').textContent=bgBlur+'px';
-  drawAllThumbs();if(qrImageData)renderLayout();
-}
+/* ── TEMPLATE ── */
+function selectTpl(t){currentTpl=t;}
 
 /* ── BUILD STRING ── */
-const typeNames={wifi:'Wi-Fi',url:'URL',vcard:'디지털 명함',tel:'전화',sms:'문자 (SMS)'};
 function buildString(){
   switch(currentType){
-    case 'wifi':{const s=document.getElementById('wifi-ssid').value.trim();if(!s){alert('SSID를 입력해주세요.');return null;}const sec=document.getElementById('wifi-sec').value,pw=document.getElementById('wifi-pw').value,hid=document.getElementById('wifi-hidden').value;if(sec!=='nopass'&&!pw){alert('비밀번호를 입력해주세요.');return null;}return `WIFI:T:${sec};S:${escW(s)};P:${escW(pw)};H:${hid};;`;}
+    case 'wifi':{const s=document.getElementById('wifi-ssid').value.trim();if(!s){alert('SSID를 입력해주세요.');return null;}const sec=document.getElementById('wifi-sec').value,pw=document.getElementById('wifi-pw').value,hid=document.getElementById('wifi-hidden').value;if(sec!=='nopass'&&!pw){alert('비밀번호를 입력해주세요.');return null;}return`WIFI:T:${sec};S:${escW(s)};P:${escW(pw)};H:${hid};;`;}
     case 'url':{let u=document.getElementById('url-val').value.trim();if(!u){alert('URL을 입력해주세요.');return null;}if(!/^https?:\/\//i.test(u))u='https://'+u;return u;}
     case 'vcard':{const n=document.getElementById('vcard-name').value.trim();if(!n){alert('이름을 입력해주세요.');return null;}const t=document.getElementById('vcard-title').value.trim(),o=document.getElementById('vcard-org').value.trim(),te=document.getElementById('vcard-tel').value.trim(),em=document.getElementById('vcard-email').value.trim(),ad=document.getElementById('vcard-addr').value.trim();let v=`BEGIN:VCARD\nVERSION:3.0\nFN:${n}\nN:${n};;;;\n`;if(t)v+=`TITLE:${t}\n`;if(o)v+=`ORG:${o}\n`;if(te)v+=`TEL;TYPE=CELL:${te}\n`;if(em)v+=`EMAIL:${em}\n`;if(ad)v+=`ADR;TYPE=WORK:;;${ad};;;;\n`;v+=`END:VCARD`;return v;}
-    case 'tel':{const t=document.getElementById('tel-val').value.trim().replace(/[^0-9+\-]/g,'');if(!t){alert('전화번호를 입력해주세요.');return null;}return 'tel:'+t;}
+    case 'tel':{const t=document.getElementById('tel-val').value.trim().replace(/[^0-9+\-]/g,'');if(!t){alert('전화번호를 입력해주세요.');return null;}return'tel:'+t;}
     case 'sms':{const t=document.getElementById('sms-tel').value.trim().replace(/[^0-9+\-]/g,'');if(!t){alert('수신 번호를 입력해주세요.');return null;}const b=document.getElementById('sms-body').value.trim();return b?`SMSTO:${t}:${b}`:`sms:${t}`;}
   }return null;
 }
 function getMetaTitle(){switch(currentType){case 'wifi':return document.getElementById('wifi-ssid').value.trim()||'Wi-Fi';case 'url':return document.getElementById('url-val').value.trim()||'URL';case 'vcard':return document.getElementById('vcard-name').value.trim()||'명함';case 'tel':return document.getElementById('tel-val').value.trim()||'전화번호';case 'sms':return document.getElementById('sms-tel').value.trim()||'SMS';}}
 
-function getInfoLines(){
-  const type=typeNames[currentType];
-  switch(currentType){
-    case 'wifi':{const s=document.getElementById('wifi-ssid').value.trim(),pw=document.getElementById('wifi-pw').value;return[type,s,pw?'••••••••':'개방 네트워크'];}
-    case 'url':return[type,document.getElementById('url-val').value.trim()];
-    case 'vcard':{const n=document.getElementById('vcard-name').value.trim(),t=document.getElementById('vcard-title').value.trim(),o=document.getElementById('vcard-org').value.trim(),te=document.getElementById('vcard-tel').value.trim(),em=document.getElementById('vcard-email').value.trim();const lines=[type,n];if(t&&o)lines.push(t+' · '+o);else if(t)lines.push(t);else if(o)lines.push(o);if(te)lines.push(te);if(em)lines.push(em);return lines;}
-    case 'tel':return[type,document.getElementById('tel-val').value.trim()];
-    case 'sms':{const t=document.getElementById('sms-tel').value.trim(),b=document.getElementById('sms-body').value.trim();return[type,t,b||''];}
-  }return[type];
+/* ── INFO OBJECT ── */
+function getInfo(){
+  const t=currentType;
+  switch(t){
+    case 'wifi':return{type:'Wi-Fi',title:document.getElementById('wifi-ssid').value.trim(),line1:document.getElementById('wifi-ssid').value.trim(),line2:document.getElementById('wifi-pw').value?'비밀번호: '+'•'.repeat(Math.min(8,document.getElementById('wifi-pw').value.length)):'개방 네트워크',line3:'',name:'',org:'',tel:'',email:'',addr:''};
+    case 'url':return{type:'URL',title:document.getElementById('url-val').value.trim(),line1:document.getElementById('url-val').value.trim(),line2:'',line3:'',name:'',org:'',tel:'',email:'',addr:''};
+    case 'vcard':return{type:'디지털 명함',title:document.getElementById('vcard-name').value.trim(),name:document.getElementById('vcard-name').value.trim(),org:(document.getElementById('vcard-org').value.trim()||'')+(document.getElementById('vcard-title').value.trim()?' · '+document.getElementById('vcard-title').value.trim():''),tel:document.getElementById('vcard-tel').value.trim(),email:document.getElementById('vcard-email').value.trim(),addr:document.getElementById('vcard-addr').value.trim(),line1:document.getElementById('vcard-name').value.trim(),line2:document.getElementById('vcard-org').value.trim(),line3:document.getElementById('vcard-tel').value.trim()};
+    case 'tel':return{type:'전화',title:document.getElementById('tel-val').value.trim(),line1:document.getElementById('tel-val').value.trim(),line2:'',line3:'',name:'',org:'',tel:document.getElementById('tel-val').value.trim(),email:'',addr:''};
+    case 'sms':return{type:'문자(SMS)',title:document.getElementById('sms-tel').value.trim(),line1:document.getElementById('sms-tel').value.trim(),line2:document.getElementById('sms-body').value.trim().substring(0,40),line3:'',name:'',org:'',tel:document.getElementById('sms-tel').value.trim(),email:'',addr:''};
+  }
 }
 
 /* ── GENERATE ── */
@@ -567,45 +458,31 @@ function generate(){
   const container=document.getElementById('qr-canvas-container');
   container.innerHTML='<div id="logo-overlay"><img id="logo-overlay-img" src="" alt="로고"></div>';
   new QRCode(container,{text:str,width:240,height:240,colorDark:'#343a40',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.H});
-  setTimeout(()=>{
+  setTimeout(async()=>{
     applyLogoOverlay();
     document.getElementById('qr-meta-tag').textContent=typeNames[currentType];
     document.getElementById('qr-meta-title').textContent=getMetaTitle();
     document.getElementById('copy-string-box').textContent=str;
-    // capture QR canvas
-    getFlatQRCanvas(480).then(c=>{
-      qrImageData=c.toDataURL('image/png');
-      renderLayout();
-    });
+    // flat QR canvas
+    qrFlatCanvas=await buildFlatQR(480);
+    // render template if selected
+    if(currentTpl!=='none') await renderTemplate();
+    else document.getElementById('layout-output-wrap').classList.remove('show');
     const sec=document.getElementById('result-section');
     sec.classList.add('show');
     sec.scrollIntoView({behavior:'smooth',block:'start'});
   },150);
 }
 
-/* ── LOGO OVERLAY (screen) ── */
-function applyLogoOverlay(){
-  const overlay=document.getElementById('logo-overlay');if(!overlay)return;
-  if(logoMode==='none'){overlay.style.display='none';return;}
-  const pct=parseInt(document.getElementById('logo-size').value)/100;
-  const sz=Math.round(240*pct);
-  Object.assign(overlay.style,{display:'block',width:sz+'px',height:sz+'px',padding:'4px',background:'white',position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-50%)',zIndex:'10',borderRadius:'6px'});
-  const img=document.getElementById('logo-overlay-img');
-  img.src=logoMode==='custom'?logoDataUrl:DEFAULT_LOGO;
-  Object.assign(img.style,{width:'100%',height:'100%',objectFit:'contain',display:'block',position:'static'});
-  img.onerror=()=>{overlay.style.display='none';};
-}
-
-/* ── FLAT QR CANVAS (with logo) ── */
-function getFlatQRCanvas(sz){
-  sz=sz||480;
+/* ── FLAT QR ── */
+function buildFlatQR(sz){
   const container=document.getElementById('qr-canvas-container');
-  const qrCanvas=container.querySelector('canvas');
-  if(!qrCanvas)return Promise.resolve(null);
+  const qc=container.querySelector('canvas');
+  if(!qc)return Promise.resolve(null);
   const out=document.createElement('canvas');out.width=out.height=sz;
   const ctx=out.getContext('2d');
   ctx.fillStyle='#fff';ctx.fillRect(0,0,sz,sz);
-  ctx.drawImage(qrCanvas,0,0,sz,sz);
+  ctx.drawImage(qc,0,0,sz,sz);
   if(logoMode==='none')return Promise.resolve(out);
   const pct=parseInt(document.getElementById('logo-size').value)/100;
   const lsz=Math.round(sz*pct),lx=(sz-lsz)/2,ly=(sz-lsz)/2,pad=Math.round(lsz*0.1);
@@ -613,458 +490,273 @@ function getFlatQRCanvas(sz){
   if(ctx.roundRect)ctx.roundRect(lx-pad,ly-pad,lsz+pad*2,lsz+pad*2,6);else ctx.rect(lx-pad,ly-pad,lsz+pad*2,lsz+pad*2);
   ctx.fill();
   const src=logoMode==='custom'?logoDataUrl:DEFAULT_LOGO;
-  return new Promise(res=>{
-    const img=new Image();img.crossOrigin='anonymous';
-    img.onload=()=>{ctx.drawImage(img,lx,ly,lsz,lsz);res(out);};
-    img.onerror=()=>res(out);
-    img.src=src;
-  });
+  return new Promise(res=>{const img=new Image();img.crossOrigin='anonymous';img.onload=()=>{ctx.drawImage(img,lx,ly,lsz,lsz);res(out);};img.onerror=()=>res(out);img.src=src;});
 }
 
-/* ── LOAD BG IMAGE ── */
-function loadBgImage(){
-  if(!bgImageData)return Promise.resolve(null);
-  return new Promise(res=>{
-    const img=new Image();
-    img.onload=()=>res(img);
-    img.onerror=()=>res(null);
-    img.src=bgImageData;
-  });
-}
+/* ── LOAD IMAGE ── */
+function loadImg(src){return new Promise(res=>{const i=new Image();i.crossOrigin='anonymous';i.onload=()=>res(i);i.onerror=()=>res(null);i.src=src;});}
 
-/* ── RENDER LAYOUT on canvas ── */
-async function renderLayout(){
-  const W=A4W,H=A4H;
-  const canvas=document.getElementById('layout-preview-canvas');
-  canvas.width=W;canvas.height=H;
-  const ctx=canvas.getContext('2d');
-  const qrImg=await new Promise(res=>{const i=new Image();i.onload=()=>res(i);i.src=qrImageData;});
-  const bgImg=await loadBgImage();
-  const infoLines=getInfoLines();
-  const title=getMetaTitle();
-
-  switch(currentLayout){
-    case 'basic':   drawBasic(ctx,W,H,qrImg,bgImg,infoLines,title);break;
-    case 'blur':    drawBlur(ctx,W,H,qrImg,bgImg,infoLines,title);break;
-    case 'bottom':  drawBottom(ctx,W,H,qrImg,bgImg,infoLines,title);break;
-    case 'poster':  drawPoster(ctx,W,H,qrImg,bgImg,infoLines,title);break;
-    case 'split':   drawSplit(ctx,W,H,qrImg,bgImg,infoLines,title);break;
-  }
+/* ── RENDER TEMPLATE ── */
+async function renderTemplate(){
+  const canvas=document.getElementById('layout-canvas');
+  const info=getInfo();
+  if(currentTpl==='tpl01') await drawTpl01(canvas,info);
+  else if(currentTpl==='tpl02') await drawTpl02(canvas,info);
+  else if(currentTpl==='tpl03') await drawTpl03(canvas,info);
   document.getElementById('layout-output-wrap').classList.add('show');
-  drawAllThumbs();
 }
 
-/* ── HELPERS ── */
-function applyBgToCtx(ctx,W,H,bgImg){
-  if(!bgImg){ctx.fillStyle='#f8f9fa';ctx.fillRect(0,0,W,H);return;}
-  // draw bg with blur+brightness via offscreen
-  const off=document.createElement('canvas');off.width=W;off.height=H;
-  const octx=off.getContext('2d');
-  const scale=Math.max(W/bgImg.width,H/bgImg.height);
-  const bw=bgImg.width*scale,bh=bgImg.height*scale;
-  const bx=(W-bw)/2,by=(H-bh)/2;
-  octx.filter=`brightness(${bgBrightness}) blur(${bgBlur}px)`;
-  octx.drawImage(bgImg,bx,by,bw,bh);
-  ctx.drawImage(off,0,0);
-}
+/* ── FONT HELPER ── */
+function sf(ctx,sz,w,c){ctx.font=`${w} ${sz}px 'DIGICO','Apple SD Gothic Neo',sans-serif`;ctx.fillStyle=c||'#343a40';ctx.textBaseline='top';}
 
-function drawQRBox(ctx,qrImg,cx,cy,sz,padding){
-  const p=padding||20;
-  ctx.fillStyle='rgba(255,255,255,0.95)';
-  roundRect(ctx,cx-sz/2-p,cy-sz/2-p,sz+p*2,sz+p*2,12);
-  ctx.fill();
-  ctx.drawImage(qrImg,cx-sz/2,cy-sz/2,sz,sz);
-}
+/* ════════════════════════════════════════
+   TEMPLATE 01 — 컵 배경
+   - 상단 우측: 더블 코너 프레임 (회색 얇은 선)
+   - 프레임 안: QR
+   - QR 아래 좌측: KT / 인천지사\n시너지영업3팀 / 소상세
+   - 하단: 컵 사진 그대로
+   ════════════════════════════════════════ */
+async function drawTpl01(canvas,info){
+  const bg=await loadImg(TPATH+'qr_template_01.png');
+  if(!bg)return;
+  // 원본 비율 유지
+  const W=bg.naturalWidth||bg.width, H=bg.naturalHeight||bg.height;
+  canvas.width=W; canvas.height=H;
+  const ctx=canvas.getContext('2d');
 
-function roundRect(ctx,x,y,w,h,r){
-  ctx.beginPath();
-  if(ctx.roundRect)ctx.roundRect(x,y,w,h,r);
-  else{ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.arcTo(x+w,y,x+w,y+r,r);ctx.lineTo(x+w,y+h-r);ctx.arcTo(x+w,y+h,x+w-r,y+h,r);ctx.lineTo(x+r,y+h);ctx.arcTo(x,y+h,x,y+h-r,r);ctx.lineTo(x,y+r);ctx.arcTo(x,y,x+r,y,r);ctx.closePath();}
-}
+  // 배경 원본
+  ctx.drawImage(bg,0,0,W,H);
 
-function setFont(ctx,size,weight,color){
-  ctx.font=`${weight} ${size}px 'DIGICO','Apple SD Gothic Neo',sans-serif`;
-  ctx.fillStyle=color||'#343a40';
-}
+  // 샘플 분석: 프레임은 상단 중앙-우측, QR은 프레임 안
+  // 프레임 위치 (샘플 기준: 상단 ~15% 부터 ~52% 까지, 좌 ~20% 우 ~85%)
+  const fx=W*0.20, fy=H*0.04, fw=W*0.65, fh=fw; // QR 영역 정사각
+  const pad=W*0.015;
 
-function drawTextLines(ctx,lines,x,y,opts){
-  opts=opts||{};
-  const fs=opts.fontSize||14,fw=opts.fontWeight||300,fc=opts.color||'#343a40';
-  const lh=opts.lineHeight||(fs*1.7),align=opts.align||'left';
-  ctx.textAlign=align;
-  lines.forEach((line,i)=>{
-    if(!line)return;
-    if(i===0){setFont(ctx,fs*0.75,500,'#6c757d');ctx.fillText(line.toUpperCase(),x,y+i*lh);}
-    else if(i===1){setFont(ctx,fs*1.4,700,fc);ctx.fillText(line,x,y+lh+6);}
-    else{setFont(ctx,fs*0.9,300,'#868e96');ctx.fillText(line,x,y+lh+(i-1)*lh*0.85+12);}
-  });
-}
+  // 더블 코너 프레임 (회색)
+  // 바깥 프레임
+  ctx.strokeStyle='rgba(140,140,140,0.7)'; ctx.lineWidth=1.5;
+  ctx.strokeRect(fx,fy,fw,fh);
+  // 안쪽 프레임 (약간 안으로)
+  const fp=W*0.018;
+  ctx.strokeStyle='rgba(180,180,180,0.5)'; ctx.lineWidth=1;
+  ctx.strokeRect(fx+fp,fy+fp,fw-fp*2,fh-fp*2);
 
-/* ── A: 기본형 ── */
-function drawBasic(ctx,W,H,qrImg,bgImg,lines,title){
-  // bg
-  if(bgImg)applyBgToCtx(ctx,W,H,bgImg);
-  else{ctx.fillStyle='#ffffff';ctx.fillRect(0,0,W,H);}
-
-  // top bar
-  ctx.fillStyle='#343a40';ctx.fillRect(0,0,W,6);
-
-  // header
-  setFont(ctx,11,500,'#6c757d');ctx.textAlign='left';ctx.letterSpacing='2px';
-  ctx.fillText('KT 인천지사 · 시너지영업3팀',40,52);
-  ctx.letterSpacing='0px';
-  ctx.fillStyle='#ced4da';ctx.fillRect(40,60,W-80,1);
-
-  // QR center
-  const qsz=220;
-  drawQRBox(ctx,qrImg,W/2,H/2-40,qsz,24);
-
-  // corner marks around QR
-  const bx=W/2-qsz/2-24-12,by=H/2-40-qsz/2-24-12,bs=qsz+48+24;
-  ctx.strokeStyle='rgba(52,58,64,0.15)';ctx.lineWidth=1;
-  [[bx,by],[bx+bs,by],[bx,by+bs],[bx+bs,by+bs]].forEach(([cx2,cy2],i)=>{
-    ctx.beginPath();const dx=i%2===0?1:-1,dy=i<2?1:-1;
-    ctx.moveTo(cx2,cy2+dy*18);ctx.lineTo(cx2,cy2);ctx.lineTo(cx2+dx*18,cy2);ctx.stroke();
-  });
-
-  // info top
-  const topY=H/2-40-qsz/2-24-50;
-  setFont(ctx,10,500,'#6c757d');ctx.textAlign='center';ctx.letterSpacing='2px';
-  ctx.fillText(typeNames[currentType].toUpperCase(),W/2,topY);ctx.letterSpacing='0px';
-  setFont(ctx,28,700,'#343a40');ctx.textAlign='center';
-  ctx.fillText(title,W/2,topY+38);
-
-  // info bottom
-  const botY=H/2-40+qsz/2+24+48;
-  lines.slice(2).forEach((l,i)=>{
-    setFont(ctx,13,300,'#868e96');ctx.textAlign='center';
-    ctx.fillText(l,W/2,botY+i*22);
-  });
-
-  // footer
-  ctx.fillStyle='#343a40';ctx.fillRect(0,H-6,W,6);
-  setFont(ctx,10,300,'#868e96');ctx.textAlign='center';
-  ctx.fillText('kt-synergy.com · 010-7300-2632',W/2,H-18);
-}
-
-/* ── B: 블러배경형 ── */
-function drawBlur(ctx,W,H,qrImg,bgImg,lines,title){
-  if(bgImg){
-    // full blur bg
-    const tmp=document.createElement('canvas');tmp.width=W;tmp.height=H;
-    const tc=tmp.getContext('2d');
-    const bl=Math.max(bgBlur,8);
-    const scale=Math.max(W/bgImg.width,H/bgImg.height);
-    const bw=bgImg.width*scale,bh=bgImg.height*scale;
-    tc.filter=`brightness(${bgBrightness*0.7}) blur(${bl}px)`;
-    tc.drawImage(bgImg,(W-bw)/2,(H-bh)/2,bw,bh);
-    ctx.drawImage(tmp,0,0);
-    // dark overlay
-    ctx.fillStyle='rgba(0,0,0,0.25)';ctx.fillRect(0,0,W,H);
-  } else {
-    ctx.fillStyle='#2c2f33';ctx.fillRect(0,0,W,H);
-    // subtle pattern
-    for(let i=0;i<W;i+=40)for(let j=0;j<H;j+=40){ctx.fillStyle='rgba(255,255,255,0.01)';ctx.fillRect(i,j,20,20);}
+  // QR 흰 배경 + QR
+  const qpad=W*0.025;
+  ctx.fillStyle='rgba(255,255,255,0.97)';
+  ctx.fillRect(fx+pad,fy+pad,fw-pad*2,fh-pad*2);
+  if(qrFlatCanvas){
+    const qsz=fw-pad*2-qpad*2;
+    ctx.drawImage(qrFlatCanvas,fx+pad+qpad,fy+pad+qpad,qsz,qsz);
   }
 
-  // white corner bracket top-left
-  ctx.strokeStyle='rgba(255,255,255,0.6)';ctx.lineWidth=1.5;
-  ctx.beginPath();ctx.moveTo(40,80);ctx.lineTo(40,40);ctx.lineTo(80,40);ctx.stroke();
-  ctx.beginPath();ctx.moveTo(W-40,80);ctx.lineTo(W-40,40);ctx.lineTo(W-80,40);ctx.stroke();
+  // 텍스트 영역 — QR 아래, 좌측 정렬
+  const tx=W*0.10, ty=fy+fh+H*0.04;
 
-  // header text
-  setFont(ctx,11,500,'rgba(255,255,255,0.6)');ctx.textAlign='left';ctx.letterSpacing='2px';
-  ctx.fillText('KT 인천지사',44,62);ctx.letterSpacing='0px';
+  // "KT"
+  sf(ctx,W*0.042,700,'#343a40'); ctx.textAlign='left';
+  ctx.fillText('KT', tx, ty);
 
-  // top info
-  setFont(ctx,10,500,'rgba(255,255,255,0.5)');ctx.textAlign='center';ctx.letterSpacing='2px';
-  ctx.fillText(typeNames[currentType].toUpperCase(),W/2,160);ctx.letterSpacing='0px';
-  setFont(ctx,32,700,'#ffffff');ctx.textAlign='center';
-  ctx.fillText(title,W/2,202);
+  // "인천지사\n시너지영업3팀"
+  const orgTop=ty+W*0.058;
+  sf(ctx,W*0.052,700,'#343a40');
+  ctx.fillText('인천지사', tx, orgTop);
+  ctx.fillText('시너지영업3팀', tx, orgTop+W*0.065);
 
-  // QR center with white glow box
-  const qsz=200;const cx=W/2,cy=H/2+20;
-  ctx.shadowColor='rgba(0,0,0,0.4)';ctx.shadowBlur=30;
-  ctx.fillStyle='rgba(255,255,255,0.95)';roundRect(ctx,cx-qsz/2-20,cy-qsz/2-20,qsz+40,qsz+40,16);ctx.fill();
-  ctx.shadowBlur=0;
-  ctx.drawImage(qrImg,cx-qsz/2,cy-qsz/2,qsz,qsz);
-
-  // bottom lines
-  const botY=cy+qsz/2+50;
-  ctx.strokeStyle='rgba(255,255,255,0.3)';ctx.lineWidth=1;
-  ctx.beginPath();ctx.moveTo(W/2-60,botY-8);ctx.lineTo(W/2+60,botY-8);ctx.stroke();
-  lines.slice(2).forEach((l,i)=>{
-    setFont(ctx,13,300,'rgba(255,255,255,0.7)');ctx.textAlign='center';
-    ctx.fillText(l,W/2,botY+i*22);
+  // 상세정보
+  const detTop=orgTop+W*0.065*2+H*0.022;
+  sf(ctx,W*0.028,300,'#555');
+  const detLines=[];
+  if(info.name) detLines.push(info.name+(info.org?' '+info.org.split('·')[1]?.trim()||'':''));
+  else if(info.line1) detLines.push(info.type+': '+info.line1);
+  if(info.tel) detLines.push(info.tel);
+  else if(info.line2) detLines.push(info.line2);
+  if(info.email) detLines.push(info.email);
+  if(info.addr) detLines.push(info.addr);
+  else if(info.line3) detLines.push(info.line3);
+  detLines.filter(Boolean).forEach((l,i)=>{
+    sf(ctx,W*0.028,300,'#444');
+    ctx.fillText(l,tx,detTop+i*W*0.038);
   });
-
-  // bottom corners
-  ctx.strokeStyle='rgba(255,255,255,0.6)';ctx.lineWidth=1.5;
-  ctx.beginPath();ctx.moveTo(40,H-80);ctx.lineTo(40,H-40);ctx.lineTo(80,H-40);ctx.stroke();
-  ctx.beginPath();ctx.moveTo(W-40,H-80);ctx.lineTo(W-40,H-40);ctx.lineTo(W-80,H-40);ctx.stroke();
-
-  setFont(ctx,10,300,'rgba(255,255,255,0.4)');ctx.textAlign='center';
-  ctx.fillText('kt-synergy.com',W/2,H-28);
 }
 
-/* ── C: 하단사진형 ── */
-function drawBottom(ctx,W,H,qrImg,bgImg,lines,title){
-  // white top half
-  ctx.fillStyle='#ffffff';ctx.fillRect(0,0,W,H);
+/* ════════════════════════════════════════
+   TEMPLATE 02 — 숲 배경
+   - 블러 숲 배경 전체
+   - 중앙: 흰 박스 + 코너 브라켓 (카메라 뷰파인더 스타일)
+   - 흰 박스 안: QR
+   - 상단 좌: "KT / synergy sales" + 가로선 + 우: "kt-synergy.com"
+   - 중앙 우: 이메일
+   - 하단 좌: 소속 / 연락처 / 이름
+   ════════════════════════════════════════ */
+async function drawTpl02(canvas,info){
+  const bg=await loadImg(TPATH+'qr_template_02.png');
+  if(!bg)return;
+  const W=bg.naturalWidth||bg.width, H=bg.naturalHeight||bg.height;
+  canvas.width=W; canvas.height=H;
+  const ctx=canvas.getContext('2d');
 
-  // top accent line
-  ctx.fillStyle='#343a40';ctx.fillRect(0,0,W,4);
+  // 배경 원본 (이미 블러 처리된 이미지)
+  ctx.drawImage(bg,0,0,W,H);
 
-  // header
-  setFont(ctx,10,500,'#6c757d');ctx.textAlign='left';ctx.letterSpacing='2px';
-  ctx.fillText('KT 인천지사 · 시너지영업3팀',40,36);ctx.letterSpacing='0px';
+  // 흰 박스 (중앙 약간 위)
+  const bw=W*0.62, bh=bw;
+  const bx=(W-bw)/2+W*0.04, by=H*0.30;
 
-  // big step number style
-  setFont(ctx,120,700,'rgba(0,0,0,0.04)');ctx.textAlign='left';
-  ctx.fillText('QR',24,160);
+  // 코너 브라켓 (흰색, 바깥)
+  const bkLen=W*0.08, bkOff=W*0.025;
+  ctx.strokeStyle='rgba(255,255,255,0.9)'; ctx.lineWidth=W*0.004;
+  // 좌상단
+  ctx.beginPath();ctx.moveTo(bx-bkOff,by+bkLen);ctx.lineTo(bx-bkOff,by-bkOff);ctx.lineTo(bx+bkLen,by-bkOff);ctx.stroke();
+  // 우하단
+  ctx.beginPath();ctx.moveTo(bx+bw+bkOff,by+bh-bkLen);ctx.lineTo(bx+bw+bkOff,by+bh+bkOff);ctx.lineTo(bx+bw-bkLen,by+bh+bkOff);ctx.stroke();
 
-  // type tag
-  setFont(ctx,10,500,'#6c757d');ctx.textAlign='left';ctx.letterSpacing='3px';
-  ctx.fillText(typeNames[currentType].toUpperCase(),40,100);ctx.letterSpacing='0px';
+  // 흰 박스
+  ctx.fillStyle='rgba(255,255,255,0.97)';
+  ctx.fillRect(bx,by,bw,bh);
 
-  // title
-  setFont(ctx,36,700,'#343a40');ctx.textAlign='left';
-  ctx.fillText(title,40,148);
-
-  // divider
-  ctx.fillStyle='#ced4da';ctx.fillRect(40,164,80,2);
-
-  // QR top area
-  const qsz=180;
-  drawQRBox(ctx,qrImg,W/2,H*0.38,qsz,18);
-
-  // info lines
-  let iy=H*0.38+qsz/2+18+36;
-  lines.slice(2).forEach((l,i)=>{
-    setFont(ctx,13,300,'#868e96');ctx.textAlign='center';
-    ctx.fillText(l,W/2,iy+i*20);
-  });
-
-  // bottom photo area
-  const photoTop=H*0.62;
-  if(bgImg){
-    ctx.save();
-    const scale=Math.max(W/bgImg.width,(H-photoTop)/bgImg.height);
-    const bw=bgImg.width*scale,bh=bgImg.height*scale;
-    ctx.beginPath();ctx.rect(0,photoTop,W,H-photoTop);ctx.clip();
-    const bx=(W-bw)/2,by=photoTop+(H-photoTop-bh)/2;
-    ctx.filter=`brightness(${bgBrightness}) blur(${bgBlur}px)`;
-    ctx.drawImage(bgImg,bx,by,bw,bh);ctx.filter='none';
-    ctx.fillStyle='rgba(0,0,0,0.15)';ctx.fillRect(0,photoTop,W,H-photoTop);
-    ctx.restore();
-  } else {
-    ctx.fillStyle='#e9ecef';ctx.fillRect(0,photoTop,W,H-photoTop);
-    setFont(ctx,14,300,'#adb5bd');ctx.textAlign='center';
-    ctx.fillText('배경 이미지를 업로드하면 여기에 표시됩니다',W/2,photoTop+(H-photoTop)/2);
-  }
-  // footer bar
-  ctx.fillStyle='rgba(52,58,64,0.8)';ctx.fillRect(0,H-36,W,36);
-  setFont(ctx,10,300,'rgba(255,255,255,0.6)');ctx.textAlign='center';
-  ctx.fillText('kt-synergy.com · 담당자: 이대희 과장 · 010-7300-2632',W/2,H-14);
-}
-
-/* ── D: 포스터형 ── */
-function drawPoster(ctx,W,H,qrImg,bgImg,lines,title){
-  // full bg
-  if(bgImg){
-    applyBgToCtx(ctx,W,H,bgImg);
-    ctx.fillStyle='rgba(248,249,250,0.82)';ctx.fillRect(0,0,W,H);
-  } else {
-    ctx.fillStyle='#f8f9fa';ctx.fillRect(0,0,W,H);
+  // QR
+  if(qrFlatCanvas){
+    const qpad=W*0.04, qsz=bw-qpad*2;
+    ctx.drawImage(qrFlatCanvas,bx+qpad,by+qpad,qsz,qsz);
   }
 
-  // big background letter
-  setFont(ctx,420,700,'rgba(0,0,0,0.04)');ctx.textAlign='right';
-  ctx.fillText('Q',W+60,H*0.72);
+  // 상단: KT / synergy sales + 가로선 + kt-synergy.com
+  const headerY=H*0.08;
+  sf(ctx,W*0.055,700,'#ffffff'); ctx.textAlign='left';
+  ctx.fillText('KT',W*0.22,headerY);
+  sf(ctx,W*0.055,700,'#ffffff');
+  ctx.fillText('synergy sales',W*0.22,headerY+W*0.065);
+  // 가로선
+  ctx.strokeStyle='rgba(255,255,255,0.8)';ctx.lineWidth=W*0.003;
+  ctx.beginPath();ctx.moveTo(W*0.22+W*0.25,headerY+W*0.03);ctx.lineTo(W*0.85,headerY+W*0.03);ctx.stroke();
+  // kt-synergy.com
+  sf(ctx,W*0.028,300,'rgba(255,255,255,0.9)');ctx.textAlign='right';
+  ctx.fillText('kt-synergy.com',W*0.86,headerY);
 
-  // top: thin line + labels (like the dome photo reference)
-  ctx.fillStyle='#343a40';ctx.fillRect(40,56,60,1.5);
-  setFont(ctx,10,500,'#343a40');ctx.textAlign='left';ctx.letterSpacing='1.5px';
-  ctx.fillText('KT SYNERGY',118,60);ctx.letterSpacing='0px';
-  setFont(ctx,10,300,'#868e96');ctx.textAlign='right';
-  ctx.fillText('인천지사 · 시너지영업3팀',W-40,60);
+  // 중앙 우측: 이메일
+  const emailX=W*0.86, emailY=by+bh*0.15;
+  sf(ctx,W*0.026,300,'rgba(255,255,255,0.9)');ctx.textAlign='right';
+  if(info.email) ctx.fillText(info.email,emailX,emailY);
+  else ctx.fillText('daehee.lee@kt.com',emailX,emailY);
 
-  // big type title
-  setFont(ctx,48,700,'#343a40');ctx.textAlign='left';
-  wrapText(ctx,title,40,180,W-80,58);
-
-  // subtitle info
-  const sl=lines[2]||'';const sl2=lines[3]||'';
-  setFont(ctx,13,300,'#868e96');ctx.textAlign='right';
-  ctx.fillText(sl,W-40,196);
-  if(sl2){setFont(ctx,13,300,'#868e96');ctx.textAlign='right';ctx.fillText(sl2,W-40,216);}
-
-  // divider
-  ctx.fillStyle='#ced4da';ctx.fillRect(40,240,W-80,1);
-
-  // QR — full width style (like building in photo)
-  const qsz=240;const qx=W/2,qy=H*0.55;
-  ctx.shadowColor='rgba(0,0,0,0.08)';ctx.shadowBlur=20;
-  ctx.fillStyle='rgba(255,255,255,0.95)';roundRect(ctx,qx-qsz/2-16,qy-qsz/2-16,qsz+32,qsz+32,8);ctx.fill();
-  ctx.shadowBlur=0;
-  ctx.drawImage(qrImg,qx-qsz/2,qy-qsz/2,qsz,qsz);
-
-  // bottom text — editorial style
-  const by2=qy+qsz/2+60;
-  ctx.fillStyle='#ced4da';ctx.fillRect(40,by2-20,50,1);
-  setFont(ctx,12,500,'#343a40');ctx.textAlign='left';ctx.letterSpacing='0.5px';
-  ctx.fillText(typeNames[currentType],40,by2+4);ctx.letterSpacing='0px';
-  setFont(ctx,12,300,'#868e96');ctx.textAlign='right';
-  ctx.fillText('kt-synergy.com',W-40,by2+4);
+  // 하단 좌: 소속·연락처·이름
+  const footY=by+bh+H*0.05;
+  sf(ctx,W*0.038,700,'#ffffff');ctx.textAlign='left';
+  const footOrg=info.org?'KT '+info.org:'KT 인천지사 시너지영업3팀';
+  ctx.fillText(footOrg,W*0.10,footY);
+  sf(ctx,W*0.038,700,'#ffffff');
+  const footTel=info.tel||'010-7300-2632';
+  ctx.fillText(footTel,W*0.10,footY+W*0.052);
+  sf(ctx,W*0.038,700,'#ffffff');
+  const footName=info.name||info.title||'이대희';
+  ctx.fillText(footName,W*0.10,footY+W*0.052*2+W*0.01);
 }
 
-/* ── E: 분할형 ── */
-function drawSplit(ctx,W,H,qrImg,bgImg,lines,title){
-  const leftW=W*0.42;
-  // left panel white
-  ctx.fillStyle='#ffffff';ctx.fillRect(0,0,leftW,H);
-  ctx.fillStyle='#f0f1f3';ctx.fillRect(leftW,0,W-leftW,H);
+/* ════════════════════════════════════════
+   TEMPLATE 03 — 빌딩 배경
+   - 빌딩 사진 전체
+   - 좌상단: kt CI 로고 (흰색)
+   - 상단 흰 박스: QR
+   - 하단 유리 박스 (블러): 유형명 / SSID or 이름 / PW or 연락처
+   ════════════════════════════════════════ */
+async function drawTpl03(canvas,info){
+  const bg=await loadImg(TPATH+'qr_template_03.png');
+  if(!bg)return;
+  const W=bg.naturalWidth||bg.width, H=bg.naturalHeight||bg.height;
+  canvas.width=W; canvas.height=H;
+  const ctx=canvas.getContext('2d');
 
-  // left: accent top line
-  ctx.fillStyle='#343a40';ctx.fillRect(0,0,leftW,5);
+  // 배경 원본
+  ctx.drawImage(bg,0,0,W,H);
 
-  // left: big rotated text style
-  ctx.save();ctx.translate(28,H-40);ctx.rotate(-Math.PI/2);
-  setFont(ctx,11,700,'#ced4da');ctx.textAlign='left';ctx.letterSpacing='3px';
-  ctx.fillText('KT SYNERGY',0,0);ctx.letterSpacing='0px';
-  ctx.restore();
+  // 상단 흰 박스 (QR 영역)
+  const qbx=W*0.20, qby=H*0.12, qbw=W*0.60, qbh=qbw;
+  ctx.fillStyle='rgba(255,255,255,0.97)';
+  ctx.fillRect(qbx,qby,qbw,qbh);
 
-  // left: step dot
-  ctx.fillStyle='#343a40';ctx.beginPath();ctx.arc(36,68,4,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='#6c757d';ctx.beginPath();ctx.arc(52,68,4,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='#ced4da';ctx.beginPath();ctx.arc(68,68,4,0,Math.PI*2);ctx.fill();
-
-  // left: type tag
-  setFont(ctx,9,500,'#6c757d');ctx.textAlign='left';ctx.letterSpacing='2px';
-  ctx.fillText(typeNames[currentType].toUpperCase(),28,104);ctx.letterSpacing='0px';
-
-  // left: big title (vertical)
-  setFont(ctx,32,700,'#343a40');ctx.textAlign='left';
-  const titleWords=title.split(/(\s+)/);
-  let ty=160;titleWords.forEach(w=>{
-    if(w.trim()){ctx.fillText(w.trim(),20,ty);ty+=42;}
-  });
-
-  // left: divider
-  ctx.fillStyle='#ced4da';ctx.fillRect(20,ty+10,40,1.5);ty+=28;
-
-  // left: info lines
-  lines.slice(1).forEach((l,i)=>{
-    if(!l)return;
-    setFont(ctx,11,i===0?500:300,i===0?'#343a40':'#868e96');ctx.textAlign='left';
-    const maxW=leftW-36;
-    if(ctx.measureText(l).width>maxW){l=l.substring(0,18)+'…';}
-    ctx.fillText(l,20,ty+i*20);
-  });
-
-  // left: footer
-  setFont(ctx,9,300,'#adb5bd');ctx.textAlign='left';
-  ctx.fillText('kt-synergy.com',20,H-24);
-  ctx.fillText('010-7300-2632',20,H-10);
-
-  // right: photo + QR stacked
-  if(bgImg){
-    ctx.save();
-    ctx.beginPath();ctx.rect(leftW,0,W-leftW,H);ctx.clip();
-    const scale=Math.max((W-leftW)/bgImg.width,H/bgImg.height);
-    const bw=bgImg.width*scale,bh=bgImg.height*scale;
-    ctx.filter=`brightness(${bgBrightness}) blur(${bgBlur}px)`;
-    ctx.drawImage(bgImg,leftW+(W-leftW-bw)/2,(H-bh)/2,bw,bh);ctx.filter='none';
-    ctx.fillStyle='rgba(240,241,243,0.3)';ctx.fillRect(leftW,0,W-leftW,H);
-    ctx.restore();
+  // QR
+  if(qrFlatCanvas){
+    const qpad=W*0.03;
+    ctx.drawImage(qrFlatCanvas,qbx+qpad,qby+qpad,qbw-qpad*2,qbh-qpad*2);
   }
 
-  // right top: QR box
-  const rw=W-leftW;const qsz=rw*0.62;const qx=leftW+rw/2,qy=H*0.32;
-  ctx.shadowColor='rgba(0,0,0,0.1)';ctx.shadowBlur=16;
-  ctx.fillStyle='rgba(255,255,255,0.95)';roundRect(ctx,qx-qsz/2-12,qy-qsz/2-12,qsz+24,qsz+24,10);ctx.fill();
-  ctx.shadowBlur=0;
-  ctx.drawImage(qrImg,qx-qsz/2,qy-qsz/2,qsz,qsz);
+  // 하단 글라스 박스 (블러 효과 — canvas에선 오프스크린으로 처리)
+  const tbx=W*0.20, tby=H*0.58, tbw=W*0.60, tbh=H*0.20;
+  // 박스 배경: 반투명 흰색
+  ctx.fillStyle='rgba(255,255,255,0.18)';
+  ctx.fillRect(tbx,tby,tbw,tbh);
+  // 박스 테두리
+  ctx.strokeStyle='rgba(255,255,255,0.6)';ctx.lineWidth=W*0.003;
+  ctx.strokeRect(tbx,tby,tbw,tbh);
 
-  // right bottom: placeholder or empty
-  const ph=H*0.38;
-  if(!bgImg){
-    ctx.fillStyle='#dee2e6';ctx.fillRect(leftW+20,ph,rw-40,H*0.28);
-    ctx.fillStyle='#e9ecef';ctx.fillRect(leftW+20,H*0.7,rw-40,H*0.22);
+  // 박스 안 텍스트
+  const tpad=W*0.04;
+  sf(ctx,W*0.040,700,'#ffffff');ctx.textAlign='left';
+  ctx.fillText(info.type,tbx+tpad,tby+tbh*0.15);
+
+  sf(ctx,W*0.038,700,'#ffffff');
+  const l1=info.line1||info.title||'';
+  // 긴 텍스트 자르기
+  const maxW=tbw-tpad*2;
+  let disp=l1;
+  if(ctx.measureText(disp).width>maxW) disp=disp.substring(0,20)+'...';
+  ctx.fillText(disp,tbx+tpad,tby+tbh*0.42);
+
+  const l2=info.line2||info.tel||'';
+  if(l2){
+    sf(ctx,W*0.034,500,'rgba(255,255,255,0.85)');
+    let disp2=l2;
+    if(ctx.measureText(disp2).width>maxW) disp2=disp2.substring(0,22)+'...';
+    ctx.fillText(disp2,tbx+tpad,tby+tbh*0.68);
   }
-}
 
-function wrapText(ctx,text,x,y,maxW,lineH){
-  const words=text.split(' ');let line='',ly=y;
-  words.forEach(w=>{const t=line?line+' '+w:w;if(ctx.measureText(t).width>maxW&&line){ctx.fillText(line,x,ly);line=w;ly+=lineH;}else line=t;});
-  if(line)ctx.fillText(line,x,ly);
-}
-
-/* ── THUMBNAIL DRAWINGS ── */
-function drawAllThumbs(){
-  ['basic','blur','bottom','poster','split'].forEach(async l=>{
-    const c=document.getElementById('thumb-'+l);if(!c)return;
-    const w=c.parentElement.offsetWidth||140;
-    c.width=w;c.height=w*1.414;
-    const ctx=c.getContext('2d');
-    const s=w/A4W;
-    ctx.save();ctx.scale(s,s);
-    // dummy QR image
-    const dqr=document.createElement('canvas');dqr.width=dqr.height=100;
-    const dctx=dqr.getContext('2d');
-    dctx.fillStyle='#343a40';dctx.fillRect(0,0,100,100);
-    dctx.fillStyle='#fff';dctx.fillRect(10,10,80,80);
-    dctx.fillStyle='#343a40';dctx.fillRect(15,15,30,30);dctx.fillRect(55,15,30,30);dctx.fillRect(15,55,30,30);
-    dctx.fillStyle='#fff';dctx.fillRect(20,20,20,20);dctx.fillRect(60,20,20,20);dctx.fillRect(20,60,20,20);
-    dctx.fillStyle='#343a40';dctx.fillRect(25,25,10,10);dctx.fillRect(65,25,10,10);dctx.fillRect(25,65,10,10);
-    // data cells
-    [[50,15],[55,15],[50,25],[60,25],[50,35],[55,45],[60,55],[50,55],[55,65],[60,65],[50,75],[55,85],[60,85]].forEach(([x,y])=>{dctx.fillStyle='#343a40';dctx.fillRect(x,y,5,5);});
-
-    const bgImg=bgImageData?await loadBgImage():null;
-    const lines=qrImageData?getInfoLines():['Wi-Fi','KT_WiFi_5G'];
-    const title=qrImageData?getMetaTitle():'Wi-Fi';
-
-    switch(l){
-      case 'basic': drawBasic(ctx,A4W,A4H,dqr,bgImg,lines,title);break;
-      case 'blur':  drawBlur(ctx,A4W,A4H,dqr,bgImg,lines,title);break;
-      case 'bottom':drawBottom(ctx,A4W,A4H,dqr,bgImg,lines,title);break;
-      case 'poster':drawPoster(ctx,A4W,A4H,dqr,bgImg,lines,title);break;
-      case 'split': drawSplit(ctx,A4W,A4H,dqr,bgImg,lines,title);break;
-    }
-    ctx.restore();
-  });
+  // kt CI 로고 텍스트 (좌상단) — 이미지에 이미 있으므로 skip
 }
 
 /* ── DOWNLOAD ── */
-async function downloadLayoutPNG(){
-  if(!qrImageData){alert('먼저 QR 코드를 생성해주세요.');return;}
-  await renderLayout();
-  const c=document.getElementById('layout-preview-canvas');
-  const a=document.createElement('a');
-  a.download='qr-layout-'+(getMetaTitle().replace(/[^a-zA-Z0-9가-힣]/g,'_'))+'.png';
-  a.href=c.toDataURL('image/png');a.click();
+async function downloadMain(){
+  if(currentTpl!=='none'&&qrFlatCanvas){
+    const c=document.getElementById('layout-canvas');
+    if(!c.width){await renderTemplate();}
+    const a=document.createElement('a');
+    a.download='qr-tpl-'+(getMetaTitle().replace(/[^a-zA-Z0-9가-힣]/g,'_'))+'.png';
+    a.href=c.toDataURL('image/png');a.click();
+  } else {
+    downloadQROnly();
+  }
 }
 
 async function downloadQROnly(){
-  const c=await getFlatQRCanvas(800);if(!c)return;
+  if(!qrFlatCanvas)return;
+  const out=document.createElement('canvas');out.width=out.height=800;
+  const ctx=out.getContext('2d');ctx.drawImage(qrFlatCanvas,0,0,800,800);
   const a=document.createElement('a');
   a.download='qr-'+(getMetaTitle().replace(/[^a-zA-Z0-9가-힣]/g,'_'))+'.png';
-  a.href=c.toDataURL('image/png');a.click();
+  a.href=out.toDataURL('image/png');a.click();
 }
 
-async function printLayout(){
-  if(!qrImageData){alert('먼저 QR 코드를 생성해주세요.');return;}
-  await renderLayout();
-  const c=document.getElementById('layout-preview-canvas');
-  const d=c.toDataURL('image/png');
+async function printMain(){
+  let dataUrl;
+  if(currentTpl!=='none'){
+    if(!document.getElementById('layout-canvas').width)await renderTemplate();
+    dataUrl=document.getElementById('layout-canvas').toDataURL('image/png');
+  } else {
+    if(!qrFlatCanvas)return;
+    const out=document.createElement('canvas');out.width=out.height=800;
+    out.getContext('2d').drawImage(qrFlatCanvas,0,0,800,800);
+    dataUrl=out.toDataURL('image/png');
+  }
   const w=window.open('','_blank');
-  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>@page{size:A4 portrait;margin:0;}*{margin:0;padding:0;}body{width:210mm;height:297mm;}img{width:100%;height:100%;object-fit:contain;}</style></head><body><img src="${d}"></body></html>`);
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>@page{size:A4 portrait;margin:0;}*{margin:0;padding:0;}body{display:flex;align-items:center;justify-content:center;width:210mm;height:297mm;background:#fff;}img{max-width:100%;max-height:100%;object-fit:contain;}</style></head><body><img src="${dataUrl}"></body></html>`);
   w.document.close();setTimeout(()=>w.print(),400);
 }
 
 async function printCard(){
-  const c=await getFlatQRCanvas(600);if(!c)return;
-  const d=c.toDataURL('image/png'),title=getMetaTitle();
+  if(!qrFlatCanvas)return;
+  const out=document.createElement('canvas');out.width=out.height=600;
+  out.getContext('2d').drawImage(qrFlatCanvas,0,0,600,600);
+  const d=out.toDataURL('image/png'),title=getMetaTitle();
   const w=window.open('','_blank');
   w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>@font-face{font-family:'DIGICO';src:url('https://www.kt-synergy.com/assets/fonts/digicottf-medium.ttf') format('truetype');font-weight:500;}@page{size:90mm 55mm;margin:0;}*{box-sizing:border-box;margin:0;padding:0;}body{width:90mm;height:55mm;display:flex;align-items:center;justify-content:center;gap:10px;padding:6mm 8mm;font-family:'DIGICO','Apple SD Gothic Neo',sans-serif;background:white;}img.qr{width:34mm;height:34mm;flex-shrink:0;}.info{flex:1;}.tag{font-size:7px;letter-spacing:2px;text-transform:uppercase;color:#868e96;margin-bottom:3px;}.name{font-size:12px;font-weight:700;color:#343a40;margin-bottom:6px;word-break:break-all;}.div{width:18px;height:1px;background:#dee2e6;margin-bottom:6px;}.co{font-size:7.5px;color:#aaa;line-height:1.7;font-weight:300;}</style></head><body><img class="qr" src="${d}" alt="QR"><div class="info"><div class="tag">${typeNames[currentType]}</div><div class="name">${title}</div><div class="div"></div><div class="co">KT 인천지사 시너지영업3팀<br>담당: 이대희 과장 · 010-7300-2632<br>kt-synergy.com</div></div></body></html>`);
   w.document.close();setTimeout(()=>w.print(),500);
