@@ -165,7 +165,7 @@ footer{text-align:center;padding:32px 32px 56px;font-size:13px;font-weight:300;c
     <img src="https://www.kt-synergy.com/assets/image/CI_BI/kt_ci_g02.png" alt="KT" onerror="this.style.display='none'"/>
     <span class="hero-kt-label">인천지사 · 시너지영업3팀</span>
   </div>
-  <div class="hero-eyebrow fade-in">QR Generator <span class="version">v1.03</span></div>
+  <div class="hero-eyebrow fade-in">QR Generator <span class="version">v1.05</span></div>
   <h1 class="hero-title ml11 fade-in">
     <span class="text-wrapper">
       <span class="line line1"></span>
@@ -456,7 +456,7 @@ function buildString(){
   switch(currentType){
     case 'wifi':{const s=document.getElementById('wifi-ssid').value.trim();if(!s){alert('SSID를 입력해주세요.');return null;}const sec=document.getElementById('wifi-sec').value,pw=document.getElementById('wifi-pw').value,hid=document.getElementById('wifi-hidden').value;if(sec!=='nopass'&&!pw){alert('비밀번호를 입력해주세요.');return null;}return`WIFI:T:${sec};S:${escW(s)};P:${escW(pw)};H:${hid};;`;}
     case 'url':{let u=document.getElementById('url-val').value.trim();if(!u){alert('URL을 입력해주세요.');return null;}if(!/^https?:\/\//i.test(u))u='https://'+u;return u;}
-    case 'vcard':{const n=document.getElementById('vcard-name').value.trim();if(!n){alert('이름을 입력해주세요.');return null;}const t=document.getElementById('vcard-title').value.trim(),o=document.getElementById('vcard-org').value.trim(),te=document.getElementById('vcard-tel').value.trim(),em=document.getElementById('vcard-email').value.trim(),ad=document.getElementById('vcard-addr').value.trim();let v=`BEGIN:VCARD\nVERSION:3.0\nFN:${n}\nN:${n};;;;\n`;if(t)v+=`TITLE:${t}\n`;if(o)v+=`ORG:${o}\n`;if(te)v+=`TEL;TYPE=CELL:${te}\n`;if(em)v+=`EMAIL:${em}\n`;if(ad)v+=`ADR;TYPE=WORK:;;${ad};;;;\n`;v+=`END:VCARD`;return v;}
+    case 'vcard':{const n=document.getElementById('vcard-name').value.trim();if(!n){alert('이름을 입력해주세요.');return null;}const t=document.getElementById('vcard-title').value.trim(),o=document.getElementById('vcard-org').value.trim(),te=document.getElementById('vcard-tel').value.trim(),em=document.getElementById('vcard-email').value.trim(),ad=document.getElementById('vcard-addr').value.trim();let v=`BEGIN:VCARD\nVERSION:3.0\nFN:${n}\nN:${n};;;;\n`;if(t)v+=`TITLE:${t}\n`;if(o)v+=`ORG:${o}\n`;if(te)v+=`TEL;TYPE=CELL:${te}\n`;if(em)v+=`EMAIL:${em}\n`;if(ad)v+=`ADR;TYPE=WORK:;;${ad};;;KR\n`;v+=`END:VCARD`;return v;}
     case 'tel':{const t=document.getElementById('tel-val').value.trim().replace(/[^0-9+\-]/g,'');if(!t){alert('전화번호를 입력해주세요.');return null;}return'tel:'+t;}
     case 'sms':{const t=document.getElementById('sms-tel').value.trim().replace(/[^0-9+\-]/g,'');if(!t){alert('수신 번호를 입력해주세요.');return null;}const b=document.getElementById('sms-body').value.trim();return b?`SMSTO:${t}:${b}`:`sms:${t}`;}
   }return null;
@@ -481,7 +481,19 @@ function generate(){
   currentString=str;
   const container=document.getElementById('qr-canvas-container');
   container.innerHTML='<div id="logo-overlay"><img id="logo-overlay-img" src="" alt="로고"></div>';
-  new QRCode(container,{text:str,width:240,height:240,colorDark:'#343a40',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.H});
+  // correctLevel: vCard 등 긴 데이터는 H → M → L 순으로 자동 fallback
+  function tryQR(level){
+    try{
+      new QRCode(container,{text:str,width:240,height:240,colorDark:'#343a40',colorLight:'#ffffff',correctLevel:level});
+    }catch(e){
+      console.warn('[QR] level fallback:', level, e);
+      container.innerHTML='<div id="logo-overlay"><img id="logo-overlay-img" src="" alt="로고"></div>';
+      if(level===QRCode.CorrectLevel.H) tryQR(QRCode.CorrectLevel.M);
+      else if(level===QRCode.CorrectLevel.M) tryQR(QRCode.CorrectLevel.L);
+      else console.error('[QR] 생성 실패: 데이터가 너무 깁니다.');
+    }
+  }
+  tryQR(QRCode.CorrectLevel.M);
   setTimeout(async()=>{
     applyLogoOverlay();
     document.getElementById('qr-meta-tag').textContent=typeNames[currentType];
