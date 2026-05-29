@@ -619,7 +619,7 @@ function submitForm(){
   formData.append('entry.2017434924', '동의합니다');
   if(document.getElementById('agreeMarketing').checked) formData.append('entry.571873176', '동의합니다');
 
-  fetch('https://docs.google.com/forms/u/0/d/e/1FAIpQLSct-qFbf2k4_lQS1PxmXhF50AmGdNX9zIDT364oPhGsAOLsBw/formResponse', {method:'POST',mode:'no-cors',body:formData})
+  fetch('https://docs.google.com/forms/d/e/1FAIpQLSct-qFbf2k4_lQS1PxmXhF50AmGdNX9zIDT364oPhGsAOLsBw/formResponse', {method:'POST',mode:'no-cors',body:formData})
   .finally(() => {
     document.getElementById('successOverlay').classList.add('show');
     document.getElementById('phone').value='';

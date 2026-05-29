@@ -423,7 +423,7 @@ footer strong{color:rgba(255,255,255,0.7);}
     formData.append('entry.1788055395', name);
     formData.append('entry.1337089400', phone);
     formData.append('entry.1853236193', comment);
-    fetch('https://docs.google.com/forms/u/0/d/e/1FAIpQLSdocmR0YwCWq4t8oO57u0xxYIawKfW4a5h9qnHnbw9_8PiDwQ/formResponse', {method:'POST',mode:'no-cors',body:formData})
+    fetch('https://docs.google.com/forms/d/e/1FAIpQLSdocmR0YwCWq4t8oO57u0xxYIawKfW4a5h9qnHnbw9_8PiDwQ/formResponse', {method:'POST',mode:'no-cors',body:formData})
     .finally(() => {
       document.getElementById('successOverlay').classList.add('show');
       document.getElementById('nameInput').value='';
