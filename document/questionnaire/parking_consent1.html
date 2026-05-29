@@ -415,11 +415,11 @@ input::placeholder{color:#c0c0c5;}
 
     <div class="field">
       <div class="field-label">휴대전화 번호 <span style="color:#6c757d;font-size:12px;font-weight:500;">필수</span></div>
-      <input type="tel" id="phone" name="entry.1823273665" placeholder="010-0000-0000" maxlength="13" inputmode="numeric"/>
+      <input type="tel" id="phone" name="entry.1481871015" placeholder="010-0000-0000" maxlength="13" inputmode="numeric"/>
     </div>
     <div class="field">
       <div class="field-label">상호명 <span class="opt-tag">선택</span></div>
-      <input type="text" id="storeName" name="entry.1210091884" placeholder="예: 김밥천국 인천점"/>
+      <input type="text" id="storeName" name="entry.512242654" placeholder="예: 김밥천국 인천점"/>
     </div>
     <div class="field">
       <div class="field-label">차량 번호 <span class="opt-tag">선택</span></div>
@@ -439,13 +439,13 @@ input::placeholder{color:#c0c0c5;}
 
     <div class="option-group">
       <label class="option-item">
-        <input type="radio" name="entry.1777667790" value="창업준비중">
+        <input type="radio" name="entry.290432997" value="창업 준비 중">
         <div>
           <div class="option-label">창업 준비 중</div>
         </div>
       </label>
       <label class="option-item">
-        <input type="radio" name="entry.1777667790" value="현재매장운영중">
+        <input type="radio" name="entry.290432997" value="현재 매장 운영 중">
         <div>
           <div class="option-label">현재 매장 운영 중</div>
         </div>
@@ -464,28 +464,28 @@ input::placeholder{color:#c0c0c5;}
 
     <div class="option-group">
       <label class="option-item">
-        <input type="checkbox" name="entry.1978123962" value="하이오더">
+        <input type="checkbox" name="entry.1123939569" value="통신 / 결제 패키지">
         <div>
           <div class="option-label">통신 / 결제 패키지</div>
           <div class="option-desc">인터넷, VAN, POS 등</div>
         </div>
       </label>
       <label class="option-item">
-        <input type="checkbox" name="entry.1978123962" value="서빙로봇">
+        <input type="checkbox" name="entry.1123939569" value="마케팅 프로모션">
         <div>
           <div class="option-label">마케팅 프로모션</div>
           <div class="option-desc">블로그, 숏폼 홍보 등</div>
         </div>
       </label>
       <label class="option-item">
-        <input type="checkbox" name="entry.1978123962" value="AI전화">
+        <input type="checkbox" name="entry.1123939569" value="프랜차이즈 솔루션">
         <div>
           <div class="option-label">프랜차이즈 솔루션</div>
           <div class="option-desc">가맹점 운영 시스템</div>
         </div>
       </label>
       <label class="option-item">
-        <input type="checkbox" name="entry.1978123962" value="지능형CCTV">
+        <input type="checkbox" name="entry.1123939569" value="해당 없음">
         <div>
           <div class="option-label">해당 없음</div>
         </div>
@@ -518,7 +518,7 @@ input::placeholder{color:#c0c0c5;}
       </div>
       <div class="privacy-note">※ 동의를 거부하실 권리가 있으나, 거부 시 주차권 발송이 불가합니다.</div>
       <label class="privacy-agree">
-        <input type="checkbox" id="agreeRequired" name="entry.2017434924_agree" onchange="updateAllAgree()">
+        <input type="checkbox" id="agreeRequired" name="entry.290432997_agree" onchange="updateAllAgree()">
         <span class="privacy-agree-text">동의합니다</span>
       </label>
     </div>
@@ -539,7 +539,7 @@ input::placeholder{color:#c0c0c5;}
       </div>
       <div class="privacy-note">※ 선택 동의 거부 시에도 주차권 발송에 불이익이 없습니다.</div>
       <label class="privacy-agree">
-        <input type="checkbox" id="agreeMarketing" name="entry.571873176" value="동의합니다" onchange="updateAllAgree()">
+        <input type="checkbox" id="agreeMarketing" name="entry.926480215" value="동의합니다" onchange="updateAllAgree()">
         <span class="privacy-agree-text">동의합니다</span>
       </label>
     </div>
@@ -604,22 +604,22 @@ function submitForm(){
   if(!document.getElementById('agreeRequired').checked){alert('주차권 발송을 위한 개인정보 수집·이용에 동의해 주세요. (필수)');return;}
 
   const formData = new FormData();
-  formData.append('entry.2017434924', '동의합니다');
-  formData.append('entry.1823273665', phone);
-  formData.append('entry.1210091884', document.getElementById('storeName').value.trim());
-  formData.append('entry.4097053', document.getElementById('carNumber').value.trim());
+  formData.append('entry.1746244752', '동의합니다');
+  formData.append('entry.1481871015', phone);
+  formData.append('entry.512242654', document.getElementById('storeName').value.trim());
+  formData.append('entry.234552476', document.getElementById('carNumber').value.trim());
   // 운영 상태 (객관식)
-  const statusEl = document.querySelector('input[name="entry.1777667790"]:checked');
-  if(statusEl) formData.append('entry.1777667790', statusEl.value);
+  const statusEl = document.querySelector('input[name="entry.111678430"]:checked');
+  if(statusEl) formData.append('entry.111678430', statusEl.value);
 
   // 관심 서비스 다중선택 - 동일 key로 여러번 append
-  document.querySelectorAll('input[name="entry.1978123962"]:checked').forEach(el => {
-    formData.append('entry.1978123962', el.value);
+  document.querySelectorAll('input[name="entry.1123939569"]:checked').forEach(el => {
+    formData.append('entry.1123939569', el.value);
   });
-  formData.append('entry.2017434924', '동의합니다');
-  if(document.getElementById('agreeMarketing').checked) formData.append('entry.571873176', '동의합니다');
+  formData.append('entry.290432997', '동의합니다');
+  if(document.getElementById('agreeMarketing').checked) formData.append('entry.926480215', '동의합니다');
 
-  fetch('https://docs.google.com/forms/u/0/d/e/1FAIpQLSct-qFbf2k4_lQS1PxmXhF50AmGdNX9zIDT364oPhGsAOLsBw/formResponse', {method:'POST',mode:'no-cors',body:formData})
+  fetch('https://docs.google.com/forms/u/0/d/e/1FAIpQLSd8HEH1D0eMU-lLT_jroH1qf4kMrJIyzO35n9ADPdyMYPjRpA/formResponse', {method:'POST',mode:'no-cors',body:formData})
   .finally(() => {
     document.getElementById('successOverlay').classList.add('show');
     document.getElementById('phone').value='';
