@@ -604,7 +604,6 @@ function submitForm(){
   if(!document.getElementById('agreeRequired').checked){alert('주차권 발송을 위한 개인정보 수집·이용에 동의해 주세요. (필수)');return;}
 
   const formData = new FormData();
-  formData.append('entry.2017434924', '동의합니다');
   formData.append('entry.1823273665', phone);
   formData.append('entry.1210091884', document.getElementById('storeName').value.trim());
   formData.append('entry.4097053', document.getElementById('carNumber').value.trim());
