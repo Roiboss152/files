@@ -1,4 +1,4 @@
-html_content = """<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
@@ -39,17 +39,11 @@ html_content = """<!DOCTYPE html>
             100% { transform: translate(50px, 80px) scale(1.2); }
         }
 
-        /* Converging Animations */
-        .reveal-left { opacity: 0; transform: translateX(-150px); transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1); }
-        .reveal-right { opacity: 0; transform: translateX(150px); transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1); }
-        .reveal-bottom { opacity: 0; transform: translateY(100px); transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1); }
-        .reveal-diag-left { opacity: 0; transform: translate(-100px, 100px); transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1); }
-        .reveal-diag-right { opacity: 0; transform: translate(100px, 100px); transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1); }
-        
-        .reveal-active { opacity: 1; transform: translate(0, 0); }
-        .delay-1 { transition-delay: 0.1s; }
-        .delay-2 { transition-delay: 0.2s; }
-        .delay-3 { transition-delay: 0.3s; }
+        /* Scroll Reveal Utility Classes */
+        .reveal { opacity: 0; transform: translateY(50px); transition: all 1s cubic-bezier(0.16, 1, 0.3, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+        .delay-1 { transition-delay: 0.2s; }
+        .delay-2 { transition-delay: 0.4s; }
 
         /* Hero Section */
         .hero {
@@ -74,14 +68,14 @@ html_content = """<!DOCTYPE html>
         @keyframes bounce { 0%, 20%, 50%, 80%, 100% { transform: translateY(0) translateX(-50%); } 40% { transform: translateY(-10px) translateX(-50%); } }
 
         /* Section Layout */
-        .section { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 100px 20px; max-width: 1000px; margin: 0 auto; overflow: hidden; }
+        .section { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 100px 20px; max-width: 1000px; margin: 0 auto; }
         .sec-title { font-size: 2.5rem; font-weight: 700; margin-bottom: 50px; letter-spacing: -1px; }
         
         /* Grid Cards (Step 1) */
-        .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; }
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
         .type-card {
             background: var(--glass-bg); backdrop-filter: blur(10px); border: 1px solid var(--glass-border);
-            border-radius: 20px; padding: 40px 20px; text-align: center; cursor: pointer;
+            border-radius: 20px; padding: 40px 30px; text-align: center; cursor: pointer;
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); position: relative; overflow: hidden;
         }
         .type-card::before {
@@ -91,23 +85,23 @@ html_content = """<!DOCTYPE html>
         .type-card:hover { transform: translateY(-10px); border-color: var(--accent-cyan); box-shadow: 0 20px 40px rgba(0, 240, 255, 0.1); }
         .type-card:hover::before { left: 100%; }
         .card-icon { font-size: 2rem; margin-bottom: 20px; color: var(--accent-cyan); }
-        .card-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 10px; }
+        .card-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 10px; }
 
         /* Modal (Pop-up) Styles */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.4s ease; display: flex; justify-content: center; align-items: center;
         }
         .modal-overlay.active { opacity: 1; pointer-events: all; }
         
         .modal-content {
-            background: rgba(15, 15, 20, 0.9); border: 1px solid rgba(255,255,255,0.15); border-radius: 24px;
-            width: 90%; max-width: 600px; padding: 50px 40px; position: relative;
-            transform: scale(0.9) translateY(30px); opacity: 0; transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 30px 60px rgba(0,0,0,0.8), 0 0 50px rgba(0, 240, 255, 0.15);
+            background: rgba(15, 15, 20, 0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px;
+            width: 100%; max-width: 600px; padding: 50px 40px; position: relative;
+            transform: translateY(50px) scale(0.95); opacity: 0; transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5), 0 0 40px rgba(0, 240, 255, 0.1);
         }
-        .modal-overlay.active .modal-content { transform: scale(1) translateY(0); opacity: 1; }
+        .modal-overlay.active .modal-content { transform: translateY(0) scale(1); opacity: 1; }
         
         .btn-close {
             position: absolute; top: 20px; right: 25px; background: none; border: none; color: #fff;
@@ -116,13 +110,13 @@ html_content = """<!DOCTYPE html>
         .btn-close:hover { opacity: 1; }
 
         /* Form Inputs inside Modal */
-        .form-group { margin-bottom: 24px; text-align: left; }
+        .form-group { margin-bottom: 24px; }
         .form-group label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--accent-cyan); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
         .form-group input, .form-group select, .form-group textarea {
-            width: 100%; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px;
-            padding: 16px 20px; color: #fff; font-size: 1rem; outline: none; transition: all 0.3s;
+            width: 100%; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
+            padding: 16px 20px; color: #fff; font-size: 1.1rem; outline: none; transition: all 0.3s;
         }
-        .form-group input:focus, .form-group textarea:focus { border-color: var(--accent-cyan); box-shadow: 0 0 20px rgba(0, 240, 255, 0.3); background: rgba(0,0,0,0.8); }
+        .form-group input:focus, .form-group textarea:focus { border-color: var(--accent-cyan); box-shadow: 0 0 20px rgba(0, 240, 255, 0.2); background: rgba(0,0,0,0.6); }
         .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .dynamic-form { display: none; }
         .dynamic-form.active { display: block; animation: modalFadeIn 0.5s; }
@@ -144,22 +138,21 @@ html_content = """<!DOCTYPE html>
         }
         .option-label input:checked ~ .option-card { border-color: #fff; color: #fff; background: rgba(255,255,255,0.1); box-shadow: 0 0 20px rgba(255,255,255,0.1); }
 
-        .color-picker-wrap { display: flex; align-items: center; gap: 20px; margin-bottom: 40px; padding: 20px; background: var(--glass-bg); border-radius: 16px; border: 1px solid var(--glass-border); flex-wrap: wrap; }
+        .color-picker-wrap { display: flex; align-items: center; gap: 20px; margin-bottom: 40px; padding: 20px; background: var(--glass-bg); border-radius: 16px; border: 1px solid var(--glass-border); }
         .preset-color { width: 40px; height: 40px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: 0.3s; }
         .preset-color:hover { transform: scale(1.1); }
         .preset-color.active { border-color: #fff; box-shadow: 0 0 15px rgba(255,255,255,0.5); }
 
-        .template-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
-        .template-card { border: 1px solid var(--glass-border); border-radius: 16px; overflow: hidden; cursor: pointer; position: relative; background: rgba(0,0,0,0.4); padding: 10px;}
-        /* FIXED: object-fit contain so it isn't cropped */
-        .template-img { width: 100%; height: 250px; object-fit: contain; opacity: 0.6; transition: 0.5s; }
-        .template-label input:checked ~ .template-card { border-color: var(--accent-cyan); box-shadow: 0 0 30px rgba(0, 240, 255, 0.2); background: rgba(0, 240, 255, 0.05); }
-        .template-label input:checked ~ .template-card .template-img { opacity: 1; transform: scale(1.03); }
-        .template-name { position: absolute; bottom: 0; left: 0; width: 100%; padding: 15px; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); font-weight: 700; font-size: 1rem; text-align:center;}
+        .template-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        .template-card { border: 1px solid var(--glass-border); border-radius: 16px; overflow: hidden; cursor: pointer; position: relative; }
+        .template-img { width: 100%; height: 250px; object-fit: cover; opacity: 0.6; transition: 0.5s; }
+        .template-label input:checked ~ .template-card { border-color: var(--accent-cyan); box-shadow: 0 0 30px rgba(0, 240, 255, 0.2); }
+        .template-label input:checked ~ .template-card .template-img { opacity: 1; transform: scale(1.05); }
+        .template-name { position: absolute; bottom: 0; left: 0; width: 100%; padding: 20px; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); font-weight: 700; font-size: 1.1rem; }
 
         /* Output Area */
         .btn-epic {
-            display: block; width: 100%; padding: 25px; margin: 60px 0; border: none; border-radius: 20px;
+            display: block; width: 100%; padding: 25px; margin: 80px 0; border: none; border-radius: 20px;
             background: #fff; color: #000; font-size: 1.5rem; font-weight: 800; cursor: pointer;
             transition: all 0.4s; position: relative; overflow: hidden;
         }
@@ -177,40 +170,31 @@ html_content = """<!DOCTYPE html>
     <div class="ambient-glow glow-1"></div>
     <div class="ambient-glow glow-2"></div>
 
-    <!-- 0. Hero Section -->
     <header class="hero">
-        <div class="hero-badge reveal-bottom">KT Synergy Sales Team</div>
-        <h1 class="hero-title reveal-bottom delay-1">The Ultimate<br>QR Generator</h1>
-        <p class="reveal-bottom delay-2" style="font-size: 1.2rem; color: var(--text-muted);">몰입감 넘치는 인터랙션과 함께 생성하세요</p>
+        <div class="hero-badge reveal">KT Synergy Sales Team</div>
+        <h1 class="hero-title reveal delay-1">The Ultimate<br>QR Generator</h1>
+        <p class="reveal delay-2" style="font-size: 1.2rem; color: var(--text-muted);">디지털 명함부터 마케팅 템플릿까지 완벽한 통합</p>
         <div class="scroll-indicator">
             <span style="font-size: 0.8rem; letter-spacing: 2px;">SCROLL</span>
             <div class="scroll-line"></div>
         </div>
     </header>
 
-    <!-- 1. Type Selection -->
     <section class="section">
-        <h2 class="sec-title reveal-left">01. Select Type</h2>
+        <h2 class="sec-title reveal">01. Select Type</h2>
         <div class="card-grid">
-            <div class="type-card reveal-diag-left" onclick="openModal('wifi')">
-                <div class="card-icon">📶</div><div class="card-title">Wi-Fi</div><div style="color:var(--text-muted); font-size:0.9rem;">네트워크 자동 접속</div>
+            <div class="type-card reveal" onclick="openModal('wifi')">
+                <div class="card-icon">📶</div><div class="card-title">Wi-Fi</div><div style="color:var(--text-muted); font-size:0.9rem;">스캔 즉시 네트워크 접속</div>
             </div>
-            <div class="type-card reveal-bottom delay-1" onclick="openModal('url')">
-                <div class="card-icon">🔗</div><div class="card-title">URL Link</div><div style="color:var(--text-muted); font-size:0.9rem;">웹사이트 랜딩</div>
+            <div class="type-card reveal delay-1" onclick="openModal('url')">
+                <div class="card-icon">🔗</div><div class="card-title">URL Link</div><div style="color:var(--text-muted); font-size:0.9rem;">지정된 웹사이트로 랜딩</div>
             </div>
-            <div class="type-card reveal-diag-right delay-2" onclick="openModal('vcard')">
-                <div class="card-icon">🪪</div><div class="card-title">Digital vCard</div><div style="color:var(--text-muted); font-size:0.9rem;">명함 자동 저장</div>
-            </div>
-            <div class="type-card reveal-left delay-1" onclick="openModal('tel')">
-                <div class="card-icon">📞</div><div class="card-title">Phone</div><div style="color:var(--text-muted); font-size:0.9rem;">전화 걸기</div>
-            </div>
-            <div class="type-card reveal-right delay-2" onclick="openModal('sms')">
-                <div class="card-icon">✉️</div><div class="card-title">SMS</div><div style="color:var(--text-muted); font-size:0.9rem;">문자 발송</div>
+            <div class="type-card reveal delay-2" onclick="openModal('vcard')">
+                <div class="card-icon">🪪</div><div class="card-title">Digital vCard</div><div style="color:var(--text-muted); font-size:0.9rem;">연락처 자동 저장 시스템</div>
             </div>
         </div>
     </section>
 
-    <!-- Modal (Pop-up) for Input -->
     <div class="modal-overlay" id="inputModal">
         <div class="modal-content">
             <button class="btn-close" onclick="closeModal()">✕</button>
@@ -218,121 +202,86 @@ html_content = """<!DOCTYPE html>
             
             <input type="hidden" id="selectedType" value="">
 
-            <!-- Wi-Fi Form -->
             <div id="form-wifi" class="dynamic-form">
-                <div class="form-group"><label>네트워크 이름 (SSID)</label><input type="text" id="wifi-ssid" placeholder="예: KT_GiGA_5G"></div>
+                <div class="form-group"><label>SSID</label><input type="text" id="wifi-ssid" placeholder="예: KT_GiGA_5G"></div>
                 <div class="input-row">
-                    <div class="form-group"><label>비밀번호</label><input type="text" id="wifi-pw" placeholder="비밀번호 입력"></div>
-                    <div class="form-group"><label>보안 유형</label><select id="wifi-type"><option value="WPA">WPA/WPA2</option><option value="WEP">WEP</option><option value="nopass">없음</option></select></div>
-                </div>
-                <div class="form-group" style="display:flex; align-items:center; gap:10px;">
-                    <input type="checkbox" id="wifi-hidden" style="width:auto; margin:0;"><label for="wifi-hidden" style="margin:0;">숨겨진 네트워크</label>
+                    <div class="form-group"><label>Password</label><input type="text" id="wifi-pw" placeholder="비밀번호 입력"></div>
+                    <div class="form-group"><label>Security</label><select id="wifi-type"><option value="WPA">WPA/WPA2</option><option value="nopass">없음</option></select></div>
                 </div>
             </div>
 
-            <!-- URL Form -->
             <div id="form-url" class="dynamic-form">
                 <div class="form-group">
-                    <label>URL 주소</label>
-                    <input type="text" id="url-input" placeholder="예: https://kt.com">
-                    <div style="font-size:0.8rem; color:#888; margin-top:8px;">※ http:// 또는 https:// 를 포함해 입력하세요</div>
+                    <label>Landing URL</label>
+                    <input type="text" id="url-input" placeholder="https://kt.com">
                 </div>
             </div>
 
-            <!-- vCard Form -->
             <div id="form-vcard" class="dynamic-form">
                 <div class="input-row">
-                    <div class="form-group"><label>이름</label><input type="text" id="vc-name" placeholder="예: 이대희"></div>
-                    <div class="form-group"><label>연락처</label><input type="tel" id="vc-phone" placeholder="예: 010-1234-5678"></div>
+                    <div class="form-group"><label>Name</label><input type="text" id="vc-name" placeholder="예: 이대희"></div>
+                    <div class="form-group"><label>Phone</label><input type="tel" id="vc-phone" placeholder="예: 010-1234-5678"></div>
                 </div>
                 <div class="input-row">
-                    <div class="form-group"><label>회사</label><input type="text" id="vc-company" placeholder="예: KT"></div>
-                    <div class="form-group"><label>부서</label><input type="text" id="vc-dept" placeholder="예: 시너지영업3팀"></div>
+                    <div class="form-group"><label>Company</label><input type="text" id="vc-company" placeholder="예: KT"></div>
+                    <div class="form-group"><label>Department</label><input type="text" id="vc-dept" placeholder="예: 시너지영업3팀"></div>
                 </div>
                 <div class="input-row">
-                    <div class="form-group"><label>직위</label><input type="text" id="vc-title" placeholder="예: 과장"></div>
-                    <div class="form-group"><label>이메일</label><input type="email" id="vc-email" placeholder="예: daehee.lee@kt.com"></div>
+                    <div class="form-group"><label>Position</label><input type="text" id="vc-title" placeholder="예: 과장"></div>
+                    <div class="form-group"><label>Email</label><input type="email" id="vc-email" placeholder="예: daehee.lee@kt.com"></div>
                 </div>
-                <div class="form-group"><label>주소</label><input type="text" id="vc-address" placeholder="예: 인천광역시 남동구 정각로"></div>
-            </div>
-
-            <!-- Phone Form -->
-            <div id="form-tel" class="dynamic-form">
-                <div class="form-group"><label>전화번호</label><input type="tel" id="tel-input" placeholder="예: 010-1234-5678"></div>
-            </div>
-
-            <!-- SMS Form -->
-            <div id="form-sms" class="dynamic-form">
-                <div class="form-group"><label>수신 번호</label><input type="tel" id="sms-number" placeholder="예: 010-1234-5678"></div>
-                <div class="form-group"><label>메시지 내용</label><textarea id="sms-msg" rows="3" placeholder="내용을 입력하세요"></textarea></div>
             </div>
 
             <button class="btn-save" onclick="saveAndScrollToNext()">Confirm & Continue</button>
         </div>
     </div>
 
-    <!-- 2. Settings (Logo & Color) -->
     <section class="section" id="section-design">
-        <h2 class="sec-title reveal-right">02. Aesthetics</h2>
+        <h2 class="sec-title reveal">02. Aesthetics</h2>
         
-        <h3 class="reveal-left" style="margin-bottom: 20px; color: var(--text-muted);">Center Logo</h3>
-        <div class="option-grid reveal-bottom delay-1">
-            <label class="option-label"><input type="radio" name="logoType" value="none" checked><div class="option-card">없음</div></label>
-            <label class="option-label"><input type="radio" name="logoType" value="kt"><div class="option-card">KT 로고</div></label>
-            <label class="option-label">
-                <input type="radio" name="logoType" value="custom" onchange="document.getElementById('custom-logo-input').click()">
-                <div class="option-card" id="custom-logo-label">업로드</div>
-            </label>
+        <h3 class="reveal" style="margin-bottom: 20px; color: var(--text-muted);">Center Logo</h3>
+        <div class="option-grid reveal delay-1">
+            <label class="option-label"><input type="radio" name="logoType" value="none" checked><div class="option-card">미사용</div></label>
+            <label class="option-label"><input type="radio" name="logoType" value="kt"><div class="option-card">KT BI 로고</div></label>
         </div>
-        <input type="file" id="custom-logo-input" accept="image/png, image/jpeg" style="display:none;" onchange="if(this.files[0]) { document.getElementById('custom-logo-label').innerText='업로드됨'; document.querySelector('input[value=\'custom\']').checked=true;}">
 
-        <h3 class="reveal-left" style="margin-bottom: 20px; color: var(--text-muted);">QR Pattern Color</h3>
-        <div class="color-picker-wrap reveal-bottom delay-2">
+        <h3 class="reveal" style="margin-bottom: 20px; color: var(--text-muted);">QR Pattern Color</h3>
+        <div class="color-picker-wrap reveal delay-2">
             <input type="hidden" id="qr-color" value="#000000">
             <div class="preset-color active" style="background: #ffffff;" onclick="setQRColor(this, '#ffffff')"></div>
             <div class="preset-color" style="background: #00d2ff;" onclick="setQRColor(this, '#00d2ff')"></div>
             <div class="preset-color" style="background: #000000;" onclick="setQRColor(this, '#000000')"></div>
             <div class="preset-color" style="background: #ff004f;" onclick="setQRColor(this, '#ff004f')"></div>
-            <div class="preset-color" style="background: #1a2b4c;" onclick="setQRColor(this, '#1a2b4c')"></div>
         </div>
     </section>
 
-    <!-- 3. Templates -->
     <section class="section" id="section-template">
-        <h2 class="sec-title reveal-left">03. Synthesis Template</h2>
+        <h2 class="sec-title reveal">03. Synthesis Template</h2>
         <div class="template-grid">
-            <label class="template-label reveal-diag-left">
+            <label class="template-label reveal">
                 <input type="radio" name="bgTemplate" value="none" checked>
-                <div class="template-card" style="display: flex; align-items: center; justify-content: center; height: 270px; border: 1px dashed var(--glass-border);">
-                    <div style="font-size: 1.2rem; font-weight: 700; color: #fff;">[QR만 저장] (투명 배경)</div>
+                <div class="template-card" style="display: flex; align-items: center; justify-content: center; height: 250px; border: 1px dashed var(--glass-border);">
+                    <div style="font-size: 1.5rem; font-weight: 700; color: #fff;">투명 배경 (QR만 추출)</div>
                 </div>
             </label>
-            <label class="template-label reveal-bottom delay-1">
-                <input type="radio" name="bgTemplate" value="t1">
-                <div class="template-card">
-                    <img src="https://kt-synergy.com/assets/image/qr_templates/qr_template_01_sample.png" class="template-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMzMiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlRlbXBsYXRlIDE8L3RleHQ+PC9zdmc+'">
-                    <div class="template-name">템플릿 01 (모던 베이지)</div>
-                </div>
-            </label>
-            <label class="template-label reveal-bottom delay-2">
+            <label class="template-label reveal delay-1">
                 <input type="radio" name="bgTemplate" value="t2">
                 <div class="template-card">
                     <img src="https://kt-synergy.com/assets/image/qr_templates/qr_template_02_sample.png" class="template-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMzMiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlRlbXBsYXRlIDI8L3RleHQ+PC9zdmc+'">
-                    <div class="template-name">템플릿 02 (포레스트)</div>
+                    <div class="template-name">Forest Template</div>
                 </div>
             </label>
-            <label class="template-label reveal-diag-right delay-3">
+            <label class="template-label reveal delay-2">
                 <input type="radio" name="bgTemplate" value="t3">
                 <div class="template-card">
                     <img src="https://kt-synergy.com/assets/image/qr_templates/qr_template_03_sample.png" class="template-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMzMiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlRlbXBsYXRlIDM8L3RleHQ+PC9zdmc+'">
-                    <div class="template-name">템플릿 03 (빌딩 스카이)</div>
+                    <div class="template-name">Cityscape Template</div>
                 </div>
             </label>
         </div>
 
-        <button class="btn-epic reveal-bottom delay-1" onclick="generateComposite()">RENDER FINAL ASSET</button>
+        <button class="btn-epic reveal" onclick="generateComposite()">RENDER FINAL ASSET</button>
 
-        <!-- Final Output -->
         <div id="result-area" class="result-area">
             <h2 style="font-size: 3rem; font-weight: 800; margin-bottom: 40px; color: var(--accent-cyan);">Ready to Deploy.</h2>
             <div id="qr-hidden"></div>
@@ -343,16 +292,16 @@ html_content = """<!DOCTYPE html>
     </section>
 
     <script>
-        // Converging Scroll Reveal Observer
+        // Scroll Reveal Observer
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
-                    entry.target.classList.add('reveal-active');
+                    entry.target.classList.add('active');
                 }
             });
         }, { threshold: 0.1 });
 
-        document.querySelectorAll('.reveal-left, .reveal-right, .reveal-bottom, .reveal-diag-left, .reveal-diag-right').forEach((el) => observer.observe(el));
+        document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
 
         // Modal Logic
         const modal = document.getElementById('inputModal');
@@ -362,7 +311,7 @@ html_content = """<!DOCTYPE html>
             document.querySelectorAll('.dynamic-form').forEach(el => el.classList.remove('active'));
             document.getElementById('form-' + type).classList.add('active');
             
-            const titles = { 'wifi': 'Wi-Fi Configuration', 'url': 'Landing URL', 'vcard': 'Digital vCard Data', 'tel': 'Phone Call', 'sms': 'Send SMS' };
+            const titles = { 'wifi': 'Wi-Fi Configuration', 'url': 'Landing URL', 'vcard': 'Digital vCard Data' };
             document.getElementById('modalTitle').innerText = titles[type];
             
             modal.classList.add('active');
@@ -374,9 +323,8 @@ html_content = """<!DOCTYPE html>
 
         function saveAndScrollToNext() {
             closeModal();
-            setTimeout(() => {
-                document.getElementById('section-design').scrollIntoView({ behavior: 'smooth' });
-            }, 300);
+            // Smooth scroll to next section
+            document.getElementById('section-design').scrollIntoView({ behavior: 'smooth' });
         }
 
         // Color Picker
@@ -386,7 +334,7 @@ html_content = """<!DOCTYPE html>
             document.getElementById('qr-color').value = hex;
         }
 
-        // Core Generation Logic
+        // Core Generation Logic (Combined from previous robust version)
         async function generateComposite() {
             const type = document.getElementById('selectedType').value;
             if(!type) { alert("먼저 상단에서 QR 종류를 선택하고 정보를 입력해 주세요."); window.scrollTo({top:0, behavior:'smooth'}); return; }
@@ -400,8 +348,7 @@ html_content = """<!DOCTYPE html>
                 const ssid = document.getElementById('wifi-ssid').value;
                 const pw = document.getElementById('wifi-pw').value;
                 const sec = document.getElementById('wifi-type').value;
-                const hid = document.getElementById('wifi-hidden').checked ? "true" : "false";
-                qrData = `WIFI:T:${sec};S:${ssid};P:${pw};H:${hid};;`;
+                qrData = `WIFI:T:${sec};S:${ssid};P:${pw};H:false;;`;
             } else if (type === 'url') {
                 qrData = document.getElementById('url-input').value;
             } else if (type === 'vcard') {
@@ -411,18 +358,7 @@ html_content = """<!DOCTYPE html>
                 const d = document.getElementById('vc-dept').value;
                 const t = document.getElementById('vc-title').value;
                 const e = document.getElementById('vc-email').value;
-                const a = document.getElementById('vc-address').value;
-                qrData = `BEGIN:VCARD\nVERSION:3.0\nN:${n}\nORG:${c};${d}\nTITLE:${t}\nTEL:${p}\nEMAIL:${e}\nADR:;;${a};;;;\nEND:VCARD`;
-            } else if (type === 'tel') {
-                qrData = `tel:${document.getElementById('tel-input').value}`;
-            } else if (type === 'sms') {
-                qrData = `smsto:${document.getElementById('sms-number').value}:${document.getElementById('sms-msg').value}`;
-            }
-
-            if (!qrData.replace(/BEGIN:VCARD[\s\S]*END:VCARD/, '').trim() && type !== 'vcard' && !qrData.trim()) {
-                alert("정보를 올바르게 입력해 주세요.");
-                openModal(type);
-                return;
+                qrData = `BEGIN:VCARD\nVERSION:3.0\nN:${n}\nORG:${c};${d}\nTITLE:${t}\nTEL:${p}\nEMAIL:${e}\nEND:VCARD`;
             }
 
             const qrHidden = document.getElementById('qr-hidden');
@@ -448,12 +384,7 @@ html_content = """<!DOCTYPE html>
                         ctx.fillRect(0,0,600,600); resolve(null);
                     } else {
                         let bgImg = new Image(); bgImg.crossOrigin = "Anonymous";
-                        let src = "";
-                        if(templateMode === 't1') src = "https://kt-synergy.com/assets/image/qr_templates/qr_template_01.png";
-                        if(templateMode === 't2') src = "https://kt-synergy.com/assets/image/qr_templates/qr_template_02.png";
-                        if(templateMode === 't3') src = "https://kt-synergy.com/assets/image/qr_templates/qr_template_03.png";
-                        
-                        bgImg.src = src;
+                        bgImg.src = templateMode === 't2' ? "https://kt-synergy.com/assets/image/qr_templates/qr_template_02.png" : "https://kt-synergy.com/assets/image/qr_templates/qr_template_03.png";
                         bgImg.onload = () => { canvas.width = 1080; canvas.height = 1920; ctx.drawImage(bgImg, 0, 0, 1080, 1920); resolve(bgImg); };
                         bgImg.onerror = () => { canvas.width = 1080; canvas.height = 1920; ctx.fillStyle = "#111"; ctx.fillRect(0,0,1080,1920); resolve(null); };
                     }
@@ -465,59 +396,30 @@ html_content = """<!DOCTYPE html>
                 baseQRImg.onload = async () => {
                     let qrX = 0, qrY = 0, qrSize = 600;
                     if(templateMode !== 'none') {
-                        qrSize = 600; qrX = (1080 - qrSize) / 2; 
-                        if (templateMode === 't1') qrY = 150;
-                        else if (templateMode === 't2') qrY = 300;
-                        else if (templateMode === 't3') qrY = 250;
-                        
+                        qrSize = 600; qrX = (1080 - qrSize) / 2; qrY = templateMode === 't2' ? 300 : 250;
                         ctx.fillStyle = "#ffffff"; ctx.fillRect(qrX - 20, qrY - 20, qrSize + 40, qrSize + 40);
                     }
                     ctx.drawImage(baseQRImg, qrX, qrY, qrSize, qrSize);
 
-                    if (logoType !== 'none') {
+                    if (logoType === 'kt') {
                         let logoImg = new Image(); logoImg.crossOrigin = "Anonymous";
-                        let loadLogo = new Promise((res) => { 
-                            logoImg.onload = res; logoImg.onerror = res; 
-                            if(logoType === 'kt') {
-                                logoImg.src = "https://kt-synergy.com/assets/image/CI_BI/kt_icon02.png"; 
-                            } else {
-                                const fileInput = document.getElementById('custom-logo-input');
-                                if (fileInput.files && fileInput.files[0]) {
-                                    const reader = new FileReader();
-                                    reader.onload = function(e) { logoImg.src = e.target.result; };
-                                    reader.readAsDataURL(fileInput.files[0]);
-                                } else { res(); }
-                            }
-                        });
+                        let loadLogo = new Promise((res) => { logoImg.onload = res; logoImg.onerror = res; logoImg.src = "https://kt-synergy.com/assets/image/CI_BI/kt_icon02.png"; });
                         await loadLogo;
                         if (logoImg.src) { const lSize = qrSize * 0.28; ctx.drawImage(logoImg, qrX + (qrSize-lSize)/2, qrY + (qrSize-lSize)/2, lSize, lSize); }
                     }
 
                     if (templateMode !== 'none') {
                         ctx.fillStyle = "#222"; ctx.textAlign = "center";
-                        ctx.shadowColor = "rgba(255, 255, 255, 0.9)"; ctx.shadowBlur = 15;
                         let textY = qrY + qrSize + 120;
                         
                         if (type === 'vcard') {
-                            ctx.font = "35px Pretendard, sans-serif"; ctx.fillText(`${document.getElementById('vc-company').value} ${document.getElementById('vc-dept').value}`, 540, textY);
-                            ctx.font = "bold 50px Pretendard, sans-serif"; ctx.fillText(`${document.getElementById('vc-name').value} ${document.getElementById('vc-title').value}`, 540, textY + 70);
-                            ctx.font = "35px Pretendard, sans-serif"; ctx.fillText(document.getElementById('vc-phone').value, 540, textY + 140);
-                            ctx.fillText(document.getElementById('vc-email').value, 540, textY + 200);
-                            ctx.font = "30px Pretendard, sans-serif"; ctx.fillText(document.getElementById('vc-address').value, 540, textY + 260);
-                        } else if (type === 'wifi') {
-                            ctx.font = "bold 50px Pretendard, sans-serif"; ctx.fillText("Wi-Fi Network", 540, textY);
-                            ctx.font = "40px Pretendard, sans-serif"; ctx.fillText(document.getElementById('wifi-ssid').value, 540, textY + 70);
-                        } else if (type === 'url') {
-                            ctx.font = "bold 50px Pretendard, sans-serif"; ctx.fillText("웹사이트 연결", 540, textY);
-                            ctx.font = "35px Pretendard, sans-serif"; ctx.fillText(document.getElementById('url-input').value, 540, textY + 70);
-                        } else if (type === 'tel') {
-                            ctx.font = "bold 50px Pretendard, sans-serif"; ctx.fillText("전화 연결", 540, textY);
-                            ctx.font = "40px Pretendard, sans-serif"; ctx.fillText(document.getElementById('tel-input').value, 540, textY + 70);
-                        } else if (type === 'sms') {
-                            ctx.font = "bold 50px Pretendard, sans-serif"; ctx.fillText("문자 전송", 540, textY);
-                            ctx.font = "40px Pretendard, sans-serif"; ctx.fillText(document.getElementById('sms-number').value, 540, textY + 70);
+                            ctx.font = "40px Pretendard, sans-serif"; ctx.fillText(`${document.getElementById('vc-company').value} ${document.getElementById('vc-dept').value}`, 540, textY);
+                            ctx.font = "bold 60px Pretendard, sans-serif"; ctx.fillText(`${document.getElementById('vc-name').value} ${document.getElementById('vc-title').value}`, 540, textY + 80);
+                            ctx.font = "40px Pretendard, sans-serif"; ctx.fillText(document.getElementById('vc-phone').value, 540, textY + 160);
+                            ctx.fillText(document.getElementById('vc-email').value, 540, textY + 230);
+                        } else {
+                            ctx.font = "bold 60px Pretendard, sans-serif"; ctx.fillText("KT Synergy Sales", 540, textY);
                         }
-                        ctx.shadowBlur = 0;
                     }
 
                     document.getElementById('result-area').classList.add('active');
@@ -530,9 +432,3 @@ html_content = """<!DOCTYPE html>
     </script>
 </body>
 </html>
-"""
-
-with open("kt_showcase_qr.html", "w", encoding="utf-8") as f:
-    f.write(html_content)
-
-print("Generated kt_showcase_qr.html")
