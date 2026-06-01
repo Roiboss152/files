@@ -70,14 +70,8 @@
         .card-container { position: relative; width: 100%; display: flex; justify-content: center; padding: 50px 0; }
         .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 24px; width: 100%; }
         
-        /* [수정 1] 글래스모피즘 스타일 적용 + 클릭 방어 로직 제거 및 모바일 터치 최적화 속성 추가 */
-        .type-card { 
-            background: var(--glass-bg); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); 
-            border: 1px solid var(--glass-border); border-radius: 24px; padding: 45px 25px; 
-            text-align: center; cursor: pointer; opacity: 0; transition: all 0.3s; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.03); 
-            touch-action: manipulation; position: relative; z-index: 10; 
-        }
+        /* 글래스모피즘 스타일 적용 */
+        .type-card { background: var(--glass-bg); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 24px; padding: 45px 25px; text-align: center; cursor: pointer; pointer-events: none; opacity: 0; transition: all 0.3s; box-shadow: 0 10px 30px rgba(0,0,0,0.03); }
         .type-card:hover { border-color: var(--accent-main); box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08); transform: translateY(-5px); }
         
         /* 아이콘 모노톤 처리 */
@@ -128,6 +122,7 @@
 </head>
 <body>
 
+    <!-- 세로형 QR 워터마크 -->
     <div class="bg-watermark">QR</div>
 
     <img src="https://kt-synergy.com/assets/image/CI_BI/KT_CI_G01.png" class="kt-ci-logo" alt="KT CI">
@@ -136,6 +131,7 @@
 
     <header class="hero">
         <div class="ml4">
+            <!-- 한글 반응형 3줄 -->
             <span class="letters letters-1">수도권강남고객본부</span>
             <span class="letters letters-2">KT 인천지사</span>
             <span class="letters letters-3 highlight">시너지영업3팀</span>
@@ -214,6 +210,7 @@
     </div>
 
     <section class="section" id="section-design">
+        <!-- 모바일 줄바꿈 방지를 위해 white-space: nowrap 이 css에 적용됨 -->
         <h2 class="sec-title reveal-bottom">02. 디자인 및 로고 설정</h2>
         <h3 class="reveal-left" style="margin-bottom: 20px; color: var(--text-muted); font-size: 1.1rem; text-align: center;">중앙 로고 배치</h3>
         <div class="option-grid reveal-bottom delay-1">
@@ -264,6 +261,7 @@
     </section>
 
     <script>
+        // 한글 3줄 요소에 맞춰 애니메이션 루프 축소 세팅
         const ml4Timeline = anime.timeline({loop: true});
         const letters = ['.letters-1', '.letters-2', '.letters-3'];
         
@@ -286,7 +284,11 @@
 
         gsap.to(".type-card", {
             scrollTrigger: {
-                trigger: "#sec-type", start: "top 95%", end: "center 50%", scrub: 1.5
+                trigger: "#sec-type", start: "top 95%", end: "center 50%", scrub: 1.5,
+                onUpdate: (self) => {
+                    if(self.progress > 0.95) { document.querySelectorAll('.type-card').forEach(c => c.style.pointerEvents = "auto"); } 
+                    else { document.querySelectorAll('.type-card').forEach(c => c.style.pointerEvents = "none"); }
+                }
             },
             x: 0, y: 0, opacity: 1, stagger: 0.05, ease: "power2.out"
         });
@@ -401,20 +403,19 @@ END:VCARD`; }
 
                 const baseQRImg = new Image();
                 baseQRImg.onload = async () => {
-                    // [좌표 복원] 완벽했던 200px 좌표로 다시 세팅
+                    // Y: 200px 그대로 렌더링 유지
                     ctx.drawImage(baseQRImg, 201, 200, 600, 600);
 
                     if (logoType === 'kt') {
                         let logoImg = new Image(); logoImg.crossOrigin = "Anonymous";
                         let loadLogo = new Promise((res) => { logoImg.onload = res; logoImg.onerror = res; logoImg.src = "https://kt-synergy.com/assets/image/CI_BI/kt_icon02.png"; });
                         await loadLogo;
-                        // 로고도 200px 좌표에 맞게 하향 동기화
                         if (logoImg.src) { const lSize = 160; ctx.drawImage(logoImg, 201 + (600 - lSize) / 2, 200 + (600 - lSize) / 2, lSize, lSize); }
                     }
 
                     ctx.fillStyle = "#111111"; ctx.textAlign = "center";
-                    
-                    let textY = 1018 + 100;
+                    let textY = 1018 + 90; 
+
                     if (type === 'vcard') {
                         const vcName = document.getElementById('vc-name').value || '이대희';
                         const vcPhone = document.getElementById('vc-phone').value || '010-7300-2632';
@@ -425,10 +426,10 @@ END:VCARD`; }
                         const vcAddress = document.getElementById('vc-address').value || '인천광역시 남동구 경인로 508 KT 인천지사 4F';
                         
                         ctx.font = "32px Pretendard, sans-serif"; ctx.fillText(`${vcCompany} ${vcDept}`, 500, textY);
-                        ctx.font = "bold 52px Pretendard, sans-serif"; ctx.fillText(`${vcName} ${vcTitle}`, 500, textY + 60);
-                        ctx.font = "36px Pretendard, sans-serif"; ctx.fillText(vcPhone, 500, textY + 120);
-                        ctx.fillText(vcEmail, 500, textY + 175);
-                        ctx.font = "24px Pretendard, sans-serif"; ctx.fillText(vcAddress, 500, textY + 225);
+                        ctx.font = "bold 52px Pretendard, sans-serif"; ctx.fillText(`${vcName} ${vcTitle}`, 500, textY + 80);
+                        ctx.font = "36px Pretendard, sans-serif"; ctx.fillText(vcPhone, 500, textY + 160);
+                        ctx.fillText(vcEmail, 500, textY + 230);
+                        ctx.font = "24px Pretendard, sans-serif"; ctx.fillText(vcAddress, 500, textY + 300);
                     } else if (type === 'wifi') {
                         const ssid = document.getElementById('wifi-ssid').value || 'KT_GiGA_5G';
                         const pw = document.getElementById('wifi-pw').value || '';
