@@ -4,8 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KT Synergy - Ultimate QR Showcase</title>
-    <!-- QRCode.js Library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- 구형 qrcode.js 대신 최신 표준 QRCode 엔진 탑재 (한글 UTF-8 완벽 지원) -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <style>
         :root {
             --bg-deep: #050507;
@@ -18,167 +21,92 @@
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Pretendard", sans-serif; }
-        
-        body {
-            background-color: var(--bg-deep);
-            color: var(--text-main);
-            overflow-x: hidden;
-            scroll-behavior: smooth;
-        }
+        body { background-color: var(--bg-deep); color: var(--text-main); overflow-x: hidden; scroll-behavior: smooth; }
 
-        /* Top Left CI Logo */
-        .kt-ci-logo {
-            position: absolute;
-            top: 30px;
-            left: 30px;
-            height: 35px;
-            z-index: 100;
-        }
+        /* 기업 CI 로고 스타일 */
+        .kt-ci-logo { position: absolute; top: 30px; left: 30px; height: 35px; z-index: 100; }
 
-        /* Ambient Glow Background */
-        .ambient-glow {
-            position: fixed; width: 60vw; height: 60vw; border-radius: 50%;
-            filter: blur(150px); opacity: 0.15; z-index: -1; pointer-events: none;
-            animation: orbFloat 15s infinite alternate ease-in-out;
-        }
+        /* 배경 은은한 광원 효과 */
+        .ambient-glow { position: fixed; width: 60vw; height: 60vw; border-radius: 50%; filter: blur(150px); opacity: 0.12; z-index: -1; pointer-events: none; }
         .glow-1 { top: -20%; left: -10%; background: var(--accent-cyan); }
-        .glow-2 { bottom: -20%; right: -10%; background: var(--accent-blue); animation-delay: -7s; }
+        .glow-2 { bottom: -20%; right: -10%; background: var(--accent-blue); }
 
-        @keyframes orbFloat {
-            0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(50px, 80px) scale(1.2); }
-        }
+        /* 히어로 타입 & Moving Letters #4 */
+        .hero { height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; position: relative; }
+        .hero-title { font-size: clamp(4.5rem, 10vw, 8rem); font-weight: 800; line-height: 1.1; letter-spacing: -3px; background: linear-gradient(180deg, #FFFFFF 30%, #444444 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        .ml4 { position: relative; height: 80px; width: 100%; margin-bottom: 30px; display: flex; justify-content: center; align-items: center; font-weight: 700; font-size: 2.5rem; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); }
+        .ml4 .letters { position: absolute; opacity: 0; white-space: nowrap; }
+        .ml4 .highlight { color: var(--accent-cyan); font-weight: 800; }
 
-        /* Converging Animations */
+        /* 섹션 레이아웃 */
+        .section { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 100px 20px; max-width: 1100px; margin: 0 auto; overflow: hidden; }
+        .sec-title { font-size: 2.5rem; font-weight: 700; margin-bottom: 60px; text-align: center; letter-spacing: -1px; }
+        
+        /* 스크롤 리빌 애니메이션 */
         .reveal-left { opacity: 0; transform: translateX(-150px); transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1); }
         .reveal-right { opacity: 0; transform: translateX(150px); transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1); }
         .reveal-bottom { opacity: 0; transform: translateY(100px); transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1); }
         .reveal-diag-left { opacity: 0; transform: translate(-100px, 100px); transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1); }
         .reveal-diag-right { opacity: 0; transform: translate(100px, 100px); transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1); }
-        
         .reveal-active { opacity: 1; transform: translate(0, 0); }
         .delay-1 { transition-delay: 0.1s; }
         .delay-2 { transition-delay: 0.2s; }
         .delay-3 { transition-delay: 0.3s; }
 
-        /* Hero Section */
-        .hero {
-            height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center;
-            text-align: center; position: relative;
-        }
-        .hero-badge {
-            padding: 10px 20px; background: rgba(0, 240, 255, 0.1); border: 1px solid rgba(0, 240, 255, 0.3);
-            border-radius: 50px; color: var(--accent-cyan); font-size: 1.2rem; font-weight: 700; letter-spacing: 2px;
-            margin-bottom: 25px; text-transform: uppercase;
-        }
-        .hero-title {
-            font-size: clamp(3rem, 8vw, 6rem); font-weight: 800; line-height: 1.1; letter-spacing: -2px;
-            background: linear-gradient(180deg, #FFFFFF 0%, #666666 100%);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 20px;
-        }
-        .scroll-indicator {
-            position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
-            display: flex; flex-direction: column; align-items: center; opacity: 0.5; animation: bounce 2s infinite;
-        }
-        .scroll-line { width: 1px; height: 40px; background: linear-gradient(to bottom, #fff, transparent); margin-top: 10px; }
-        @keyframes bounce { 0%, 20%, 50%, 80%, 100% { transform: translateY(0) translateX(-50%); } 40% { transform: translateY(-10px) translateX(-50%); } }
+        /* 01. 생성 유형 선택 카드 */
+        .card-container { position: relative; width: 100%; display: flex; justify-content: center; padding: 50px 0; }
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 24px; width: 100%; }
+        .type-card { background: var(--glass-bg); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid var(--glass-border); border-radius: 24px; padding: 45px 25px; text-align: center; cursor: pointer; pointer-events: none; opacity: 0; transition: border-color 0.3s, box-shadow 0.3s; }
+        .type-card:hover { border-color: var(--accent-cyan); box-shadow: 0 15px 35px rgba(0, 240, 255, 0.15); }
+        .card-icon { font-size: 2.2rem; margin-bottom: 20px; color: var(--accent-cyan); }
+        .card-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 12px; }
 
-        /* Section Layout */
-        .section { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 100px 20px; max-width: 1000px; margin: 0 auto; overflow: hidden; }
-        .sec-title { font-size: 2.5rem; font-weight: 700; margin-bottom: 50px; letter-spacing: -1px; text-align: center; }
-        
-        /* Grid Cards (Step 1) */
-        .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; }
-        .type-card {
-            background: var(--glass-bg); backdrop-filter: blur(10px); border: 1px solid var(--glass-border);
-            border-radius: 20px; padding: 40px 20px; text-align: center; cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); position: relative; overflow: hidden;
-        }
-        .type-card::before {
-            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent); transition: 0.5s;
-        }
-        .type-card:hover { transform: translateY(-10px); border-color: var(--accent-cyan); box-shadow: 0 20px 40px rgba(0, 240, 255, 0.1); }
-        .type-card:hover::before { left: 100%; }
-        .card-icon { font-size: 2rem; margin-bottom: 20px; color: var(--accent-cyan); }
-        .card-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 10px; }
-
-        /* Modal (Pop-up) Styles */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.4s ease; display: flex; justify-content: center; align-items: center;
-        }
+        /* 모달 팝업 */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.4s ease; display: flex; justify-content: center; align-items: center; }
         .modal-overlay.active { opacity: 1; pointer-events: all; }
-        
-        .modal-content {
-            background: rgba(15, 15, 20, 0.9); border: 1px solid rgba(255,255,255,0.15); border-radius: 24px;
-            width: 90%; max-width: 600px; padding: 50px 40px; position: relative;
-            transform: scale(0.9) translateY(30px); opacity: 0; transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 30px 60px rgba(0,0,0,0.8), 0 0 50px rgba(0, 240, 255, 0.15);
-        }
+        .modal-content { background: rgba(15, 15, 20, 0.95); border: 1px solid rgba(255,255,255,0.12); border-radius: 28px; width: 90%; max-width: 600px; padding: 45px 40px; position: relative; transform: scale(0.92) translateY(20px); opacity: 0; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 30px 60px rgba(0,0,0,0.6); }
         .modal-overlay.active .modal-content { transform: scale(1) translateY(0); opacity: 1; }
-        
-        .btn-close {
-            position: absolute; top: 20px; right: 25px; background: none; border: none; color: #fff;
-            font-size: 1.5rem; cursor: pointer; opacity: 0.5; transition: opacity 0.2s;
-        }
+        .btn-close { position: absolute; top: 20px; right: 25px; background: none; border: none; color: #fff; font-size: 1.4rem; cursor: pointer; opacity: 0.5; }
         .btn-close:hover { opacity: 1; }
 
-        /* Form Inputs inside Modal */
-        .form-group { margin-bottom: 24px; text-align: left; }
-        .form-group label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--accent-cyan); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
-        .form-group input, .form-group select, .form-group textarea {
-            width: 100%; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px;
-            padding: 16px 20px; color: #fff; font-size: 1rem; outline: none; transition: all 0.3s;
-        }
-        .form-group input:focus, .form-group textarea:focus { border-color: var(--accent-cyan); box-shadow: 0 0 20px rgba(0, 240, 255, 0.3); background: rgba(0,0,0,0.8); }
-        .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        /* 폼 입력 필드 */
+        .form-group { margin-bottom: 22px; text-align: left; }
+        .form-group label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--accent-cyan); margin-bottom: 10px; letter-spacing: 0.5px; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; padding: 15px 18px; color: #fff; font-size: 1rem; outline: none; }
+        .form-group input:focus, .form-group textarea:focus { border-color: var(--accent-cyan); box-shadow: 0 0 15px rgba(0, 240, 255, 0.2); }
+        .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
         .dynamic-form { display: none; }
-        .dynamic-form.active { display: block; animation: modalFadeIn 0.5s; }
-        @keyframes modalFadeIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+        .dynamic-form.active { display: block; }
+        .btn-save { width: 100%; padding: 18px; margin-top: 10px; border: none; border-radius: 14px; background: linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-blue) 100%); color: #fff; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: 0.3s; }
+        .btn-save:hover { box-shadow: 0 8px 25px rgba(0, 240, 255, 0.35); }
 
-        .btn-save {
-            width: 100%; padding: 18px; margin-top: 10px; border: none; border-radius: 12px;
-            background: linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-blue) 100%);
-            color: #fff; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: all 0.3s;
-        }
-        .btn-save:hover { box-shadow: 0 10px 30px rgba(0, 240, 255, 0.4); transform: translateY(-2px); }
-
-        /* Step 3 & 4 (Logo & Design) */
-        .option-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 40px; }
+        /* 디자인 컬러 피커 */
+        .option-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; margin-bottom: 40px; }
         .option-label input { display: none; }
-        .option-card {
-            padding: 20px; border: 1px solid var(--glass-border); border-radius: 16px; text-align: center;
-            background: rgba(255,255,255,0.02); cursor: pointer; transition: all 0.3s; color: var(--text-muted); font-weight: 600;
-        }
-        .option-label input:checked ~ .option-card { border-color: #fff; color: #fff; background: rgba(255,255,255,0.1); box-shadow: 0 0 20px rgba(255,255,255,0.1); }
-
-        .color-picker-wrap { display: flex; align-items: center; gap: 15px; margin-bottom: 40px; padding: 20px; background: var(--glass-bg); border-radius: 16px; border: 1px solid var(--glass-border); flex-wrap: wrap; justify-content: center; }
-        .preset-color { width: 40px; height: 40px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: 0.3s; }
+        .option-card { padding: 18px; border: 1px solid var(--glass-border); border-radius: 16px; text-align: center; background: rgba(255,255,255,0.01); cursor: pointer; color: var(--text-muted); font-weight: 600; transition: 0.3s; }
+        .option-label input:checked ~ .option-card { border-color: #fff; color: #fff; background: rgba(255,255,255,0.08); }
+        .color-picker-wrap { display: flex; align-items: center; gap: 16px; margin-bottom: 40px; padding: 20px; background: var(--glass-bg); border-radius: 18px; border: 1px solid var(--glass-border); flex-wrap: wrap; justify-content: center; }
+        .preset-color { width: 38px; height: 38px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform 0.2s; }
         .preset-color:hover { transform: scale(1.1); }
-        .preset-color.active { border-color: #fff; box-shadow: 0 0 15px rgba(255,255,255,0.8); }
+        .preset-color.active { border-color: #fff; box-shadow: 0 0 12px rgba(255,255,255,0.7); }
 
+        /* 03. 템플릿 그리드 */
         .template-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
-        .template-card { border: 1px solid var(--glass-border); border-radius: 16px; overflow: hidden; cursor: pointer; position: relative; background: rgba(0,0,0,0.4); padding: 10px;}
-        .template-img { width: 100%; height: 250px; object-fit: contain; opacity: 0.6; transition: 0.5s; }
-        .template-label input:checked ~ .template-card { border-color: var(--accent-cyan); box-shadow: 0 0 30px rgba(0, 240, 255, 0.2); background: rgba(0, 240, 255, 0.05); }
-        .template-label input:checked ~ .template-card .template-img { opacity: 1; transform: scale(1.03); }
-        .template-name { position: absolute; bottom: 0; left: 0; width: 100%; padding: 15px; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); font-weight: 700; font-size: 1rem; text-align:center;}
+        .template-card { border: 1px solid var(--glass-border); border-radius: 18px; overflow: hidden; cursor: pointer; position: relative; background: rgba(0,0,0,0.3); padding: 12px; transition: 0.3s; }
+        .template-img { width: 100%; height: 240px; object-fit: contain; opacity: 0.5; transition: opacity 0.3s, transform 0.3s; }
+        .template-label input { display: none; }
+        .template-label input:checked ~ .template-card { border-color: var(--accent-cyan); box-shadow: 0 0 25px rgba(0, 240, 255, 0.2); background: rgba(0, 240, 255, 0.03); }
+        .template-label input:checked ~ .template-card .template-img { opacity: 1; transform: scale(1.02); }
+        .template-name { position: absolute; bottom: 0; left: 0; width: 100%; padding: 15px; background: linear-gradient(to top, rgba(0,0,0,0.85), transparent); font-weight: 700; font-size: 0.95rem; text-align: center; }
 
-        /* Output Area */
-        .btn-epic {
-            display: block; width: 100%; padding: 25px; margin: 60px 0; border: none; border-radius: 20px;
-            background: #fff; color: #000; font-size: 1.5rem; font-weight: 800; cursor: pointer;
-            transition: all 0.4s; position: relative; overflow: hidden;
-        }
-        .btn-epic:hover { transform: scale(1.02); box-shadow: 0 20px 50px rgba(255,255,255,0.2); }
-
-        .result-area { display: none; text-align: center; padding: 60px 0; }
-        .result-area.active { display: block; animation: revealUp 1s cubic-bezier(0.16, 1, 0.3, 1); }
-        @keyframes revealUp { from { opacity: 0; transform: translateY(100px); } to { opacity: 1; transform: translateY(0); } }
-        #finalCanvas { max-width: 100%; border-radius: 20px; box-shadow: 0 30px 80px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); }
-        #qr-hidden { display: none; }
+        /* 결과 창 */
+        .btn-epic { display: block; width: 100%; padding: 22px; margin: 50px 0; border: none; border-radius: 18px; background: #fff; color: #000; font-size: 1.3rem; font-weight: 800; cursor: pointer; transition: all 0.3s; text-align: center; text-decoration: none; }
+        .btn-epic:hover { transform: scale(1.01); box-shadow: 0 15px 40px rgba(255,255,255,0.15); }
+        .result-area { display: none; text-align: center; padding: 40px 0; }
+        .result-area.active { display: block; animation: zoomIn 0.5s ease-out forwards; }
+        @keyframes zoomIn { from { opacity:0; transform:scale(0.9); } to { opacity:1; transform:scale(1); } }
+        #finalCanvas { max-width: 100%; width: 450px; border-radius: 20px; box-shadow: 0 30px 70px rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1); }
     </style>
 </head>
 <body>
@@ -188,177 +116,171 @@
     <div class="ambient-glow glow-1"></div>
     <div class="ambient-glow glow-2"></div>
 
-    <!-- 0. Hero Section -->
+    <!-- 0. 메인 히어로 섹션 -->
     <header class="hero">
-        <div class="hero-badge reveal-bottom">KT Synergy Sales Team 3</div>
-        <h1 class="hero-title reveal-bottom delay-1">The Ultimate<br>QR Generator</h1>
-        <div class="scroll-indicator">
-            <span style="font-size: 0.8rem; letter-spacing: 2px;">SCROLL</span>
-            <div class="scroll-line"></div>
+        <div class="ml4">
+            <span class="letters letters-1">Provided by</span>
+            <span class="letters letters-2 highlight">Synergy Team 3</span>
+            <span class="letters letters-3">Customer Division</span>
+            <span class="letters letters-4">Incheon Sales Branch</span>
+            <span class="letters letters-5">Customer Sales Headquarter</span>
+            <span class="letters letters-6">Southern Seoul</span>
         </div>
+        <h1 class="hero-title">The Ultimate<br>QR Generator</h1>
     </header>
 
-    <!-- 1. Type Selection -->
-    <section class="section">
-        <h2 class="sec-title reveal-left">01. 생성 유형 선택</h2>
-        <div class="card-grid">
-            <div class="type-card reveal-diag-left" onclick="openModal('wifi')">
-                <div class="card-icon">📶</div><div class="card-title">Wi-Fi</div><div style="color:var(--text-muted); font-size:0.9rem;">네트워크 자동 접속</div>
-            </div>
-            <div class="type-card reveal-bottom delay-1" onclick="openModal('url')">
-                <div class="card-icon">🔗</div><div class="card-title">URL Link</div><div style="color:var(--text-muted); font-size:0.9rem;">웹사이트 랜딩</div>
-            </div>
-            <div class="type-card reveal-diag-right delay-2" onclick="openModal('vcard')">
-                <div class="card-icon">🪪</div><div class="card-title">디지털 명함</div><div style="color:var(--text-muted); font-size:0.9rem;">명함 자동 저장</div>
-            </div>
-            <div class="type-card reveal-left delay-1" onclick="openModal('tel')">
-                <div class="card-icon">📞</div><div class="card-title">전화 연결</div><div style="color:var(--text-muted); font-size:0.9rem;">다이렉트 통화</div>
-            </div>
-            <div class="type-card reveal-right delay-2" onclick="openModal('sms')">
-                <div class="card-icon">✉️</div><div class="card-title">문자 발송</div><div style="color:var(--text-muted); font-size:0.9rem;">메시지 자동 입력</div>
+    <!-- 1. 유형 선택 섹션 -->
+    <section class="section" id="sec-type">
+        <h2 class="sec-title">01. 생성 유형 선택</h2>
+        <div class="card-container">
+            <div class="card-grid">
+                <div class="type-card" id="card-wifi" onclick="openModal('wifi')">
+                    <div class="card-icon">📶</div><div class="card-title">Wi-Fi</div><div style="color:var(--text-muted); font-size:0.85rem;">네트워크 자동 접속</div>
+                </div>
+                <div class="type-card" id="card-url" onclick="openModal('url')">
+                    <div class="card-icon">🔗</div><div class="card-title">URL 링크</div><div style="color:var(--text-muted); font-size:0.85rem;">웹사이트 랜딩</div>
+                </div>
+                <div class="type-card" id="card-vcard" onclick="openModal('vcard')">
+                    <div class="card-icon">🪪</div><div class="card-title">디지털 명함</div><div style="color:var(--text-muted); font-size:0.85rem;">명함 주소록 자동 저장</div>
+                </div>
+                <div class="type-card" id="card-tel" onclick="openModal('tel')">
+                    <div class="card-icon">📞</div><div class="card-title">전화 연결</div><div style="color:var(--text-muted); font-size:0.85rem;">다이렉트 통화 연결</div>
+                </div>
+                <div class="type-card" id="card-sms" onclick="openModal('sms')">
+                    <div class="card-icon">✉️</div><div class="card-title">문자 보내기</div><div style="color:var(--text-muted); font-size:0.85rem;">메시지 구문 자동 완성</div>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- Modal (Pop-up) for Input -->
+    <!-- 모달 팝업 -->
     <div class="modal-overlay" id="inputModal">
         <div class="modal-content">
             <button class="btn-close" onclick="closeModal()">✕</button>
-            <h3 style="font-size: 2rem; font-weight: 700; margin-bottom: 30px;" id="modalTitle">정보 입력</h3>
-            
+            <h3 style="font-size: 1.8rem; font-weight: 700; margin-bottom: 25px;" id="modalTitle">정보 입력</h3>
             <input type="hidden" id="selectedType" value="">
 
-            <!-- Wi-Fi Form -->
             <div id="form-wifi" class="dynamic-form">
                 <div class="form-group"><label>네트워크 이름 (SSID)</label><input type="text" id="wifi-ssid" placeholder="예: KT_GiGA_5G"></div>
                 <div class="input-row">
                     <div class="form-group"><label>비밀번호</label><input type="text" id="wifi-pw" placeholder="비밀번호 입력"></div>
-                    <div class="form-group"><label>보안 유형</label><select id="wifi-type"><option value="WPA">WPA/WPA2</option><option value="WEP">WEP</option><option value="nopass">없음</option></select></div>
-                </div>
-                <div class="form-group" style="display:flex; align-items:center; gap:10px;">
-                    <input type="checkbox" id="wifi-hidden" style="width:auto; margin:0;"><label for="wifi-hidden" style="margin:0;">숨겨진 네트워크</label>
+                    <div class="form-group"><label>보안 방식</label><select id="wifi-type"><option value="WPA">WPA/WPA2</option><option value="WEP">WEP</option><option value="nopass">없음</option></select></div>
                 </div>
             </div>
 
-            <!-- URL Form -->
             <div id="form-url" class="dynamic-form">
-                <div class="form-group">
-                    <label>URL 주소</label>
-                    <input type="text" id="url-input" placeholder="예: https://kt.com">
-                    <div style="font-size:0.8rem; color:#888; margin-top:8px;">※ http:// 또는 https:// 를 포함해 입력하세요</div>
-                </div>
+                <div class="form-group"><label>랜딩 URL 주소</label><input type="text" id="url-input" placeholder="예: https://kt.com"></div>
             </div>
 
-            <!-- vCard Form -->
             <div id="form-vcard" class="dynamic-form">
                 <div class="input-row">
                     <div class="form-group"><label>이름</label><input type="text" id="vc-name" placeholder="예: 이대희"></div>
                     <div class="form-group"><label>연락처</label><input type="tel" id="vc-phone" placeholder="예: 010-7300-2632"></div>
                 </div>
                 <div class="input-row">
-                    <div class="form-group"><label>회사</label><input type="text" id="vc-company" placeholder="예: KT"></div>
-                    <div class="form-group"><label>부서</label><input type="text" id="vc-dept" placeholder="예: 인천지사 시너지영업3팀"></div>
+                    <div class="form-group"><label>회사명</label><input type="text" id="vc-company" placeholder="예: KT"></div>
+                    <div class="form-group"><label>소속 부서</label><input type="text" id="vc-dept" placeholder="예: 인천지사 시너지영업3팀"></div>
                 </div>
                 <div class="input-row">
                     <div class="form-group"><label>직위</label><input type="text" id="vc-title" placeholder="예: 과장"></div>
                     <div class="form-group"><label>이메일</label><input type="email" id="vc-email" placeholder="예: daehee.lee@kt.com"></div>
                 </div>
-                <div class="form-group"><label>주소</label><input type="text" id="vc-address" placeholder="예: 인천광역시 남동구 경인로 508 KT 인천지사 4F"></div>
+                <div class="form-group"><label>회사 주소</label><input type="text" id="vc-address" placeholder="예: 인천광역시 남동구 경인로 508 KT 인천지사 4F"></div>
             </div>
 
-            <!-- Phone Form -->
             <div id="form-tel" class="dynamic-form">
                 <div class="form-group"><label>전화번호</label><input type="tel" id="tel-input" placeholder="예: 010-7300-2632"></div>
             </div>
 
-            <!-- SMS Form -->
             <div id="form-sms" class="dynamic-form">
-                <div class="form-group"><label>수신 번호</label><input type="tel" id="sms-number" placeholder="예: 010-7300-2632"></div>
-                <div class="form-group"><label>메시지 내용</label><textarea id="sms-msg" rows="3" placeholder="내용을 입력하세요"></textarea></div>
+                <div class="form-group"><label>수신 전화번호</label><input type="tel" id="sms-number" placeholder="예: 010-7300-2632"></div>
+                <div class="form-group"><label>문자 메시지 내용</label><textarea id="sms-msg" rows="3" placeholder="전송할 내용을 입력해 주세요."></textarea></div>
             </div>
 
             <button class="btn-save" onclick="saveAndScrollToNext()">확인 및 다음으로</button>
         </div>
     </div>
 
-    <!-- 2. Settings (Logo & Color) -->
+    <!-- 2. 설정 섹션 -->
     <section class="section" id="section-design">
-        <h2 class="sec-title reveal-right">02. 디자인 및 로고 설정</h2>
-        
-        <h3 class="reveal-left" style="margin-bottom: 20px; color: var(--text-muted);">중앙 로고 삽입</h3>
+        <h2 class="sec-title reveal-bottom">02. 디자인 및 로고 설정</h2>
+        <h3 class="reveal-left" style="margin-bottom: 20px; color: var(--text-muted); font-size: 1.1rem; text-align: center;">중앙 로고 배치</h3>
         <div class="option-grid reveal-bottom delay-1">
             <label class="option-label"><input type="radio" name="logoType" value="none" checked><div class="option-card">없음</div></label>
             <label class="option-label"><input type="radio" name="logoType" value="kt"><div class="option-card">KT 로고</div></label>
-            <label class="option-label">
-                <input type="radio" name="logoType" value="custom" onchange="document.getElementById('custom-logo-input').click()">
-                <div class="option-card" id="custom-logo-label">직접 업로드</div>
-            </label>
+            <label class="option-label"><input type="radio" name="logoType" value="custom" onchange="document.getElementById('custom-logo-input').click()"><div class="option-card" id="custom-logo-label">직접 업로드</div></label>
         </div>
-        <input type="file" id="custom-logo-input" accept="image/png, image/jpeg" style="display:none;" onchange="if(this.files[0]) { document.getElementById('custom-logo-label').innerText='업로드 완료'; document.querySelector('input[value='custom']').checked=true;}">
+        <input type="file" id="custom-logo-input" accept="image/png, image/jpeg" style="display:none;" onchange="if(this.files[0]){document.getElementById('custom-logo-label').innerText='업로드 완료';document.querySelector('input[value='custom']').checked=true;}">
 
-        <h3 class="reveal-left" style="margin-bottom: 20px; color: var(--text-muted);">QR코드 패턴 컬러</h3>
+        <h3 class="reveal-left delay-1" style="margin-bottom: 20px; color: var(--text-muted); font-size: 1.1rem; text-align: center;">QR코드 패턴 컬러</h3>
         <div class="color-picker-wrap reveal-bottom delay-2">
             <input type="hidden" id="qr-color" value="#000000">
-            <!-- 9 Colors specified by user -->
-            <div class="preset-color active" style="background: #ffffff;" onclick="setQRColor(this, '#ffffff')" title="White"></div>
-            <div class="preset-color" style="background: #000000;" onclick="setQRColor(this, '#000000')" title="Black"></div>
-            <div class="preset-color" style="background: #E30000;" onclick="setQRColor(this, '#E30000')" title="Red"></div>
-            <div class="preset-color" style="background: #FF7F00;" onclick="setQRColor(this, '#FF7F00')" title="Orange"></div>
-            <div class="preset-color" style="background: #FFD700;" onclick="setQRColor(this, '#FFD700')" title="Yellow"></div>
-            <div class="preset-color" style="background: #008000;" onclick="setQRColor(this, '#008000')" title="Green"></div>
-            <div class="preset-color" style="background: #0000FF;" onclick="setQRColor(this, '#0000FF')" title="Blue"></div>
-            <div class="preset-color" style="background: #000080;" onclick="setQRColor(this, '#000080')" title="Navy"></div>
-            <div class="preset-color" style="background: #800080;" onclick="setQRColor(this, '#800080')" title="Purple"></div>
+            <div class="preset-color" style="background: #ffffff;" onclick="setQRColor(this, '#ffffff')" title="흰색"></div>
+            <div class="preset-color active" style="background: #000000;" onclick="setQRColor(this, '#000000')" title="검은색"></div>
+            <div class="preset-color" style="background: #E30000;" onclick="setQRColor(this, '#E30000')" title="빨간색"></div>
+            <div class="preset-color" style="background: #FF7F00;" onclick="setQRColor(this, '#FF7F00')" title="주황색"></div>
+            <div class="preset-color" style="background: #FFD700;" onclick="setQRColor(this, '#FFD700')" title="노란색"></div>
+            <div class="preset-color" style="background: #008000;" onclick="setQRColor(this, '#008000')" title="초록색"></div>
+            <div class="preset-color" style="background: #0000FF;" onclick="setQRColor(this, '#0000FF')" title="파란색"></div>
+            <div class="preset-color" style="background: #000080;" onclick="setQRColor(this, '#000080')" title="남색"></div>
+            <div class="preset-color" style="background: #800080;" onclick="setQRColor(this, '#800080')" title="보라색"></div>
         </div>
     </section>
 
-    <!-- 3. Templates -->
+    <!-- 3. 템플릿 선택 섹션 -->
     <section class="section" id="section-template">
-        <h2 class="sec-title reveal-left">03. 배경 템플릿 선택</h2>
-        <div class="template-grid">
-            <label class="template-label reveal-diag-left">
-                <input type="radio" name="bgTemplate" value="none" checked>
-                <div class="template-card" style="display: flex; align-items: center; justify-content: center; height: 270px; border: 1px dashed var(--glass-border);">
-                    <div style="font-size: 1.2rem; font-weight: 700; color: #fff;">QR만 저장</div>
-                </div>
-            </label>
+        <h2 class="sec-title reveal-bottom">03. 배경 템플릿 선택</h2>
+        <div class="template-grid" id="template-container">
             <label class="template-label reveal-bottom delay-1">
-                <input type="radio" name="bgTemplate" value="t1">
-                <div class="template-card">
-                    <img src="https://kt-synergy.com/assets/image/qr_templates/qr_template_01_sample.png" class="template-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMzMiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlRlbXBsYXRlIDE8L3RleHQ+PC9zdmc+'">
-                    <div class="template-name">템플릿 01 (모던 베이지)</div>
+                <input type="radio" name="bgTemplate" value="none" checked>
+                <div class="template-card" style="display: flex; align-items: center; justify-content: center; height: 264px; border: 1px dashed var(--glass-border);">
+                    <div style="font-size: 1.1rem; font-weight: 700; color: #fff;">QR만 저장</div>
                 </div>
             </label>
-            <label class="template-label reveal-bottom delay-2">
-                <input type="radio" name="bgTemplate" value="t2">
-                <div class="template-card">
-                    <img src="https://kt-synergy.com/assets/image/qr_templates/qr_template_02_sample.png" class="template-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMzMiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlRlbXBsYXRlIDI8L3RleHQ+PC9zdmc+'">
-                    <div class="template-name">템플릿 02 (포레스트)</div>
-                </div>
-            </label>
-            <label class="template-label reveal-diag-right delay-3">
-                <input type="radio" name="bgTemplate" value="t3">
-                <div class="template-card">
-                    <img src="https://kt-synergy.com/assets/image/qr_templates/qr_template_03_sample.png" class="template-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMzMiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlRlbXBsYXRlIDM8L3RleHQ+PC9zdmc+'">
-                    <div class="template-name">템플릿 03 (빌딩 스카이)</div>
-                </div>
-            </label>
+            <label class="template-label reveal-bottom delay-1"><input type="radio" name="bgTemplate" value="t1"><div class="template-card"><img src="https://kt-synergy.com/assets/image/qr_templates/qr_template_01_sample.png" class="template-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMzMiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlRlbXBsYXRlIDAxPC90ZXh0Pjwvc3ZnPg=='"><div class="template-name">템플릿 01</div></div></label>
+            <label class="template-label reveal-bottom delay-2"><input type="radio" name="bgTemplate" value="t2"><div class="template-card"><img src="https://kt-synergy.com/assets/image/qr_templates/qr_template_02_sample.png" class="template-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMzMiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlRlbXBsYXRlIDAyPC90ZXh0Pjwvc3ZnPg=='"><div class="template-name">템플릿 02</div></div></label>
+            <label class="template-label reveal-bottom delay-3"><input type="radio" name="bgTemplate" value="t3"><div class="template-card"><img src="https://kt-synergy.com/assets/image/qr_templates/qr_template_03_sample.png" class="template-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMzMiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlRlbXBsYXRlIDAzPC90ZXh0Pjwvc3ZnPg=='"><div class="template-name">템플릿 03</div></div></label>
+            <label class="template-label reveal-bottom delay-1"><input type="radio" name="bgTemplate" value="t4"><div class="template-card"><img src="https://kt-synergy.com/assets/image/qr_templates/qr_template_04_sample.png" class="template-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMzMiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlRlbXBsYXRlIDA0PC90ZXh0Pjwvc3ZnPg=='"><div class="template-name">템플릿 04</div></div></label>
+            <label class="template-label reveal-bottom delay-2"><input type="radio" name="bgTemplate" value="t5"><div class="template-card"><img src="https://kt-synergy.com/assets/image/qr_templates/qr_template_05_sample.png" class="template-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMzMiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlRlbXBsYXRlIDA1PC90ZXh0Pjwvc3ZnPg=='"><div class="template-name">템플릿 05</div></div></label>
+            <label class="template-label reveal-bottom delay-3"><input type="radio" name="bgTemplate" value="t6"><div class="template-card"><img src="https://kt-synergy.com/assets/image/qr_templates/qr_template_06_sample.png" class="template-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMzMiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlRlbXBsYXRlIDA2PC90ZXh0Pjwvc3ZnPg=='"><div class="template-name">템플릿 06</div></div></label>
+            <label class="template-label reveal-bottom delay-1"><input type="radio" name="bgTemplate" value="t7"><div class="template-card"><img src="https://kt-synergy.com/assets/image/qr_templates/qr_template_07_sample.png" class="template-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMzMiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlRlbXBsYXRlIDA3PC90ZXh0Pjwvc3ZnPg=='"><div class="template-name">템플릿 07</div></div></label>
+            <label class="template-label reveal-bottom delay-2"><input type="radio" name="bgTemplate" value="t8"><div class="template-card"><img src="https://kt-synergy.com/assets/image/qr_templates/qr_template_08_sample.png" class="template-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMzMiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlRlbXBsYXRlIDA4PC90ZXh0Pjwvc3ZnPg=='"><div class="template-name">템플릿 08</div></div></label>
+            <label class="template-label reveal-bottom delay-3"><input type="radio" name="bgTemplate" value="t9"><div class="template-card"><img src="https://kt-synergy.com/assets/image/qr_templates/qr_template_09_sample.png" class="template-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMzMiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlRlbXBsYXRlIDA5PC90ZXh0Pjwvc3ZnPg=='"><div class="template-name">템플릿 09</div></div></label>
         </div>
 
         <button class="btn-epic reveal-bottom delay-1" onclick="generateComposite()">최종 이미지 렌더링</button>
 
-        <!-- Final Output -->
         <div id="result-area" class="result-area">
-            <h2 style="font-size: 3rem; font-weight: 800; margin-bottom: 40px; color: var(--accent-cyan);">생성 완료</h2>
-            <div id="qr-hidden"></div>
+            <h2 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 30px; color: var(--accent-cyan);">생성 완료</h2>
             <canvas id="finalCanvas"></canvas>
             <br>
-            <a id="download-link" class="btn-epic" style="margin-top: 40px; background: var(--accent-cyan); color: #000;" download="kt_synergy_asset.png">이미지 다운로드</a>
+            <a id="download-link" class="btn-epic" style="margin-top: 35px; background: var(--accent-cyan); color: #000;" download="kt_synergy_asset.png">이미지 다운로드</a>
         </div>
     </section>
 
     <script>
-        // Converging Scroll Reveal Observer
+        // 1. Moving Letters #4 순차 등장 및 소멸 무한 루프 애니메이션
+        const ml4Timeline = anime.timeline({loop: true});
+        const letters = ['.letters-1', '.letters-2', '.letters-3', '.letters-4', '.letters-5', '.letters-6'];
+        
+        letters.forEach((letter) => {
+            ml4Timeline.add({
+                targets: letter,
+                opacity: [0, 1],
+                scale: [0.5, 1],
+                duration: 800,
+                easing: "easeOutExpo"
+            }).add({
+                targets: letter,
+                opacity: [1, 0],
+                scale: [1, 1.5],
+                duration: 600,
+                delay: 1000,
+                easing: "easeInExpo"
+            });
+        });
+
+        // 2. 섹션 2 & 3: 시네마틱 스크롤 리빌 애니메이션 
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -366,12 +288,38 @@
                 }
             });
         }, { threshold: 0.1 });
-
         document.querySelectorAll('.reveal-left, .reveal-right, .reveal-bottom, .reveal-diag-left, .reveal-diag-right').forEach((el) => observer.observe(el));
 
-        // Modal Logic
-        const modal = document.getElementById('inputModal');
+        // 3. 섹션 1: GSAP 완벽 스크러빙 & PC 뷰포트 최적화
+        gsap.registerPlugin(ScrollTrigger);
         
+        gsap.set("#card-wifi", {x: -200, y: -100});
+        gsap.set("#card-url", {y: 150});
+        gsap.set("#card-vcard", {x: 200, y: -100});
+        gsap.set("#card-tel", {x: -150, y: 150});
+        gsap.set("#card-sms", {x: 150, y: 150});
+
+        gsap.to(".type-card", {
+            scrollTrigger: {
+                trigger: "#sec-type",
+                start: "top 95%",
+                end: "center 50%", 
+                scrub: 1.5,
+                onUpdate: (self) => {
+                    if(self.progress > 0.95) {
+                        document.querySelectorAll('.type-card').forEach(c => c.style.pointerEvents = "auto");
+                    } else {
+                        document.querySelectorAll('.type-card').forEach(c => c.style.pointerEvents = "none");
+                    }
+                }
+            },
+            x: 0, y: 0, opacity: 1,
+            stagger: 0.05,
+            ease: "power2.out"
+        });
+
+        // 4. 모달 매커니즘
+        const modal = document.getElementById('inputModal');
         function openModal(type) {
             document.getElementById('selectedType').value = type;
             document.querySelectorAll('.dynamic-form').forEach(el => el.classList.remove('active'));
@@ -379,186 +327,177 @@
             
             const titles = { 'wifi': 'Wi-Fi 설정', 'url': '랜딩 URL 입력', 'vcard': '디지털 명함 정보', 'tel': '전화번호 입력', 'sms': '문자 발송 설정' };
             document.getElementById('modalTitle').innerText = titles[type];
-            
             modal.classList.add('active');
         }
-
-        function closeModal() {
-            modal.classList.remove('active');
-        }
-
+        function closeModal() { modal.classList.remove('active'); }
         function saveAndScrollToNext() {
             closeModal();
-            setTimeout(() => {
-                document.getElementById('section-design').scrollIntoView({ behavior: 'smooth' });
-            }, 300);
+            setTimeout(() => { document.getElementById('section-design').scrollIntoView({ behavior: 'smooth' }); }, 200);
         }
-
-        // Color Picker
         function setQRColor(element, hex) {
             document.querySelectorAll('.preset-color').forEach(el => el.classList.remove('active'));
             element.classList.add('active');
             document.getElementById('qr-color').value = hex;
         }
 
-        // Core Generation Logic
+        // 5. 합성 렌더링 로직 (최신 라이브러리 교체로 한글 인코딩 문제 원천 해결)
         async function generateComposite() {
             const type = document.getElementById('selectedType').value;
-            if(!type) { alert("먼저 상단에서 QR 종류를 선택하고 정보를 입력해 주세요."); window.scrollTo({top:0, behavior:'smooth'}); return; }
+            if(!type) { alert("상단에서 유형 선택 후 데이터를 입력해 주세요."); window.scrollTo({top:0, behavior:'smooth'}); return; }
             
             const color = document.getElementById('qr-color').value;
-            const templateMode = document.querySelector('input[name="bgTemplate"]:checked').value;
+            const templateIndex = document.querySelector('input[name="bgTemplate"]:checked').value;
             const logoType = document.querySelector('input[name="logoType"]:checked').value;
             
-            // Bugfix for empty values: Setup fallbacks so it always renders perfectly.
+            const ssid = document.getElementById('wifi-ssid')?.value || 'KT_GiGA_5G';
+            const pw = document.getElementById('wifi-pw')?.value || '';
+            const sec = document.getElementById('wifi-type')?.value || 'WPA';
+            const hid = document.getElementById('wifi-hidden')?.checked ? "true" : "false";
+
+            const urlInput = document.getElementById('url-input')?.value || 'https://kt.com';
+
+            const vcName = document.getElementById('vc-name')?.value || '이대희';
+            const vcPhone = document.getElementById('vc-phone')?.value || '010-7300-2632';
+            const vcCompany = document.getElementById('vc-company')?.value || 'KT';
+            const vcDept = document.getElementById('vc-dept')?.value || '인천지사 시너지영업3팀';
+            const vcTitle = document.getElementById('vc-title')?.value || '과장';
+            const vcEmail = document.getElementById('vc-email')?.value || 'daehee.lee@kt.com';
+            const vcAddress = document.getElementById('vc-address')?.value || '인천광역시 남동구 경인로 508 KT 인천지사 4F';
+
+            const telNum = document.getElementById('tel-input')?.value || '010-7300-2632';
+            const smsNum = document.getElementById('sms-number')?.value || '010-7300-2632';
+            const smsMsg = document.getElementById('sms-msg')?.value || '';
+
             let qrData = "";
-            if (type === 'wifi') {
-                const ssid = document.getElementById('wifi-ssid').value || 'KT_GiGA_5G';
-                const pw = document.getElementById('wifi-pw').value;
-                const sec = document.getElementById('wifi-type').value;
-                const hid = document.getElementById('wifi-hidden').checked ? "true" : "false";
-                qrData = `WIFI:T:${sec};S:${ssid};P:${pw};H:${hid};;`;
-            } else if (type === 'url') {
-                qrData = document.getElementById('url-input').value || 'https://kt.com';
-            } else if (type === 'vcard') {
-                const n = document.getElementById('vc-name').value || '이대희';
-                const p = document.getElementById('vc-phone').value || '010-7300-2632';
-                const c = document.getElementById('vc-company').value || 'KT';
-                const d = document.getElementById('vc-dept').value || '인천지사 시너지영업3팀';
-                const t = document.getElementById('vc-title').value || '과장';
-                const e = document.getElementById('vc-email').value || 'daehee.lee@kt.com';
-                const a = document.getElementById('vc-address').value || '인천광역시 남동구 경인로 508 KT 인천지사 4F';
-                qrData = `BEGIN:VCARD
+            if (type === 'wifi') { qrData = `WIFI:T:${sec};S:${ssid};P:${pw};H:${hid};;`; } 
+            else if (type === 'url') { qrData = urlInput; } 
+            else if (type === 'vcard') { qrData = `BEGIN:VCARD
 VERSION:3.0
-N:${n}
-ORG:${c};${d}
-TITLE:${t}
-TEL:${p}
-EMAIL:${e}
-ADR:;;${a};;;;
-END:VCARD`;
-            } else if (type === 'tel') {
-                qrData = `tel:${document.getElementById('tel-input').value || '010-7300-2632'}`;
-            } else if (type === 'sms') {
-                qrData = `smsto:${document.getElementById('sms-number').value || '010-7300-2632'}:${document.getElementById('sms-msg').value || ''}`;
-            }
+N:${vcName}
+FN:${vcName}
+ORG:${vcCompany};${vcDept}
+TITLE:${vcTitle}
+TEL:${vcPhone}
+EMAIL:${vcEmail}
+ADR:;;${vcAddress};;;;
+END:VCARD`; } 
+            else if (type === 'tel') { qrData = `tel:${telNum}`; } 
+            else if (type === 'sms') { qrData = `smsto:${smsNum}:${smsMsg}`; }
 
-            const qrHidden = document.getElementById('qr-hidden');
-            qrHidden.innerHTML = '';
-            
-            // Generate QR
-            new QRCode(qrHidden, {
-                text: qrData, width: 600, height: 600, colorDark : color,
-                colorLight : templateMode === 'none' && color === '#ffffff' ? '#000000' : (templateMode !== 'none' ? "#ffffff" : "#ffffff"), 
-                correctLevel : QRCode.CorrectLevel.H
-            });
+            // 디지털 명함 전용 복원율 강등
+            const errorLevel = (type === 'vcard') ? 'M' : 'H';
 
-            setTimeout(async () => {
-                const qrImageURL = qrHidden.querySelector('canvas').toDataURL("image/png");
+            // 신형 QRCode 생성 엔진 구동 (한글 텍스트를 그대로 넣어도 절대 뻗지 않음)
+            QRCode.toDataURL(qrData, {
+                width: 600,
+                margin: 2, // 라이브러리 기본 여백 생성
+                color: {
+                    dark: color,
+                    light: "#ffffff"
+                },
+                errorCorrectionLevel: errorLevel
+            }, async function (err, qrImageURL) {
+                if (err) {
+                    alert("QR 생성 오류 발생: " + err);
+                    return;
+                }
+
                 const canvas = document.getElementById('finalCanvas');
                 const ctx = canvas.getContext('2d');
                 
+                canvas.width = 1000; 
+                canvas.height = 1414;
+
                 let bgLoaded = new Promise((resolve) => {
-                    if (templateMode === 'none') {
-                        canvas.width = 600; canvas.height = 600;
-                        ctx.fillStyle = "rgba(0,0,0,0)";
-                        if(color === '#ffffff') ctx.fillStyle = "#111";
-                        ctx.fillRect(0,0,600,600); resolve(null);
+                    if (templateIndex === 'none') {
+                        ctx.fillStyle = color === '#ffffff' ? '#111115' : '#ffffff';
+                        ctx.fillRect(0, 0, 1000, 1414);
+                        resolve(null);
                     } else {
-                        let bgImg = new Image(); bgImg.crossOrigin = "Anonymous";
-                        let src = "";
-                        if(templateMode === 't1') src = "https://kt-synergy.com/assets/image/qr_templates/qr_template_01.png";
-                        if(templateMode === 't2') src = "https://kt-synergy.com/assets/image/qr_templates/qr_template_02.png";
-                        if(templateMode === 't3') src = "https://kt-synergy.com/assets/image/qr_templates/qr_template_03.png";
-                        
-                        bgImg.src = src;
-                        bgImg.onload = () => { canvas.width = 1080; canvas.height = 1920; ctx.drawImage(bgImg, 0, 0, 1080, 1920); resolve(bgImg); };
-                        bgImg.onerror = () => { canvas.width = 1080; canvas.height = 1920; ctx.fillStyle = "#111"; ctx.fillRect(0,0,1080,1920); resolve(null); };
+                        let bgImg = new Image();
+                        bgImg.crossOrigin = "Anonymous";
+                        const idx = templateIndex.replace('t', '').padStart(2, '0');
+                        bgImg.src = `https://kt-synergy.com/assets/image/qr_templates/qr_template_${idx}.png`;
+                        bgImg.onload = () => { ctx.drawImage(bgImg, 0, 0, 1000, 1414); resolve(bgImg); };
+                        bgImg.onerror = () => { ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,1000,1414); resolve(null); };
                     }
                 });
 
                 await bgLoaded;
 
+                let topIconImg = new Image();
+                topIconImg.crossOrigin = "Anonymous";
+                let topIconLoaded = new Promise((res) => {
+                    topIconImg.onload = res;
+                    topIconImg.onerror = res;
+                    topIconImg.src = type === 'wifi' ? `https://kt-synergy.com/assets/image/qr_templates/wifi_icon.png` : `https://kt-synergy.com/assets/image/qr_templates/scan_qr.png`;
+                });
+                await topIconLoaded;
+                
+                if (type === 'wifi') {
+                    ctx.drawImage(topIconImg, 268, 33, 464, 143);
+                } else {
+                    ctx.drawImage(topIconImg, 201, 1, 600, 201);
+                }
+
+                // 신형 라이브러리는 자체적으로 여백(Quiet Zone)을 깔끔하게 포함하므로,
+                // 이전에 편법으로 적용했던 -15px 보정을 없애고 포토샵 가이드라인인 Y:182 절대 좌표로 원상 복구함.
                 const baseQRImg = new Image();
                 baseQRImg.onload = async () => {
-                    let qrX = 0, qrY = 0, qrSize = 600;
-                    if(templateMode !== 'none') {
-                        qrSize = 580; qrX = (1080 - qrSize) / 2; 
-                        if (templateMode === 't1') qrY = 150;
-                        else if (templateMode === 't2') qrY = 300;
-                        else if (templateMode === 't3') qrY = 250;
-                        
-                        ctx.fillStyle = "#ffffff"; ctx.fillRect(qrX - 20, qrY - 20, qrSize + 40, qrSize + 40);
-                    }
-                    ctx.drawImage(baseQRImg, qrX, qrY, qrSize, qrSize);
+                    ctx.drawImage(baseQRImg, 201, 182, 600, 600);
 
-                    if (logoType !== 'none') {
-                        let logoImg = new Image(); logoImg.crossOrigin = "Anonymous";
-                        let loadLogo = new Promise((res) => { 
-                            logoImg.onload = res; logoImg.onerror = res; 
-                            if(logoType === 'kt') {
-                                logoImg.src = "https://kt-synergy.com/assets/image/CI_BI/kt_icon02.png"; 
-                            } else {
-                                const fileInput = document.getElementById('custom-logo-input');
-                                if (fileInput.files && fileInput.files[0]) {
-                                    const reader = new FileReader();
-                                    reader.onload = function(e) { logoImg.src = e.target.result; };
-                                    reader.readAsDataURL(fileInput.files[0]);
-                                } else { res(); }
-                            }
-                        });
+                    if (logoType === 'kt') {
+                        let logoImg = new Image();
+                        logoImg.crossOrigin = "Anonymous";
+                        let loadLogo = new Promise((res) => { logoImg.onload = res; logoImg.onerror = res; logoImg.src = "https://kt-synergy.com/assets/image/CI_BI/kt_icon02.png"; });
                         await loadLogo;
-                        if (logoImg.src) { const lSize = qrSize * 0.28; ctx.drawImage(logoImg, qrX + (qrSize-lSize)/2, qrY + (qrSize-lSize)/2, lSize, lSize); }
+                        if (logoImg.src) { const lSize = 160; ctx.drawImage(logoImg, 201 + (600 - lSize) / 2, 182 + (600 - lSize) / 2, lSize, lSize); }
                     }
 
-                    if (templateMode !== 'none') {
-                        ctx.fillStyle = "#222"; ctx.textAlign = "center";
-                        let textY = qrY + qrSize + 120;
-                        ctx.shadowColor = "rgba(255, 255, 255, 0.9)"; ctx.shadowBlur = 15;
-                        
-                        if (type === 'vcard') {
-                            const c = document.getElementById('vc-company').value || 'KT';
-                            const d = document.getElementById('vc-dept').value || '인천지사 시너지영업3팀';
-                            const n = document.getElementById('vc-name').value || '이대희';
-                            const t = document.getElementById('vc-title').value || '과장';
-                            const p = document.getElementById('vc-phone').value || '010-7300-2632';
-                            const e = document.getElementById('vc-email').value || 'daehee.lee@kt.com';
-                            const a = document.getElementById('vc-address').value || '인천광역시 남동구 경인로 508 KT 인천지사 4F';
+                    ctx.fillStyle = "#111111"; 
+                    ctx.textAlign = "center";
+                    let textY = 1018 + 90; 
 
-                            ctx.font = "35px Pretendard, sans-serif"; ctx.fillText(`${c} ${d}`, 540, textY);
-                            ctx.font = "bold 50px Pretendard, sans-serif"; ctx.fillText(`${n} ${t}`, 540, textY + 70);
-                            ctx.font = "35px Pretendard, sans-serif"; ctx.fillText(p, 540, textY + 140);
-                            ctx.fillText(e, 540, textY + 200);
-                            ctx.font = "30px Pretendard, sans-serif"; ctx.fillText(a, 540, textY + 260);
-                        } else if (type === 'wifi') {
-                            const ssid = document.getElementById('wifi-ssid').value || 'KT_GiGA_5G';
-                            const pw = document.getElementById('wifi-pw').value;
-                            
-                            ctx.font = "bold 50px Pretendard, sans-serif"; ctx.fillText("Wi-Fi Network", 540, textY);
-                            ctx.font = "35px Pretendard, sans-serif"; 
-                            ctx.fillText(`SSID : ${ssid}`, 540, textY + 70);
-                            if(pw) {
-                                ctx.fillText(`PW : ${pw}`, 540, textY + 130);
-                            }
-                        } else if (type === 'url') {
-                            ctx.font = "bold 50px Pretendard, sans-serif"; ctx.fillText("웹사이트 연결", 540, textY);
-                            ctx.font = "35px Pretendard, sans-serif"; ctx.fillText(document.getElementById('url-input').value || 'https://kt.com', 540, textY + 70);
-                        } else if (type === 'tel') {
-                            ctx.font = "bold 50px Pretendard, sans-serif"; ctx.fillText("전화 연결", 540, textY);
-                            ctx.font = "40px Pretendard, sans-serif"; ctx.fillText(document.getElementById('tel-input').value || '010-7300-2632', 540, textY + 70);
-                        } else if (type === 'sms') {
-                            ctx.font = "bold 50px Pretendard, sans-serif"; ctx.fillText("문자 전송", 540, textY);
-                            ctx.font = "40px Pretendard, sans-serif"; ctx.fillText(document.getElementById('sms-number').value || '010-7300-2632', 540, textY + 70);
-                        }
-                        ctx.shadowBlur = 0;
+                    if (type === 'vcard') {
+                        const vcName = document.getElementById('vc-name')?.value || '이대희';
+                        const vcPhone = document.getElementById('vc-phone')?.value || '010-7300-2632';
+                        const vcCompany = document.getElementById('vc-company')?.value || 'KT';
+                        const vcDept = document.getElementById('vc-dept')?.value || '인천지사 시너지영업3팀';
+                        const vcTitle = document.getElementById('vc-title')?.value || '과장';
+                        const vcEmail = document.getElementById('vc-email')?.value || 'daehee.lee@kt.com';
+                        const vcAddress = document.getElementById('vc-address')?.value || '인천광역시 남동구 경인로 508 KT 인천지사 4F';
+                        
+                        ctx.font = "32px Pretendard, sans-serif"; ctx.fillText(`${vcCompany} ${vcDept}`, 500, textY);
+                        ctx.font = "bold 52px Pretendard, sans-serif"; ctx.fillText(`${vcName} ${vcTitle}`, 500, textY + 80);
+                        ctx.font = "36px Pretendard, sans-serif"; ctx.fillText(vcPhone, 500, textY + 160);
+                        ctx.fillText(vcEmail, 500, textY + 230);
+                        ctx.font = "24px Pretendard, sans-serif"; ctx.fillText(vcAddress, 500, textY + 300);
+                    } else if (type === 'wifi') {
+                        const ssid = document.getElementById('wifi-ssid')?.value || 'KT_GiGA_5G';
+                        const pw = document.getElementById('wifi-pw')?.value || '';
+                        ctx.font = "bold 45px Pretendard, sans-serif";
+                        ctx.fillText(`SSID : ${ssid}`, 500, textY + 60);
+                        if(pw) { ctx.fillText(`PW : ${pw}`, 500, textY + 150); }
+                    } else if (type === 'url') {
+                        const urlInput = document.getElementById('url-input')?.value || 'https://kt.com';
+                        ctx.font = "bold 46px Pretendard, sans-serif"; ctx.fillText("웹사이트 연결", 500, textY + 60);
+                        ctx.font = "32px Pretendard, sans-serif"; ctx.fillText(urlInput, 500, textY + 150);
+                    } else if (type === 'tel') {
+                        const telNum = document.getElementById('tel-input')?.value || '010-7300-2632';
+                        ctx.font = "bold 46px Pretendard, sans-serif"; ctx.fillText("전화 연결", 500, textY + 60);
+                        ctx.font = "38px Pretendard, sans-serif"; ctx.fillText(telNum, 500, textY + 150);
+                    } else if (type === 'sms') {
+                        const smsNum = document.getElementById('sms-number')?.value || '010-7300-2632';
+                        ctx.font = "bold 46px Pretendard, sans-serif"; ctx.fillText("문자 전송 수신처", 500, textY + 60);
+                        ctx.font = "38px Pretendard, sans-serif"; ctx.fillText(smsNum, 500, textY + 150);
                     }
 
                     document.getElementById('result-area').classList.add('active');
                     document.getElementById('download-link').href = canvas.toDataURL("image/png");
-                    setTimeout(() => document.getElementById('result-area').scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+                    setTimeout(() => document.getElementById('result-area').scrollIntoView({ behavior: 'smooth', block: 'start' }), 150);
                 };
                 baseQRImg.src = qrImageURL;
-            }, 100);
+            });
         }
     </script>
 </body>
