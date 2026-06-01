@@ -1,858 +1,434 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>QR 코드 생성기 | KT 인천지사</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<style>
-@font-face{font-family:'DIGICO';src:url('../../assets/fonts/digicottf-light.ttf') format('truetype');font-weight:300;}
-@font-face{font-family:'DIGICO';src:url('../../assets/fonts/digicottf-medium.ttf') format('truetype');font-weight:500;}
-@font-face{font-family:'DIGICO';src:url('../../assets/fonts/digicottf-bold.ttf') format('truetype');font-weight:700;}
-:root{--accent:#6c757d;--dark:#343a40;--gray:#868e96;--border:#ced4da;--white:#fff;}
-*{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'DIGICO','Apple SD Gothic Neo','Malgun Gothic',sans-serif;background:#f0f1f3;color:var(--dark);min-height:100vh;position:relative;overflow-x:hidden;}
-body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 60% at 15% 20%,rgba(255,255,255,0.9) 0%,transparent 60%),radial-gradient(ellipse 60% 80% at 85% 80%,rgba(210,215,225,0.5) 0%,transparent 60%),linear-gradient(160deg,#f8f9fa 0%,#e9ecef 60%,#dee2e6 100%);pointer-events:none;z-index:0;}
-.geo-deco{position:fixed;pointer-events:none;z-index:0;}
-.geo-deco.circle1{width:320px;height:320px;border-radius:50%;border:1px solid rgba(0,0,0,0.04);top:-80px;right:-80px;}
-.geo-deco.circle2{width:200px;height:200px;border-radius:50%;border:1px solid rgba(0,0,0,0.04);top:-20px;right:-20px;}
-.geo-deco.circle3{width:500px;height:500px;border-radius:50%;border:1px solid rgba(0,0,0,0.03);bottom:-200px;left:-200px;}
-.geo-deco.line1{width:1px;height:100vh;background:linear-gradient(to bottom,transparent,rgba(0,0,0,0.04),transparent);left:calc(50% + 160px);top:0;}
-.page{position:relative;z-index:1;max-width:480px;margin:0 auto;}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KT Synergy - Ultimate QR Showcase</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        :root {
+            --bg-deep: #050507;
+            --accent-cyan: #00f0ff;
+            --accent-blue: #0057ff;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-main: #ffffff;
+            --text-muted: #888888;
+        }
 
-/* HERO */
-.hero{padding:56px 32px 48px;position:relative;overflow:hidden;}
-.hero-kt{display:flex;align-items:center;gap:10px;margin-bottom:48px;}
-.hero-kt img{height:28px;width:auto;opacity:0.5;filter:grayscale(1);}
-.hero-kt-label{font-size:11px;font-weight:500;color:var(--gray);letter-spacing:2px;text-transform:uppercase;}
-.hero-big-qr{position:absolute;right:-10px;top:-10px;font-size:280px;font-weight:700;color:rgba(0,0,0,0.06);line-height:1;letter-spacing:-10px;user-select:none;}
-.hero-eyebrow{font-size:11px;font-weight:500;color:var(--accent);letter-spacing:3px;text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:10px;}
-.hero-eyebrow .version{font-size:10px;font-weight:300;color:var(--gray);letter-spacing:1px;background:rgba(0,0,0,0.06);padding:2px 7px;border-radius:4px;text-transform:none;}
-.hero-title{font-size:clamp(36px,9vw,64px);font-weight:700;color:var(--dark);line-height:1.1;letter-spacing:-2px;margin-bottom:20px;}
-.hero-desc{font-size:18px;font-weight:300;color:var(--gray);line-height:1.8;margin-bottom:32px;}
-.ml11{font-weight:700;}
-.ml11 .text-wrapper{position:relative;display:inline-block;padding-top:0.1em;padding-right:0.05em;padding-bottom:0.15em;}
-.ml11 .line{opacity:0;position:absolute;left:0;top:0;height:100%;width:3px;background-color:var(--dark);transform-origin:0 50%;}
-.ml11 .line1{top:0;left:0;}
-.ml11 .letter{display:inline-block;line-height:1em;}
-.divider{height:1px;background:linear-gradient(to right,transparent,var(--border),transparent);margin:0 32px;}
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Pretendard", sans-serif; }
+        
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
 
-/* STEP */
-.step-section{padding:56px 32px;}
-.step-num{font-size:clamp(100px,25vw,140px);font-weight:700;color:rgba(0,0,0,0.06);line-height:0.85;letter-spacing:-6px;margin-bottom:24px;margin-left:-6px;display:block;}
-.step-num strong{color:rgba(0,0,0,0.18);}
-.step-label{font-size:13px;font-weight:700;color:var(--accent);letter-spacing:3px;text-transform:uppercase;margin-bottom:12px;}
-.step-title{font-size:26px;font-weight:700;color:var(--dark);letter-spacing:-0.5px;margin-bottom:8px;}
-.step-sub{font-size:16px;font-weight:300;color:var(--gray);line-height:1.7;margin-bottom:32px;}
+        /* Ambient Glow Background */
+        .ambient-glow {
+            position: fixed; width: 60vw; height: 60vw; border-radius: 50%;
+            filter: blur(150px); opacity: 0.15; z-index: -1; pointer-events: none;
+            animation: orbFloat 15s infinite alternate ease-in-out;
+        }
+        .glow-1 { top: -20%; left: -10%; background: var(--accent-cyan); }
+        .glow-2 { bottom: -20%; right: -10%; background: var(--accent-blue); animation-delay: -7s; }
 
-/* TYPE GRID */
-.type-grid{display:flex;flex-direction:column;gap:12px;}
-.type-item{display:flex;align-items:center;gap:16px;padding:18px 20px;background:rgba(255,255,255,0.7);border:1.5px solid var(--border);border-radius:12px;cursor:pointer;transition:border-color 0.2s,background 0.2s;}
-.type-item:has(input:checked){border-color:var(--dark);background:#fff;}
-.type-item input[type=radio]{width:20px;height:20px;accent-color:var(--dark);cursor:pointer;flex-shrink:0;}
-.type-icon{width:32px;height:32px;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
-.type-icon svg{width:28px;height:28px;stroke:var(--dark);stroke-width:1.5;fill:none;stroke-linecap:round;stroke-linejoin:round;}
-.type-text .t1{font-size:18px;font-weight:500;color:var(--dark);}
-.type-text .t2{font-size:14px;font-weight:300;color:var(--gray);margin-top:2px;}
+        @keyframes orbFloat {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(50px, 80px) scale(1.2); }
+        }
 
-/* FIELDS */
-.field-group{display:none;}
-.field-group.active{display:block;}
-.field{margin-bottom:24px;}
-.field-label{font-size:16px;font-weight:700;color:var(--dark);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
-.req{color:var(--accent);}
-.opt-tag{font-size:10px;font-weight:500;color:var(--gray);background:rgba(0,0,0,0.05);padding:2px 7px;border-radius:4px;}
-input[type=text],input[type=tel],input[type=email],input[type=url],textarea,select{width:100%;padding:18px 0;border:none;border-bottom:2px solid var(--border);background:transparent;font-size:18px;font-weight:300;font-family:inherit;color:var(--dark);outline:none;transition:border-color 0.2s;border-radius:0;-webkit-appearance:none;appearance:none;}
-input:focus,textarea:focus,select:focus{border-bottom-color:var(--accent);}
-input::placeholder,textarea::placeholder{color:#c0c0c5;}
-textarea{min-height:80px;resize:vertical;line-height:1.6;padding-top:12px;}
-select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23868e96' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 4px center;padding-right:28px;cursor:pointer;}
-.field-hint{font-size:14px;color:var(--gray);margin-top:8px;font-weight:300;}
-.pw-wrap{position:relative;}
-.pw-wrap input{padding-right:44px;}
-.pw-eye{position:absolute;right:0;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:8px;}
-.pw-eye svg{width:20px;height:20px;stroke:var(--gray);stroke-width:1.5;fill:none;stroke-linecap:round;stroke-linejoin:round;}
-.field-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-.option-item{display:flex;align-items:center;gap:16px;padding:16px 20px;background:rgba(255,255,255,0.7);border:1.5px solid var(--border);border-radius:12px;cursor:pointer;transition:border-color 0.2s,background 0.2s;}
-.option-item:has(input:checked){border-color:var(--dark);background:#fff;}
-.option-item input[type=radio],.option-item input[type=checkbox]{width:20px;height:20px;accent-color:var(--dark);cursor:pointer;flex-shrink:0;}
-.option-label{font-size:17px;font-weight:500;color:var(--dark);}
-.option-desc{font-size:14px;color:var(--gray);font-weight:300;margin-top:2px;}
-.logo-preview-row{display:flex;align-items:center;gap:16px;margin-bottom:20px;}
-.logo-thumb{width:60px;height:60px;background:rgba(255,255,255,0.8);border:1.5px solid var(--border);border-radius:12px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;}
-.logo-thumb img{max-width:100%;max-height:100%;object-fit:contain;}
-.size-row{display:flex;align-items:center;gap:16px;margin-top:8px;}
-.size-row label{font-size:14px;font-weight:500;color:var(--dark);white-space:nowrap;}
-input[type=range]{flex:1;height:4px;-webkit-appearance:none;appearance:none;background:var(--border);border-radius:2px;border:none;padding:0;accent-color:var(--dark);}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--dark);cursor:pointer;border:2px solid #fff;box-shadow:0 0 0 1px var(--border);}
-.size-val{font-size:14px;font-weight:500;color:var(--accent);min-width:36px;text-align:right;}
+        /* Scroll Reveal Utility Classes */
+        .reveal { opacity: 0; transform: translateY(50px); transition: all 1s cubic-bezier(0.16, 1, 0.3, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+        .delay-1 { transition-delay: 0.2s; }
+        .delay-2 { transition-delay: 0.4s; }
 
-/* ── STEP 05: 템플릿 선택 ── */
-.template-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;}
-.tpl-card{position:relative;cursor:pointer;border-radius:12px;overflow:hidden;border:2px solid var(--border);transition:border-color 0.2s,box-shadow 0.2s;background:#fff;}
-.tpl-card:has(input:checked){border-color:var(--dark);box-shadow:0 0 0 3px rgba(52,58,64,0.1);}
-.tpl-card input[type=radio]{position:absolute;opacity:0;width:0;height:0;}
-.tpl-sample{width:100%;aspect-ratio:9/16;object-fit:cover;display:block;transition:opacity 0.2s;}
-.tpl-card:hover .tpl-sample{opacity:0.85;}
-.tpl-check{position:absolute;top:8px;right:8px;width:22px;height:22px;border-radius:50%;background:var(--dark);display:none;align-items:center;justify-content:center;z-index:10;}
-.tpl-card:has(input:checked) .tpl-check{display:flex;}
-.tpl-check svg{width:12px;height:12px;stroke:#fff;stroke-width:2.5;fill:none;}
-.tpl-name{padding:8px 10px;font-size:12px;font-weight:500;color:var(--dark);text-align:center;background:#fff;border-top:1px solid var(--border);}
-.tpl-none-card{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;border-radius:12px;border:2px solid var(--border);transition:border-color 0.2s;background:#fff;padding:16px 8px;}
-.tpl-none-card:has(input:checked){border-color:var(--dark);}
-.tpl-none-card input[type=radio]{position:absolute;opacity:0;width:0;height:0;}
-.tpl-none-icon{font-size:24px;color:var(--gray);}
-.tpl-none-text{font-size:12px;font-weight:500;color:var(--gray);text-align:center;}
+        /* Hero Section */
+        .hero {
+            height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center;
+            text-align: center; position: relative;
+        }
+        .hero-badge {
+            padding: 8px 16px; background: rgba(0, 240, 255, 0.1); border: 1px solid rgba(0, 240, 255, 0.3);
+            border-radius: 50px; color: var(--accent-cyan); font-size: 0.8rem; font-weight: 700; letter-spacing: 2px;
+            margin-bottom: 20px; text-transform: uppercase;
+        }
+        .hero-title {
+            font-size: clamp(3rem, 8vw, 6rem); font-weight: 800; line-height: 1.1; letter-spacing: -2px;
+            background: linear-gradient(180deg, #FFFFFF 0%, #666666 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 20px;
+        }
+        .scroll-indicator {
+            position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+            display: flex; flex-direction: column; align-items: center; opacity: 0.5; animation: bounce 2s infinite;
+        }
+        .scroll-line { width: 1px; height: 40px; background: linear-gradient(to bottom, #fff, transparent); margin-top: 10px; }
+        @keyframes bounce { 0%, 20%, 50%, 80%, 100% { transform: translateY(0) translateX(-50%); } 40% { transform: translateY(-10px) translateX(-50%); } }
 
-/* QR RESULT */
-.qr-result-wrap{background:rgba(255,255,255,0.85);border:1.5px solid var(--border);border-radius:16px;padding:32px 24px;display:flex;flex-direction:column;align-items:center;gap:20px;}
-.qr-stage{position:relative;background:#fff;padding:20px;border-radius:12px;border:1px solid rgba(0,0,0,0.06);}
-#qr-canvas-container{position:relative;width:240px;height:240px;}
-#qr-canvas-container canvas,#qr-canvas-container img{position:absolute;top:0;left:0;width:240px;height:240px;}
-#logo-overlay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10;display:none;background:white;padding:5px;border-radius:8px;}
-#logo-overlay img{width:100%;height:100%;object-fit:contain;display:block;}
-.qr-meta-tag{font-size:11px;font-weight:500;color:var(--accent);letter-spacing:2px;text-transform:uppercase;}
-.qr-meta-title{font-size:20px;font-weight:700;color:var(--dark);letter-spacing:-0.5px;margin-top:4px;text-align:center;word-break:break-all;}
+        /* Section Layout */
+        .section { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 100px 20px; max-width: 1000px; margin: 0 auto; }
+        .sec-title { font-size: 2.5rem; font-weight: 700; margin-bottom: 50px; letter-spacing: -1px; }
+        
+        /* Grid Cards (Step 1) */
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        .type-card {
+            background: var(--glass-bg); backdrop-filter: blur(10px); border: 1px solid var(--glass-border);
+            border-radius: 20px; padding: 40px 30px; text-align: center; cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); position: relative; overflow: hidden;
+        }
+        .type-card::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent); transition: 0.5s;
+        }
+        .type-card:hover { transform: translateY(-10px); border-color: var(--accent-cyan); box-shadow: 0 20px 40px rgba(0, 240, 255, 0.1); }
+        .type-card:hover::before { left: 100%; }
+        .card-icon { font-size: 2rem; margin-bottom: 20px; color: var(--accent-cyan); }
+        .card-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 10px; }
 
-/* layout output */
-.layout-output-wrap{width:100%;border-radius:12px;overflow:hidden;display:none;border:1px solid var(--border);}
-.layout-output-wrap.show{display:block;}
-#layout-canvas{width:100%;height:auto;display:block;}
+        /* Modal (Pop-up) Styles */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.4s ease; display: flex; justify-content: center; align-items: center;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: all; }
+        
+        .modal-content {
+            background: rgba(15, 15, 20, 0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px;
+            width: 100%; max-width: 600px; padding: 50px 40px; position: relative;
+            transform: translateY(50px) scale(0.95); opacity: 0; transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5), 0 0 40px rgba(0, 240, 255, 0.1);
+        }
+        .modal-overlay.active .modal-content { transform: translateY(0) scale(1); opacity: 1; }
+        
+        .btn-close {
+            position: absolute; top: 20px; right: 25px; background: none; border: none; color: #fff;
+            font-size: 1.5rem; cursor: pointer; opacity: 0.5; transition: opacity 0.2s;
+        }
+        .btn-close:hover { opacity: 1; }
 
-/* DL BUTTONS */
-.dl-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;}
-.dl-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px 12px;background:rgba(255,255,255,0.8);border:1.5px solid var(--border);border-radius:12px;font-family:inherit;font-size:14px;font-weight:500;color:var(--dark);cursor:pointer;transition:border-color 0.2s,background 0.2s;}
-.dl-btn:hover{border-color:var(--dark);background:#fff;}
-.dl-btn svg{width:18px;height:18px;stroke:currentColor;stroke-width:1.5;fill:none;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;}
-.dl-btn.primary{background:var(--dark);color:#fff;border-color:var(--dark);}
-.dl-btn.primary:hover{opacity:0.85;}
-.copy-string-box{width:100%;padding:12px 16px;background:rgba(0,0,0,0.03);border:1px solid var(--border);border-radius:8px;font-size:11px;font-weight:300;color:var(--gray);word-break:break-all;line-height:1.6;cursor:pointer;transition:background 0.15s;text-align:left;}
-.copy-string-box:hover{background:rgba(0,0,0,0.06);}
+        /* Form Inputs inside Modal */
+        .form-group { margin-bottom: 24px; }
+        .form-group label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--accent-cyan); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
+            padding: 16px 20px; color: #fff; font-size: 1.1rem; outline: none; transition: all 0.3s;
+        }
+        .form-group input:focus, .form-group textarea:focus { border-color: var(--accent-cyan); box-shadow: 0 0 20px rgba(0, 240, 255, 0.2); background: rgba(0,0,0,0.6); }
+        .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .dynamic-form { display: none; }
+        .dynamic-form.active { display: block; animation: modalFadeIn 0.5s; }
+        @keyframes modalFadeIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
 
-/* GENERATE BTN */
-.generate-section{padding:8px 32px 24px;}
-.generate-btn{width:100%;padding:20px;background:var(--accent);color:#fff;border:none;border-radius:14px;font-size:20px;font-weight:700;font-family:inherit;cursor:pointer;letter-spacing:-0.3px;transition:transform 0.15s,opacity 0.15s;display:flex;align-items:center;justify-content:center;gap:10px;position:relative;overflow:hidden;}
-.generate-btn::after{content:'';position:absolute;top:0;left:-100%;width:50%;height:100%;background:linear-gradient(120deg,transparent,rgba(255,255,255,0.2),transparent);transform:skewX(-20deg);}
-.generate-btn:hover::after{left:150%;transition:left 0.5s ease;}
-.generate-btn:active{transform:scale(0.99);opacity:0.9;}
-.generate-btn svg{width:22px;height:22px;stroke:#fff;stroke-width:1.5;fill:none;stroke-linecap:round;stroke-linejoin:round;}
-footer{text-align:center;padding:32px 32px 56px;font-size:13px;font-weight:300;color:var(--gray);line-height:2;}
-.fade-in{opacity:0;transform:translateY(20px);animation:fadeIn 0.6s ease forwards;}
-.fade-in:nth-child(1){animation-delay:0.1s;}.fade-in:nth-child(2){animation-delay:0.2s;}.fade-in:nth-child(3){animation-delay:0.3s;}.fade-in:nth-child(4){animation-delay:0.4s;}
-@keyframes fadeIn{to{opacity:1;transform:none;}}
-.result-hidden{display:none;}
-.result-hidden.show{display:block;}
-</style>
+        .btn-save {
+            width: 100%; padding: 18px; margin-top: 10px; border: none; border-radius: 12px;
+            background: linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-blue) 100%);
+            color: #fff; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: all 0.3s;
+        }
+        .btn-save:hover { box-shadow: 0 10px 30px rgba(0, 240, 255, 0.4); transform: translateY(-2px); }
+
+        /* Step 3 & 4 (Logo & Design) */
+        .option-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 40px; }
+        .option-label input { display: none; }
+        .option-card {
+            padding: 20px; border: 1px solid var(--glass-border); border-radius: 16px; text-align: center;
+            background: rgba(255,255,255,0.02); cursor: pointer; transition: all 0.3s; color: var(--text-muted); font-weight: 600;
+        }
+        .option-label input:checked ~ .option-card { border-color: #fff; color: #fff; background: rgba(255,255,255,0.1); box-shadow: 0 0 20px rgba(255,255,255,0.1); }
+
+        .color-picker-wrap { display: flex; align-items: center; gap: 20px; margin-bottom: 40px; padding: 20px; background: var(--glass-bg); border-radius: 16px; border: 1px solid var(--glass-border); }
+        .preset-color { width: 40px; height: 40px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: 0.3s; }
+        .preset-color:hover { transform: scale(1.1); }
+        .preset-color.active { border-color: #fff; box-shadow: 0 0 15px rgba(255,255,255,0.5); }
+
+        .template-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        .template-card { border: 1px solid var(--glass-border); border-radius: 16px; overflow: hidden; cursor: pointer; position: relative; }
+        .template-img { width: 100%; height: 250px; object-fit: cover; opacity: 0.6; transition: 0.5s; }
+        .template-label input:checked ~ .template-card { border-color: var(--accent-cyan); box-shadow: 0 0 30px rgba(0, 240, 255, 0.2); }
+        .template-label input:checked ~ .template-card .template-img { opacity: 1; transform: scale(1.05); }
+        .template-name { position: absolute; bottom: 0; left: 0; width: 100%; padding: 20px; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); font-weight: 700; font-size: 1.1rem; }
+
+        /* Output Area */
+        .btn-epic {
+            display: block; width: 100%; padding: 25px; margin: 80px 0; border: none; border-radius: 20px;
+            background: #fff; color: #000; font-size: 1.5rem; font-weight: 800; cursor: pointer;
+            transition: all 0.4s; position: relative; overflow: hidden;
+        }
+        .btn-epic:hover { transform: scale(1.02); box-shadow: 0 20px 50px rgba(255,255,255,0.2); }
+
+        .result-area { display: none; text-align: center; padding: 60px 0; }
+        .result-area.active { display: block; animation: revealUp 1s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes revealUp { from { opacity: 0; transform: translateY(100px); } to { opacity: 1; transform: translateY(0); } }
+        #finalCanvas { max-width: 100%; border-radius: 20px; box-shadow: 0 30px 80px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); }
+        #qr-hidden { display: none; }
+    </style>
 </head>
 <body>
-<!-- 템플릿 이미지 preload (crossOrigin 없이 DOM에서 로드) -->
-<div style="display:none;" aria-hidden="true">
-  <img id="tpl-img-01" src="../../assets/image/qr_templates/qr_template_01.png" alt="">
-  <img id="tpl-img-02" src="../../assets/image/qr_templates/qr_template_02.png" alt="">
-  <img id="tpl-img-03" src="../../assets/image/qr_templates/qr_template_03.png" alt="">
-</div>
-<div class="geo-deco circle1"></div>
-<div class="geo-deco circle2"></div>
-<div class="geo-deco circle3"></div>
-<div class="geo-deco line1"></div>
-<div class="page">
 
-<!-- HERO -->
-<div class="hero">
-  <div class="hero-big-qr">QR</div>
-  <div class="hero-kt fade-in">
-    <img src="https://www.kt-synergy.com/assets/image/CI_BI/kt_ci_g02.png" alt="KT" onerror="this.style.display='none'"/>
-    <span class="hero-kt-label">인천지사 · 시너지영업3팀</span>
-  </div>
-  <div class="hero-eyebrow fade-in">QR Generator <span class="version">v1.08</span></div>
-  <h1 class="hero-title ml11 fade-in">
-    <span class="text-wrapper">
-      <span class="line line1"></span>
-      <span class="letters">QR 코드 생성기</span>
-    </span>
-  </h1>
-  <p class="hero-desc fade-in">유형을 선택하고 정보를 입력하면<br>QR 코드가 즉시 생성됩니다</p>
-</div>
+    <div class="ambient-glow glow-1"></div>
+    <div class="ambient-glow glow-2"></div>
 
-<div class="divider"></div>
+    <header class="hero">
+        <div class="hero-badge reveal">KT Synergy Sales Team</div>
+        <h1 class="hero-title reveal delay-1">The Ultimate<br>QR Generator</h1>
+        <p class="reveal delay-2" style="font-size: 1.2rem; color: var(--text-muted);">디지털 명함부터 마케팅 템플릿까지 완벽한 통합</p>
+        <div class="scroll-indicator">
+            <span style="font-size: 0.8rem; letter-spacing: 2px;">SCROLL</span>
+            <div class="scroll-line"></div>
+        </div>
+    </header>
 
-<!-- STEP 01 -->
-<div class="step-section">
-  <span class="step-num">0<strong>1</strong></span>
-  <div class="step-label">유형 선택</div>
-  <div class="step-title">QR 코드 종류를<br>선택해 주세요</div>
-  <div class="step-sub">원하는 유형 하나를 선택하세요</div>
-  <div class="type-grid">
-    <label class="type-item"><input type="radio" name="qr-type" value="wifi" checked onchange="setType('wifi')">
-      <div class="type-icon"><svg viewBox="0 0 28 28"><path d="M2 10c3.3-3.3 7.8-5.3 12.7-5 4.5.2 8.6 2.2 11.6 5.3"/><path d="M5.5 13.5c2.3-2.3 5.4-3.7 8.8-3.7s6.5 1.4 8.8 3.7"/><path d="M9.3 17.3c1.2-1.2 2.9-2 4.7-2s3.5.8 4.7 2"/><circle cx="14" cy="22" r="1.5" fill="var(--dark)"/></svg></div>
-      <div class="type-text"><div class="t1">Wi-Fi</div><div class="t2">SSID / 비밀번호</div></div>
-    </label>
-    <label class="type-item"><input type="radio" name="qr-type" value="url" onchange="setType('url')">
-      <div class="type-icon"><svg viewBox="0 0 28 28"><path d="M11 17l6-6"/><path d="M8 20a4.5 4.5 0 0 1 0-6.4l2-2a4.5 4.5 0 0 1 6.4 6.4l-1 1"/><path d="M13.6 8l1-1a4.5 4.5 0 0 1 6.4 6.4l-2 2A4.5 4.5 0 0 1 12.6 15"/></svg></div>
-      <div class="type-text"><div class="t1">URL / 링크</div><div class="t2">웹 주소 바로가기</div></div>
-    </label>
-    <label class="type-item"><input type="radio" name="qr-type" value="vcard" onchange="setType('vcard')">
-      <div class="type-icon"><svg viewBox="0 0 28 28"><rect x="2" y="7" width="24" height="16" rx="2"/><circle cx="9" cy="14" r="3"/><path d="M15 12h6M15 16h4"/></svg></div>
-      <div class="type-text"><div class="t1">디지털 명함</div><div class="t2">이름 · 소속 · 연락처 · 이메일</div></div>
-    </label>
-    <label class="type-item"><input type="radio" name="qr-type" value="tel" onchange="setType('tel')">
-      <div class="type-icon"><svg viewBox="0 0 28 28"><path d="M6 4h5l2 5-3 1.5a11 11 0 0 0 5.5 5.5L17 13l5 2v5a2 2 0 0 1-2 2A18 18 0 0 1 4 6a2 2 0 0 1 2-2z"/></svg></div>
-      <div class="type-text"><div class="t1">전화</div><div class="t2">전화번호 바로 연결</div></div>
-    </label>
-    <label class="type-item"><input type="radio" name="qr-type" value="sms" onchange="setType('sms')">
-      <div class="type-icon"><svg viewBox="0 0 28 28"><rect x="2" y="4" width="24" height="16" rx="2"/><path d="M8 10h12M8 14h8"/><path d="M9 20l5 4 5-4"/></svg></div>
-      <div class="type-text"><div class="t1">문자 (SMS)</div><div class="t2">전화번호 · 메시지 내용</div></div>
-    </label>
-  </div>
-</div>
+    <section class="section">
+        <h2 class="sec-title reveal">01. Select Type</h2>
+        <div class="card-grid">
+            <div class="type-card reveal" onclick="openModal('wifi')">
+                <div class="card-icon">📶</div><div class="card-title">Wi-Fi</div><div style="color:var(--text-muted); font-size:0.9rem;">스캔 즉시 네트워크 접속</div>
+            </div>
+            <div class="type-card reveal delay-1" onclick="openModal('url')">
+                <div class="card-icon">🔗</div><div class="card-title">URL Link</div><div style="color:var(--text-muted); font-size:0.9rem;">지정된 웹사이트로 랜딩</div>
+            </div>
+            <div class="type-card reveal delay-2" onclick="openModal('vcard')">
+                <div class="card-icon">🪪</div><div class="card-title">Digital vCard</div><div style="color:var(--text-muted); font-size:0.9rem;">연락처 자동 저장 시스템</div>
+            </div>
+        </div>
+    </section>
 
-<div class="divider"></div>
+    <div class="modal-overlay" id="inputModal">
+        <div class="modal-content">
+            <button class="btn-close" onclick="closeModal()">✕</button>
+            <h3 style="font-size: 2rem; font-weight: 700; margin-bottom: 30px;" id="modalTitle">정보 입력</h3>
+            
+            <input type="hidden" id="selectedType" value="">
 
-<!-- STEP 02 -->
-<div class="step-section">
-  <span class="step-num">0<strong>2</strong></span>
-  <div class="step-label" id="step2-label">정보 입력</div>
-  <div class="step-title" id="step2-title">Wi-Fi 정보를<br>입력해 주세요</div>
-  <div class="step-sub" id="step2-sub">스캔 시 자동으로 접속됩니다</div>
+            <div id="form-wifi" class="dynamic-form">
+                <div class="form-group"><label>SSID</label><input type="text" id="wifi-ssid" placeholder="예: KT_GiGA_5G"></div>
+                <div class="input-row">
+                    <div class="form-group"><label>Password</label><input type="text" id="wifi-pw" placeholder="비밀번호 입력"></div>
+                    <div class="form-group"><label>Security</label><select id="wifi-type"><option value="WPA">WPA/WPA2</option><option value="nopass">없음</option></select></div>
+                </div>
+            </div>
 
-  <div class="field-group active" id="group-wifi">
-    <div class="field"><div class="field-label">네트워크 이름 (SSID) <span class="req">필수</span></div><input type="text" id="wifi-ssid" placeholder="예: KT_WiFi_5G"></div>
-    <div class="field-row">
-      <div class="field"><div class="field-label">보안 유형</div><select id="wifi-sec" onchange="togglePwField()"><option value="WPA">WPA / WPA2</option><option value="WEP">WEP</option><option value="nopass">없음 (개방)</option></select></div>
-      <div class="field"><div class="field-label">숨김 네트워크</div><select id="wifi-hidden"><option value="false">아니오</option><option value="true">예</option></select></div>
-    </div>
-    <div class="field" id="pw-field"><div class="field-label">비밀번호 <span class="req">필수</span></div>
-      <div class="pw-wrap"><input type="password" id="wifi-pw" placeholder="Wi-Fi 비밀번호"><button class="pw-eye" onclick="togglePw()" type="button"><svg viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
-    </div>
-  </div>
+            <div id="form-url" class="dynamic-form">
+                <div class="form-group">
+                    <label>Landing URL</label>
+                    <input type="text" id="url-input" placeholder="https://kt.com">
+                </div>
+            </div>
 
-  <div class="field-group" id="group-url">
-    <div class="field"><div class="field-label">URL 주소 <span class="req">필수</span></div><input type="url" id="url-val" placeholder="https://kt-synergy.com"><div class="field-hint">http:// 또는 https://를 포함해 입력하세요</div></div>
-  </div>
+            <div id="form-vcard" class="dynamic-form">
+                <div class="input-row">
+                    <div class="form-group"><label>Name</label><input type="text" id="vc-name" placeholder="예: 이대희"></div>
+                    <div class="form-group"><label>Phone</label><input type="tel" id="vc-phone" placeholder="예: 010-1234-5678"></div>
+                </div>
+                <div class="input-row">
+                    <div class="form-group"><label>Company</label><input type="text" id="vc-company" placeholder="예: KT"></div>
+                    <div class="form-group"><label>Department</label><input type="text" id="vc-dept" placeholder="예: 시너지영업3팀"></div>
+                </div>
+                <div class="input-row">
+                    <div class="form-group"><label>Position</label><input type="text" id="vc-title" placeholder="예: 과장"></div>
+                    <div class="form-group"><label>Email</label><input type="email" id="vc-email" placeholder="예: daehee.lee@kt.com"></div>
+                </div>
+            </div>
 
-  <div class="field-group" id="group-vcard">
-    <div class="field"><div class="field-label">이름 <span class="req">필수</span></div><input type="text" id="vcard-name" placeholder="예: 이대희"></div>
-    <div class="field-row">
-      <div class="field"><div class="field-label">직함 <span class="opt-tag">선택</span></div><input type="text" id="vcard-title" placeholder="예: 과장"></div>
-      <div class="field"><div class="field-label">소속 <span class="opt-tag">선택</span></div><input type="text" id="vcard-org" placeholder="예: KT 인천지사"></div>
-    </div>
-    <div class="field"><div class="field-label">연락처 <span class="opt-tag">선택</span></div><input type="tel" id="vcard-tel" placeholder="010-0000-0000"></div>
-    <div class="field"><div class="field-label">이메일 <span class="opt-tag">선택</span></div><input type="email" id="vcard-email" placeholder="example@kt.com"></div>
-    <div class="field"><div class="field-label">주소 <span class="opt-tag">선택</span></div><input type="text" id="vcard-addr" placeholder="예: 인천광역시 남동구 경인로 508"></div>
-  </div>
-
-  <div class="field-group" id="group-tel">
-    <div class="field"><div class="field-label">전화번호 <span class="req">필수</span></div><input type="tel" id="tel-val" placeholder="010-0000-0000"><div class="field-hint">스캔 시 바로 전화 연결 화면이 뜹니다</div></div>
-  </div>
-
-  <div class="field-group" id="group-sms">
-    <div class="field"><div class="field-label">수신 번호 <span class="req">필수</span></div><input type="tel" id="sms-tel" placeholder="010-0000-0000"></div>
-    <div class="field"><div class="field-label">문자 내용 <span class="opt-tag">선택</span></div><textarea id="sms-body" placeholder="미리 입력할 메시지를 작성하세요"></textarea></div>
-  </div>
-</div>
-
-<div class="divider"></div>
-
-<!-- STEP 03 -->
-<div class="step-section">
-  <span class="step-num">0<strong>3</strong></span>
-  <div class="step-label">중앙 로고</div>
-  <div class="step-title">QR 코드 중앙에<br>로고를 넣어보세요</div>
-  <div class="step-sub">오류 정정 기능으로 스캔에 영향이 없습니다</div>
-  <div class="logo-preview-row">
-    <div class="logo-thumb"><img src="https://www.kt-synergy.com/assets/image/CI_BI/kt_ci_g02.png" id="logo-thumb-img" onerror="this.style.display='none';document.getElementById('logo-thumb-txt').style.display='block';" alt="로고"><span id="logo-thumb-txt" style="display:none;font-size:11px;font-weight:500;color:var(--gray);">KT</span></div>
-    <div style="font-size:14px;font-weight:300;color:var(--gray);line-height:1.6;">KT 인천지사 시너지영업3팀<br>기본 CI 로고가 적용됩니다</div>
-  </div>
-  <div style="display:flex;flex-direction:column;gap:10px;">
-    <label class="option-item"><input type="radio" name="logo-mode" value="default" checked onchange="setLogoMode('default')"><div><div class="option-label">기본 CI 로고</div><div class="option-desc">kt-synergy.com 로고 자동 적용</div></div></label>
-    <label class="option-item"><input type="radio" name="logo-mode" value="custom" onchange="document.getElementById('logo-file-input').click()"><div><div class="option-label">직접 업로드</div><div class="option-desc">PNG, JPG, SVG 지원</div></div></label>
-    <label class="option-item"><input type="radio" name="logo-mode" value="none" onchange="setLogoMode('none')"><div><div class="option-label">로고 없음</div><div class="option-desc">순수 QR 코드만 생성</div></div></label>
-  </div>
-  <input type="file" id="logo-file-input" accept="image/*" onchange="handleLogoUpload(event)" style="display:none;">
-</div>
-
-<div class="divider"></div>
-
-<!-- STEP 04 -->
-<div class="step-section">
-  <span class="step-num">0<strong>4</strong></span>
-  <div class="step-label">로고 크기</div>
-  <div class="step-title">로고 크기를<br>조절해 주세요</div>
-  <div class="step-sub">너무 크면 스캔이 어려울 수 있습니다</div>
-  <div class="size-row">
-    <label>크기</label>
-    <input type="range" id="logo-size" min="10" max="28" value="20" step="1" oninput="updateLogoSize()">
-    <span class="size-val" id="logo-size-val">20%</span>
-  </div>
-  <div class="field-hint" style="margin-top:12px;">권장 범위: 15 ~ 25%</div>
-</div>
-
-<div class="divider"></div>
-
-<!-- STEP 05 -->
-<div class="step-section">
-  <span class="step-num">0<strong>5</strong></span>
-  <div class="step-label">출력 템플릿</div>
-  <div class="step-title">출력 디자인을<br>선택해 주세요</div>
-  <div class="step-sub">샘플 이미지를 참고해 원하는 레이아웃을 고르세요</div>
-
-  <div class="template-grid">
-    <!-- 템플릿 없음 -->
-    <label class="tpl-none-card" style="position:relative;">
-      <input type="radio" name="tpl" value="none" checked onchange="selectTpl('none')">
-      <div class="tpl-check"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
-      <div class="tpl-none-icon">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--gray)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
-      </div>
-      <div class="tpl-none-text">QR만<br>저장</div>
-    </label>
-
-    <!-- 템플릿 01: 컵 -->
-    <label class="tpl-card">
-      <input type="radio" name="tpl" value="tpl01" onchange="selectTpl('tpl01')">
-      <div class="tpl-check"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
-      <img class="tpl-sample" src="../../assets/image/qr_templates/qr_template_01_sample.png" alt="템플릿 01 샘플" onerror="this.src=''; this.style.background='#f0f1f3'; this.style.minHeight='120px';">
-      <div class="tpl-name">템플릿 01</div>
-    </label>
-
-    <!-- 템플릿 02: 숲 -->
-    <label class="tpl-card">
-      <input type="radio" name="tpl" value="tpl02" onchange="selectTpl('tpl02')">
-      <div class="tpl-check"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
-      <img class="tpl-sample" src="../../assets/image/qr_templates/qr_template_02_sample.png" alt="템플릿 02 샘플" onerror="this.src=''; this.style.background='#f0f1f3'; this.style.minHeight='120px';">
-      <div class="tpl-name">템플릿 02</div>
-    </label>
-
-    <!-- 템플릿 03: 빌딩 -->
-    <label class="tpl-card">
-      <input type="radio" name="tpl" value="tpl03" onchange="selectTpl('tpl03')">
-      <div class="tpl-check"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
-      <img class="tpl-sample" src="../../assets/image/qr_templates/qr_template_03_sample.png" alt="템플릿 03 샘플" onerror="this.src=''; this.style.background='#f0f1f3'; this.style.minHeight='120px';">
-      <div class="tpl-name">템플릿 03</div>
-    </label>
-  </div>
-  <div class="field-hint">샘플 이미지를 클릭해서 선택하세요 · 생성 후 PNG로 저장 또는 인쇄할 수 있습니다</div>
-</div>
-
-<div class="divider"></div>
-
-<!-- GENERATE -->
-<div class="generate-section" style="padding-top:40px;">
-  <button class="generate-btn" onclick="generate()">
-    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="3" height="3"/><rect x="18" y="14" width="3" height="3"/><rect x="14" y="18" width="3" height="3"/><rect x="18" y="18" width="3" height="3"/></svg>
-    QR 코드 생성하기
-  </button>
-</div>
-
-<!-- RESULT -->
-<div class="step-section result-hidden" id="result-section">
-  <div class="qr-result-wrap">
-    <!-- QR only (항상 표시) -->
-    <div class="qr-stage" id="qr-stage-wrap">
-      <div id="qr-canvas-container">
-        <div id="logo-overlay"><img id="logo-overlay-img" src="" alt="로고"></div>
-      </div>
-    </div>
-    <div class="qr-meta-tag" id="qr-meta-tag">Wi-Fi</div>
-    <div class="qr-meta-title" id="qr-meta-title"></div>
-
-    <!-- 템플릿 적용 결과 캔버스 -->
-    <div class="layout-output-wrap" id="layout-output-wrap">
-      <canvas id="layout-canvas"></canvas>
+            <button class="btn-save" onclick="saveAndScrollToNext()">Confirm & Continue</button>
+        </div>
     </div>
 
-    <div class="dl-grid">
-      <button class="dl-btn primary" onclick="downloadMain()">
-        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        PNG 저장
-      </button>
-      <button class="dl-btn" onclick="downloadQROnly()">
-        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        QR만 저장
-      </button>
-      <button class="dl-btn" onclick="printMain()">
-        <svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-        인쇄
-      </button>
-      <button class="dl-btn" onclick="printCard()">
-        <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
-        명함 인쇄
-      </button>
-    </div>
-    <div class="copy-string-box" id="copy-string-box" onclick="copyString()">클릭하면 QR 문자열이 복사됩니다</div>
-  </div>
-</div>
+    <section class="section" id="section-design">
+        <h2 class="sec-title reveal">02. Aesthetics</h2>
+        
+        <h3 class="reveal" style="margin-bottom: 20px; color: var(--text-muted);">Center Logo</h3>
+        <div class="option-grid reveal delay-1">
+            <label class="option-label"><input type="radio" name="logoType" value="none" checked><div class="option-card">미사용</div></label>
+            <label class="option-label"><input type="radio" name="logoType" value="kt"><div class="option-card">KT BI 로고</div></label>
+        </div>
 
-<footer>KT 인천지사 시너지영업3팀<br>문의: 010-7300-2632 · 담당자: 이대희 과장</footer>
-</div>
+        <h3 class="reveal" style="margin-bottom: 20px; color: var(--text-muted);">QR Pattern Color</h3>
+        <div class="color-picker-wrap reveal delay-2">
+            <input type="hidden" id="qr-color" value="#000000">
+            <div class="preset-color active" style="background: #ffffff;" onclick="setQRColor(this, '#ffffff')"></div>
+            <div class="preset-color" style="background: #00d2ff;" onclick="setQRColor(this, '#00d2ff')"></div>
+            <div class="preset-color" style="background: #000000;" onclick="setQRColor(this, '#000000')"></div>
+            <div class="preset-color" style="background: #ff004f;" onclick="setQRColor(this, '#ff004f')"></div>
+        </div>
+    </section>
 
-<script>
-/* ── STATE ── */
-let currentType='wifi', currentString='', logoMode='default', logoDataUrl=null, currentTpl='none', qrFlatCanvas=null;
-const DEFAULT_LOGO='https://www.kt-synergy.com/assets/image/CI_BI/kt_ci_g02.png';
-const TPATH='../../assets/image/qr_templates/';
-function loadImg(src){
-  // DOM에 preload된 img 태그 참조 (canvas taint 없음)
-  const domMap={
-    [TPATH+'qr_template_01.png']: document.getElementById('tpl-img-01'),
-    [TPATH+'qr_template_02.png']: document.getElementById('tpl-img-02'),
-    [TPATH+'qr_template_03.png']: document.getElementById('tpl-img-03'),
-  };
-  const domImg = domMap[src];
-  if(domImg && domImg.complete && domImg.naturalWidth>0) return Promise.resolve(domImg);
-  if(domImg) return new Promise(res=>{
-    domImg.onload=()=>res(domImg);
-    domImg.onerror=()=>res(null);
-  });
-  // fallback
-  return new Promise(res=>{
-    const i=new Image(); i.onload=()=>res(i); i.onerror=()=>res(null); i.src=src;
-  });
-}
-const typeNames={wifi:'Wi-Fi',url:'URL',vcard:'디지털 명함',tel:'전화',sms:'문자 (SMS)'};
+    <section class="section" id="section-template">
+        <h2 class="sec-title reveal">03. Synthesis Template</h2>
+        <div class="template-grid">
+            <label class="template-label reveal">
+                <input type="radio" name="bgTemplate" value="none" checked>
+                <div class="template-card" style="display: flex; align-items: center; justify-content: center; height: 250px; border: 1px dashed var(--glass-border);">
+                    <div style="font-size: 1.5rem; font-weight: 700; color: #fff;">투명 배경 (QR만 추출)</div>
+                </div>
+            </label>
+            <label class="template-label reveal delay-1">
+                <input type="radio" name="bgTemplate" value="t2">
+                <div class="template-card">
+                    <img src="https://kt-synergy.com/assets/image/qr_templates/qr_template_02_sample.png" class="template-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMzMiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlRlbXBsYXRlIDI8L3RleHQ+PC9zdmc+'">
+                    <div class="template-name">Forest Template</div>
+                </div>
+            </label>
+            <label class="template-label reveal delay-2">
+                <input type="radio" name="bgTemplate" value="t3">
+                <div class="template-card">
+                    <img src="https://kt-synergy.com/assets/image/qr_templates/qr_template_03_sample.png" class="template-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMzMiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlRlbXBsYXRlIDM8L3RleHQ+PC9zdmc+'">
+                    <div class="template-name">Cityscape Template</div>
+                </div>
+            </label>
+        </div>
 
-/* ── ML11 ── */
-window.addEventListener('load',()=>{
-  if(typeof anime==='undefined')return;
-  var tw=document.querySelector('.ml11 .letters');
-  tw.innerHTML=tw.textContent.replace(/([^\x00-\x80]|\w|\s)/g,m=>m.trim()===''?m:"<span class='letter'>"+m+"</span>");
-  anime.timeline({loop:true})
-    .add({targets:'.ml11 .line',scaleY:[0,1],opacity:[0.5,1],easing:'easeOutExpo',duration:700})
-    .add({targets:'.ml11 .line',translateX:[0,document.querySelector('.ml11 .letters').getBoundingClientRect().width+10],easing:'easeOutExpo',duration:700,delay:100})
-    .add({targets:'.ml11 .letter',opacity:[0,1],easing:'easeOutExpo',duration:600,delay:(el,i)=>34*(i+1)},'-=775')
-    .add({targets:'.ml11',opacity:0,duration:1000,easing:'easeOutExpo',delay:1000});
-});
+        <button class="btn-epic reveal" onclick="generateComposite()">RENDER FINAL ASSET</button>
 
-/* ── TYPE ── */
-const s2l={wifi:'정보 입력',url:'URL 입력',vcard:'명함 정보',tel:'전화번호 입력',sms:'문자 발송 설정'};
-const s2t={wifi:'Wi-Fi 정보를\n입력해 주세요',url:'URL 주소를\n입력해 주세요',vcard:'명함 정보를\n입력해 주세요',tel:'전화번호를\n입력해 주세요',sms:'문자 발송 정보를\n입력해 주세요'};
-const s2s={wifi:'스캔 시 자동으로 Wi-Fi에 접속됩니다',url:'스캔 시 해당 페이지로 이동합니다',vcard:'스캔 시 연락처가 자동으로 저장됩니다',tel:'스캔 시 전화 연결 화면이 바로 열립니다',sms:'스캔 시 문자 작성 화면이 열립니다'};
-function setType(t){currentType=t;document.querySelectorAll('.field-group').forEach(g=>g.classList.remove('active'));document.getElementById('group-'+t).classList.add('active');document.getElementById('step2-label').textContent=s2l[t];document.getElementById('step2-title').innerHTML=s2t[t].replace('\n','<br>');document.getElementById('step2-sub').textContent=s2s[t];}
-function togglePwField(){document.getElementById('pw-field').style.display=document.getElementById('wifi-sec').value==='nopass'?'none':'block';}
-function togglePw(){const p=document.getElementById('wifi-pw');p.type=p.type==='password'?'text':'password';}
-function escW(s){return s.replace(/\\/g,'\\\\').replace(/"/g,'\\"').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/:/g,'\\:');}
+        <div id="result-area" class="result-area">
+            <h2 style="font-size: 3rem; font-weight: 800; margin-bottom: 40px; color: var(--accent-cyan);">Ready to Deploy.</h2>
+            <div id="qr-hidden"></div>
+            <canvas id="finalCanvas"></canvas>
+            <br>
+            <a id="download-link" class="btn-epic" style="margin-top: 40px; background: var(--accent-cyan); color: #000;" download="kt_synergy_asset.png">DOWNLOAD HIGH-RES IMAGE</a>
+        </div>
+    </section>
 
-/* ── LOGO ── */
-function setLogoMode(m){logoMode=m;if(m==='default'){logoDataUrl=null;const i=document.getElementById('logo-thumb-img');i.style.display='block';i.src=DEFAULT_LOGO;document.getElementById('logo-thumb-txt').style.display='none';}if(document.getElementById('result-section').classList.contains('show'))applyLogoOverlay();}
-function handleLogoUpload(e){const f=e.target.files[0];if(!f)return;logoMode='custom';document.querySelector('input[name=logo-mode][value=custom]').checked=true;const r=new FileReader();r.onload=ev=>{logoDataUrl=ev.target.result;const i=document.getElementById('logo-thumb-img');i.style.display='block';i.src=logoDataUrl;document.getElementById('logo-thumb-txt').style.display='none';if(document.getElementById('result-section').classList.contains('show'))applyLogoOverlay();};r.readAsDataURL(f);}
-function updateLogoSize(){document.getElementById('logo-size-val').textContent=document.getElementById('logo-size').value+'%';if(document.getElementById('result-section').classList.contains('show'))applyLogoOverlay();}
-function applyLogoOverlay(){
-  const ov=document.getElementById('logo-overlay');if(!ov)return;
-  if(logoMode==='none'){ov.style.display='none';return;}
-  const pct=parseInt(document.getElementById('logo-size').value)/100,sz=Math.round(240*pct);
-  Object.assign(ov.style,{display:'block',width:sz+'px',height:sz+'px',padding:'4px',background:'white',position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-50%)',zIndex:'10',borderRadius:'6px'});
-  const img=document.getElementById('logo-overlay-img');
-  img.src=logoMode==='custom'?logoDataUrl:DEFAULT_LOGO;
-  Object.assign(img.style,{width:'100%',height:'100%',objectFit:'contain',display:'block',position:'static'});
-  img.onerror=()=>{ov.style.display='none';};
-}
+    <script>
+        // Scroll Reveal Observer
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, { threshold: 0.1 });
 
-/* ── TEMPLATE ── */
-function selectTpl(t){currentTpl=t;}
+        document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
 
-/* ── BUILD STRING ── */
-function buildString(){
-  switch(currentType){
-    case 'wifi':{const s=document.getElementById('wifi-ssid').value.trim();if(!s){alert('SSID를 입력해주세요.');return null;}const sec=document.getElementById('wifi-sec').value,pw=document.getElementById('wifi-pw').value,hid=document.getElementById('wifi-hidden').value;if(sec!=='nopass'&&!pw){alert('비밀번호를 입력해주세요.');return null;}return`WIFI:T:${sec};S:${escW(s)};P:${escW(pw)};H:${hid};;`;}
-    case 'url':{let u=document.getElementById('url-val').value.trim();if(!u){alert('URL을 입력해주세요.');return null;}if(!/^https?:\/\//i.test(u))u='https://'+u;return u;}
-    case 'vcard':{const n=document.getElementById('vcard-name').value.trim();if(!n){alert('이름을 입력해주세요.');return null;}const t=document.getElementById('vcard-title').value.trim(),o=document.getElementById('vcard-org').value.trim(),te=document.getElementById('vcard-tel').value.trim(),em=document.getElementById('vcard-email').value.trim(),ad=document.getElementById('vcard-addr').value.trim();let v=`BEGIN:VCARD\nVERSION:3.0\nFN:${n}\nN:${n};;;;\n`;if(t)v+=`TITLE:${t}\n`;if(o)v+=`ORG:${o}\n`;if(te)v+=`TEL;TYPE=CELL:${te}\n`;if(em)v+=`EMAIL:${em}\n`;if(ad)v+=`ADR;TYPE=WORK:;;${ad};;;KR\n`;v+=`END:VCARD`;return v;}
-    case 'tel':{const t=document.getElementById('tel-val').value.trim().replace(/[^0-9+\-]/g,'');if(!t){alert('전화번호를 입력해주세요.');return null;}return'tel:'+t;}
-    case 'sms':{const t=document.getElementById('sms-tel').value.trim().replace(/[^0-9+\-]/g,'');if(!t){alert('수신 번호를 입력해주세요.');return null;}const b=document.getElementById('sms-body').value.trim();return b?`SMSTO:${t}:${b}`:`sms:${t}`;}
-  }return null;
-}
-function getMetaTitle(){switch(currentType){case 'wifi':return document.getElementById('wifi-ssid').value.trim()||'Wi-Fi';case 'url':return document.getElementById('url-val').value.trim()||'URL';case 'vcard':return document.getElementById('vcard-name').value.trim()||'명함';case 'tel':return document.getElementById('tel-val').value.trim()||'전화번호';case 'sms':return document.getElementById('sms-tel').value.trim()||'SMS';}}
+        // Modal Logic
+        const modal = document.getElementById('inputModal');
+        
+        function openModal(type) {
+            document.getElementById('selectedType').value = type;
+            document.querySelectorAll('.dynamic-form').forEach(el => el.classList.remove('active'));
+            document.getElementById('form-' + type).classList.add('active');
+            
+            const titles = { 'wifi': 'Wi-Fi Configuration', 'url': 'Landing URL', 'vcard': 'Digital vCard Data' };
+            document.getElementById('modalTitle').innerText = titles[type];
+            
+            modal.classList.add('active');
+        }
 
-/* ── INFO OBJECT ── */
-function getInfo(){
-  const t=currentType;
-  switch(t){
-    case 'wifi':return{type:'Wi-Fi',title:document.getElementById('wifi-ssid').value.trim(),line1:document.getElementById('wifi-ssid').value.trim(),line2:document.getElementById('wifi-pw').value?'비밀번호: '+'•'.repeat(Math.min(8,document.getElementById('wifi-pw').value.length)):'개방 네트워크',line3:'',name:'',org:'',tel:'',email:'',addr:''};
-    case 'url':return{type:'URL',title:document.getElementById('url-val').value.trim(),line1:document.getElementById('url-val').value.trim(),line2:'',line3:'',name:'',org:'',tel:'',email:'',addr:''};
-    case 'vcard':return{type:'디지털 명함',title:document.getElementById('vcard-name').value.trim(),name:document.getElementById('vcard-name').value.trim(),org:(document.getElementById('vcard-org').value.trim()||'')+(document.getElementById('vcard-title').value.trim()?' · '+document.getElementById('vcard-title').value.trim():''),tel:document.getElementById('vcard-tel').value.trim(),email:document.getElementById('vcard-email').value.trim(),addr:document.getElementById('vcard-addr').value.trim(),line1:document.getElementById('vcard-name').value.trim(),line2:document.getElementById('vcard-org').value.trim(),line3:document.getElementById('vcard-tel').value.trim()};
-    case 'tel':return{type:'전화',title:document.getElementById('tel-val').value.trim(),line1:'',line2:'',line3:'',name:'',org:'',tel:document.getElementById('tel-val').value.trim(),email:'',addr:''};
-    case 'sms':return{type:'문자(SMS)',title:document.getElementById('sms-tel').value.trim(),line1:document.getElementById('sms-tel').value.trim(),line2:document.getElementById('sms-body').value.trim().substring(0,40),line3:'',name:'',org:'',tel:document.getElementById('sms-tel').value.trim(),email:'',addr:''};
-  }
-}
+        function closeModal() {
+            modal.classList.remove('active');
+        }
 
-/* ── GENERATE ── */
-function generate(){
-  const str=buildString();if(!str)return;
-  currentString=str;
-  const container=document.getElementById('qr-canvas-container');
-  container.innerHTML='<div id="logo-overlay"><img id="logo-overlay-img" src="" alt="로고"></div>';
-  // correctLevel: vCard 등 긴 데이터는 H → M → L 순으로 자동 fallback
-  function tryQR(level){
-    try{
-      new QRCode(container,{text:str,width:240,height:240,colorDark:'#343a40',colorLight:'#ffffff',correctLevel:level});
-    }catch(e){
-      console.warn('[QR] level fallback:', level, e);
-      container.innerHTML='<div id="logo-overlay"><img id="logo-overlay-img" src="" alt="로고"></div>';
-      if(level===QRCode.CorrectLevel.H) tryQR(QRCode.CorrectLevel.M);
-      else if(level===QRCode.CorrectLevel.M) tryQR(QRCode.CorrectLevel.L);
-      else console.error('[QR] 생성 실패: 데이터가 너무 깁니다.');
-    }
-  }
-  tryQR(QRCode.CorrectLevel.M);
-  setTimeout(async()=>{
-    applyLogoOverlay();
-    document.getElementById('qr-meta-tag').textContent=typeNames[currentType];
-    document.getElementById('qr-meta-title').textContent=getMetaTitle();
-    document.getElementById('copy-string-box').textContent=str;
-    // flat QR canvas
-    qrFlatCanvas = await buildFlatQR(480);
-    if(currentTpl!=='none'){
-      try{ await renderTemplate(); }
-      catch(e){ console.error('[QR] renderTemplate 오류:', e); }
-    } else {
-      document.getElementById('layout-output-wrap').classList.remove('show');
-    }
-    // 템플릿 선택 시 QR 단독 미리보기 숨김
-    document.getElementById('qr-stage-wrap').style.display = currentTpl==='none' ? 'block' : 'none';
-    document.getElementById('qr-meta-tag').style.display = currentTpl==='none' ? 'block' : 'none';
-    document.getElementById('qr-meta-title').style.display = currentTpl==='none' ? 'block' : 'none';
-    const sec=document.getElementById('result-section');
-    sec.classList.add('show');
-    sec.scrollIntoView({behavior:'smooth',block:'start'});
-  },400);
-}
+        function saveAndScrollToNext() {
+            closeModal();
+            // Smooth scroll to next section
+            document.getElementById('section-design').scrollIntoView({ behavior: 'smooth' });
+        }
 
-/* ── FLAT QR ── */
-function buildFlatQR(sz){
-  return new Promise(res=>{
-    const container=document.getElementById('qr-canvas-container');
-    // QRCode.js는 데이터 길이에 따라 canvas 또는 img 태그로 생성
-    const qc=container.querySelector('canvas');
-    const qi=container.querySelector('img[src]');
-    if(!qc && !qi){res(null);return;}
-    const out=document.createElement('canvas');out.width=out.height=sz;
-    const ctx=out.getContext('2d');
-    ctx.fillStyle='#fff';ctx.fillRect(0,0,sz,sz);
-    if(qc){
-      ctx.drawImage(qc,0,0,sz,sz);
-    } else {
-      // img 태그로 생성된 경우
-      const tmpImg=new Image();
-      tmpImg.onload=()=>{
-        ctx.drawImage(tmpImg,0,0,sz,sz);
-        continueWithLogo(out,ctx,sz,res);
-      };
-      tmpImg.onerror=()=>res(out);
-      tmpImg.src=qi.src;
-      return; // continueWithLogo에서 res 호출
-    }
-    continueWithLogo(out,ctx,sz,res);
-  });
-}
+        // Color Picker
+        function setQRColor(element, hex) {
+            document.querySelectorAll('.preset-color').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+            document.getElementById('qr-color').value = hex;
+        }
 
-function continueWithLogo(out,ctx,sz,res){
-  if(logoMode==='none'){res(out);return;}
-  const pct=parseInt(document.getElementById('logo-size').value)/100;
-  const lsz=Math.round(sz*pct),lx=(sz-lsz)/2,ly=(sz-lsz)/2,pad=Math.round(lsz*0.1);
-  ctx.fillStyle='#fff';
-  ctx.beginPath();
-  if(ctx.roundRect)ctx.roundRect(lx-pad,ly-pad,lsz+pad*2,lsz+pad*2,6);
-  else ctx.rect(lx-pad,ly-pad,lsz+pad*2,lsz+pad*2);
-  ctx.fill();
-  const drawLogo=(imgEl)=>{
-    if(imgEl && imgEl.complete && imgEl.naturalWidth>0){
-      try{ctx.drawImage(imgEl,lx,ly,lsz,lsz);}catch(e){}
-    }
-    res(out);
-  };
-  if(logoMode==='custom' && logoDataUrl){
-    const i=new Image();i.onload=()=>drawLogo(i);i.onerror=()=>res(out);i.src=logoDataUrl;
-  } else {
-    const domLogo=document.getElementById('logo-thumb-img');
-    if(domLogo && domLogo.complete && domLogo.naturalWidth>0){
-      drawLogo(domLogo);
-    } else {
-      const i=new Image();i.onload=()=>drawLogo(i);i.onerror=()=>res(out);i.src=DEFAULT_LOGO;
-    }
-  }
-}
+        // Core Generation Logic (Combined from previous robust version)
+        async function generateComposite() {
+            const type = document.getElementById('selectedType').value;
+            if(!type) { alert("먼저 상단에서 QR 종류를 선택하고 정보를 입력해 주세요."); window.scrollTo({top:0, behavior:'smooth'}); return; }
+            
+            const color = document.getElementById('qr-color').value;
+            const templateMode = document.querySelector('input[name="bgTemplate"]:checked').value;
+            const logoType = document.querySelector('input[name="logoType"]:checked').value;
+            
+            let qrData = "";
+            if (type === 'wifi') {
+                const ssid = document.getElementById('wifi-ssid').value;
+                const pw = document.getElementById('wifi-pw').value;
+                const sec = document.getElementById('wifi-type').value;
+                qrData = `WIFI:T:${sec};S:${ssid};P:${pw};H:false;;`;
+            } else if (type === 'url') {
+                qrData = document.getElementById('url-input').value;
+            } else if (type === 'vcard') {
+                const n = document.getElementById('vc-name').value;
+                const p = document.getElementById('vc-phone').value;
+                const c = document.getElementById('vc-company').value;
+                const d = document.getElementById('vc-dept').value;
+                const t = document.getElementById('vc-title').value;
+                const e = document.getElementById('vc-email').value;
+                qrData = `BEGIN:VCARD\nVERSION:3.0\nN:${n}\nORG:${c};${d}\nTITLE:${t}\nTEL:${p}\nEMAIL:${e}\nEND:VCARD`;
+            }
 
-/* ── LOAD IMAGE ── */
+            const qrHidden = document.getElementById('qr-hidden');
+            qrHidden.innerHTML = '';
+            
+            // Generate QR
+            new QRCode(qrHidden, {
+                text: qrData, width: 600, height: 600, colorDark : color,
+                colorLight : templateMode === 'none' && color === '#ffffff' ? '#000000' : (templateMode !== 'none' ? "#ffffff" : "#ffffff"), 
+                correctLevel : QRCode.CorrectLevel.H
+            });
 
+            setTimeout(async () => {
+                const qrImageURL = qrHidden.querySelector('canvas').toDataURL("image/png");
+                const canvas = document.getElementById('finalCanvas');
+                const ctx = canvas.getContext('2d');
+                
+                let bgLoaded = new Promise((resolve) => {
+                    if (templateMode === 'none') {
+                        canvas.width = 600; canvas.height = 600;
+                        ctx.fillStyle = "rgba(0,0,0,0)";
+                        if(color === '#ffffff') ctx.fillStyle = "#111";
+                        ctx.fillRect(0,0,600,600); resolve(null);
+                    } else {
+                        let bgImg = new Image(); bgImg.crossOrigin = "Anonymous";
+                        bgImg.src = templateMode === 't2' ? "https://kt-synergy.com/assets/image/qr_templates/qr_template_02.png" : "https://kt-synergy.com/assets/image/qr_templates/qr_template_03.png";
+                        bgImg.onload = () => { canvas.width = 1080; canvas.height = 1920; ctx.drawImage(bgImg, 0, 0, 1080, 1920); resolve(bgImg); };
+                        bgImg.onerror = () => { canvas.width = 1080; canvas.height = 1920; ctx.fillStyle = "#111"; ctx.fillRect(0,0,1080,1920); resolve(null); };
+                    }
+                });
 
-/* ── RENDER TEMPLATE ── */
-async function renderTemplate(){
-  const canvas=document.getElementById('layout-canvas');
-  const info=getInfo();
-  console.log('[TPL] info:', info);
-  if(currentTpl==='tpl01'){console.log('[TPL] drawTpl01');await drawTpl01(canvas,info);}
-  else if(currentTpl==='tpl02'){console.log('[TPL] drawTpl02');await drawTpl02(canvas,info);}
-  else if(currentTpl==='tpl03'){console.log('[TPL] drawTpl03');await drawTpl03(canvas,info);}
-  console.log('[TPL] canvas size:',canvas.width,canvas.height);
-  document.getElementById('layout-output-wrap').classList.add('show');
-}
+                await bgLoaded;
 
-/* ── FONT HELPER ── */
-function sf(ctx,sz,w,c){ctx.font=`${w} ${sz}px 'DIGICO','Apple SD Gothic Neo',sans-serif`;ctx.fillStyle=c||'#343a40';ctx.textBaseline='top';}
+                const baseQRImg = new Image();
+                baseQRImg.onload = async () => {
+                    let qrX = 0, qrY = 0, qrSize = 600;
+                    if(templateMode !== 'none') {
+                        qrSize = 600; qrX = (1080 - qrSize) / 2; qrY = templateMode === 't2' ? 300 : 250;
+                        ctx.fillStyle = "#ffffff"; ctx.fillRect(qrX - 20, qrY - 20, qrSize + 40, qrSize + 40);
+                    }
+                    ctx.drawImage(baseQRImg, qrX, qrY, qrSize, qrSize);
 
-/* ════════════════════════════════════════
-   TEMPLATE 01 — 컵 배경
-   - 상단 우측: 더블 코너 프레임 (회색 얇은 선)
-   - 프레임 안: QR
-   - QR 아래 좌측: KT / 인천지사\n시너지영업3팀 / 소상세
-   - 하단: 컵 사진 그대로
-   ════════════════════════════════════════ */
-async function drawTpl01(canvas,info){
-  const bg=await loadImg(TPATH+'qr_template_01.png');
-  if(!bg){canvas.width=900;canvas.height=1600;canvas.getContext('2d').fillStyle='#f0f1f3';canvas.getContext('2d').fillRect(0,0,900,1600);}
-  // 원본 비율 유지
-  const W=bg.naturalWidth||bg.width, H=bg.naturalHeight||bg.height;
-  canvas.width=W; canvas.height=H;
-  const ctx=canvas.getContext('2d');
+                    if (logoType === 'kt') {
+                        let logoImg = new Image(); logoImg.crossOrigin = "Anonymous";
+                        let loadLogo = new Promise((res) => { logoImg.onload = res; logoImg.onerror = res; logoImg.src = "https://kt-synergy.com/assets/image/CI_BI/kt_icon02.png"; });
+                        await loadLogo;
+                        if (logoImg.src) { const lSize = qrSize * 0.28; ctx.drawImage(logoImg, qrX + (qrSize-lSize)/2, qrY + (qrSize-lSize)/2, lSize, lSize); }
+                    }
 
-  // 배경 원본
-  ctx.drawImage(bg,0,0,W,H);
+                    if (templateMode !== 'none') {
+                        ctx.fillStyle = "#222"; ctx.textAlign = "center";
+                        let textY = qrY + qrSize + 120;
+                        
+                        if (type === 'vcard') {
+                            ctx.font = "40px Pretendard, sans-serif"; ctx.fillText(`${document.getElementById('vc-company').value} ${document.getElementById('vc-dept').value}`, 540, textY);
+                            ctx.font = "bold 60px Pretendard, sans-serif"; ctx.fillText(`${document.getElementById('vc-name').value} ${document.getElementById('vc-title').value}`, 540, textY + 80);
+                            ctx.font = "40px Pretendard, sans-serif"; ctx.fillText(document.getElementById('vc-phone').value, 540, textY + 160);
+                            ctx.fillText(document.getElementById('vc-email').value, 540, textY + 230);
+                        } else {
+                            ctx.font = "bold 60px Pretendard, sans-serif"; ctx.fillText("KT Synergy Sales", 540, textY);
+                        }
+                    }
 
-  // 샘플 분석: 프레임은 상단 중앙-우측, QR은 프레임 안
-  // 프레임 위치 (샘플 기준: 상단 ~15% 부터 ~52% 까지, 좌 ~20% 우 ~85%)
-  const fx=W*0.20, fy=H*0.04, fw=W*0.65, fh=fw; // QR 영역 정사각
-  const pad=W*0.015;
-
-  // 더블 코너 프레임 (회색)
-  // 바깥 프레임
-  ctx.strokeStyle='rgba(140,140,140,0.7)'; ctx.lineWidth=1.5;
-  ctx.strokeRect(fx,fy,fw,fh);
-  // 안쪽 프레임 (약간 안으로)
-  const fp=W*0.018;
-  ctx.strokeStyle='rgba(180,180,180,0.5)'; ctx.lineWidth=1;
-  ctx.strokeRect(fx+fp,fy+fp,fw-fp*2,fh-fp*2);
-
-  // QR 흰 배경 + QR
-  const qpad=W*0.025;
-  ctx.fillStyle='rgba(255,255,255,0.97)';
-  ctx.fillRect(fx+pad,fy+pad,fw-pad*2,fh-pad*2);
-  if(qrFlatCanvas){
-    const qsz=fw-pad*2-qpad*2;
-    ctx.drawImage(qrFlatCanvas,fx+pad+qpad,fy+pad+qpad,qsz,qsz);
-  }
-
-  // 텍스트 영역 — QR 아래, 좌측 정렬
-  const tx=W*0.10, ty=fy+fh+H*0.04;
-
-  // "KT"
-  sf(ctx,W*0.042,700,'#343a40'); ctx.textAlign='left';
-  ctx.fillText('KT', tx, ty);
-
-  // "인천지사\n시너지영업3팀"
-  const orgTop=ty+W*0.058;
-  sf(ctx,W*0.052,700,'#343a40');
-  ctx.fillText('인천지사', tx, orgTop);
-  ctx.fillText('시너지영업3팀', tx, orgTop+W*0.065);
-
-  // 상세정보
-  const detTop=orgTop+W*0.065*2+H*0.022;
-  sf(ctx,W*0.028,300,'#555');
-  const detLines=[];
-  if(info.name){
-    // 명함: 이름은 이미 위에 표시됨, 상세만
-    if(info.org) detLines.push(info.org.replace('·','').trim());
-  } else if(info.line1){
-    detLines.push(info.line1);
-  }
-  if(info.tel) detLines.push(info.tel);
-  else if(info.line2 && info.line2!==info.line1) detLines.push(info.line2);
-  if(info.email) detLines.push(info.email);
-  if(info.addr) detLines.push(info.addr);
-  else if(info.line3 && info.line3!==info.line1) detLines.push(info.line3);
-  detLines.filter(Boolean).forEach((l,i)=>{
-    sf(ctx,W*0.028,300,'#444');
-    ctx.fillText(l,tx,detTop+i*W*0.038);
-  });
-}
-
-/* ════════════════════════════════════════
-   TEMPLATE 02 — 숲 배경
-   - 블러 숲 배경 전체
-   - 중앙: 흰 박스 + 코너 브라켓 (카메라 뷰파인더 스타일)
-   - 흰 박스 안: QR
-   - 상단 좌: "KT / synergy sales" + 가로선 + 우: "kt-synergy.com"
-   - 중앙 우: 이메일
-   - 하단 좌: 소속 / 연락처 / 이름
-   ════════════════════════════════════════ */
-async function drawTpl02(canvas,info){
-  const bg=await loadImg(TPATH+'qr_template_02.png');
-  const W=bg?(bg.naturalWidth||bg.width):900;
-  const H=bg?(bg.naturalHeight||bg.height):1600;
-  canvas.width=W; canvas.height=H;
-  const ctx=canvas.getContext('2d');
-  console.log('[TPL02] bg:',bg,'W:',W,'H:',H);
-  if(bg) ctx.drawImage(bg,0,0,W,H);
-  else{ctx.fillStyle='#1a3a1a';ctx.fillRect(0,0,W,H);}
-
-  // 흰 박스 (중앙 약간 위)
-  const bw=W*0.62, bh=bw;
-  const bx=(W-bw)/2+W*0.04, by=H*0.30;
-
-  // 코너 브라켓 (흰색, 바깥)
-  const bkLen=W*0.08, bkOff=W*0.025;
-  ctx.strokeStyle='rgba(255,255,255,0.9)'; ctx.lineWidth=W*0.004;
-  // 좌상단
-  ctx.beginPath();ctx.moveTo(bx-bkOff,by+bkLen);ctx.lineTo(bx-bkOff,by-bkOff);ctx.lineTo(bx+bkLen,by-bkOff);ctx.stroke();
-  // 우하단
-  ctx.beginPath();ctx.moveTo(bx+bw+bkOff,by+bh-bkLen);ctx.lineTo(bx+bw+bkOff,by+bh+bkOff);ctx.lineTo(bx+bw-bkLen,by+bh+bkOff);ctx.stroke();
-
-  // 흰 박스
-  ctx.fillStyle='rgba(255,255,255,0.97)';
-  ctx.fillRect(bx,by,bw,bh);
-
-  // QR
-  if(qrFlatCanvas){
-    const qpad=W*0.04, qsz=bw-qpad*2;
-    ctx.drawImage(qrFlatCanvas,bx+qpad,by+qpad,qsz,qsz);
-  }
-
-  // 상단: KT / synergy sales + 가로선 + kt-synergy.com
-  const headerY=H*0.08;
-  sf(ctx,W*0.055,700,'#ffffff'); ctx.textAlign='left';
-  ctx.fillText('KT',W*0.22,headerY);
-  sf(ctx,W*0.055,700,'#ffffff');
-  ctx.fillText('synergy sales',W*0.22,headerY+W*0.065);
-  // 가로선
-  ctx.strokeStyle='rgba(255,255,255,0.8)';ctx.lineWidth=W*0.003;
-  ctx.beginPath();ctx.moveTo(W*0.22+W*0.25,headerY+W*0.03);ctx.lineTo(W*0.85,headerY+W*0.03);ctx.stroke();
-  // kt-synergy.com
-  sf(ctx,W*0.028,300,'rgba(255,255,255,0.9)');ctx.textAlign='right';
-  ctx.fillText('kt-synergy.com',W*0.86,headerY);
-
-  // 중앙 우측: 이메일
-  const emailX=W*0.86, emailY=by+bh*0.15;
-  sf(ctx,W*0.026,300,'rgba(255,255,255,0.9)');ctx.textAlign='right';
-  if(info.email) ctx.fillText(info.email,emailX,emailY);
-  else ctx.fillText('daehee.lee@kt.com',emailX,emailY);
-
-  // 하단 좌: 소속·연락처·이름
-  const footY=by+bh+H*0.05;
-  sf(ctx,W*0.038,700,'#ffffff');ctx.textAlign='left';
-  const footOrg=info.org?'KT '+info.org:'KT 인천지사 시너지영업3팀';
-  ctx.fillText(footOrg,W*0.10,footY);
-  sf(ctx,W*0.038,700,'#ffffff');
-  const footTel=info.tel||'010-7300-2632';
-  ctx.fillText(footTel,W*0.10,footY+W*0.052);
-  sf(ctx,W*0.038,700,'#ffffff');
-  const footName=info.name||info.title||'이대희';
-  ctx.fillText(footName,W*0.10,footY+W*0.052*2+W*0.01);
-}
-
-/* ════════════════════════════════════════
-   TEMPLATE 03 — 빌딩 배경
-   - 빌딩 사진 전체
-   - 좌상단: kt CI 로고 (흰색)
-   - 상단 흰 박스: QR
-   - 하단 유리 박스 (블러): 유형명 / SSID or 이름 / PW or 연락처
-   ════════════════════════════════════════ */
-async function drawTpl03(canvas,info){
-  const bg=await loadImg(TPATH+'qr_template_03.png');
-  const W=bg?(bg.naturalWidth||bg.width):900;
-  const H=bg?(bg.naturalHeight||bg.height):1600;
-  canvas.width=W; canvas.height=H;
-  const ctx=canvas.getContext('2d');
-  if(bg) ctx.drawImage(bg,0,0,W,H);
-  else{ctx.fillStyle='#1a2a3a';ctx.fillRect(0,0,W,H);}
-
-  // 상단 흰 박스 (QR 영역)
-  const qbx=W*0.20, qby=H*0.12, qbw=W*0.60, qbh=qbw;
-  ctx.fillStyle='rgba(255,255,255,0.97)';
-  ctx.fillRect(qbx,qby,qbw,qbh);
-
-  // QR
-  if(qrFlatCanvas){
-    const qpad=W*0.03;
-    ctx.drawImage(qrFlatCanvas,qbx+qpad,qby+qpad,qbw-qpad*2,qbh-qpad*2);
-  }
-
-  // 하단 글라스 박스 (블러 효과 — canvas에선 오프스크린으로 처리)
-  const tbx=W*0.20, tby=H*0.58, tbw=W*0.60, tbh=H*0.20;
-  // 박스 배경: 반투명 흰색
-  ctx.fillStyle='rgba(255,255,255,0.18)';
-  ctx.fillRect(tbx,tby,tbw,tbh);
-  // 박스 테두리
-  ctx.strokeStyle='rgba(255,255,255,0.6)';ctx.lineWidth=W*0.003;
-  ctx.strokeRect(tbx,tby,tbw,tbh);
-
-  // 박스 안 텍스트
-  const tpad=W*0.04;
-  sf(ctx,W*0.040,700,'#ffffff');ctx.textAlign='left';
-  ctx.fillText(info.type,tbx+tpad,tby+tbh*0.15);
-
-  sf(ctx,W*0.038,700,'#ffffff');
-  const l1=info.line1||info.title||'';
-  // 긴 텍스트 자르기
-  const maxW=tbw-tpad*2;
-  let disp=l1;
-  if(ctx.measureText(disp).width>maxW) disp=disp.substring(0,20)+'...';
-  ctx.fillText(disp,tbx+tpad,tby+tbh*0.42);
-
-  const l2=info.line2||info.tel||'';
-  if(l2){
-    sf(ctx,W*0.034,500,'rgba(255,255,255,0.85)');
-    let disp2=l2;
-    if(ctx.measureText(disp2).width>maxW) disp2=disp2.substring(0,22)+'...';
-    ctx.fillText(disp2,tbx+tpad,tby+tbh*0.68);
-  }
-
-  // kt CI 로고 텍스트 (좌상단) — 이미지에 이미 있으므로 skip
-}
-
-/* ── DOWNLOAD ── */
-async function downloadMain(){
-  if(currentTpl!=='none'&&qrFlatCanvas){
-    const c=document.getElementById('layout-canvas');
-    if(!c.width){await renderTemplate();}
-    const a=document.createElement('a');
-    a.download='qr-tpl-'+(getMetaTitle().replace(/[^a-zA-Z0-9가-힣]/g,'_'))+'.png';
-    a.href=c.toDataURL('image/png');a.click();
-  } else {
-    downloadQROnly();
-  }
-}
-
-async function downloadQROnly(){
-  if(!qrFlatCanvas)return;
-  const out=document.createElement('canvas');out.width=out.height=800;
-  const ctx=out.getContext('2d');ctx.drawImage(qrFlatCanvas,0,0,800,800);
-  const a=document.createElement('a');
-  a.download='qr-'+(getMetaTitle().replace(/[^a-zA-Z0-9가-힣]/g,'_'))+'.png';
-  a.href=out.toDataURL('image/png');a.click();
-}
-
-async function printMain(){
-  let dataUrl;
-  if(currentTpl!=='none'){
-    if(!document.getElementById('layout-canvas').width)await renderTemplate();
-    dataUrl=document.getElementById('layout-canvas').toDataURL('image/png');
-  } else {
-    if(!qrFlatCanvas)return;
-    const out=document.createElement('canvas');out.width=out.height=800;
-    out.getContext('2d').drawImage(qrFlatCanvas,0,0,800,800);
-    dataUrl=out.toDataURL('image/png');
-  }
-  const w=window.open('','_blank');
-  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>@page{size:A4 portrait;margin:0;}*{margin:0;padding:0;}body{display:flex;align-items:center;justify-content:center;width:210mm;height:297mm;background:#fff;}img{max-width:100%;max-height:100%;object-fit:contain;}</style></head><body><img src="${dataUrl}"></body></html>`);
-  w.document.close();setTimeout(()=>w.print(),400);
-}
-
-async function printCard(){
-  if(!qrFlatCanvas)return;
-  const out=document.createElement('canvas');out.width=out.height=600;
-  out.getContext('2d').drawImage(qrFlatCanvas,0,0,600,600);
-  const d=out.toDataURL('image/png'),title=getMetaTitle();
-  const w=window.open('','_blank');
-  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>@font-face{font-family:'DIGICO';src:url('https://www.kt-synergy.com/assets/fonts/digicottf-medium.ttf') format('truetype');font-weight:500;}@page{size:90mm 55mm;margin:0;}*{box-sizing:border-box;margin:0;padding:0;}body{width:90mm;height:55mm;display:flex;align-items:center;justify-content:center;gap:10px;padding:6mm 8mm;font-family:'DIGICO','Apple SD Gothic Neo',sans-serif;background:white;}img.qr{width:34mm;height:34mm;flex-shrink:0;}.info{flex:1;}.tag{font-size:7px;letter-spacing:2px;text-transform:uppercase;color:#868e96;margin-bottom:3px;}.name{font-size:12px;font-weight:700;color:#343a40;margin-bottom:6px;word-break:break-all;}.div{width:18px;height:1px;background:#dee2e6;margin-bottom:6px;}.co{font-size:7.5px;color:#aaa;line-height:1.7;font-weight:300;}</style></head><body><img class="qr" src="${d}" alt="QR"><div class="info"><div class="tag">${typeNames[currentType]}</div><div class="name">${title}</div><div class="div"></div><div class="co">KT 인천지사 시너지영업3팀<br>담당: 이대희 과장 · 010-7300-2632<br>kt-synergy.com</div></div></body></html>`);
-  w.document.close();setTimeout(()=>w.print(),500);
-}
-
-function copyString(){
-  if(!currentString)return;
-  navigator.clipboard.writeText(currentString).then(()=>{
-    const el=document.getElementById('copy-string-box'),orig=el.textContent;
-    el.textContent='✓ 복사되었습니다';setTimeout(()=>{el.textContent=orig;},2000);
-  });
-}
-</script>
+                    document.getElementById('result-area').classList.add('active');
+                    document.getElementById('download-link').href = canvas.toDataURL("image/png");
+                    setTimeout(() => document.getElementById('result-area').scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+                };
+                baseQRImg.src = qrImageURL;
+            }, 100);
+        }
+    </script>
 </body>
 </html>
