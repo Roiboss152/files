@@ -56,58 +56,9 @@
 
         .section { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 100px 20px; max-width: 1100px; margin: 0 auto; overflow: hidden; }
         
-        /* 제목 컨테이너 수정 (큐브 애니메이션 배치를 위해) */
-        .sec-title-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 15px; /* 큐브와 텍스트 사이 간격 */
-            margin-bottom: 60px;
-        }
+        /* 제목 모바일 줄바꿈 방지 */
+        .sec-title { font-size: clamp(1.4rem, 6vw, 2.5rem); font-weight: 700; margin-bottom: 60px; text-align: center; letter-spacing: -1px; white-space: nowrap; color: var(--text-main); }
         
-        .sec-title { font-size: clamp(1.4rem, 6vw, 2.5rem); font-weight: 700; text-align: center; letter-spacing: -1px; white-space: nowrap; color: var(--text-main); margin: 0; }
-        
-        /* --- 큐브 로딩 애니메이션 CSS (속도 30%, 크기 조정, 색상 변경 적용) --- */
-        .sk-cube-grid {
-            /* 폰트 크기(약 2.5rem=40px 내외)에 맞춰 크기 조정 */
-            width: clamp(25px, 6vw, 40px);
-            height: clamp(25px, 6vw, 40px);
-            margin: 0; /* 중앙 정렬 마진 제거 */
-            display: inline-block;
-        }
-        .sk-cube-grid .sk-cube {
-            width: 33%;
-            height: 33%;
-            background-color: #626260; /* 큐브 색상 수정: 잘 보이도록 딥그레이(626260) 적용 */
-            float: left;
-            /* 기존 1.3s * 3.33 (속도 30%) = 약 4.3s 로 변경 */
-            -webkit-animation: sk-cubeGridScaleDelay 4.3s infinite ease-in-out;
-            animation: sk-cubeGridScaleDelay 4.3s infinite ease-in-out; 
-            /* 큐브 테두리를 약간 주어 배경과 구분되게 함 (선택사항, 지시사항엔 없었으나 입체감을 위해 미세하게 적용) */
-            box-shadow: inset 0 0 2px rgba(0,0,0,0.1);
-        }
-        
-        /* 딜레이도 속도 비율에 맞춰 모두 늘려줌 (기존 대비 약 3.3배) */
-        .sk-cube-grid .sk-cube1 { -webkit-animation-delay: 0.66s; animation-delay: 0.66s; }
-        .sk-cube-grid .sk-cube2 { -webkit-animation-delay: 0.99s; animation-delay: 0.99s; }
-        .sk-cube-grid .sk-cube3 { -webkit-animation-delay: 1.32s; animation-delay: 1.32s; }
-        .sk-cube-grid .sk-cube4 { -webkit-animation-delay: 0.33s; animation-delay: 0.33s; }
-        .sk-cube-grid .sk-cube5 { -webkit-animation-delay: 0.66s; animation-delay: 0.66s; }
-        .sk-cube-grid .sk-cube6 { -webkit-animation-delay: 0.99s; animation-delay: 0.99s; }
-        .sk-cube-grid .sk-cube7 { -webkit-animation-delay: 0s;    animation-delay: 0s; }
-        .sk-cube-grid .sk-cube8 { -webkit-animation-delay: 0.33s; animation-delay: 0.33s; }
-        .sk-cube-grid .sk-cube9 { -webkit-animation-delay: 0.66s; animation-delay: 0.66s; }
-
-        @-webkit-keyframes sk-cubeGridScaleDelay {
-            0%, 70%, 100% { -webkit-transform: scale3D(1, 1, 1); transform: scale3D(1, 1, 1); } 
-            35% { -webkit-transform: scale3D(0, 0, 1); transform: scale3D(0, 0, 1); }
-        }
-        @keyframes sk-cubeGridScaleDelay {
-            0%, 70%, 100% { -webkit-transform: scale3D(1, 1, 1); transform: scale3D(1, 1, 1); } 
-            35% { -webkit-transform: scale3D(0, 0, 1); transform: scale3D(0, 0, 1); } 
-        }
-        /* ----------------------------------------------------- */
-
         .reveal-left { opacity: 0; transform: translateX(-150px); transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1); }
         .reveal-right { opacity: 0; transform: translateX(150px); transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1); }
         .reveal-bottom { opacity: 0; transform: translateY(100px); transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1); }
@@ -119,6 +70,7 @@
         .card-container { position: relative; width: 100%; display: flex; justify-content: center; padding: 50px 0; }
         .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 24px; width: 100%; }
         
+        /* [수정 1] 글래스모피즘 스타일 적용 + 클릭 방어 로직 제거 및 모바일 터치 최적화 속성 추가 */
         .type-card { 
             background: var(--glass-bg); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); 
             border: 1px solid var(--glass-border); border-radius: 24px; padding: 45px 25px; 
@@ -128,6 +80,7 @@
         }
         .type-card:hover { border-color: var(--accent-main); box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08); transform: translateY(-5px); }
         
+        /* 아이콘 모노톤 처리 */
         .card-icon { font-size: 2.2rem; margin-bottom: 20px; filter: grayscale(100%) opacity(0.7); }
         .card-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 12px; color: var(--text-main); }
 
@@ -157,35 +110,16 @@
         .preset-color:hover { transform: scale(1.1); }
         .preset-color.active { border-color: var(--accent-main); box-shadow: 0 0 0 3px rgba(255,255,255,0.8), 0 0 10px rgba(0,0,0,0.2); }
 
-        .template-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px 20px; margin-bottom: 40px; padding-top: 20px; } 
-        
-        .template-card { border: 1px solid var(--glass-border); border-radius: 18px; cursor: pointer; position: relative; background: var(--glass-bg); padding: 12px; transition: 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
-        .template-img { width: 100%; height: 240px; object-fit: contain; opacity: 0.6; transition: opacity 0.3s, transform 0.3s; filter: grayscale(30%); border-radius: 8px; }
+        .template-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+        .template-card { border: 1px solid var(--glass-border); border-radius: 18px; overflow: hidden; cursor: pointer; position: relative; background: var(--glass-bg); padding: 12px; transition: 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+        .template-img { width: 100%; height: 240px; object-fit: contain; opacity: 0.6; transition: opacity 0.3s, transform 0.3s; filter: grayscale(30%); }
         .template-label input { display: none; }
         .template-label input:checked ~ .template-card { border-color: var(--accent-main); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08); background: #fff; }
         .template-label input:checked ~ .template-card .template-img { opacity: 1; transform: scale(1.02); filter: none; }
-        
-        .template-name { 
-            position: absolute; 
-            top: -18px; 
-            left: 15px; 
-            padding: 6px 14px; 
-            font-weight: 800; 
-            font-size: 1.05rem; 
-            color: var(--text-main); 
-            background: var(--bg-deep); 
-            border: 1px solid var(--glass-border);
-            border-radius: 10px;
-            z-index: 2; 
-            box-shadow: 0 6px 15px rgba(0,0,0,0.05);
-        }
+        .template-name { position: absolute; bottom: 0; left: 0; width: 100%; padding: 15px; background: linear-gradient(to top, rgba(255,255,255,0.95), transparent); font-weight: 700; font-size: 0.95rem; text-align: center; color: var(--text-main); }
 
         .btn-epic { display: block; width: 100%; padding: 22px; margin: 50px 0; border: none; border-radius: 18px; background: var(--accent-main); color: #fff; font-size: 1.3rem; font-weight: 800; cursor: pointer; transition: all 0.3s; text-align: center; text-decoration: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         .btn-epic:hover { transform: translateY(-3px); box-shadow: 0 15px 40px rgba(0,0,0,0.2); }
-        
-        .btn-next-section { display: block; width: 100%; max-width: 400px; margin: 0 auto 50px auto; padding: 18px; background: rgba(0,0,0,0.05); color: var(--text-main); font-size: 1.1rem; font-weight: 700; border: 1px solid var(--glass-border); border-radius: 14px; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
-        .btn-next-section:hover { background: rgba(0,0,0,0.08); border-color: var(--accent-main); transform: translateY(-2px); }
-
         .result-area { display: none; text-align: center; padding: 40px 0; }
         .result-area.active { display: block; animation: zoomIn 0.5s ease-out forwards; }
         @keyframes zoomIn { from { opacity:0; transform:scale(0.9); } to { opacity:1; transform:scale(1); } }
@@ -206,19 +140,11 @@
             <span class="letters letters-2">KT 인천지사</span>
             <span class="letters letters-3 highlight">시너지영업3팀</span>
         </div>
-        <h1 class="hero-title"><span style="color: #000000;">QR</span> <span style="color: #626260;">Generator</span></h1>
+        <h1 class="hero-title">QR Generator</h1>
     </header>
 
     <section class="section" id="sec-type">
-        <!-- 큐브 애니메이션을 제목 컨테이너 안에 텍스트와 함께 배치 -->
-        <div class="sec-title-container">
-            <div class="sk-cube-grid">
-                <div class="sk-cube sk-cube1"></div><div class="sk-cube sk-cube2"></div><div class="sk-cube sk-cube3"></div>
-                <div class="sk-cube sk-cube4"></div><div class="sk-cube sk-cube5"></div><div class="sk-cube sk-cube6"></div>
-                <div class="sk-cube sk-cube7"></div><div class="sk-cube sk-cube8"></div><div class="sk-cube sk-cube9"></div>
-            </div>
-            <h2 class="sec-title">01. 생성 유형 선택</h2>
-        </div>
+        <h2 class="sec-title">01. 생성 유형 선택</h2>
         <div class="card-container">
             <div class="card-grid">
                 <div class="type-card" id="card-wifi" onclick="openModal('wifi')">
@@ -240,7 +166,6 @@
         </div>
     </section>
 
-    <!-- 모달 등 나머지 생략 없는 완벽 유지 -->
     <div class="modal-overlay" id="inputModal">
         <div class="modal-content">
             <button class="btn-close" onclick="closeModal()">✕</button>
@@ -284,19 +209,12 @@
                 <div class="form-group"><label>문자 메시지 내용</label><textarea id="sms-msg" rows="3" placeholder="전송할 내용을 입력해 주세요."></textarea></div>
             </div>
 
-            <button class="btn-save" onclick="saveAndScrollToNext('section-design')">확인 및 다음으로</button>
+            <button class="btn-save" onclick="saveAndScrollToNext()">확인 및 다음으로</button>
         </div>
     </div>
 
     <section class="section" id="section-design">
-        <div class="sec-title-container reveal-bottom">
-            <div class="sk-cube-grid">
-                <div class="sk-cube sk-cube1"></div><div class="sk-cube sk-cube2"></div><div class="sk-cube sk-cube3"></div>
-                <div class="sk-cube sk-cube4"></div><div class="sk-cube sk-cube5"></div><div class="sk-cube sk-cube6"></div>
-                <div class="sk-cube sk-cube7"></div><div class="sk-cube sk-cube8"></div><div class="sk-cube sk-cube9"></div>
-            </div>
-            <h2 class="sec-title">02. 디자인 및 로고 설정</h2>
-        </div>
+        <h2 class="sec-title reveal-bottom">02. 디자인 및 로고 설정</h2>
         <h3 class="reveal-left" style="margin-bottom: 20px; color: var(--text-muted); font-size: 1.1rem; text-align: center;">중앙 로고 배치</h3>
         <div class="option-grid reveal-bottom delay-1">
             <label class="option-label"><input type="radio" name="logoType" value="none" checked><div class="option-card">없음</div></label>
@@ -305,7 +223,7 @@
         </div>
         <input type="file" id="custom-logo-input" accept="image/png, image/jpeg" style="display:none;" onchange="if(this.files[0]){document.getElementById('custom-logo-label').innerText='업로드 완료';document.querySelector('input[value='custom']').checked=true;}">
 
-        <h3 class="reveal-left delay-1" style="margin-bottom: 20px; color: var(--text-muted); font-size: 1.1rem; text-align: center;">QR코드 패턴 컬러 (미선택 시 검은색)</h3>
+        <h3 class="reveal-left delay-1" style="margin-bottom: 20px; color: var(--text-muted); font-size: 1.1rem; text-align: center;">QR코드 패턴 컬러</h3>
         <div class="color-picker-wrap reveal-bottom delay-2">
             <input type="hidden" id="qr-color" value="#000000">
             <div class="preset-color" style="background: #ffffff;" onclick="setQRColor(this, '#ffffff')" title="흰색"></div>
@@ -318,30 +236,21 @@
             <div class="preset-color" style="background: #0000FF;" onclick="setQRColor(this, '#0000FF')" title="파란색"></div>
             <div class="preset-color" style="background: #000080;" onclick="setQRColor(this, '#000080')" title="남색"></div>
         </div>
-        
-        <button class="btn-next-section reveal-bottom delay-3" onclick="scrollToSection('section-template')">설정 완료 및 템플릿 선택하기 ↓</button>
     </section>
 
     <section class="section" id="section-template">
-        <div class="sec-title-container reveal-bottom">
-            <div class="sk-cube-grid">
-                <div class="sk-cube sk-cube1"></div><div class="sk-cube sk-cube2"></div><div class="sk-cube sk-cube3"></div>
-                <div class="sk-cube sk-cube4"></div><div class="sk-cube sk-cube5"></div><div class="sk-cube sk-cube6"></div>
-                <div class="sk-cube sk-cube7"></div><div class="sk-cube sk-cube8"></div><div class="sk-cube sk-cube9"></div>
-            </div>
-            <h2 class="sec-title">03. 배경 템플릿 선택</h2>
-        </div>
+        <h2 class="sec-title reveal-bottom">03. 배경 템플릿 선택</h2>
         <div class="template-grid" id="template-container">
-            <label class="template-label reveal-bottom delay-1"><input type="radio" name="bgTemplate" value="none" checked><div class="template-card" style="display: flex; align-items: center; justify-content: center; height: 264px; border: 1px dashed var(--glass-border);"><div class="template-name">QR만 저장</div></div></label>
-            <label class="template-label reveal-bottom delay-1"><input type="radio" name="bgTemplate" value="t1"><div class="template-card"><div class="template-name">템플릿 01</div><img src="https://kt-synergy.com/assets/image/qr_templates/qr_template_01_sample.png" class="template-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMzMiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlRlbXBsYXRlIDAxPC90ZXh0Pjwvc3ZnPg=='"></div></label>
-            <label class="template-label reveal-bottom delay-2"><input type="radio" name="bgTemplate" value="t2"><div class="template-card"><div class="template-name">템플릿 02</div><img src="https://kt-synergy.com/assets/image/qr_templates/qr_template_02_sample.png" class="template-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMzMiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlRlbXBsYXRlIDAyPC90ZXh0Pjwvc3ZnPg=='"></div></label>
-            <label class="template-label reveal-bottom delay-3"><input type="radio" name="bgTemplate" value="t3"><div class="template-card"><div class="template-name">템플릿 03</div><img src="https://kt-synergy.com/assets/image/qr_templates/qr_template_03_sample.png" class="template-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMzMiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlRlbXBsYXRlIDAzPC90ZXh0Pjwvc3ZnPg=='"></div></label>
-            <label class="template-label reveal-bottom delay-1"><input type="radio" name="bgTemplate" value="t4"><div class="template-card"><div class="template-name">템플릿 04</div><img src="https://kt-synergy.com/assets/image/qr_templates/qr_template_04_sample.png" class="template-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMzMiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlRlbXBsYXRlIDA0PC90ZXh0Pjwvc3ZnPg=='"></div></label>
-            <label class="template-label reveal-bottom delay-2"><input type="radio" name="bgTemplate" value="t5"><div class="template-card"><div class="template-name">템플릿 05</div><img src="https://kt-synergy.com/assets/image/qr_templates/qr_template_05_sample.png" class="template-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMzMiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlRlbXBsYXRlIDA1PC90ZXh0Pjwvc3ZnPg=='"></div></label>
-            <label class="template-label reveal-bottom delay-3"><input type="radio" name="bgTemplate" value="t6"><div class="template-card"><div class="template-name">템플릿 06</div><img src="https://kt-synergy.com/assets/image/qr_templates/qr_template_06_sample.png" class="template-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMzMiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlRlbXBsYXRlIDA2PC90ZXh0Pjwvc3ZnPg=='"></div></label>
-            <label class="template-label reveal-bottom delay-1"><input type="radio" name="bgTemplate" value="t7"><div class="template-card"><div class="template-name">템플릿 07</div><img src="https://kt-synergy.com/assets/image/qr_templates/qr_template_07_sample.png" class="template-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMzMiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlRlbXBsYXRlIDA3PC90ZXh0Pjwvc3ZnPg=='"></div></label>
-            <label class="template-label reveal-bottom delay-2"><input type="radio" name="bgTemplate" value="t8"><div class="template-card"><div class="template-name">템플릿 08</div><img src="https://kt-synergy.com/assets/image/qr_templates/qr_template_08_sample.png" class="template-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMzMiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlRlbXBsYXRlIDA4PC90ZXh0Pjwvc3ZnPg=='"></div></label>
-            <label class="template-label reveal-bottom delay-3"><input type="radio" name="bgTemplate" value="t9"><div class="template-card"><div class="template-name">템플릿 09</div><img src="https://kt-synergy.com/assets/image/qr_templates/qr_template_09_sample.png" class="template-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMzMiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlRlbXBsYXRlIDA5PC90ZXh0Pjwvc3ZnPg=='"></div></label>
+            <label class="template-label reveal-bottom delay-1"><input type="radio" name="bgTemplate" value="none" checked><div class="template-card" style="display: flex; align-items: center; justify-content: center; height: 264px; border: 1px dashed var(--glass-border);"><div style="font-size: 1.1rem; font-weight: 700; color: var(--text-muted);">QR만 저장</div></div></label>
+            <label class="template-label reveal-bottom delay-1"><input type="radio" name="bgTemplate" value="t1"><div class="template-card"><img src="https://kt-synergy.com/assets/image/qr_templates/qr_template_01_sample.png" class="template-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMzMiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlRlbXBsYXRlIDAxPC90ZXh0Pjwvc3ZnPg=='"><div class="template-name">템플릿 01</div></div></label>
+            <label class="template-label reveal-bottom delay-2"><input type="radio" name="bgTemplate" value="t2"><div class="template-card"><img src="https://kt-synergy.com/assets/image/qr_templates/qr_template_02_sample.png" class="template-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMzMiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlRlbXBsYXRlIDAyPC90ZXh0Pjwvc3ZnPg=='"><div class="template-name">템플릿 02</div></div></label>
+            <label class="template-label reveal-bottom delay-3"><input type="radio" name="bgTemplate" value="t3"><div class="template-card"><img src="https://kt-synergy.com/assets/image/qr_templates/qr_template_03_sample.png" class="template-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMzMiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlRlbXBsYXRlIDAzPC90ZXh0Pjwvc3ZnPg=='"><div class="template-name">템플릿 03</div></div></label>
+            <label class="template-label reveal-bottom delay-1"><input type="radio" name="bgTemplate" value="t4"><div class="template-card"><img src="https://kt-synergy.com/assets/image/qr_templates/qr_template_04_sample.png" class="template-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMzMiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlRlbXBsYXRlIDA0PC90ZXh0Pjwvc3ZnPg=='"><div class="template-name">템플릿 04</div></div></label>
+            <label class="template-label reveal-bottom delay-2"><input type="radio" name="bgTemplate" value="t5"><div class="template-card"><img src="https://kt-synergy.com/assets/image/qr_templates/qr_template_05_sample.png" class="template-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMzMiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlRlbXBsYXRlIDA1PC90ZXh0Pjwvc3ZnPg=='"><div class="template-name">템플릿 05</div></div></label>
+            <label class="template-label reveal-bottom delay-3"><input type="radio" name="bgTemplate" value="t6"><div class="template-card"><img src="https://kt-synergy.com/assets/image/qr_templates/qr_template_06_sample.png" class="template-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMzMiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlRlbXBsYXRlIDA2PC90ZXh0Pjwvc3ZnPg=='"><div class="template-name">템플릿 06</div></div></label>
+            <label class="template-label reveal-bottom delay-1"><input type="radio" name="bgTemplate" value="t7"><div class="template-card"><img src="https://kt-synergy.com/assets/image/qr_templates/qr_template_07_sample.png" class="template-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMzMiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlRlbXBsYXRlIDA3PC90ZXh0Pjwvc3ZnPg=='"><div class="template-name">템플릿 07</div></div></label>
+            <label class="template-label reveal-bottom delay-2"><input type="radio" name="bgTemplate" value="t8"><div class="template-card"><img src="https://kt-synergy.com/assets/image/qr_templates/qr_template_08_sample.png" class="template-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMzMiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlRlbXBsYXRlIDA4PC90ZXh0Pjwvc3ZnPg=='"><div class="template-name">템플릿 08</div></div></label>
+            <label class="template-label reveal-bottom delay-3"><input type="radio" name="bgTemplate" value="t9"><div class="template-card"><img src="https://kt-synergy.com/assets/image/qr_templates/qr_template_09_sample.png" class="template-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMzMiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlRlbXBsYXRlIDA5PC90ZXh0Pjwvc3ZnPg=='"><div class="template-name">템플릿 09</div></div></label>
         </div>
 
         <button class="btn-epic reveal-bottom delay-1" onclick="generateComposite()">최종 이미지 렌더링</button>
@@ -366,7 +275,7 @@
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('reveal-active'); });
         }, { threshold: 0.1 });
-        document.querySelectorAll('.reveal-left, .reveal-right, .reveal-bottom, .reveal-diag-left, .reveal-diag-right, .sec-title-container').forEach((el) => observer.observe(el));
+        document.querySelectorAll('.reveal-left, .reveal-right, .reveal-bottom, .reveal-diag-left, .reveal-diag-right').forEach((el) => observer.observe(el));
 
         gsap.registerPlugin(ScrollTrigger);
         gsap.set("#card-wifi", {x: -200, y: -100});
@@ -393,15 +302,10 @@
             modal.classList.add('active');
         }
         function closeModal() { modal.classList.remove('active'); }
-        
-        function scrollToSection(sectionId) {
-            document.getElementById(sectionId).scrollIntoView({ behavior: 'smooth' });
-        }
-        function saveAndScrollToNext(targetId) {
+        function saveAndScrollToNext() {
             closeModal();
-            setTimeout(() => { scrollToSection(targetId); }, 200);
+            setTimeout(() => { document.getElementById('section-design').scrollIntoView({ behavior: 'smooth' }); }, 200);
         }
-        
         function setQRColor(element, hex) {
             document.querySelectorAll('.preset-color').forEach(el => el.classList.remove('active'));
             element.classList.add('active');
@@ -460,92 +364,57 @@ END:VCARD`; }
             QRCode.toDataURL(qrData, {
                 width: 600,
                 margin: 0,
-                color: { dark: color, light: "#ffffff00" },
+                color: { 
+                    dark: color, 
+                    light: "#ffffff00" 
+                },
                 errorCorrectionLevel: errorLevel
             }, async function (err, qrImageURL) {
                 if (err) { alert("QR 생성 중 오류 발생: " + err); return; }
 
                 const canvas = document.getElementById('finalCanvas');
                 const ctx = canvas.getContext('2d');
-
-                let customLogoImg = null;
-                if (logoType === 'custom') {
-                    const fileInput = document.getElementById('custom-logo-input');
-                    if (fileInput.files && fileInput.files[0]) {
-                        customLogoImg = new Image();
-                        let customLogoURL = URL.createObjectURL(fileInput.files[0]);
-                        await new Promise((res) => { customLogoImg.onload = res; customLogoImg.onerror = res; customLogoImg.src = customLogoURL; });
-                    }
-                }
-
-                if (templateIndex === 'none') {
-                    canvas.width = 800; canvas.height = 800;
-                    ctx.fillStyle = color === '#ffffff' ? '#111115' : '#ffffff';
-                    ctx.fillRect(0, 0, 800, 800);
-
-                    const baseQRImg = new Image();
-                    baseQRImg.onload = async () => {
-                        ctx.drawImage(baseQRImg, 100, 100, 600, 600);
-
-                        const lSize = 160;
-                        const lX = 100 + (600 - lSize) / 2;
-                        const lY = 100 + (600 - lSize) / 2;
-
-                        if (logoType === 'kt') {
-                            let logoImg = new Image(); logoImg.crossOrigin = "Anonymous";
-                            await new Promise((res) => { logoImg.onload = res; logoImg.onerror = res; logoImg.src = "https://kt-synergy.com/assets/image/CI_BI/kt_icon02.png"; });
-                            ctx.drawImage(logoImg, lX, lY, lSize, lSize);
-                        } else if (logoType === 'custom' && customLogoImg) {
-                            ctx.drawImage(customLogoImg, lX, lY, lSize, lSize);
-                        }
-
-                        document.getElementById('result-area').classList.add('active');
-                        document.getElementById('download-link').href = canvas.toDataURL("image/png");
-                        setTimeout(() => document.getElementById('result-area').scrollIntoView({ behavior: 'smooth', block: 'start' }), 150);
-                    };
-                    baseQRImg.src = qrImageURL;
-                    return; 
-                }
-
                 canvas.width = 1000; canvas.height = 1414;
 
-                let bgImg = new Image(); bgImg.crossOrigin = "Anonymous";
-                const idx = templateIndex.replace('t', '').padStart(2, '0');
-                bgImg.src = `https://kt-synergy.com/assets/image/qr_templates/qr_template_${idx}.png`;
-                await new Promise((res) => { bgImg.onload = res; bgImg.onerror = res; });
-                
-                if(bgImg.width === 0) {
-                     ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,1000,1414);
-                } else {
-                     ctx.drawImage(bgImg, 0, 0, 1000, 1414);
-                }
+                let bgLoaded = new Promise((resolve) => {
+                    if (templateIndex === 'none') {
+                        ctx.fillStyle = color === '#ffffff' ? '#111115' : '#ffffff';
+                        ctx.fillRect(0, 0, 1000, 1414);
+                        resolve(null);
+                    } else {
+                        let bgImg = new Image(); bgImg.crossOrigin = "Anonymous";
+                        const idx = templateIndex.replace('t', '').padStart(2, '0');
+                        bgImg.src = `https://kt-synergy.com/assets/image/qr_templates/qr_template_${idx}.png`;
+                        bgImg.onload = () => { ctx.drawImage(bgImg, 0, 0, 1000, 1414); resolve(bgImg); };
+                        bgImg.onerror = () => { ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,1000,1414); resolve(null); };
+                    }
+                });
+
+                await bgLoaded;
 
                 let topIconImg = new Image(); topIconImg.crossOrigin = "Anonymous";
-                topIconImg.src = type === 'wifi' ? `https://kt-synergy.com/assets/image/qr_templates/wifi_icon.png` : `https://kt-synergy.com/assets/image/qr_templates/scan_qr.png`;
-                await new Promise((res) => { topIconImg.onload = res; topIconImg.onerror = res; });
+                let topIconLoaded = new Promise((res) => { topIconImg.onload = res; topIconImg.onerror = res; topIconImg.src = type === 'wifi' ? `https://kt-synergy.com/assets/image/qr_templates/wifi_icon.png` : `https://kt-synergy.com/assets/image/qr_templates/scan_qr.png`; });
+                await topIconLoaded;
                 
                 if (type === 'wifi') { ctx.drawImage(topIconImg, 268, 33, 464, 143); } 
                 else { ctx.drawImage(topIconImg, 201, 1, 600, 201); }
 
                 const baseQRImg = new Image();
                 baseQRImg.onload = async () => {
-                    ctx.drawImage(baseQRImg, 201, 200, 600, 600); 
-
-                    const lSize = 160;
-                    const lX = 201 + (600 - lSize) / 2;
-                    const lY = 200 + (600 - lSize) / 2; 
+                    // [좌표 복원] 완벽했던 200px 좌표로 다시 세팅
+                    ctx.drawImage(baseQRImg, 201, 200, 600, 600);
 
                     if (logoType === 'kt') {
                         let logoImg = new Image(); logoImg.crossOrigin = "Anonymous";
-                        await new Promise((res) => { logoImg.onload = res; logoImg.onerror = res; logoImg.src = "https://kt-synergy.com/assets/image/CI_BI/kt_icon02.png"; });
-                        ctx.drawImage(logoImg, lX, lY, lSize, lSize);
-                    } else if (logoType === 'custom' && customLogoImg) {
-                        ctx.drawImage(customLogoImg, lX, lY, lSize, lSize);
+                        let loadLogo = new Promise((res) => { logoImg.onload = res; logoImg.onerror = res; logoImg.src = "https://kt-synergy.com/assets/image/CI_BI/kt_icon02.png"; });
+                        await loadLogo;
+                        // 로고도 200px 좌표에 맞게 하향 동기화
+                        if (logoImg.src) { const lSize = 160; ctx.drawImage(logoImg, 201 + (600 - lSize) / 2, 200 + (600 - lSize) / 2, lSize, lSize); }
                     }
 
                     ctx.fillStyle = "#111111"; ctx.textAlign = "center";
-                    let textY = 1018 + 100;
                     
+                    let textY = 1018 + 100;
                     if (type === 'vcard') {
                         const vcName = document.getElementById('vc-name').value || '이대희';
                         const vcPhone = document.getElementById('vc-phone').value || '010-7300-2632';
