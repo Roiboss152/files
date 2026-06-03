@@ -1,437 +1,578 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8"/>
-<link rel="icon" href="favicon.ico" type="image/x-icon"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>인천지사 시너지영업3팀</title>
-<style>
-@font-face{font-family:'DIGICO';src:url('assets/fonts/digicottf-light.ttf') format('truetype');font-weight:300;font-style:normal;}
-@font-face{font-family:'DIGICO';src:url('assets/fonts/digicottf-medium.ttf') format('truetype');font-weight:500;font-style:normal;}
-@font-face{font-family:'DIGICO';src:url('assets/fonts/digicottf-bold.ttf') format('truetype');font-weight:700;font-style:normal;}
-</style>
-<style>
-:root{
-  --red:#e60012;--dark:#0a0a0a;--gray:#6e6e73;
-  --light:#f5f5f7;--white:#fff;--border:#d2d2d7;
-  --max:1100px;
-}
-*{margin:0;padding:0;box-sizing:border-box;}
-html{scroll-behavior:smooth;}
-body{font-family:'DIGICO',sans-serif;background:#fff;color:var(--dark);overflow-x:hidden;}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Foundation of Your DX Business</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body, html {
+            margin: 0; padding: 0;
+            background-color: #020202; color: #fff;
+            font-family: 'Pretendard', -apple-system, sans-serif;
+            overflow-x: hidden; scroll-behavior: smooth;
+        }
 
-/* ── 히어로 ── */
-.hero{position:relative;height:100vh;min-height:700px;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;background:var(--dark);}
-.hero-slide{position:absolute;inset:0;background-size:cover;background-position:center;z-index:0;opacity:0;transform:scale(1.0);transition:opacity 1.5s ease-in-out, transform 7s ease-in-out;}
-.hero-slide.active{opacity:1;transform:scale(1.1);}
+        body.locked { overflow: hidden; }
 
-.hero-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.05) 0%,rgba(0,0,0,0.25) 100%);z-index:1;}
-.hero-ci{position:absolute;top:40px;left:48px;z-index:10;opacity:0;animation:fadeUp 0.8s 0.2s ease forwards;}
-.hero-ci img{height:56px;width:auto;}
-.hero-content{position:relative;z-index:2;text-align:center;color:#fff;padding:0 24px;}
+        .timeline-space {
+            position: relative;
+            height: 700vh; 
+            width: 100%;
+            background-color: #020202;
+        }
 
-/* 글래스 뒤 블러 레이어 */
-.hero-blur-layer{position:absolute;inset:0;background-size:cover;background-position:center;background-image:url('assets/image/files/city_airplane.png');filter:blur(18px);transform:scale(1.08);z-index:0;opacity:0;transition:opacity 0s;}
+        #webgl-canvas {
+            position: fixed; top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            z-index: 0; pointer-events: none;
+            will-change: opacity;
+        }
 
-@keyframes pulseGlow{0%,100%{box-shadow:0 12px 48px rgba(0,0,0,0.3),0 0 15px rgba(255,255,255,0.1);}50%{box-shadow:0 12px 48px rgba(0,0,0,0.3),0 0 60px rgba(255,255,255,0.35);}}
-.hero-glass{background:rgba(255,255,255,0.18);backdrop-filter:none;-webkit-backdrop-filter:none;border-radius:20px;padding:0;overflow:hidden;display:inline-block;width:clamp(340px,96vw,920px);text-align:center;position:relative;z-index:3;border:1.5px solid rgba(255,255,255,0.45);box-shadow:0 12px 48px rgba(0,0,0,0.3);}
-.hero-blur-slide{position:absolute;inset:0;background-repeat:no-repeat;z-index:1;opacity:0;transition:opacity 1.5s ease-in-out;pointer-events:none;}
-.hero-blur-slide.active{opacity:1;}
-.hero-glass-row{position:relative;z-index:2;padding:clamp(18px,3.5vh,40px) clamp(20px,3vw,40px);}
-.hero-glass-divider{width:100%;height:1px;background:rgba(255,255,255,0.45);position:relative;z-index:2;}
-.hero-glass-badge{font-size:clamp(13px,1.8vw,20px);font-weight:600;letter-spacing:3px;color:rgba(255,255,255,0.7);text-transform:uppercase;}
-.hero-glass-btn{display:inline-block;color:#fff;font-size:clamp(16px,1.8vw,22px);font-weight:600;font-family:'DIGICO',sans-serif;cursor:pointer;background:none;border:none;padding:4px 0;letter-spacing:1px;position:relative;transition:color 0.3s ease,letter-spacing 0.3s ease;}
-.hero-glass-btn::after{content:'';position:absolute;bottom:0;left:0;width:0;height:1.5px;background:#fff;transition:width 0.35s ease;}
-.hero-glass-btn:hover::after{width:100%;}
-.hero-glass-btn:hover{letter-spacing:2.5px;color:rgba(255,255,255,0.9);}
-.hero-glass-btn .arrow{display:inline-block;transition:transform 0.35s ease;}
-.hero-glass-btn:hover .arrow{transform:translateX(8px);}
-.hero-glass-btn-row{padding:20px 40px;position:relative;z-index:2;}.hero-title{font-size:clamp(36px,9vw,140px);font-weight:700;line-height:1.2;letter-spacing:-2px;margin-bottom:0;opacity:1;transform:none;animation:none;white-space:nowrap;}
-.hero-title em{color:var(--red);font-style:normal;}
-.hero-sub{font-size:clamp(15px,1.8vw,22px);font-weight:300;color:rgba(255,255,255,0.75);line-height:1.9;margin:0 auto;opacity:1;transform:none;animation:none;}
-.hero-btn{display:inline-block;background:rgba(255,255,255,0.15);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:#fff;padding:18px 52px;border-radius:6px;font-size:17px;font-weight:600;border:2px solid rgba(255,255,255,0.4);box-shadow:0 8px 32px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.2);opacity:0;transform:translateY(30px);animation:fadeUp 0.9s 0.9s ease forwards;transition:transform 0.2s,box-shadow 0.2s,background 0.2s;cursor:pointer;font-family:'DIGICO',sans-serif;}
-.hero-btn:hover{background:rgba(255,255,255,0.25);transform:translateY(-2px);box-shadow:0 16px 40px rgba(0,0,0,0.35),inset 0 1px 0 rgba(255,255,255,0.25);}
-.hero-scroll{position:absolute;bottom:36px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;color:rgba(255,255,255,0.4);font-size:10px;letter-spacing:3px;opacity:0;animation:fadeUp 1s 1.4s ease forwards;}
-.scroll-line{width:1px;height:44px;background:linear-gradient(to bottom,rgba(255,255,255,0.5),transparent);animation:scrollPulse 2s infinite;}
-@keyframes scrollPulse{0%,100%{opacity:0.3;}50%{opacity:1;}}
+        .ui-layer {
+            position: fixed; top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            z-index: 10; pointer-events: none;
+            will-change: opacity;
+        }
 
-/* ── 공통 ── */
-.section-inner{max-width:var(--max);margin:0 auto;padding:0 60px;}
-.section-badge{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
-.section-badge .badge-icon{display:flex;gap:10px;flex-shrink:0;}
-.section-badge .badge-icon span{display:block;width:10px;height:26px;background:var(--dark);border-radius:1px;}
-.section-badge .label{background:var(--dark);color:#fff;font-size:11px;font-weight:600;letter-spacing:2px;padding:7px 12px;text-transform:uppercase;white-space:nowrap;min-width:220px;text-align:center;}
+        .intro {
+            position: fixed; top: 32vh; left: 50%; transform: translateX(-50%);
+            text-align: center; z-index: 5; width: 100%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: opacity 0.6s ease;
+        }
+        
+        .main-title {
+            font-size: 3.2rem; font-weight: 900; margin: 0 0 20px 0;
+            letter-spacing: 16px; filter: blur(25px); opacity: 0;
+            background: linear-gradient(to bottom, #ffffff, #d4d4d8);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            padding: 0 20px; white-space: nowrap; 
+            will-change: filter, letter-spacing, opacity;
+        }
 
-/* ── 인트로 ── */
-.intro-section{position:relative;padding:100px 0 0;overflow:hidden;background:#fff;}
-.intro-bg{position:absolute;inset:0;background-image:url('assets/image/CI_BI/KT_BI_01.png');background-size:cover;background-position:center;opacity:0.5;pointer-events:none;z-index:0;}
-.intro-inner{position:relative;z-index:1;}
-.intro-layout{display:grid;grid-template-columns:1fr;gap:60px;align-items:center;padding-bottom:80px;max-width:680px;}
-.intro-title{font-size:clamp(28px,3.5vw,44px);font-weight:700;line-height:1.38;letter-spacing:-1px;margin-bottom:24px;color:var(--dark);}
-.intro-body{font-size:15px;font-weight:300;line-height:2.0;color:#333;}
-.intro-body strong{font-weight:700;color:var(--dark);}
-.intro-img-wrap{position:relative;display:flex;align-items:flex-end;justify-content:center;}
-.intro-img-wrap img{width:100%;max-width:420px;height:auto;display:block;}
-.intro-wave{width:100%;overflow:hidden;line-height:0;}
-.intro-wave img{width:100%;display:block;height:auto;}
+        .sub-title {
+            font-size: 1.5rem; font-weight: 500; margin: 0; color: #a1a1aa;
+            filter: blur(15px); transform: translateY(30px); opacity: 0;
+            letter-spacing: -0.5px;
+            will-change: filter, transform, opacity;
+        }
 
-/* ── 이벤트 ── */
-.event-section{padding:100px 0 40px;background:#fff;}
-.event-layout{display:grid;grid-template-columns:480px 1fr;gap:40px;align-items:center;position:relative;}
-.event-left{position:relative;z-index:1;}
-.event-title{font-size:clamp(28px,3.5vw,44px);white-space:nowrap;font-weight:700;letter-spacing:-1px;line-height:1.25;margin-bottom:28px;color:var(--dark);}
-.event-table{width:100%;border-collapse:collapse;}
-.event-table tr{border-bottom:1px solid var(--border);}
-.event-table td{padding:12px 0;font-size:15px;vertical-align:middle;}
-.event-table td:first-child{font-weight:700;color:var(--dark);min-width:80px;padding-right:16px;}
-.event-table td:last-child{font-weight:400;color:#333;}
-.tag{display:inline-block;margin-left:8px;background:#e8f5e9;color:#2e7d32;font-size:11px;font-weight:500;padding:2px 10px;border-radius:10px;vertical-align:middle;}
-.event-right{display:flex;align-items:center;justify-content:flex-start;padding-left:0;position:relative;z-index:0;overflow:hidden;}
-.event-right img{width:100%;max-width:520px;height:auto;display:block;}
+        .checkpoint-wrapper {
+            position: absolute; top: 0; left: 0; width: 0; height: 0;
+            will-change: transform, opacity; display: none; 
+        }
 
-/* ── BI03 구분선 ── */
-.bi03-divider{display:none;}
+        .step-num {
+            position: absolute; top: -22px; left: -22px; 
+            width: 45px; height: 45px; background: #222; 
+            border: 2px solid #555; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.2rem; color: #999;
+            z-index: 2; transition: all 0.4s;
+        }
 
-/* ── 개인정보 ── */
-.privacy-section{padding:100px 0 80px;background:#fff url('assets/image/CI_BI/KT_BI_03.png') no-repeat center bottom;background-size:100%;}
-.sec-title{font-size:clamp(28px,3.5vw,44px);white-space:nowrap;font-weight:700;letter-spacing:-1px;line-height:1.28;margin-bottom:28px;}
-.privacy-box{border:1px solid var(--border);border-radius:12px;overflow:hidden;}
-.privacy-header{background:var(--light);padding:14px 24px;font-size:13px;font-weight:500;color:var(--gray);}
-.privacy-body{padding:22px 24px;display:flex;flex-direction:column;gap:12px;}
-.p-row{display:flex;gap:20px;font-size:15px;line-height:1.7;}
-.p-label{font-weight:700;min-width:140px;color:var(--dark);flex-shrink:0;}
-.p-value{color:#444;font-weight:300;}
-.privacy-note{margin-top:4px;padding:11px 16px;background:#fff8f8;border-radius:8px;font-size:13px;color:#c0392b;border-left:3px solid var(--red);}
-.privacy-agree{margin-top:20px;display:flex;align-items:center;gap:12px;cursor:pointer;}
-.privacy-agree input{width:18px;height:18px;accent-color:var(--red);cursor:pointer;flex-shrink:0;}
-.privacy-agree label{font-size:15px;font-weight:500;cursor:pointer;}
+        .step-num::after {
+            content: ''; position: absolute; top: 50%; left: 50%;
+            width: 100%; height: 100%; transform: translate(-50%, -50%) scale(1);
+            border-radius: 50%; background: rgba(79, 172, 254, 0); pointer-events: none; z-index: -1;
+        }
 
-/* ── 신청 폼 ── */
-.form-section{padding:100px 0 80px;background:var(--light);}
-.form-layout{display:flex;flex-direction:column;gap:32px;max-width:600px;}
-.form-desc-title{font-size:clamp(28px,3.5vw,44px);white-space:nowrap;font-weight:700;letter-spacing:-1px;line-height:1.3;margin-bottom:8px;}
-.form-desc-body{font-size:15px;color:var(--gray);font-weight:300;line-height:1.9;}
-.form-card{background:#fff;border-radius:18px;padding:36px;border:1px solid var(--border);display:flex;flex-direction:column;gap:20px;}
-.form-group{display:flex;flex-direction:column;gap:8px;}
-.form-label{font-size:14px;font-weight:600;color:var(--dark);}
-.req{color:var(--red);font-weight:700;}
-.form-input,.form-textarea{width:100%;padding:12px 16px;border:1.5px solid var(--border);border-radius:10px;font-size:15px;font-family:'DIGICO',sans-serif;color:var(--dark);background:#fff;outline:none;transition:border-color 0.2s,box-shadow 0.2s;}
-.form-input:focus,.form-textarea:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(230,0,18,0.08);}
-.form-textarea{resize:vertical;min-height:100px;line-height:1.7;}
-.form-submit{width:100%;padding:16px;background:var(--red);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;font-family:'DIGICO',sans-serif;cursor:pointer;transition:opacity 0.2s,transform 0.2s;position:relative;overflow:hidden;}
-.form-submit::before{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(120deg,transparent,rgba(255,255,255,0.3),transparent);transform:skewX(-20deg);transition:none;}
-.form-submit:hover::before{left:150%;transition:left 0.55s ease;}
-.form-submit:hover{opacity:0.95;transform:translateY(-1px);}
-.form-note{text-align:center;font-size:12px;color:var(--gray);font-weight:300;line-height:1.8;}
-.form-tag{font-size:11px;font-weight:500;padding:2px 7px;border-radius:6px;margin-left:4px;vertical-align:middle;}
-.req-tag{background:#fff0f0;color:var(--red);}
-.opt-tag{background:#f0f0f0;color:var(--gray);}
+        .checkpoint-wrapper.active .step-num {
+            background: #4facfe; border-color: #4facfe; color: #111; 
+            box-shadow: 0 0 30px rgba(79, 172, 254, 1), 0 0 60px rgba(79, 172, 254, 0.5);
+        }
 
-/* ── 영상 ── */
-.video-section{position:relative;overflow:hidden;background:#000;line-height:0;}
-.video-section video{width:100%;display:block;max-height:320px;object-fit:cover;}
+        @keyframes energyRipple {
+            0% { transform: translate(-50%, -50%) scale(1); background: rgba(79, 172, 254, 1); }
+            70% { transform: translate(-50%, -50%) scale(5); background: rgba(79, 172, 254, 0.2); }
+            100% { transform: translate(-50%, -50%) scale(6); background: rgba(79, 172, 254, 0); }
+        }
 
-/* ── 푸터 ── */
-footer{background:var(--dark);color:rgba(255,255,255,0.4);padding:48px 24px;text-align:center;font-size:13px;font-weight:300;line-height:2.2;}
-footer strong{color:rgba(255,255,255,0.7);}
+        .checkpoint-wrapper.active .step-num::after {
+            animation: energyRipple 0.8s cubic-bezier(0.1, 1.0, 0.3, 1.0) forwards;
+        }
 
-/* ── 애니메이션 ── */
-@keyframes fadeUp{to{opacity:1;transform:translateY(0);}}
-.reveal{opacity:0;transform:translateY(40px);transition:opacity 0.8s ease,transform 0.8s ease;}
-.reveal.visible{opacity:1;transform:none;}
+        .checkpoint-inner {
+            position: absolute; width: 400px; padding: 30px;
+            background: rgba(25, 25, 25, 0.65); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 16px; backdrop-filter: blur(10px);
+            transform: translate(var(--shift-x, 0px), var(--shift-y, -30px));
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.4s, border-color 0.4s, box-shadow 0.4s;
+        }
 
-/* ── 성공 팝업 ── */
-.success-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:999;align-items:center;justify-content:center;}
-.success-overlay.show{display:flex;}
-.success-box{background:#fff;border-radius:24px;padding:48px 40px;text-align:center;max-width:380px;width:90%;animation:popIn 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards;}
-@keyframes popIn{from{transform:scale(0.85);opacity:0;}to{transform:scale(1);opacity:1;}}
-.success-icon{font-size:48px;margin-bottom:16px;}
-.success-title{font-size:20px;font-weight:700;margin-bottom:10px;}
-.success-desc{font-size:14px;color:var(--gray);font-weight:300;line-height:1.8;}
-.success-close{margin-top:24px;display:inline-block;background:var(--red);color:#fff;padding:11px 28px;border-radius:20px;font-size:14px;font-weight:500;cursor:pointer;border:none;font-family:'DIGICO',sans-serif;}
+        .checkpoint-inner h2 { color: #ddd; margin-top: 0; font-size: 1.5rem; transition: color 0.4s; }
+        .checkpoint-inner p { color: #aaa; line-height: 1.6; font-size: 1rem; margin-bottom: 0; transition: color 0.4s;}
 
-/* ── 모바일 ── */
-@media(max-width:768px){
-  .section-inner{padding:0 24px;}
-  .intro-bg{background-size:contain;background-repeat:no-repeat;background-position:center top;}
-  .hero-ci{top:24px;left:20px;}
-  .hero-ci img{height:36px;}
-  .intro-layout,.event-layout,.form-layout{grid-template-columns:1fr;}
-  .event-right{justify-content:flex-start;margin-top:28px;}
-  .event-right img{max-width:240px;}
-  .p-row{flex-direction:column;gap:4px;}
-  .p-label{min-width:unset;}
-}
-</style>
+        .checkpoint-wrapper.active .checkpoint-inner {
+            transform: translate(var(--shift-x, 0px), calc(var(--shift-y, -30px) - 10px)) scale(1.03); 
+            background: rgba(30, 30, 30, 0.98); border-color: rgba(79, 172, 254, 1); 
+            box-shadow: 0 10px 40px rgba(79, 172, 254, 0.4), 0 0 100px rgba(79, 172, 254, 0.1);
+        }
+        .checkpoint-wrapper.active h2 { color: #4facfe; }
+        .checkpoint-wrapper.active p { color: #eee; } 
+
+        /* 하단 페이지 및 네비게이션 헤더 */
+        .next-page-section {
+            position: relative; z-index: 20; background-color: #09090b;
+            padding: 160px 40px 140px 40px; min-height: 100vh; box-sizing: border-box;
+            display: flex; justify-content: center; align-items: center;
+            border-top: 1px solid rgba(79, 172, 254, 0.2);
+            box-shadow: 0 -30px 60px rgba(0,0,0, 0.9);
+        }
+
+        .next-page-header {
+            position: absolute; top: 0; left: 0; width: 100%;
+            padding: 30px 60px; box-sizing: border-box;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .header-logo {
+            font-size: 1.2rem; font-weight: 800; letter-spacing: 1px;
+            color: #fff; text-decoration: none;
+        }
+        
+        .header-nav { display: flex; gap: 40px; align-items: center; }
+        
+        .header-nav a {
+            color: #a1a1aa; text-decoration: none; font-size: 0.95rem; font-weight: 500;
+            transition: color 0.3s, text-shadow 0.3s;
+        }
+        
+        .header-nav a:hover, .dropdown:hover .dropbtn {
+            color: #4facfe; text-shadow: 0 0 12px rgba(79, 172, 254, 0.6);
+        }
+
+        /* 드롭다운 메뉴 스타일 */
+        .dropdown { position: relative; display: inline-block; cursor: pointer; padding-bottom: 10px; margin-bottom: -10px; }
+        
+        .dropdown-content {
+            display: none; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+            background-color: rgba(20, 20, 22, 0.95); min-width: 180px;
+            box-shadow: 0px 12px 24px 0px rgba(0,0,0,0.6); z-index: 100;
+            border: 1px solid rgba(79, 172, 254, 0.2); border-radius: 12px;
+            padding: 8px 0; backdrop-filter: blur(10px);
+        }
+        
+        .dropdown-content a {
+            color: #a1a1aa; padding: 12px 20px; text-decoration: none; display: block;
+            font-size: 0.9rem; text-align: center; transition: all 0.3s;
+        }
+        
+        .dropdown-content a:hover {
+            color: #fff; background-color: rgba(79, 172, 254, 0.15);
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+        }
+        
+        .dropdown:hover .dropdown-content { display: block; animation: dropFade 0.3s ease; }
+
+        @keyframes dropFade {
+            from { opacity: 0; transform: translate(-50%, -10px); }
+            to { opacity: 1; transform: translate(-50%, 0); }
+        }
+
+        /* 하단 본문 콘텐츠 */
+        .next-content { max-width: 1200px; width: 100%; }
+        .next-content h2 { 
+            font-size: 3.5rem; margin-bottom: 24px; letter-spacing: -1px;
+            background: linear-gradient(to right, #ffffff, #a1a1aa);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .next-content > p { color: #71717a; font-size: 1.25rem; margin-bottom: 80px; margin-top: 0; }
+        
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; }
+        .grid-card {
+            background: #141416; border: 1px solid #232326; padding: 45px; border-radius: 24px;
+            transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), border-color 0.4s;
+        }
+        .grid-card:hover { transform: translateY(-8px); border-color: rgba(79, 172, 254, 0.4); }
+        .grid-card h3 { color: #4facfe; font-size: 1.6rem; margin-top: 0; margin-bottom: 15px; }
+        .grid-card p { color: #a1a1aa; font-size: 1.05rem; line-height: 1.7; margin: 0; }
+
+        @media (max-width: 768px) {
+            .main-title { font-size: 1.8rem; } 
+            .sub-title { font-size: 1.1rem; }
+            .checkpoint-inner { width: 260px; padding: 20px; }
+            .checkpoint-inner h2 { font-size: 1.2rem; }
+            .checkpoint-inner p { font-size: 0.85rem; }
+            .step-num { width: 35px; height: 35px; top: -17px; left: -17px; font-size: 1rem; }
+            
+            .next-page-section { padding: 200px 20px 80px 20px; }
+            .next-page-header { padding: 20px; flex-direction: column; gap: 20px; }
+            .header-nav { gap: 15px; flex-wrap: wrap; justify-content: center; }
+            .dropdown { padding-bottom: 0; margin-bottom: 0; }
+            
+            .next-content h2 { font-size: 2.5rem; }
+            .next-content > p { font-size: 1.1rem; margin-bottom: 50px; }
+            .grid-card { padding: 30px; }
+        }
+    </style>
 </head>
-<body>
+<body class="locked">
 
-<!-- 히어로 -->
-<section class="hero" id="heroSection">
-  <div class="hero-slide" id="slide0" style="background-image:url('assets/image/files/city_airplane.png')"></div>
-  <div class="hero-slide" id="slide1" style="background-image:url('assets/image/files/handshake_double_exposure.png')"></div>
-  <div class="hero-slide" id="slide2" style="background-image:url('assets/image/files/sign01.png')"></div>
-  <div class="hero-overlay"></div>
-  <div class="hero-ci"><img src="assets/image/CI_BI/KT_CI_WR01.png" alt="KT"/></div>
-  <div class="hero-content" style="opacity:0;transform:translateY(30px);animation:fadeUp 0.9s 0.5s ease forwards;">
-    <div class="hero-glass">
-      <div class="hero-blur-slide active" id="bslide0"></div>
-      <div class="hero-blur-slide" id="bslide1"></div>
-      <div class="hero-blur-slide" id="bslide2"></div>
-      <div class="hero-glass-row">
-        <div class="hero-glass-badge">KT 소상공인 창업설명회</div>
-      </div>
-      <div class="hero-glass-divider"></div>
-      <div class="hero-glass-row">
-        <h1 class="hero-title" style="opacity:1;transform:none;animation:none;margin-bottom:0;">KT 파트너로<br><em>창업하실 분</em>을<br>모십니다.</h1>
-      </div>
-      <div class="hero-glass-divider"></div>
-      <div class="hero-glass-row">
-        <p class="hero-sub" style="opacity:1;transform:none;animation:none;margin:0;">소자본·무점포 1인 창업이 가능하며,<br>기존 사업자도 병행할 수 있습니다.</p>
-      </div>
-      <div class="hero-glass-divider"></div>
-      <div class="hero-glass-row">
-        <button class="hero-glass-btn" onclick="document.getElementById('form').scrollIntoView({behavior:'smooth'})">설명회 신청하기 <span class="arrow">→</span></button>
-      </div>
-    </div>
-  </div>
-  <div class="hero-scroll"><div class="scroll-line"></div>SCROLL</div>
-</section>
-
-<!-- 인트로 -->
-<section class="intro-section">
-  <div class="intro-bg"></div>
-  <div class="section-inner reveal intro-inner">
-    <div class="intro-layout">
-      <div class="intro-text">
-        <div class="section-badge">
-          <div class="badge-icon"><span></span><span></span></div>
-          <div class="label">안녕하세요, KT 인천지사입니다</div>
+    <div class="timeline-space">
+        <div class="intro" id="intro-text">
+            <h1 class="main-title">THE FOUNDATION OF YOUR DX BUSINESS</h1>
+            <p class="sub-title">비즈니스 스케일을 더하다</p>
         </div>
-        <h2 class="intro-title">새로운 사업 기회를 찾고 계신 분께 KT 대리점 파트너십을 제안드립니다.</h2>
-        <p class="intro-body">
-          KT 인천지사는 소상공인 전문 솔루션인 <strong>프리미엄 테이블오더 하이오더, AI 서빙로봇, AI 전화, 지능형 CCTV, POS</strong> 등을 함께 영업하실 <strong>전문 대리점 파트너</strong>를 모십니다.<br><br>
-          소자본·무점포 1인 창업이 가능하며, 기존 사업자도 병행하여 운영할 수 있습니다. 이번 설명회에서 수익 구조와 파트너십 조건을 직접 확인해 보세요.
-        </p>
-      </div>
 
+        <canvas id="webgl-canvas"></canvas>
+        <div class="ui-layer" id="ui-layer"></div>
     </div>
-  </div>
 
-</section>
-
-<!-- 이벤트 인포 -->
-<section class="event-section">
-  <div class="section-inner">
-    <div class="event-layout reveal">
-      <div class="event-left">
-        <div class="section-badge">
-          <div class="badge-icon"><span></span><span></span></div>
-          <div class="label">Event Info</div>
+    <!-- 하단 페이지 및 GNB -->
+    <div class="next-page-section">
+        
+        <div class="next-page-header">
+            <a href="#" class="header-logo">KT SYNERGY 3</a>
+            <nav class="header-nav">
+                <a href="https://kt-synergy.com/document/questionnaire/Seminar.html" target="_blank">Seminar Reg.</a>
+                <a href="https://www.kt-synergy.com/document/questionnaire/parking_consent.html" target="_blank">Parking & Survey</a>
+                <!-- QR 생성기 링크 적용 -->
+                <a href="https://kt-synergy.com/document/QR_generator/qr-generator.html" target="_blank">QR Generator</a>
+                
+                <!-- QR Assets 드롭다운 -->
+                <div class="dropdown">
+                    <a class="dropbtn">QR Assets ▼</a>
+                    <div class="dropdown-content">
+                        <a href="https://www.kt-synergy.com/assets/QR/kt_synergy_qrcode.html" target="_blank">Seminar (Mobile)</a>
+                        <a href="https://www.kt-synergy.com/assets/QR/parking_qr_a4.html" target="_blank">Parking (Banner)</a>
+                        <a href="https://www.kt-synergy.com/assets/QR/parking_qr_mobile.html" target="_blank">Parking (Mobile)</a>
+                    </div>
+                </div>
+            </nav>
         </div>
-        <h2 class="event-title">KT 소상공인 대리점 창업설명회</h2>
-        <table class="event-table">
-          <tr><td>일시</td><td>2026년 6월 24일 (화) 오전 10:00</td></tr>
-          <tr><td>장소</td><td>KT 인천지사 컨벤션홀</td></tr>
-          <tr><td>참가 대상</td><td>창업 및 비즈니스 확장에 관심 있는 분 누구나</td></tr>
-          <tr><td>참가비</td><td>전액 무료</td></tr>
-          <tr><td>참가 혜택</td><td>참석자 전원 고급 우산 증정</td></tr>
-          <tr><td>문의처</td><td>KT 신규채널운영2파트 송용의 과장 (032-772-2299)</td></tr>
-        </table>
-      </div>
-      <div class="event-right">
-        <img src="assets/image/files/business_card.png" alt="이벤트 이미지"/>
-      </div>
-    </div>
-  </div>
-</section>
 
-<!-- BI03 구분선 -->
-<div class="bi03-divider">
-  <img src="assets/image/CI_BI/KT_BI_03.png" alt=""/>
-</div>
-
-<!-- 개인정보 동의 -->
-<section class="privacy-section">
-  <div class="section-inner reveal">
-    <div class="section-badge">
-      <div class="badge-icon"><span></span><span></span></div>
-      <div class="label">Privacy</div>
-    </div>
-    <h2 class="sec-title">개인정보 수집 및 이용 동의</h2>
-    <div class="privacy-box">
-      <div class="privacy-header">개인정보 수집 및 이용 동의 [필수]</div>
-      <div class="privacy-body">
-        <div class="p-row"><div class="p-label">수집 항목</div><div class="p-value">성명, 연락처</div></div>
-        <div class="p-row"><div class="p-label">수집 목적</div><div class="p-value">설명회 참가 확인 및 개별 안내 연락</div></div>
-        <div class="p-row"><div class="p-label">보유 기간</div><div class="p-value">설명회 종료 즉시 파기</div></div>
-        <div class="privacy-note">※ 위 개인정보 수집 및 이용에 동의하지 않으실 경우 신청이 제한될 수 있습니다.</div>
-        <div style="margin-top:8px;font-size:13px;color:var(--gray);font-weight:300;line-height:1.8;">• ※ 안내 사항: 귀하는 개인정보 수집 및 이용 동의를 거부할 권리가 있으며, 동의를 거부하실 경우 설명회 참가 신청이 제한될 수 있습니다.</div>
-      </div>
-    </div>
-    <div class="privacy-agree">
-      <input type="checkbox" id="privacyCheck"/>
-      <label for="privacyCheck">개인정보 수집 및 이용에 동의합니다</label>
-    </div>
-  </div>
-</section>
-
-<!-- 신청 폼 -->
-<section class="form-section" id="form">
-  <div class="section-inner reveal">
-    <div class="section-badge">
-      <div class="badge-icon"><span></span><span></span></div>
-      <div class="label">Application</div>
-    </div>
-    <div class="form-layout">
-      <div class="form-desc">
-        <h2 class="form-desc-title">설명회 신청</h2>
-        <p class="form-desc-body">아래 정보를 입력하시면<br>담당자가 개별 연락드립니다.</p>
-      </div>
-      <div class="form-card">
-        <div class="form-group">
-          <label class="form-label">성함 <span class="req">*</span> <span class="form-tag req-tag">[필수]</span></label>
-          <input class="form-input" id="nameInput" type="text" placeholder="홍길동"/>
+        <div class="next-content">
+            <h2>Our Core Competencies</h2>
+            <p>파트너사의 DX 비즈니스 성공을 단단하게 뒷받침하는 가장 견고한 인프라가 되겠습니다.</p>
+            
+            <div class="grid-container">
+                <div class="grid-card">
+                    <h3>01. 하이오더 VR 컨설팅</h3>
+                    <p>도면만으로는 부족했던 공간의 한계를 넘어섭니다. 현장 중심의 정밀한 VR 컨설팅을 통해 고객사에게 압도적인 몰입감과 확신을 심어주는 맞춤형 제안을 지원합니다.</p>
+                </div>
+                <div class="grid-card">
+                    <h3>02. 서빙 로봇 현장 PoC</h3>
+                    <p>백문이 불여일견, 강력한 공동 영업(Co-selling)의 핵심입니다. 도입 전 고객사 매장에서 직접 이루어지는 서빙 로봇 자율주행 테스트 시연을 전폭적으로 지원합니다.</p>
+                </div>
+                <div class="grid-card">
+                    <h3>03. 세일즈 에셋 & 콘텐츠</h3>
+                    <p>파트너사의 영업력을 극대화할 수 있도록, 트렌디한 마케팅 영상부터 세련된 홍보용 브로슈어까지 고품질의 세일즈 에셋을 체계적이고 지속적으로 제공합니다.</p>
+                </div>
+            </div>
         </div>
-        <div class="form-group">
-          <label class="form-label">연락처 <span class="req">*</span> <span class="form-tag req-tag">[필수]</span></label>
-          <input class="form-input" id="phoneInput" type="tel" placeholder="010-0000-0000"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label">의견 <span class="form-tag opt-tag">[선택]</span></label>
-          <textarea class="form-textarea" id="commentInput" placeholder="문의사항이나 전달하실 내용을 자유롭게 적어주세요."></textarea>
-        </div>
-        <button class="form-submit" onclick="submitForm()">신청하기</button>
-        <p class="form-note">개인정보는 설명회 안내 목적으로만 사용됩니다.</p>
-      </div>
     </div>
-  </div>
-</section>
 
-<!-- 하단 영상 -->
-<div class="video-section">
-  <video id="heroVideo" autoplay loop muted playsinline poster="assets/image/CI_BI/KT_BI_01.png">
-    <source src="assets/image/CI_BI/kt_BI_3840x800__인천지사_01.mp4" type="video/mp4"/>
-  </video>
-</div>
+    <script>
+        if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+        }
+        window.scrollTo(0, 0);
 
-<!-- 푸터 -->
-<footer>
-  <strong>주식회사 케이티</strong><br>
-  인천광역시 남동구 경인로 508 KT인천지사<br><br>
-  © 2026 KT Corporation. All rights reserved.
-</footer>
+        document.addEventListener("DOMContentLoaded", () => {
+            const canvas = document.getElementById('webgl-canvas');
+            const introTextWrapper = document.getElementById('intro-text');
+            const mainTitleEl = document.querySelector('.main-title');
+            const subTitleEl = document.querySelector('.sub-title');
+            const uiLayer = document.getElementById('ui-layer');
+            const body = document.body;
+            
+            window.scrollTo(0, 0);
 
-<!-- 성공 팝업 -->
-<div class="success-overlay" id="successOverlay">
-  <div class="success-box">
-    <div class="success-icon">🎉</div>
-    <div class="success-title">신청이 완료되었습니다!</div>
-    <div class="success-desc">담당자가 확인 후 개별 연락드리겠습니다.<br>설명회에서 뵙겠습니다 😊</div>
-    <button class="success-close" onclick="document.getElementById('successOverlay').classList.remove('show')">확인</button>
-  </div>
-</div>
+            const scene = new THREE.Scene();
+            const fogNear = 1000;
+            const fogFar = 7000; 
+            scene.fog = new THREE.Fog(0x020202, fogNear, fogFar);
 
-<script>
-  // 히어로 슬라이드쇼
-  const slides = document.querySelectorAll('.hero-slide');
-  const blurSlides = document.querySelectorAll('.hero-blur-slide');
-  const blurImages = [
-    "assets/image/files/city_airplane_blur.png",
-    "assets/image/files/handshake_double_exposure_blur.png",
-    "assets/image/files/sign01_blur.png"
-  ];
-  let heroCurrent = 0;
-  const slideStartTimes = [Date.now(), Date.now(), Date.now()];
+            const isMobile = window.innerWidth <= 768;
+            const fov = isMobile ? 75 : 50; 
+            const camera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.innerHeight, 0.1, 15000);
+            
+            camera.position.set(0, 280, 0); 
+            camera.rotation.set(-0.523, 0, 0);
 
-  // 첫 슬라이드 딜레이 후 활성화
-  setTimeout(() => {
-    slides[0].classList.add('active');
-    slideStartTimes[0] = Date.now();
-  }, 100);
+            const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-  function syncBlur() {
-    const hero = document.getElementById('heroSection');
-    const glass = document.querySelector('.hero-glass');
-    if (!hero || !glass) return;
-    const heroW = hero.offsetWidth;
-    const heroH = hero.offsetHeight;
-    const glassRect = glass.getBoundingClientRect();
-    const heroRect = hero.getBoundingClientRect();
-    const imgRatio = 2560 / 1440;
-    const heroRatio = heroW / heroH;
-    let bgW, bgH;
-    if (heroRatio > imgRatio) { bgW = heroW; bgH = heroW / imgRatio; }
-    else { bgH = heroH; bgW = heroH * imgRatio; }
-    const bgX = (heroW - bgW) / 2;
-    const bgY = (heroH - bgH) / 2;
-    const glassX = glassRect.left - heroRect.left;
-    const glassY = glassRect.top - heroRect.top;
-    blurSlides.forEach((bl, i) => {
-      const elapsed = Math.min((Date.now() - slideStartTimes[i]) / 7000, 1.0);
-      const eased = elapsed < 0.5 ? 2*elapsed*elapsed : 1 - Math.pow(-2*elapsed+2, 2)/2;
-      const zoomScale = 1.0 + eased * 0.1;
-      const zW = bgW * zoomScale;
-      const zH = bgH * zoomScale;
-      const zX = (heroW - zW) / 2;
-      const zY = (heroH - zH) / 2;
-      bl.style.backgroundSize = `${zW}px ${zH}px`;
-      bl.style.backgroundPosition = `${zX - glassX}px ${zY - glassY}px`;
-      bl.style.backgroundImage = `url('${blurImages[i]}')`;
-    });
-  }
+            function getTrackX(z) {
+                return Math.sin(z * 0.0025) * 350 + Math.cos(z * 0.001) * 100;
+            }
 
-  syncBlur();
-  window.addEventListener('resize', syncBlur);
+            const points = [];
+            for (let z = -15000; z <= 2000; z += 50) {
+                points.push(new THREE.Vector3(getTrackX(z), 0, z));
+            }
+            const curve = new THREE.CatmullRomCurve3(points);
+            const tubeGeo = new THREE.TubeGeometry(curve, 1500, 1.2, 12, false);
 
-  setInterval(() => {
-    slides[heroCurrent].classList.remove('active');
-    blurSlides[heroCurrent].classList.remove('active');
-    heroCurrent = (heroCurrent + 1) % slides.length;
-    slides[heroCurrent].classList.add('active');
-    blurSlides[heroCurrent].classList.add('active');
-    slideStartTimes[heroCurrent] = Date.now();
-  }, 6000);
+            const shaderMat = new THREE.ShaderMaterial({
+                uniforms: { uTrainZ: { value: 0.0 } },
+                vertexShader: `
+                    varying vec3 vWorldPos;
+                    void main() {
+                        vWorldPos = (modelMatrix * vec4(position, 1.0)).xyz;
+                        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                    }
+                `,
+                fragmentShader: `
+                    uniform float uTrainZ;
+                    varying vec3 vWorldPos;
+                    void main() {
+                        vec3 trackColor = vec3(0.05, 0.1, 0.2);
+                        float glow = 0.0;
+                        if (vWorldPos.z <= uTrainZ) {
+                            float dist = uTrainZ - vWorldPos.z; 
+                            glow = 1.0 - smoothstep(0.0, 3000.0, dist);
+                            float coreGlow = 1.0 - smoothstep(0.0, 150.0, dist);
+                            trackColor = mix(trackColor, vec3(0.2, 0.6, 1.0), glow);
+                            trackColor = mix(trackColor, vec3(1.0, 1.0, 1.0), coreGlow);
+                        }
+                        gl_FragColor = vec4(trackColor, max(0.3, glow));
+                    }
+                `,
+                transparent: true,
+                side: THREE.DoubleSide
+            });
 
-  function animateBlur() { syncBlur(); requestAnimationFrame(animateBlur); }
-  animateBlur();
+            const track = new THREE.Mesh(tubeGeo, shaderMat);
 
-  const vid = document.getElementById('heroVideo');
-  if(vid){
-    const tryPlay = () => { vid.play().catch(()=>{}); };
-    document.addEventListener('touchstart', tryPlay, {once:true});
-    document.addEventListener('click', tryPlay, {once:true});
-    tryPlay();
-  }
+            const trainGeo = new THREE.SphereGeometry(4, 16, 16); 
+            const trainMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+            const train = new THREE.Mesh(trainGeo, trainMat);
+            
+            const auraGeo = new THREE.SphereGeometry(14, 16, 16);
+            const auraMat = new THREE.MeshBasicMaterial({ color: 0x4facfe, transparent: true, opacity: 0.5 });
+            const trainAura = new THREE.Mesh(auraGeo, auraMat);
+            train.add(trainAura);
 
-  const reveals = document.querySelectorAll('.reveal');
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => { if(entry.isIntersecting) entry.target.classList.add('visible'); });
-  }, {threshold:0.1});
-  reveals.forEach(el => observer.observe(el));
+            const worldGroup = new THREE.Group();
+            worldGroup.add(track);
+            worldGroup.add(train);
+            scene.add(worldGroup);
 
-  function submitForm() {
-    const privacy = document.getElementById('privacyCheck').checked;
-    const name = document.getElementById('nameInput').value.trim();
-    const phone = document.getElementById('phoneInput').value.trim();
-    const comment = document.getElementById('commentInput').value.trim();
-    if(!privacy){ alert('개인정보 수집 및 이용에 동의해주세요.'); return; }
-    if(!name){ alert('성함을 입력해주세요.'); document.getElementById('nameInput').focus(); return; }
-    if(!phone){ alert('연락처를 입력해주세요.'); document.getElementById('phoneInput').focus(); return; }
-    const formData = new FormData();
-    formData.append('entry.1372310448', '동의합니다');
-    formData.append('entry.1788055395', name);
-    formData.append('entry.1337089400', phone);
-    formData.append('entry.1853236193', comment);
-    fetch('https://docs.google.com/forms/d/e/1FAIpQLSdocmR0YwCWq4t8oO57u0xxYIawKfW4a5h9qnHnbw9_8PiDwQ/formResponse', {method:'POST',mode:'no-cors',body:formData})
-    .finally(() => {
-      document.getElementById('successOverlay').classList.add('show');
-      document.getElementById('nameInput').value='';
-      document.getElementById('phoneInput').value='';
-      document.getElementById('commentInput').value='';
-      document.getElementById('privacyCheck').checked=false;
-    });
-  }
-</script>
+            // 대괄호 제거 완료
+            const signpostsData = [
+                { id: 1, z: -9000, side: 'left',   title: "KT 인천지사 시너지영업3팀은", desc: "파트너의 DX 세일즈를 완벽히 지원합니다." },
+                { id: 2, z: -7000, side: 'left',   title: "현장 중심의 강력한 Co-Selling", desc: "하이오더 VR 컨설팅과 로봇 PoC를 통해 현장에서 파트너와 함께 호흡하며 실질적인 성과를 견인합니다." },
+                { id: 3, z: -5000, side: 'right',  title: "맞춤형 세일즈 에셋 & 콘텐츠", desc: "시선을 사로잡는 홍보 영상과 브로슈어 등 파트너사의 영업력을 극대화할 트렌디한 마케팅 자료를 체계적으로 제공합니다." },
+                { id: 4, z: -3000, side: 'right',  title: "비즈니스 스케일업 가속화", desc: "단순한 영업 지원을 넘어, 채널 파트너사가 새로운 DX 시장을 선점하고 성장을 가속할 수 있도록 돕습니다." },
+                { id: 5, z: -1000, side: 'center', title: "가장 견고한 성공의 인프라", desc: "파트너사의 DX 비즈니스 성공을 언제나 단단하게 뒷받침하는 가장 믿음직한 베이스캠프가 되겠습니다." }
+            ];
+
+            const signpostElements = [];
+            signpostsData.forEach(data => {
+                const wrapper = document.createElement('div');
+                wrapper.className = `checkpoint-wrapper`;
+                wrapper.innerHTML = `
+                    <div class="step-num">${data.id}</div>
+                    <div class="checkpoint-inner">
+                        <h2>${data.title}</h2>
+                        <p>${data.desc}</p>
+                    </div>
+                `;
+                uiLayer.appendChild(wrapper);
+
+                data.vec3 = new THREE.Vector3(getTrackX(data.z), 0, data.z);
+                data.el = wrapper;
+                data.side = data.side;
+                signpostElements.push(data);
+            });
+
+            let isIntroComplete = false;
+            let introProgress = 0; 
+            const initialDroneZ = -10000;
+            const introStartTrainZ = -15000; 
+            const introEndTrainZ = initialDroneZ - 450; 
+
+            let scrollProgress = 0;
+            let targetScroll = 0;
+
+            window.addEventListener("scroll", () => {
+                if(!isIntroComplete) {
+                    window.scrollTo(0, 0); 
+                    return; 
+                }
+                const scrollerSpace = document.querySelector('.timeline-space');
+                const totalScrollRange = scrollerSpace.offsetHeight - window.innerHeight;
+                
+                let p = window.scrollY / totalScrollRange;
+                if (p < 0) p = 0;
+                if (p > 1) p = 1;
+                targetScroll = p; 
+            });
+
+            function easeOutCubic(x) { return 1 - Math.pow(1 - x, 3); }
+
+            function animate() {
+                requestAnimationFrame(animate);
+                
+                let currentDroneZ = initialDroneZ;
+                let currentTrainZ = introStartTrainZ;
+                let timelineProgress = 0;
+                let outroProgress = 0;
+
+                if (!isIntroComplete) {
+                    introProgress += 0.0045; 
+                    if (introProgress >= 1) {
+                        introProgress = 1;
+                        isIntroComplete = true;
+                        window.scrollTo(0, 0);
+                        targetScroll = 0;
+                        scrollProgress = 0;
+                        body.classList.remove('locked');
+                    }
+                    const easedProgress = easeOutCubic(introProgress);
+                    currentTrainZ = introStartTrainZ + (introEndTrainZ - introStartTrainZ) * easedProgress;
+                    currentDroneZ = initialDroneZ;
+                    camera.position.z = currentDroneZ;
+
+                    let mainOpacity = Math.min(1, introProgress * 1.5);
+                    let mainSpacing = 16 - (16.5 * introProgress);
+                    let mainBlur = 25 * Math.pow(1 - introProgress, 2.5);
+
+                    mainTitleEl.style.opacity = mainOpacity;
+                    mainTitleEl.style.letterSpacing = `${mainSpacing}px`;
+                    mainTitleEl.style.filter = `blur(${mainBlur}px)`;
+
+                    if (introProgress > 0.5) {
+                        let subProgress = (introProgress - 0.5) / 0.5; 
+                        let subEased = easeOutCubic(subProgress);
+                        
+                        let subBlur = 15 * Math.pow(1 - subProgress, 2);
+                        let subY = 30 * (1 - subEased);
+
+                        subTitleEl.style.opacity = subProgress;
+                        subTitleEl.style.filter = `blur(${subBlur}px)`;
+                        subTitleEl.style.transform = `translateY(${subY}px)`;
+                    } else {
+                        subTitleEl.style.opacity = 0;
+                        subTitleEl.style.filter = `blur(15px)`;
+                        subTitleEl.style.transform = `translateY(30px)`;
+                    }
+
+                } else {
+                    scrollProgress += (targetScroll - scrollProgress) * 0.05;
+                    introTextWrapper.style.opacity = scrollProgress > 0.01 ? 0 : 1;
+
+                    if (scrollProgress <= 0.90) {
+                        timelineProgress = scrollProgress / 0.90; 
+                        outroProgress = 0;
+                    } else {
+                        timelineProgress = 1.0; 
+                        outroProgress = (scrollProgress - 0.90) / 0.10; 
+                    }
+
+                    currentDroneZ = -10000 + (timelineProgress * 11000);
+                    currentTrainZ = currentDroneZ - 450;
+                    if (currentTrainZ > 0) currentTrainZ = 0; 
+                    
+                    camera.position.z = currentDroneZ;
+                }
+
+                if (outroProgress > 0) {
+                    worldGroup.scale.setScalar(1 - outroProgress * 0.88); 
+                    worldGroup.position.z = -outroProgress * 2500; 
+                    canvas.style.opacity = 1 - outroProgress;
+                    uiLayer.style.opacity = 1 - outroProgress;
+                } else {
+                    worldGroup.scale.setScalar(1);
+                    worldGroup.position.set(0, 0, 0);
+                    canvas.style.opacity = 1;
+                    uiLayer.style.opacity = 1;
+                }
+
+                train.position.set(getTrackX(currentTrainZ), 0, currentTrainZ);
+                shaderMat.uniforms.uTrainZ.value = currentTrainZ; 
+
+                const targetCamX = getTrackX(currentDroneZ - 450) * 0.7; 
+                camera.position.x += (targetCamX - camera.position.x) * 0.1; 
+
+                if (currentDroneZ - currentTrainZ > fogFar - 1000) {
+                    train.visible = false;
+                } else {
+                    train.visible = true;
+                }
+
+                const isCurrentMobile = window.innerWidth <= 768;
+                const boxWidth = isCurrentMobile ? 260 : 400;
+
+                signpostElements.forEach(sp => {
+                    const localPos = sp.vec3.clone().applyMatrix4(camera.matrixWorldInverse);
+                    const dist = camera.position.distanceTo(sp.vec3);
+                    
+                    if (localPos.z > 0 || dist > fogFar) {
+                        sp.el.style.display = 'none';
+                    } else {
+                        const proj = sp.vec3.clone();
+                        proj.project(camera);
+                        
+                        if (proj.z > 1 || proj.z < -1) {
+                            sp.el.style.display = 'none';
+                            return;
+                        }
+
+                        sp.el.style.display = 'block';
+                        
+                        const screenX = (proj.x * 0.5 + 0.5) * window.innerWidth;
+                        const screenY = -(proj.y * 0.5 - 0.5) * window.innerHeight;
+                        const scale = Math.max(0.3, 1 - (dist / 6000));
+                        
+                        sp.el.style.transform = `translate(${screenX}px, ${screenY}px) scale(${scale})`;
+                        
+                        let baseOffsetX = 25; 
+                        let baseOffsetY = '-30px'; 
+
+                        if (sp.side === 'left') {
+                            baseOffsetX = -boxWidth - 25; 
+                        } else if (sp.side === 'right') {
+                            baseOffsetX = 25; 
+                        } else if (sp.side === 'center') {
+                            baseOffsetX = -boxWidth / 2; 
+                            baseOffsetY = 'calc(-100% - 25px)'; 
+                        }
+
+                        let absLeft = screenX + (baseOffsetX * scale);
+                        let absRight = absLeft + (boxWidth * scale);
+                        const margin = 20;
+
+                        if (absLeft < margin) {
+                            baseOffsetX += (margin - absLeft) / scale;
+                        } else if (absRight > window.innerWidth - margin) {
+                            baseOffsetX -= (absRight - (window.innerWidth - margin)) / scale;
+                        }
+
+                        const innerBox = sp.el.querySelector('.checkpoint-inner');
+                        innerBox.style.setProperty('--shift-x', `${baseOffsetX}px`);
+                        innerBox.style.setProperty('--shift-y', baseOffsetY);
+
+                        let baseOpacity = 0.6;
+                        if (currentTrainZ >= sp.z) {
+                            sp.el.classList.add('active'); 
+                            baseOpacity = 1 - (dist / 8000); 
+                            if (baseOpacity < 0.35) baseOpacity = 0.35; 
+                        } else {
+                            sp.el.classList.remove('active'); 
+                        }
+                        
+                        sp.el.style.opacity = outroProgress > 0 ? baseOpacity * (1 - outroProgress) : baseOpacity;
+                    }
+                });
+
+                renderer.render(scene, camera);
+            }
+            animate();
+
+            window.addEventListener('resize', () => {
+                const newIsMobile = window.innerWidth <= 768;
+                camera.fov = newIsMobile ? 75 : 50;
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        });
+    </script>
 </body>
 </html>
