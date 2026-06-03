@@ -82,6 +82,9 @@
         .option-card { padding: 18px; border: 1px solid var(--glass-border); border-radius: 16px; text-align: center; background: var(--glass-bg); cursor: pointer; color: var(--text-muted); font-weight: 600; transition: 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
         .option-label input:checked ~ .option-card { border-color: var(--accent-main); color: var(--accent-main); background: rgba(0,0,0,0.03); font-weight: 800; }
         
+        /* =======================================================
+           [컬러 팔레트 와일드 플렉스]
+           ======================================================= */
         .color-picker-wrap { 
             display: flex; 
             align-items: center; 
@@ -121,6 +124,9 @@
 
         .preset-color.active { border-color: var(--accent-main); box-shadow: 0 0 0 3px rgba(255,255,255,0.8), 0 0 10px rgba(0,0,0,0.2); }
 
+        /* =======================================================
+           [2줄 와일드 플렉스 모션 (비율 유지)]
+           ======================================================= */
         .template-grid { display: flex; flex-wrap: wrap; justify-content: center; align-content: center; align-items: center; gap: 20px 1.5%; height: 600px; margin-bottom: 30px; padding-top: 20px; position: relative; } 
         .template-label { width: 18.2%; flex: 0 0 auto; transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s, filter 0.4s, transform 0.4s; cursor: pointer; z-index: 1; }
 
@@ -154,9 +160,23 @@
         .btn-epic { display: block !important; width: 100% !important; padding: 22px !important; margin: 50px 0 !important; border: none !important; border-radius: 18px !important; background: var(--accent-main) !important; color: #fff !important; font-size: 1.3rem !important; font-weight: 800 !important; cursor: pointer !important; transition: all 0.3s !important; text-align: center !important; text-decoration: none !important; box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important; }
         .btn-epic:hover { transform: translateY(-3px) !important; box-shadow: 0 15px 40px rgba(0,0,0,0.2) !important; }
 
-        #hero-title-trigger { display: inline-block; }
-        .kinetic-char { display: inline-block; transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); transform-origin: center bottom; }
-        .kinetic-char:hover { transform: scale(1.3) translateY(-15px) rotate(5deg); text-shadow: 0 10px 30px rgba(0, 0, 0, 0.15); }
+        /* =======================================================
+           [추가] 히어로 타이틀 키네틱 타이포그래피 애니메이션
+           ======================================================= */
+        #hero-title-trigger {
+            display: inline-block;
+        }
+        
+        .kinetic-char {
+            display: inline-block;
+            transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transform-origin: center bottom;
+        }
+        
+        .kinetic-char:hover {
+            transform: scale(1.3) translateY(-15px) rotate(5deg);
+            text-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
 
         @media (max-width: 768px) {
             .template-grid { flex-wrap: nowrap; overflow-x: auto; justify-content: flex-start; align-content: center; height: auto; padding-bottom: 30px; padding-left: 20px; padding-right: 20px; gap: 15px; -ms-overflow-style: none; scrollbar-width: none; }
@@ -180,8 +200,8 @@
 
     <header class="hero">
         <div class="ml4">
-            <span class="letters letters-1">수도권강남고객본부</span>
-            <span class="letters letters-2">KT 인천지사</span>
+            <span class="letters letters-1">KT</span>
+            <span class="letters letters-2">인천지사</span>
             <span class="letters letters-3 highlight">시너지영업3팀</span>
         </div>
         <h1 class="hero-title" id="hero-title-trigger" data-text-black="QR" data-text-gray="Generator"></h1>
@@ -443,8 +463,7 @@
 
             if (typeof QRCode === 'undefined') { alert("QR 생성 엔진 라이브러리를 불러오지 못했습니다."); return; }
 
-            // [수정 완료] width 450으로 해상도 축소
-            QRCode.toDataURL(qrData, { width: 450, margin: 0, color: { dark: color, light: "#ffffff00" }, errorCorrectionLevel: errorLevel }, async function (err, qrImageURL) {
+            QRCode.toDataURL(qrData, { width: 600, margin: 0, color: { dark: color, light: "#ffffff00" }, errorCorrectionLevel: errorLevel }, async function (err, qrImageURL) {
                 if (err) { alert("QR 생성 중 오류 발생: " + err); return; }
 
                 const canvas = document.getElementById('finalCanvas');
@@ -467,12 +486,8 @@
 
                     const baseQRImg = new Image();
                     baseQRImg.onload = async () => {
-                        // [수정 완료] 정중앙 (175, 175) 배치 및 450 크기 적용
-                        ctx.drawImage(baseQRImg, 175, 175, 450, 450);
-                        const lSize = 160; 
-                        const lX = 175 + (450 - lSize) / 2; 
-                        const lY = 175 + (450 - lSize) / 2;
-                        
+                        ctx.drawImage(baseQRImg, 100, 100, 600, 600);
+                        const lSize = 160; const lX = 100 + (600 - lSize) / 2; const lY = 100 + (600 - lSize) / 2;
                         if (logoType === 'kt') {
                             let logoImg = new Image(); logoImg.crossOrigin = "Anonymous";
                             await new Promise((res) => { logoImg.onload = res; logoImg.onerror = res; logoImg.src = "https://kt-synergy.com/assets/image/CI_BI/kt_icon02.png"; });
@@ -502,11 +517,8 @@
 
                 const baseQRImg = new Image();
                 baseQRImg.onload = async () => {
-                    // [수정 완료] 정중앙 (276, 275) 배치 및 450 크기 적용
-                    ctx.drawImage(baseQRImg, 276, 275, 450, 450); 
-                    const lSize = 160; 
-                    const lX = 276 + (450 - lSize) / 2; 
-                    const lY = 275 + (450 - lSize) / 2; 
+                    ctx.drawImage(baseQRImg, 201, 200, 600, 600); 
+                    const lSize = 160; const lX = 201 + (600 - lSize) / 2; const lY = 200 + (600 - lSize) / 2; 
 
                     if (logoType === 'kt') {
                         let logoImg = new Image(); logoImg.crossOrigin = "Anonymous";
@@ -549,6 +561,9 @@
             });
         }
 
+        /* =======================================================
+           [추가] 히어로 타이틀 분할 및 애니메이션 세팅
+           ======================================================= */
         document.addEventListener("DOMContentLoaded", () => {
             const titleBox = document.getElementById('hero-title-trigger');
             if (titleBox) {
@@ -578,6 +593,7 @@
                 });
             }
         });
+        /* ======================================================= */
     </script>
 </body>
 </html>
