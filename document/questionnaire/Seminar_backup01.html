@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<link rel="icon" href="favicon.ico" type="image/x-icon"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>인천지사 시너지영업3팀</title>
+<style>
+@font-face{font-family:'DIGICO';src:url('assets/fonts/digicottf-light.ttf') format('truetype');font-weight:300;font-style:normal;}
+@font-face{font-family:'DIGICO';src:url('assets/fonts/digicottf-medium.ttf') format('truetype');font-weight:500;font-style:normal;}
+@font-face{font-family:'DIGICO';src:url('assets/fonts/digicottf-bold.ttf') format('truetype');font-weight:700;font-style:normal;}
+</style>
+<style>
+:root{
+  --red:#e60012;--dark:#0a0a0a;--gray:#6e6e73;
+  --light:#f5f5f7;--white:#fff;--border:#d2d2d7;
+  --max:1100px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'DIGICO',sans-serif;background:#fff;color:var(--dark);overflow-x:hidden;}
+
+/* ── 히어로 ── */
+.hero{position:relative;height:100vh;min-height:700px;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;background:var(--dark);}
+.hero-slide{position:absolute;inset:0;background-size:cover;background-position:center;z-index:0;opacity:0;transform:scale(1.0);transition:opacity 1.5s ease-in-out, transform 7s ease-in-out;}
+.hero-slide.active{opacity:1;transform:scale(1.1);}
+
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.05) 0%,rgba(0,0,0,0.25) 100%);z-index:1;}
+.hero-ci{position:absolute;top:40px;left:48px;z-index:10;opacity:0;animation:fadeUp 0.8s 0.2s ease forwards;}
+.hero-ci img{height:56px;width:auto;}
+.hero-content{position:relative;z-index:2;text-align:center;color:#fff;padding:0 24px;}
+
+/* 글래스 뒤 블러 레이어 */
+.hero-blur-layer{position:absolute;inset:0;background-size:cover;background-position:center;background-image:url('assets/image/files/city_airplane.png');filter:blur(18px);transform:scale(1.08);z-index:0;opacity:0;transition:opacity 0s;}
+
+@keyframes pulseGlow{0%,100%{box-shadow:0 12px 48px rgba(0,0,0,0.3),0 0 15px rgba(255,255,255,0.1);}50%{box-shadow:0 12px 48px rgba(0,0,0,0.3),0 0 60px rgba(255,255,255,0.35);}}
+.hero-glass{background:rgba(255,255,255,0.18);backdrop-filter:none;-webkit-backdrop-filter:none;border-radius:20px;padding:0;overflow:hidden;display:inline-block;width:clamp(340px,96vw,920px);text-align:center;position:relative;z-index:3;border:1.5px solid rgba(255,255,255,0.45);box-shadow:0 12px 48px rgba(0,0,0,0.3);}
+.hero-blur-slide{position:absolute;inset:0;background-repeat:no-repeat;z-index:1;opacity:0;transition:opacity 1.5s ease-in-out;pointer-events:none;}
+.hero-blur-slide.active{opacity:1;}
+.hero-glass-row{position:relative;z-index:2;padding:clamp(18px,3.5vh,40px) clamp(20px,3vw,40px);}
+.hero-glass-divider{width:100%;height:1px;background:rgba(255,255,255,0.45);position:relative;z-index:2;}
+.hero-glass-badge{font-size:clamp(13px,1.8vw,20px);font-weight:600;letter-spacing:3px;color:rgba(255,255,255,0.7);text-transform:uppercase;}
+.hero-glass-btn{display:inline-block;color:#fff;font-size:clamp(16px,1.8vw,22px);font-weight:600;font-family:'DIGICO',sans-serif;cursor:pointer;background:none;border:none;padding:4px 0;letter-spacing:1px;position:relative;transition:color 0.3s ease,letter-spacing 0.3s ease;}
+.hero-glass-btn::after{content:'';position:absolute;bottom:0;left:0;width:0;height:1.5px;background:#fff;transition:width 0.35s ease;}
+.hero-glass-btn:hover::after{width:100%;}
+.hero-glass-btn:hover{letter-spacing:2.5px;color:rgba(255,255,255,0.9);}
+.hero-glass-btn .arrow{display:inline-block;transition:transform 0.35s ease;}
+.hero-glass-btn:hover .arrow{transform:translateX(8px);}
+.hero-glass-btn-row{padding:20px 40px;position:relative;z-index:2;}.hero-title{font-size:clamp(36px,9vw,140px);font-weight:700;line-height:1.2;letter-spacing:-2px;margin-bottom:0;opacity:1;transform:none;animation:none;white-space:nowrap;}
+.hero-title em{color:var(--red);font-style:normal;}
+.hero-sub{font-size:clamp(15px,1.8vw,22px);font-weight:300;color:rgba(255,255,255,0.75);line-height:1.9;margin:0 auto;opacity:1;transform:none;animation:none;}
+.hero-btn{display:inline-block;background:rgba(255,255,255,0.15);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:#fff;padding:18px 52px;border-radius:6px;font-size:17px;font-weight:600;border:2px solid rgba(255,255,255,0.4);box-shadow:0 8px 32px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.2);opacity:0;transform:translateY(30px);animation:fadeUp 0.9s 0.9s ease forwards;transition:transform 0.2s,box-shadow 0.2s,background 0.2s;cursor:pointer;font-family:'DIGICO',sans-serif;}
+.hero-btn:hover{background:rgba(255,255,255,0.25);transform:translateY(-2px);box-shadow:0 16px 40px rgba(0,0,0,0.35),inset 0 1px 0 rgba(255,255,255,0.25);}
+.hero-scroll{position:absolute;bottom:36px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;color:rgba(255,255,255,0.4);font-size:10px;letter-spacing:3px;opacity:0;animation:fadeUp 1s 1.4s ease forwards;}
+.scroll-line{width:1px;height:44px;background:linear-gradient(to bottom,rgba(255,255,255,0.5),transparent);animation:scrollPulse 2s infinite;}
+@keyframes scrollPulse{0%,100%{opacity:0.3;}50%{opacity:1;}}
+
+/* ── 공통 ── */
+.section-inner{max-width:var(--max);margin:0 auto;padding:0 60px;}
+.section-badge{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.section-badge .badge-icon{display:flex;gap:10px;flex-shrink:0;}
+.section-badge .badge-icon span{display:block;width:10px;height:26px;background:var(--dark);border-radius:1px;}
+.section-badge .label{background:var(--dark);color:#fff;font-size:11px;font-weight:600;letter-spacing:2px;padding:7px 12px;text-transform:uppercase;white-space:nowrap;min-width:220px;text-align:center;}
+
+/* ── 인트로 ── */
+.intro-section{position:relative;padding:100px 0 0;overflow:hidden;background:#fff;}
+.intro-bg{position:absolute;inset:0;background-image:url('assets/image/CI_BI/KT_BI_01.png');background-size:cover;background-position:center;opacity:0.5;pointer-events:none;z-index:0;}
+.intro-inner{position:relative;z-index:1;}
+.intro-layout{display:grid;grid-template-columns:1fr;gap:60px;align-items:center;padding-bottom:80px;max-width:680px;}
+.intro-title{font-size:clamp(28px,3.5vw,44px);font-weight:700;line-height:1.38;letter-spacing:-1px;margin-bottom:24px;color:var(--dark);}
+.intro-body{font-size:15px;font-weight:300;line-height:2.0;color:#333;}
+.intro-body strong{font-weight:700;color:var(--dark);}
+.intro-img-wrap{position:relative;display:flex;align-items:flex-end;justify-content:center;}
+.intro-img-wrap img{width:100%;max-width:420px;height:auto;display:block;}
+.intro-wave{width:100%;overflow:hidden;line-height:0;}
+.intro-wave img{width:100%;display:block;height:auto;}
+
+/* ── 이벤트 ── */
+.event-section{padding:100px 0 40px;background:#fff;}
+.event-layout{display:grid;grid-template-columns:480px 1fr;gap:40px;align-items:center;position:relative;}
+.event-left{position:relative;z-index:1;}
+.event-title{font-size:clamp(28px,3.5vw,44px);white-space:nowrap;font-weight:700;letter-spacing:-1px;line-height:1.25;margin-bottom:28px;color:var(--dark);}
+.event-table{width:100%;border-collapse:collapse;}
+.event-table tr{border-bottom:1px solid var(--border);}
+.event-table td{padding:12px 0;font-size:15px;vertical-align:middle;}
+.event-table td:first-child{font-weight:700;color:var(--dark);min-width:80px;padding-right:16px;}
+.event-table td:last-child{font-weight:400;color:#333;}
+.tag{display:inline-block;margin-left:8px;background:#e8f5e9;color:#2e7d32;font-size:11px;font-weight:500;padding:2px 10px;border-radius:10px;vertical-align:middle;}
+.event-right{display:flex;align-items:center;justify-content:flex-start;padding-left:0;position:relative;z-index:0;overflow:hidden;}
+.event-right img{width:100%;max-width:520px;height:auto;display:block;}
+
+/* ── BI03 구분선 ── */
+.bi03-divider{display:none;}
+
+/* ── 개인정보 ── */
+.privacy-section{padding:100px 0 80px;background:#fff url('assets/image/CI_BI/KT_BI_03.png') no-repeat center bottom;background-size:100%;}
+.sec-title{font-size:clamp(28px,3.5vw,44px);white-space:nowrap;font-weight:700;letter-spacing:-1px;line-height:1.28;margin-bottom:28px;}
+.privacy-box{border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.privacy-header{background:var(--light);padding:14px 24px;font-size:13px;font-weight:500;color:var(--gray);}
+.privacy-body{padding:22px 24px;display:flex;flex-direction:column;gap:12px;}
+.p-row{display:flex;gap:20px;font-size:15px;line-height:1.7;}
+.p-label{font-weight:700;min-width:140px;color:var(--dark);flex-shrink:0;}
+.p-value{color:#444;font-weight:300;}
+.privacy-note{margin-top:4px;padding:11px 16px;background:#fff8f8;border-radius:8px;font-size:13px;color:#c0392b;border-left:3px solid var(--red);}
+.privacy-agree{margin-top:20px;display:flex;align-items:center;gap:12px;cursor:pointer;}
+.privacy-agree input{width:18px;height:18px;accent-color:var(--red);cursor:pointer;flex-shrink:0;}
+.privacy-agree label{font-size:15px;font-weight:500;cursor:pointer;}
+
+/* ── 신청 폼 ── */
+.form-section{padding:100px 0 80px;background:var(--light);}
+.form-layout{display:flex;flex-direction:column;gap:32px;max-width:600px;}
+.form-desc-title{font-size:clamp(28px,3.5vw,44px);white-space:nowrap;font-weight:700;letter-spacing:-1px;line-height:1.3;margin-bottom:8px;}
+.form-desc-body{font-size:15px;color:var(--gray);font-weight:300;line-height:1.9;}
+.form-card{background:#fff;border-radius:18px;padding:36px;border:1px solid var(--border);display:flex;flex-direction:column;gap:20px;}
+.form-group{display:flex;flex-direction:column;gap:8px;}
+.form-label{font-size:14px;font-weight:600;color:var(--dark);}
+.req{color:var(--red);font-weight:700;}
+.form-input,.form-textarea{width:100%;padding:12px 16px;border:1.5px solid var(--border);border-radius:10px;font-size:15px;font-family:'DIGICO',sans-serif;color:var(--dark);background:#fff;outline:none;transition:border-color 0.2s,box-shadow 0.2s;}
+.form-input:focus,.form-textarea:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(230,0,18,0.08);}
+.form-textarea{resize:vertical;min-height:100px;line-height:1.7;}
+.form-submit{width:100%;padding:16px;background:var(--red);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;font-family:'DIGICO',sans-serif;cursor:pointer;transition:opacity 0.2s,transform 0.2s;position:relative;overflow:hidden;}
+.form-submit::before{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(120deg,transparent,rgba(255,255,255,0.3),transparent);transform:skewX(-20deg);transition:none;}
+.form-submit:hover::before{left:150%;transition:left 0.55s ease;}
+.form-submit:hover{opacity:0.95;transform:translateY(-1px);}
+.form-note{text-align:center;font-size:12px;color:var(--gray);font-weight:300;line-height:1.8;}
+.form-tag{font-size:11px;font-weight:500;padding:2px 7px;border-radius:6px;margin-left:4px;vertical-align:middle;}
+.req-tag{background:#fff0f0;color:var(--red);}
+.opt-tag{background:#f0f0f0;color:var(--gray);}
+
+/* ── 영상 ── */
+.video-section{position:relative;overflow:hidden;background:#000;line-height:0;}
+.video-section video{width:100%;display:block;max-height:320px;object-fit:cover;}
+
+/* ── 푸터 ── */
+footer{background:var(--dark);color:rgba(255,255,255,0.4);padding:48px 24px;text-align:center;font-size:13px;font-weight:300;line-height:2.2;}
+footer strong{color:rgba(255,255,255,0.7);}
+
+/* ── 애니메이션 ── */
+@keyframes fadeUp{to{opacity:1;transform:translateY(0);}}
+.reveal{opacity:0;transform:translateY(40px);transition:opacity 0.8s ease,transform 0.8s ease;}
+.reveal.visible{opacity:1;transform:none;}
+
+/* ── 성공 팝업 ── */
+.success-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:999;align-items:center;justify-content:center;}
+.success-overlay.show{display:flex;}
+.success-box{background:#fff;border-radius:24px;padding:48px 40px;text-align:center;max-width:380px;width:90%;animation:popIn 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards;}
+@keyframes popIn{from{transform:scale(0.85);opacity:0;}to{transform:scale(1);opacity:1;}}
+.success-icon{font-size:48px;margin-bottom:16px;}
+.success-title{font-size:20px;font-weight:700;margin-bottom:10px;}
+.success-desc{font-size:14px;color:var(--gray);font-weight:300;line-height:1.8;}
+.success-close{margin-top:24px;display:inline-block;background:var(--red);color:#fff;padding:11px 28px;border-radius:20px;font-size:14px;font-weight:500;cursor:pointer;border:none;font-family:'DIGICO',sans-serif;}
+
+/* ── 모바일 ── */
+@media(max-width:768px){
+  .section-inner{padding:0 24px;}
+  .intro-bg{background-size:contain;background-repeat:no-repeat;background-position:center top;}
+  .hero-ci{top:24px;left:20px;}
+  .hero-ci img{height:36px;}
+  .intro-layout,.event-layout,.form-layout{grid-template-columns:1fr;}
+  .event-right{justify-content:flex-start;margin-top:28px;}
+  .event-right img{max-width:240px;}
+  .p-row{flex-direction:column;gap:4px;}
+  .p-label{min-width:unset;}
+}
+</style>
+</head>
+<body>
+
+<!-- 히어로 -->
+<section class="hero" id="heroSection">
+  <div class="hero-slide" id="slide0" style="background-image:url('assets/image/files/city_airplane.png')"></div>
+  <div class="hero-slide" id="slide1" style="background-image:url('assets/image/files/handshake_double_exposure.png')"></div>
+  <div class="hero-slide" id="slide2" style="background-image:url('assets/image/files/sign01.png')"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-ci"><img src="assets/image/CI_BI/KT_CI_WR01.png" alt="KT"/></div>
+  <div class="hero-content" style="opacity:0;transform:translateY(30px);animation:fadeUp 0.9s 0.5s ease forwards;">
+    <div class="hero-glass">
+      <div class="hero-blur-slide active" id="bslide0"></div>
+      <div class="hero-blur-slide" id="bslide1"></div>
+      <div class="hero-blur-slide" id="bslide2"></div>
+      <div class="hero-glass-row">
+        <div class="hero-glass-badge">KT 소상공인 창업설명회</div>
+      </div>
+      <div class="hero-glass-divider"></div>
+      <div class="hero-glass-row">
+        <h1 class="hero-title" style="opacity:1;transform:none;animation:none;margin-bottom:0;">KT 파트너로<br><em>창업하실 분</em>을<br>모십니다.</h1>
+      </div>
+      <div class="hero-glass-divider"></div>
+      <div class="hero-glass-row">
+        <p class="hero-sub" style="opacity:1;transform:none;animation:none;margin:0;">소자본·무점포 1인 창업이 가능하며,<br>기존 사업자도 병행할 수 있습니다.</p>
+      </div>
+      <div class="hero-glass-divider"></div>
+      <div class="hero-glass-row">
+        <button class="hero-glass-btn" onclick="document.getElementById('form').scrollIntoView({behavior:'smooth'})">설명회 신청하기 <span class="arrow">→</span></button>
+      </div>
+    </div>
+  </div>
+  <div class="hero-scroll"><div class="scroll-line"></div>SCROLL</div>
+</section>
+
+<!-- 인트로 -->
+<section class="intro-section">
+  <div class="intro-bg"></div>
+  <div class="section-inner reveal intro-inner">
+    <div class="intro-layout">
+      <div class="intro-text">
+        <div class="section-badge">
+          <div class="badge-icon"><span></span><span></span></div>
+          <div class="label">안녕하세요, KT 인천지사입니다</div>
+        </div>
+        <h2 class="intro-title">새로운 사업 기회를 찾고 계신 분께 KT 대리점 파트너십을 제안드립니다.</h2>
+        <p class="intro-body">
+          KT 인천지사는 소상공인 전문 솔루션인 <strong>프리미엄 테이블오더 하이오더, AI 서빙로봇, AI 전화, 지능형 CCTV, POS</strong> 등을 함께 영업하실 <strong>전문 대리점 파트너</strong>를 모십니다.<br><br>
+          소자본·무점포 1인 창업이 가능하며, 기존 사업자도 병행하여 운영할 수 있습니다. 이번 설명회에서 수익 구조와 파트너십 조건을 직접 확인해 보세요.
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+</section>
+
+<!-- 이벤트 인포 -->
+<section class="event-section">
+  <div class="section-inner">
+    <div class="event-layout reveal">
+      <div class="event-left">
+        <div class="section-badge">
+          <div class="badge-icon"><span></span><span></span></div>
+          <div class="label">Event Info</div>
+        </div>
+        <h2 class="event-title">KT 소상공인 대리점 창업설명회</h2>
+        <table class="event-table">
+          <tr><td>일시</td><td>2026년 6월 24일 (화) 오전 10:00</td></tr>
+          <tr><td>장소</td><td>KT 인천지사 컨벤션홀</td></tr>
+          <tr><td>참가 대상</td><td>창업 및 비즈니스 확장에 관심 있는 분 누구나</td></tr>
+          <tr><td>참가비</td><td>전액 무료</td></tr>
+          <tr><td>참가 혜택</td><td>참석자 전원 고급 우산 증정</td></tr>
+          <tr><td>문의처</td><td>KT 신규채널운영2파트 송용의 과장 (032-772-2299)</td></tr>
+        </table>
+      </div>
+      <div class="event-right">
+        <img src="assets/image/files/business_card.png" alt="이벤트 이미지"/>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BI03 구분선 -->
+<div class="bi03-divider">
+  <img src="assets/image/CI_BI/KT_BI_03.png" alt=""/>
+</div>
+
+<!-- 개인정보 동의 -->
+<section class="privacy-section">
+  <div class="section-inner reveal">
+    <div class="section-badge">
+      <div class="badge-icon"><span></span><span></span></div>
+      <div class="label">Privacy</div>
+    </div>
+    <h2 class="sec-title">개인정보 수집 및 이용 동의</h2>
+    <div class="privacy-box">
+      <div class="privacy-header">개인정보 수집 및 이용 동의 [필수]</div>
+      <div class="privacy-body">
+        <div class="p-row"><div class="p-label">수집 항목</div><div class="p-value">성명, 연락처</div></div>
+        <div class="p-row"><div class="p-label">수집 목적</div><div class="p-value">설명회 참가 확인 및 개별 안내 연락</div></div>
+        <div class="p-row"><div class="p-label">보유 기간</div><div class="p-value">설명회 종료 즉시 파기</div></div>
+        <div class="privacy-note">※ 위 개인정보 수집 및 이용에 동의하지 않으실 경우 신청이 제한될 수 있습니다.</div>
+        <div style="margin-top:8px;font-size:13px;color:var(--gray);font-weight:300;line-height:1.8;">• ※ 안내 사항: 귀하는 개인정보 수집 및 이용 동의를 거부할 권리가 있으며, 동의를 거부하실 경우 설명회 참가 신청이 제한될 수 있습니다.</div>
+      </div>
+    </div>
+    <div class="privacy-agree">
+      <input type="checkbox" id="privacyCheck"/>
+      <label for="privacyCheck">개인정보 수집 및 이용에 동의합니다</label>
+    </div>
+  </div>
+</section>
+
+<!-- 신청 폼 -->
+<section class="form-section" id="form">
+  <div class="section-inner reveal">
+    <div class="section-badge">
+      <div class="badge-icon"><span></span><span></span></div>
+      <div class="label">Application</div>
+    </div>
+    <div class="form-layout">
+      <div class="form-desc">
+        <h2 class="form-desc-title">설명회 신청</h2>
+        <p class="form-desc-body">아래 정보를 입력하시면<br>담당자가 개별 연락드립니다.</p>
+      </div>
+      <div class="form-card">
+        <div class="form-group">
+          <label class="form-label">성함 <span class="req">*</span> <span class="form-tag req-tag">[필수]</span></label>
+          <input class="form-input" id="nameInput" type="text" placeholder="홍길동"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">연락처 <span class="req">*</span> <span class="form-tag req-tag">[필수]</span></label>
+          <input class="form-input" id="phoneInput" type="tel" placeholder="010-0000-0000"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">의견 <span class="form-tag opt-tag">[선택]</span></label>
+          <textarea class="form-textarea" id="commentInput" placeholder="문의사항이나 전달하실 내용을 자유롭게 적어주세요."></textarea>
+        </div>
+        <button class="form-submit" onclick="submitForm()">신청하기</button>
+        <p class="form-note">개인정보는 설명회 안내 목적으로만 사용됩니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 하단 영상 -->
+<div class="video-section">
+  <video id="heroVideo" autoplay loop muted playsinline poster="assets/image/CI_BI/KT_BI_01.png">
+    <source src="assets/image/CI_BI/kt_BI_3840x800__인천지사_01.mp4" type="video/mp4"/>
+  </video>
+</div>
+
+<!-- 푸터 -->
+<footer>
+  <strong>주식회사 케이티</strong><br>
+  인천광역시 남동구 경인로 508 KT인천지사<br><br>
+  © 2026 KT Corporation. All rights reserved.
+</footer>
+
+<!-- 성공 팝업 -->
+<div class="success-overlay" id="successOverlay">
+  <div class="success-box">
+    <div class="success-icon">🎉</div>
+    <div class="success-title">신청이 완료되었습니다!</div>
+    <div class="success-desc">담당자가 확인 후 개별 연락드리겠습니다.<br>설명회에서 뵙겠습니다 😊</div>
+    <button class="success-close" onclick="document.getElementById('successOverlay').classList.remove('show')">확인</button>
+  </div>
+</div>
+
+<script>
+  // 히어로 슬라이드쇼
+  const slides = document.querySelectorAll('.hero-slide');
+  const blurSlides = document.querySelectorAll('.hero-blur-slide');
+  const blurImages = [
+    "assets/image/files/city_airplane_blur.png",
+    "assets/image/files/handshake_double_exposure_blur.png",
+    "assets/image/files/sign01_blur.png"
+  ];
+  let heroCurrent = 0;
+  const slideStartTimes = [Date.now(), Date.now(), Date.now()];
+
+  // 첫 슬라이드 딜레이 후 활성화
+  setTimeout(() => {
+    slides[0].classList.add('active');
+    slideStartTimes[0] = Date.now();
+  }, 100);
+
+  function syncBlur() {
+    const hero = document.getElementById('heroSection');
+    const glass = document.querySelector('.hero-glass');
+    if (!hero || !glass) return;
+    const heroW = hero.offsetWidth;
+    const heroH = hero.offsetHeight;
+    const glassRect = glass.getBoundingClientRect();
+    const heroRect = hero.getBoundingClientRect();
+    const imgRatio = 2560 / 1440;
+    const heroRatio = heroW / heroH;
+    let bgW, bgH;
+    if (heroRatio > imgRatio) { bgW = heroW; bgH = heroW / imgRatio; }
+    else { bgH = heroH; bgW = heroH * imgRatio; }
+    const bgX = (heroW - bgW) / 2;
+    const bgY = (heroH - bgH) / 2;
+    const glassX = glassRect.left - heroRect.left;
+    const glassY = glassRect.top - heroRect.top;
+    blurSlides.forEach((bl, i) => {
+      const elapsed = Math.min((Date.now() - slideStartTimes[i]) / 7000, 1.0);
+      const eased = elapsed < 0.5 ? 2*elapsed*elapsed : 1 - Math.pow(-2*elapsed+2, 2)/2;
+      const zoomScale = 1.0 + eased * 0.1;
+      const zW = bgW * zoomScale;
+      const zH = bgH * zoomScale;
+      const zX = (heroW - zW) / 2;
+      const zY = (heroH - zH) / 2;
+      bl.style.backgroundSize = `${zW}px ${zH}px`;
+      bl.style.backgroundPosition = `${zX - glassX}px ${zY - glassY}px`;
+      bl.style.backgroundImage = `url('${blurImages[i]}')`;
+    });
+  }
+
+  syncBlur();
+  window.addEventListener('resize', syncBlur);
+
+  setInterval(() => {
+    slides[heroCurrent].classList.remove('active');
+    blurSlides[heroCurrent].classList.remove('active');
+    heroCurrent = (heroCurrent + 1) % slides.length;
+    slides[heroCurrent].classList.add('active');
+    blurSlides[heroCurrent].classList.add('active');
+    slideStartTimes[heroCurrent] = Date.now();
+  }, 6000);
+
+  function animateBlur() { syncBlur(); requestAnimationFrame(animateBlur); }
+  animateBlur();
+
+  const vid = document.getElementById('heroVideo');
+  if(vid){
+    const tryPlay = () => { vid.play().catch(()=>{}); };
+    document.addEventListener('touchstart', tryPlay, {once:true});
+    document.addEventListener('click', tryPlay, {once:true});
+    tryPlay();
+  }
+
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => { if(entry.isIntersecting) entry.target.classList.add('visible'); });
+  }, {threshold:0.1});
+  reveals.forEach(el => observer.observe(el));
+
+  function submitForm() {
+    const privacy = document.getElementById('privacyCheck').checked;
+    const name = document.getElementById('nameInput').value.trim();
+    const phone = document.getElementById('phoneInput').value.trim();
+    const comment = document.getElementById('commentInput').value.trim();
+    if(!privacy){ alert('개인정보 수집 및 이용에 동의해주세요.'); return; }
+    if(!name){ alert('성함을 입력해주세요.'); document.getElementById('nameInput').focus(); return; }
+    if(!phone){ alert('연락처를 입력해주세요.'); document.getElementById('phoneInput').focus(); return; }
+    const formData = new FormData();
+    formData.append('entry.1372310448', '동의합니다');
+    formData.append('entry.1788055395', name);
+    formData.append('entry.1337089400', phone);
+    formData.append('entry.1853236193', comment);
+    fetch('https://docs.google.com/forms/d/e/1FAIpQLSdocmR0YwCWq4t8oO57u0xxYIawKfW4a5h9qnHnbw9_8PiDwQ/formResponse', {method:'POST',mode:'no-cors',body:formData})
+    .finally(() => {
+      document.getElementById('successOverlay').classList.add('show');
+      document.getElementById('nameInput').value='';
+      document.getElementById('phoneInput').value='';
+      document.getElementById('commentInput').value='';
+      document.getElementById('privacyCheck').checked=false;
+    });
+  }
+</script>
+</body>
+</html>
