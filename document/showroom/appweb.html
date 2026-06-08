@@ -168,3 +168,96 @@
             </div>
             <div class="image-box" style="background-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=800');"></div>
         </div>
+
+        <div class="section" style="background-color: #0f111a;">
+            <div class="bg-text" style="top: 15%; left: 20%;">PORTAL</div>
+            <div class="content-box">
+                <div class="section-num">*03</div>
+                <div class="main-title">네이버 브라우저<br>외부 연동 검증</div>
+                <a href="https://www.naver.com" class="kiosk-btn">네이버 열기</a>
+            </div>
+            <div class="image-box" style="background-image: url('https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800');"></div>
+        </div>
+
+        <div class="section" style="background-color: #16131c;">
+            <div class="bg-text" style="bottom: 15%; left: 5%;">ROBOT</div>
+            <div class="content-box">
+                <div class="section-num">*04</div>
+                <div class="main-title">KT DX 솔루션<br>서빙로봇 시스템</div>
+                <a href="#" class="kiosk-btn">DX 솔루션 안내</a>
+            </div>
+            <div class="image-box" style="background-image: url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=800');"></div>
+        </div>
+
+        <div class="section" style="background-color: #0b0f19;">
+            <div class="bg-text" style="top: 10%; left: 10%;">VIDEO</div>
+            <div class="content-box">
+                <div class="section-num">*05</div>
+                <div class="main-title">현장 도입 사례<br>솔루션 홍보 영상</div>
+                <a href="#" class="kiosk-btn">성공 사례 시청</a>
+            </div>
+            <div class="image-box" style="background-image: url('https://images.unsplash.com/photo-1536240478700-b869070f9279?q=80&w=800');"></div>
+        </div>
+
+        <div class="section" style="background-color: #1a1625;">
+            <div class="bg-text" style="bottom: 10%; left: 5%;">EVENT</div>
+            <div class="content-box">
+                <div class="section-num">*06</div>
+                <div class="main-title">KT 시너지 지점<br>당월 한정 프로모션</div>
+                <a href="#" class="kiosk-btn">결합 혜택 보기</a>
+            </div>
+            <div class="image-box" style="background-image: url('https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=800');"></div>
+        </div>
+
+        <div class="section" style="background-color: #0d1726;">
+            <div class="bg-text" style="top: 15%; left: 15%;">PARTNER</div>
+            <div class="content-box">
+                <div class="section-num">*07</div>
+                <div class="main-title">상생 소상공인<br>제휴 마케팅 정보</div>
+                <a href="#" class="kiosk-btn">가맹점 상생 방안</a>
+            </div>
+            <div class="image-box" style="background-image: url('https://images.unsplash.com/photo-1556742044-3c52d6e88c62?q=80&w=800');"></div>
+        </div>
+
+        <div class="section" style="background-color: #1a1a1a;">
+            <div class="bg-text" style="bottom: 15%; left: 20%;">CENTER</div>
+            <div class="content-box">
+                <div class="section-num">*08</div>
+                <div class="main-title">KT Synergy Team 3<br>신속 기술 지원</div>
+                <a href="#" class="kiosk-btn">고객센터 문의하기</a>
+            </div>
+            <div class="image-box" style="background-image: url('https://images.unsplash.com/photo-1534536281715-e28d76689b4d?q=80&w=800');"></div>
+        </div>
+
+    </div>
+
+    <div class="swipe-guide">마우스 휠 또는 스와이프 ➔</div>
+
+    <script>
+        const container = document.getElementById('scrollContainer');
+        
+        // 1. 패드 터치 및 실시간 위치 기반 시차(Parallax) 메커니즘
+        container.addEventListener('scroll', () => {
+            const scrollLeft = container.scrollLeft;
+            const bgTexts = document.querySelectorAll('.bg-text');
+            const imgBoxes = document.querySelectorAll('.image-box');
+            
+            bgTexts.forEach((bg, idx) => {
+                const positionShift = (scrollLeft - (window.innerWidth * idx)) * 0.35; // 감도 업그레이드
+                bg.style.transform = `translateX(${positionShift}px)`;
+            });
+
+            imgBoxes.forEach((img, idx) => {
+                const positionShift = (scrollLeft - (window.innerWidth * idx)) * -0.15;
+                img.style.transform = `translateX(${positionShift}px)`;
+            });
+        });
+
+        // 2. [PC 전용 인터랙션] 마우스 휠 스크롤 시 가로 스크롤로 강제 변환
+        container.addEventListener('wheel', (e) => {
+            e.preventDefault(); // 기본 위아래 스크롤 동작 정지
+            container.scrollLeft += e.deltaY * 1.5; // 휠 속도 보정 (부드럽게 쓱 밀림)
+        });
+    </script>
+</body>
+</html>
