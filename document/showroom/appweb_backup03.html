@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>용의쇼룸 가로 패럴랙스 v1.01</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Malgun Gothic', sans-serif;
+            -webkit-user-select: none;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #0d0d11;
+            color: #ffffff;
+        }
+
+        /* 패드 자체 터치 스크롤 최적화 가로 컨테이너 */
+        .horizontal-scroll-wrapper {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            overflow-x: auto;
+            overflow-y: hidden;
+            scroll-snap-type: x mandatory; /* 자석 고정 효과 */
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .horizontal-scroll-wrapper::-webkit-scrollbar {
+            display: none; /* 스크롤바 숨김 */
+        }
+
+        /* 개별 페이지 섹션 (1920x1080 꽉 차는 규격) */
+        .section {
+            flex: 0 0 100vw;
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            display: flex;
+            align-items: center;
+            padding: 0 100px;
+            scroll-snap-align: start;
+            overflow: hidden;
+        }
+
+        /* 3D 입체감을 위한 거대 배경 글자 */
+        .bg-text {
+            position: absolute;
+            font-size: 15rem;
+            font-weight: 900;
+            color: rgba(255, 255, 255, 0.03);
+            z-index: 1;
+            white-space: nowrap;
+        }
+
+        /* 메인 콘텐츠 박스 */
+        .content-box {
+            position: relative;
+            z-index: 3;
+            max-width: 600px;
+        }
+
+        /* [★버전 표시] 제목 옆에 작고 깔끔하게 버전 표기 */
+        .version-tag {
+            font-size: 1.1rem;
+            color: #00f0ff;
+            vertical-align: super;
+            margin-left: 10px;
+            font-weight: normal;
+            background: rgba(0, 240, 255, 0.1);
+            padding: 2px 8px;
+            border-radius: 6px;
+        }
+
+        .section-num {
+            font-size: 2rem;
+            color: #ff3366;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .main-title {
+            font-size: 4rem;
+            font-weight: bold;
+            line-height: 1.2;
+            margin-bottom: 30px;
+            word-break: keep-all;
+        }
+
+        /* 8버튼 레이아웃 (섹션당 2개씩 배치) */
+        .btn-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            width: 500px;
+        }
+
+        .kiosk-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 25px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 1.3rem;
+            font-weight: bold;
+            text-align: center;
+            transition: background 0.2s;
+        }
+
+        .kiosk-btn:active {
+            background: #ff3366;
+            border-color: #ff3366;
+        }
+
+        /* 우측 비주얼 이미지 영역 */
+        .image-box {
+            position: absolute;
+            right: 10%;
+            width: 650px;
+            height: 650px;
+            border-radius: 20px;
+            background-size: cover;
+            background-position: center;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+            z-index: 2;
+        }
+
+        /* 우측 하단 슬라이드 안내 가이드 */
+        .swipe-guide {
+            position: absolute;
+            bottom: 50px;
+            right: 100px;
+            font-size: 1.1rem;
+            color: rgba(255,255,255,0.4);
+            animation: pulse 2s infinite;
+            z-index: 10;
+        }
+
+        @keyframes pulse {
+            0% { transform: translateX(0); opacity: 0.4; }
+            50% { transform: translateX(-10px); opacity: 1; }
+            100% { transform: translateX(0); opacity: 0.4; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="horizontal-scroll-wrapper" id="scrollContainer">
+        
+        <div class="section" style="background-color: #0d0d11;">
+            <div class="bg-text" style="top: 10%; left: 5%;">SYNERGY</div>
+            <div class="content-box">
+                <div class="section-num">*01</div>
+                <div class="main-title">용의쇼룸<span class="version-tag">v1.01</span><br>디지털 플랫폼</div>
+                <div class="btn-grid">
+                    <a href="#" class="kiosk-btn">자담치킨 제안서</a>
+                    <a href="#" class="kiosk-btn">하이오더 시연</a>
+                </div>
+            </div>
+            <div class="image-box" style="background-image: url('https://images.unsplash.com/photo-1551434678-e076c223a692?q=80&w=800');"></div>
+        </div>
+
+        <div class="section" style="background-color: #14141a;">
+            <div class="bg-text" style="bottom: 10%; left: 10%;">DX SOLUTION</div>
+            <div class="content-box">
+                <div class="section-num">*02</div>
+                <div class="main-title">KT 하이오더<br>미래형 매장 솔루션</div>
+                <div class="btn-grid">
+                    <a href="https://www.naver.com" class="kiosk-btn">네이버 포털</a>
+                    <a href="#" class="kiosk-btn">KT DX 솔루션</a>
+                </div>
+            </div>
+            <div class="image-box" style="background-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=800');"></div>
+        </div>
+
+        <div class="section" style="background-color: #0f111a;">
+            <div class="bg-text" style="top: 15%; left: 20%;">SUCCESS</div>
+            <div class="content-box">
+                <div class="section-num">*03</div>
+                <div class="main-title">가맹점 상생<br>성공 비즈니스</div>
+                <div class="btn-grid">
+                    <a href="#" class="kiosk-btn">성공 사례 영상</a>
+                    <a href="#" class="kiosk-btn">프로모션 안내</a>
+                </div>
+            </div>
+            <div class="image-box" style="background-image: url('https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800');"></div>
+        </div>
+
+        <div class="section" style="background-color: #16131c;">
+            <div class="bg-text" style="bottom: 15%; left: 5%;">SUPPORT</div>
+            <div class="content-box">
+                <div class="section-num">*04</div>
+                <div class="main-title">KT 시너지<br>신속 지원 체계</div>
+                <div class="btn-grid">
+                    <a href="#" class="kiosk-btn">가맹점 상생 방안</a>
+                    <a href="#" class="kiosk-btn">고객센터 문의</a>
+                </div>
+            </div>
+            <div class="image-box" style="background-image: url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=800');"></div>
+        </div>
+
+    </div>
+
+    <div class="swipe-guide">왼쪽으로 쓸어넘기세요 ➔</div>
+
+    <script>
+        const container = document.getElementById('scrollContainer');
+        
+        container.addEventListener('scroll', () => {
+            const scrollLeft = container.scrollLeft;
+            const bgTexts = document.querySelectorAll('.bg-text');
+            const imgBoxes = document.querySelectorAll('.image-box');
+            
+            bgTexts.forEach((bg, idx) => {
+                const positionShift = (scrollLeft - (window.innerWidth * idx)) * 0.3;
+                bg.style.transform = `translateX(${positionShift}px)`;
+            });
+
+            imgBoxes.forEach((img, idx) => {
+                const positionShift = (scrollLeft - (window.innerWidth * idx)) * -0.1;
+                img.style.transform = `translateX(${positionShift}px)`;
+            });
+        });
+    </script>
+</body>
+</html>
