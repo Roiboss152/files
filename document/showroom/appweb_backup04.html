@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>용의쇼룸 가로 패럴랙스 v1.04</title>
+    <title>용의쇼룸 가로 패럴랙스 v1.03</title>
     <style>
         * {
             margin: 0;
@@ -17,17 +17,20 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
+            /* [수정] 전체 배경을 세련된 밝은 그레이-화이트 계열로 변경 */
             background-color: #f3f4f6;
             color: #1f2937;
         }
 
+        /* 스크롤바를 완전히 감추고 부드러운 자바스크립트 스크롤을 위해 고정 */
         .horizontal-scroll-wrapper {
             display: flex;
             width: 100%;
             height: 100%;
-            overflow: hidden;
+            overflow: hidden; /* 자연스러운 가속도 처리를 위해 하드웨어 스크롤 차단 */
         }
 
+        /* 개별 페이지 섹션 */
         .section {
             flex: 0 0 100vw;
             width: 100vw;
@@ -39,23 +42,25 @@
             overflow: hidden;
         }
 
+        /* [수정] 하얀 배경에서 은은하게 입체감이 살아나도록 글자 색상 조정 */
         .bg-text {
             position: absolute;
             font-size: 15rem;
             font-weight: 900;
-            color: rgba(0, 0, 0, 0.025);
+            color: rgba(0, 0, 0, 0.025); /* 은은한 그림자 느낌 */
             z-index: 1;
             white-space: nowrap;
             will-change: transform;
         }
 
-        /* 3단 분할 시차를 위해 개별 독립 레이어 설정 */
+        /* 메인 콘텐츠 박스 */
         .content-box {
             position: relative;
             z-index: 3;
-            max-width: 650px;
+            max-width: 600px;
         }
 
+        /* 버전 태그 */
         .version-tag {
             font-size: 1.1rem;
             color: #0066ff;
@@ -67,26 +72,24 @@
             border-radius: 6px;
         }
 
-        /* 시차를 줄 개별 요소들에 변형 기준점과 물리 엔진(will-change) 부여 */
         .section-num {
-            font-size: 2.5rem;
+            font-size: 2rem;
             color: #ff3366;
             font-weight: bold;
-            margin-bottom: 15px;
-            display: inline-block;
-            will-change: transform;
+            margin-bottom: 20px;
         }
 
         .main-title {
             font-size: 4rem;
             font-weight: bold;
             line-height: 1.2;
-            margin-bottom: 35px;
+            margin-bottom: 30px;
             color: #111827;
             word-break: keep-all;
-            will-change: transform;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
 
+        /* 하얀 배경에 맞는 미니멀 프리미엄 버튼 디자인 */
         .kiosk-btn {
             display: inline-block;
             background: #ffffff;
@@ -99,29 +102,31 @@
             font-weight: bold;
             text-align: center;
             box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            transition: background 0.2s, color 0.2s;
-            will-change: transform;
+            transition: all 0.2s ease;
         }
 
         .kiosk-btn:active {
             background: #ff3366;
             border-color: #ff3366;
             color: #ffffff;
+            transform: scale(0.97);
         }
 
+        /* 우측 비주얼 이미지 영역 */
         .image-box {
             position: absolute;
-            right: 8%;
+            right: 10%;
             width: 650px;
             height: 650px;
             border-radius: 30px;
             background-size: cover;
             background-position: center;
-            box-shadow: 0 40px 70px rgba(0,0,0,0.1);
+            box-shadow: 0 40px 70px rgba(0,0,0,0.12); /* 부드러운 그림자 */
             z-index: 2;
             will-change: transform;
         }
 
+        /* 가이드 텍스트 색상 조정 */
         .swipe-guide {
             position: absolute;
             bottom: 50px;
@@ -147,7 +152,7 @@
             <div class="bg-text" style="top: 10%; left: 5%;">SHOWROOM</div>
             <div class="content-box">
                 <div class="section-num">*01</div>
-                <div class="main-title">용의쇼룸<span class="version-tag">v1.04</span><br>디지털 플랫폼</div>
+                <div class="main-title">용의쇼룸<span class="version-tag">v1.03</span><br>디지털 플랫폼</div>
                 <a href="#" class="kiosk-btn">자담치킨 제안서</a>
             </div>
             <div class="image-box" style="background-image: url('https://images.unsplash.com/photo-1551434678-e076c223a692?q=80&w=800');"></div>
@@ -188,7 +193,7 @@
             <div class="content-box">
                 <div class="section-num">*05</div>
                 <div class="main-title">현장 도입 사례<br>솔루션 홍보 영상</div>
-                <a href="#" class="kiosk-btn">[성공 사례 시청]</a>
+                <a href="#" class="kiosk-btn">성공 사례 시청</a>
             </div>
             <div class="image-box" style="background-image: url('https://images.unsplash.com/photo-1536240478700-b869070f9279?q=80&w=800');"></div>
         </div>
@@ -230,17 +235,23 @@
     <script>
         const container = document.getElementById('scrollContainer');
         
-        let targetX = 0;
-        let currentX = 0;
-        const ease = 0.05;
+        // [핵심 엔진] 툭툭 끊기는 스크롤을 쫀득하게 늘려주는 가속도 보간 계산식
+        let targetX = 0;  // 목표 위치
+        let currentX = 0; // 현재 연산 위치
+        const ease = 0.05; // ★ 숫자가 낮을수록 스크롤이 더 천천히, 묵직하고 부드럽게 흘러갑니다 (0.05가 황금 비율)
 
+        // 1. 마우스 휠 이벤트 가로 변환 및 감도 제어
         container.addEventListener('wheel', (e) => {
             e.preventDefault();
+            // 팍팍 튀지 않도록 목표값을 부드럽게 누적 계산
             targetX += e.deltaY * 0.8; 
+            
+            // 최대 스크롤 영역 제한 (8페이지 끝자락 방어)
             const maxScroll = container.scrollWidth - window.innerWidth;
             targetX = Math.max(0, Math.min(targetX, maxScroll));
         });
 
+        // 2. 터치 드래그 감도 완전 슬로우 튜닝
         let isTouching = false;
         let startTouchX = 0;
         let startTargetX = 0;
@@ -256,8 +267,8 @@
             const currentTouchX = e.touches[0].clientX;
             const diffX = startTouchX - currentTouchX;
             
-            // [수정] 터치 스와이프 감도를 1.4배로 올려서 묵직함 속에서도 슥슥 잘 넘어가게 보정!
-            targetX = startTargetX + (diffX * 1.4); 
+            // 터치 밀림도 0.7배로 감속시켜 휙휙 날아가는 것을 완벽 차단
+            targetX = startTargetX + (diffX * 0.7); 
             
             const maxScroll = container.scrollWidth - window.innerWidth;
             targetX = Math.max(0, Math.min(targetX, maxScroll));
@@ -267,38 +278,32 @@
             isTouching = false;
         });
 
+        // 3. 무한 루프 감속 애니메이션 엔진 구동 (프레임 단위 연산)
         function animateScroll() {
+            // 현재 위치에서 목표 위치까지 서서히 슬라이딩 (수학적 보간법법)
             currentX += (targetX - currentX) * ease;
+            
+            // 실제 컨테이너 이동
             container.scrollLeft = currentX;
 
-            const sections = document.querySelectorAll('.section');
+            // 입체 시차(Parallax) 계산
+            const bgTexts = document.querySelectorAll('.bg-text');
+            const imgBoxes = document.querySelectorAll('.image-box');
             
-            sections.forEach((sec, idx) => {
-                // 현재 섹션이 화면 정중앙을 지나갈 때의 상대적인 스크롤 위치 계산
-                const sectionOffset = currentX - (window.innerWidth * idx);
-                
-                const bg = sec.querySelector('.bg-text');
-                const img = sec.querySelector('.image-box');
-                
-                // [★오늘의 하이라이트: 3단 분할 시차 계산]
-                const num = sec.querySelector('.section-num');
-                const title = sec.querySelector('.main-title');
-                const btn = sec.querySelector('.kiosk-btn');
+            bgTexts.forEach((bg, idx) => {
+                const positionShift = (currentX - (window.innerWidth * idx)) * 0.4; // 뒤 배경은 한 템포 느리게
+                bg.style.transform = `translateX(${positionShift}px)`;
+            });
 
-                // 1. 배경과 우측 대형 이미지는 기존 패럴랙스 유지
-                if (bg) bg.style.transform = `translateX(${sectionOffset * 0.4}px)`;
-                if (img) img.style.transform = `translateX(${sectionOffset * -0.12}px)`;
-
-                // 2. [수정] 05번 정보 텍스트들을 미세하게 쪼개서 결합 연출 구현!
-                // 정중앙(sectionOffset = 0)에 도달하면 모든 변형값(translateX)이 0이 되어 완벽히 딱 맞물립니다!
-                if (num) num.style.transform = `translateX(${sectionOffset * -0.03}px)`; // 살짝 빠르게 진입
-                if (title) title.style.transform = `translateX(0px)`;                     // 기준 속도 고정
-                if (btn) btn.style.transform = `translateX(${sectionOffset * 0.04}px)`;   // 묵직하게 뒤따라옴
+            imgBoxes.forEach((img, idx) => {
+                const positionShift = (currentX - (window.innerWidth * idx)) * -0.12; // 앞 이미지는 살짝 반대로 교차
+                img.style.transform = `translateX(${positionShift}px)`;
             });
 
             requestAnimationFrame(animateScroll);
         }
         
+        // 엔진 가동!
         requestAnimationFrame(animateScroll);
     </script>
 </body>
