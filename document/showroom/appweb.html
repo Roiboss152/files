@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>용의쇼룸 가로 패럴랙스 v1.06</title>
+    <title>용의쇼룸 가로 패럴랙스 v1.07 [Infinity]</title>
     <style>
         * {
             margin: 0;
@@ -17,16 +17,17 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            /* [과장님 지정] 메인 배경색 #F7F7F7 */
-            background-color: #F7F7F7;
+            background-color: #F7F7F7; /* 지정 메인 배경 */
             color: #1f2937;
         }
 
+        /* 무한 루프를 위해 스크롤 컨테이너 설정 */
         .horizontal-scroll-wrapper {
             display: flex;
             width: 100%;
             height: 100%;
             overflow: hidden;
+            will-change: transform;
         }
 
         .section {
@@ -40,13 +41,13 @@
             overflow: hidden;
         }
 
-        /* [과장님 지정] 뒷배경 거대 텍스트 색상 #CCCCCC로 살짝 더 짙게 수정 */
+        /* [과장님 지정] 뒷배경 텍스트 색상 #CCCCCC 적용 */
         .bg-text {
             position: absolute;
             font-size: 15rem;
             font-weight: 900;
             color: #CCCCCC;
-            opacity: 0.25; /* 부드럽게 조화되도록 투명도만 살짝 부여 */
+            opacity: 0.3;
             z-index: 1;
             white-space: nowrap;
             will-change: transform;
@@ -100,17 +101,10 @@
             font-weight: bold;
             text-align: center;
             box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            transition: background 0.2s, color 0.2s;
+            transition: background 0.2s;
             will-change: transform;
         }
 
-        .kiosk-btn:active {
-            background: #ff3366;
-            border-color: #ff3366;
-            color: #ffffff;
-        }
-
-        /* [창문 프레임 기본형] 크기와 그림자 설정 */
         .window-frame {
             position: absolute;
             right: 8%;
@@ -120,13 +114,12 @@
             z-index: 2;
             will-change: transform;
             box-shadow: 0 40px 70px rgba(0,0,0,0.08);
-            background: #e5e7eb; /* 로딩 전 비주얼 공백 방지 */
         }
 
-        /* 다양한 도형 틀 정의 (clip-path 이용) */
-        .shape-square { border-radius: 30px; } /* 4각 */
-        .shape-hexagon { clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); } /* 6각 */
-        .shape-circle { border-radius: 50%; } /* 원형 */
+        /* 도형 셋팅 */
+        .shape-square { border-radius: 30px; }
+        .shape-hexagon { clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); }
+        .shape-circle { border-radius: 50%; }
 
         .window-image {
             width: 100%;
@@ -144,27 +137,19 @@
             bottom: 50px;
             right: 100px;
             font-size: 1.1rem;
-            color: rgba(0,0,0,0.4);
-            animation: pulse 2s infinite;
+            color: rgba(0,0,0,0.3);
             z-index: 10;
-        }
-
-        @keyframes pulse {
-            0% { transform: translateX(0); opacity: 0.4; }
-            50% { transform: translateX(-10px); opacity: 1; }
-            100% { transform: translateX(0); opacity: 0.4; }
         }
     </style>
 </head>
 <body>
 
     <div class="horizontal-scroll-wrapper" id="scrollContainer">
-        
-        <div class="section" style="background-color: #F7F7F7;">
+        <div class="section" style="background-color: #F7F7F7;" data-id="1">
             <div class="bg-text" style="top: 10%; left: 5%;">SHOWROOM</div>
             <div class="content-box">
                 <div class="section-num">*01</div>
-                <div class="main-title">용의쇼룸<span class="version-tag">v1.06</span><br>디지털 플랫폼</div>
+                <div class="main-title">용의쇼룸<span class="version-tag">v1.07</span><br>디지털 플랫폼</div>
                 <a href="#" class="kiosk-btn">자담치킨 제안서</a>
             </div>
             <div class="window-frame shape-hexagon">
@@ -172,7 +157,7 @@
             </div>
         </div>
 
-        <div class="section" style="background-color: #E8E8E8;">
+        <div class="section" style="background-color: #E8E8E8;" data-id="2">
             <div class="bg-text" style="bottom: 10%; left: 10%;">HIORDER</div>
             <div class="content-box">
                 <div class="section-num">*02</div>
@@ -180,11 +165,11 @@
                 <a href="#" class="kiosk-btn">하이오더 시연하기</a>
             </div>
             <div class="window-frame shape-square">
-                <div class="window-image" id="zoomInImg" style="background-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=800'); transform: scale(1.0);"></div>
+                <div class="window-image" style="background-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=800');"></div>
             </div>
         </div>
 
-        <div class="section" style="background-color: #F7F7F7;">
+        <div class="section" style="background-color: #F7F7F7;" data-id="3">
             <div class="bg-text" style="top: 15%; left: 20%;">PORTAL</div>
             <div class="content-box">
                 <div class="section-num">*03</div>
@@ -196,7 +181,7 @@
             </div>
         </div>
 
-        <div class="section" style="background-color: #E8E8E8;">
+        <div class="section" style="background-color: #E8E8E8;" data-id="4">
             <div class="bg-text" style="bottom: 15%; left: 5%;">ROBOT</div>
             <div class="content-box">
                 <div class="section-num">*04</div>
@@ -208,7 +193,7 @@
             </div>
         </div>
 
-        <div class="section" style="background-color: #F7F7F7;">
+        <div class="section" style="background-color: #F7F7F7;" data-id="5">
             <div class="bg-text" style="top: 10%; left: 10%;">VIDEO</div>
             <div class="content-box">
                 <div class="section-num">*05</div>
@@ -220,7 +205,7 @@
             </div>
         </div>
 
-        <div class="section" style="background-color: #E8E8E8;">
+        <div class="section" style="background-color: #E8E8E8;" data-id="6">
             <div class="bg-text" style="bottom: 10%; left: 5%;">EVENT</div>
             <div class="content-box">
                 <div class="section-num">*06</div>
@@ -228,11 +213,11 @@
                 <a href="#" class="kiosk-btn">결합 혜택 보기</a>
             </div>
             <div class="window-frame shape-circle">
-                <div class="window-image" id="zoomOutImg" style="background-image: url('https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=800'); transform: scale(1.4);"></div>
+                <div class="window-image" style="background-image: url('https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=800');"></div>
             </div>
         </div>
 
-        <div class="section" style="background-color: #F7F7F7;">
+        <div class="section" style="background-color: #F7F7F7;" data-id="7">
             <div class="bg-text" style="top: 15%; left: 15%;">PARTNER</div>
             <div class="content-box">
                 <div class="section-num">*07</div>
@@ -244,7 +229,7 @@
             </div>
         </div>
 
-        <div class="section" style="background-color: #E8E8E8;">
+        <div class="section" style="background-color: #E8E8E8;" data-id="8">
             <div class="bg-text" style="bottom: 15%; left: 20%;">CENTER</div>
             <div class="content-box">
                 <div class="section-num">*08</div>
@@ -256,101 +241,126 @@
             </div>
         </div>
 
+        <div class="section" style="background-color: #F7F7F7;" id="clone">
+            <div class="bg-text" style="top: 10%; left: 5%;">SHOWROOM</div>
+            <div class="content-box">
+                <div class="section-num">*01</div>
+                <div class="main-title">용의쇼룸<span class="version-tag">v1.07</span><br>디지털 플랫폼</div>
+                <a href="#" class="kiosk-btn">자담치킨 제안서</a>
+            </div>
+            <div class="window-frame shape-hexagon">
+                <div class="window-image" style="background-image: url('https://images.unsplash.com/photo-1551434678-e076c223a692?q=80&w=800');"></div>
+            </div>
+        </div>
     </div>
 
     <div class="swipe-guide">마우스 휠 또는 스와이프 ➔</div>
 
     <script>
         const container = document.getElementById('scrollContainer');
-        
+        const sections = document.querySelectorAll('.section');
+        const slideWidth = window.innerWidth;
+        const totalSlides = 8;
+        const maxScroll = slideWidth * totalSlides;
+
         let targetX = 0;
         let currentX = 0;
         const ease = 0.05;
+        
+        let lastInteractionTime = Date.now();
+        const autoScrollSpeed = slideWidth / (10 * 60); // 10초당 1페이지 (60프레임 기준)
+        let isUserInteracting = false;
 
+        // 1. 휠 제어
         container.addEventListener('wheel', (e) => {
             e.preventDefault();
-            targetX += e.deltaY * 0.8; 
-            const maxScroll = container.scrollWidth - window.innerWidth;
-            targetX = Math.max(0, Math.min(targetX, maxScroll));
+            isUserInteracting = true;
+            lastInteractionTime = Date.now();
+            targetX += e.deltaY * 0.8;
+            targetX = Math.max(-slideWidth * 0.5, Math.min(targetX, maxScroll + slideWidth * 0.5));
         });
 
-        let isTouching = false;
-        let startTouchX = 0;
-        let startTargetX = 0;
-
+        // 2. 터치 제어
+        let startX = 0, startTargetX = 0;
         container.addEventListener('touchstart', (e) => {
-            isTouching = true;
-            startTouchX = e.touches[0].clientX;
+            isUserInteracting = true;
+            lastInteractionTime = Date.now();
+            startX = e.touches[0].clientX;
             startTargetX = targetX;
         });
 
         container.addEventListener('touchmove', (e) => {
-            if (!isTouching) return;
-            const currentTouchX = e.touches[0].clientX;
-            const diffX = startTouchX - currentTouchX;
-            targetX = startTargetX + (diffX * 1.4); 
-            const maxScroll = container.scrollWidth - window.innerWidth;
-            targetX = Math.max(0, Math.min(targetX, maxScroll));
+            const diffX = startX - e.touches[0].clientX;
+            targetX = startTargetX + (diffX * 1.4);
+            lastInteractionTime = Date.now();
         });
 
-        container.addEventListener('touchend', () => {
-            isTouching = false;
-        });
+        container.addEventListener('touchend', () => { isUserInteracting = false; });
 
-        function animateScroll() {
+        function animate() {
+            // [지능형 자동 스크롤 로직]
+            const now = Date.now();
+            if (!isUserInteracting && (now - lastInteractionTime > 3500)) {
+                targetX += autoScrollSpeed; // 초당 192px씩 서서히 이동
+            }
+
+            // [인피니티 루프 엔진]
+            if (targetX >= maxScroll) {
+                targetX -= maxScroll;
+                currentX -= maxScroll;
+            } else if (targetX < 0) {
+                targetX += maxScroll;
+                currentX += maxScroll;
+            }
+
             currentX += (targetX - currentX) * ease;
             container.scrollLeft = currentX;
 
-            const sections = document.querySelectorAll('.section');
-            
             sections.forEach((sec, idx) => {
-                const sectionOffset = currentX - (window.innerWidth * idx);
+                const offset = currentX - (slideWidth * idx);
+                
+                // 화면 밖으로 멀리 나간 섹션은 연산 제외 (성능 최적화)
+                if (Math.abs(offset) > slideWidth * 1.5) return;
+
                 const bg = sec.querySelector('.bg-text');
                 const frame = sec.querySelector('.window-frame');
                 const img = sec.querySelector('.window-image');
-
                 const num = sec.querySelector('.section-num');
                 const title = sec.querySelector('.main-title');
                 const btn = sec.querySelector('.kiosk-btn');
 
-                // 배경 글자 패럴랙스 무빙 연산
-                if (bg) bg.style.transform = `translateX(${sectionOffset * 0.4}px)`;
+                // 공통 시차 효과
+                if (bg) bg.style.transform = `translateX(${offset * 0.4}px)`;
+                if (num) num.style.transform = `translateX(${offset * -0.03}px)`;
+                if (btn) btn.style.transform = `translateX(${offset * 0.04}px)`;
 
-                // [조건별 인터랙션 제어 분기점]
-                if (idx === 1) {
-                    // ★ 2번 페이지: 스크롤이 중앙에 올수록 이미지가 부드럽게 확대 (scale)
-                    // 중앙에 가장 가까워질 때(sectionOffset 비율 연산) 최대 1.25배까지 부드럽게 증가
-                    const centerRatio = Math.max(0, 1 - Math.abs(sectionOffset) / window.innerWidth);
-                    const currentScale = 1.0 + (centerRatio * 0.25);
-                    
-                    if (frame) frame.style.transform = `translateX(${sectionOffset * -0.06}px)`;
-                    if (img) img.style.transform = `scale(${currentScale})`;
+                // [과장님 요청: 일관된 확대/축소 로직]
+                const dataId = sec.getAttribute('data-id');
+                if (dataId === "2") {
+                    // 2번 페이지: 들어올 때(오른쪽) 1.0 -> 나갈 때(왼쪽) 1.7까지 계속 확대
+                    const progress = (offset + slideWidth) / (slideWidth * 2); // 0 (우측끝) ~ 1 (좌측끝)
+                    const scale = 1.0 + (progress * 0.7);
+                    if (frame) frame.style.transform = `translateX(${offset * -0.06}px)`;
+                    if (img) img.style.transform = `scale(${scale})`;
                 } 
-                else if (idx === 5) {
-                    // ★ 6번 페이지: 스크롤이 중앙에 올수록 이미지가 부드럽게 축소 (scale)
-                    // 멀리 있을 땐 1.35배였다가 중앙에 정확히 안착하면 1.05배로 자연스럽게 정돈됨
-                    const centerRatio = Math.max(0, 1 - Math.abs(sectionOffset) / window.innerWidth);
-                    const currentScale = 1.35 - (centerRatio * 0.3);
-                    
-                    if (frame) frame.style.transform = `translateX(${sectionOffset * -0.06}px)`;
-                    if (img) img.style.transform = `scale(${currentScale})`;
+                else if (dataId === "6") {
+                    // 6번 페이지: 들어올 때(오른쪽) 1.7 -> 나갈 때(왼쪽) 1.0까지 계속 축소
+                    const progress = (offset + slideWidth) / (slideWidth * 2);
+                    const scale = 1.7 - (progress * 0.7);
+                    if (frame) frame.style.transform = `translateX(${offset * -0.06}px)`;
+                    if (img) img.style.transform = `scale(${scale})`;
                 } 
                 else {
-                    // 1, 3, 4, 5, 7, 8번 페이지: 과장님이 극찬하신 기차 창문 이중 패럴랙스 표준 무빙 고정
-                    if (frame) frame.style.transform = `translateX(${sectionOffset * -0.06}px)`;
-                    if (img) img.style.transform = `translateX(${sectionOffset * 0.15}px) scale(1.15)`;
+                    // 일반 기차 창문 이중 시차
+                    if (frame) frame.style.transform = `translateX(${offset * -0.06}px)`;
+                    if (img) img.style.transform = `translateX(${offset * 0.15}px) scale(1.15)`;
                 }
-
-                // 텍스트/버튼 3단 분할 결합 무빙
-                if (num) num.style.transform = `translateX(${sectionOffset * -0.03}px)`; 
-                if (title) title.style.transform = `translateX(0px)`;                     
-                if (btn) btn.style.transform = `translateX(${sectionOffset * 0.04}px)`;   
             });
 
-            requestAnimationFrame(animateScroll);
+            requestAnimationFrame(animate);
         }
-        
-        requestAnimationFrame(animateScroll);
+
+        requestAnimationFrame(animate);
     </script>
 </body>
 </html>
