@@ -3,209 +3,234 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>용의쇼룸 디지털 키오스크</title>
+    <title>용의쇼룸 가로 패럴랙스</title>
     <style>
-        /* 1920x1080 패드 화면 고정 및 스크롤 최적화 */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: 'Malgun Gothic', sans-serif;
-            -webkit-user-select: none; /* 패드에서 텍스트 드래그 방지 */
+            -webkit-user-select: none; /* 패드 글자 선택 방지 */
         }
 
         body, html {
             width: 100%;
             height: 100%;
-            overflow-x: hidden;
-            background-color: #0b0f19;
+            overflow: hidden;
+            background-color: #0d0d11;
             color: #ffffff;
         }
 
-        /* 패럴랙스 배경 섹션 */
-        .parallax-header {
+        /* 가로로 길게 이어붙인 전체 컨테이너 */
+        .horizontal-scroll-wrapper {
+            display: flex;
+            width: 400vw; /* 총 4개의 와이드 섹션 (1920px x 4) */
+            height: 100vh;
+            transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1); /* 부드러운 스와이프 느낌 */
+            will-change: transform;
+        }
+
+        /* 개별 페이지 섹션 (정확히 패드 화면 1개 크기) */
+        .section {
+            width: 100vw;
+            height: 100vh;
             position: relative;
-            width: 1920px;
-            height: 450px;
-            background: linear-gradient(rgba(11, 15, 25, 0.6), #0b0f19), 
-                        url('https://images.unsplash.com/photo-1551434678-e076c223a692?q=80&w=1920') no-repeat center center;
-            background-size: cover;
-            background-attachment: fixed; /* 패럴랙스 핵심 효과 */
             display: flex;
-            flex-direction: column;
-            justify-content: center;
             align-items: center;
-            text-align: center;
+            padding: 0 100px;
+            overflow: hidden;
         }
 
-        .parallax-header h1 {
-            font-size: 3.5rem;
+        /* 3D 입체감을 내기 위한 배경 글자 (가장 느리게 움직임) */
+        .bg-text {
+            position: absolute;
+            font-size: 15rem;
+            font-weight: 900;
+            color: rgba(255, 255, 255, 0.03);
+            z-index: 1;
+            white-space: nowrap;
+            transition: transform 0.5s ease-out;
+        }
+
+        /* 중앙 콘텐츠 영역 */
+        .content-box {
+            position: relative;
+            z-index: 3;
+            max-width: 600px;
+            transition: transform 0.3s ease-out;
+        }
+
+        .section-num {
+            font-size: 2rem;
+            color: #ff3366;
             font-weight: bold;
-            letter-spacing: 2px;
-            text-shadow: 0px 4px 10px rgba(0,0,0,0.7);
-            margin-bottom: 10px;
-            color: #00f0ff; /* 시그니처 시안 블루 */
+            margin-bottom: 20px;
         }
 
-        .parallax-header p {
-            font-size: 1.5rem;
-            color: #a0aec0;
-            text-shadow: 0px 2px 5px rgba(0,0,0,0.5);
+        .main-title {
+            font-size: 4rem;
+            font-weight: bold;
+            line-height: 1.2;
+            margin-bottom: 30px;
+            word-break: keep-all;
         }
 
-        /* 메인 콘텐츠 구역 (버튼 배치) */
-        .main-container {
-            width: 1920px;
-            max-width: 100%;
-            padding: 40px 80px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        /* 8개 버튼 그리드 배정 (가로 4개 x 세로 2줄) */
-        .menu-grid {
+        /* 버튼 묶음 그리드 (섹션당 2개씩 배치하여 총 8버튼) */
+        .btn-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 30px;
-            width: 100%;
-            margin-top: 20px;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            width: 500px;
         }
 
-        /* 터치하기 편한 대형 카드형 버튼 스타일 */
         .kiosk-btn {
-            background: linear-gradient(145deg, #111827, #1f2937);
-            border: 2px solid #374151;
-            border-radius: 20px;
-            padding: 40px 30px;
-            text-align: center;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 25px;
+            color: #fff;
             text-decoration: none;
-            color: #ffffff;
-            transition: all 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 220px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
-            cursor: pointer;
+            font-size: 1.3rem;
+            font-weight: bold;
+            text-align: center;
+            transition: background 0.2s;
         }
 
-        /* 버튼 터치 효과 (손가락으로 누를 때 미세하게 반응) */
         .kiosk-btn:active {
-            transform: scale(0.96);
-            border-color: #00f0ff;
-            box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
-            background: #1f2937;
+            background: #ff3366;
+            border-color: #ff3366;
         }
 
-        /* 버튼 내부 아이콘 대용 숫자/데코 */
-        .btn-number {
-            font-size: 1.2rem;
-            color: #00f0ff;
-            font-weight: bold;
-            margin-bottom: 15px;
-            background: rgba(0, 240, 255, 0.1);
-            padding: 4px 12px;
+        /* 우측에 배치될 메인 비주얼 이미지 (글자와 다른 속도로 입체 작동) */
+        .image-box {
+            position: absolute;
+            right: 10%;
+            width: 700px;
+            height: 700px;
             border-radius: 20px;
-        }
-
-        /* 버튼 메인 타이틀 */
-        .btn-title {
-            font-size: 1.8rem;
-            font-weight: bold;
-            margin-bottom: 10px;
-            word-break: keep-all;
-        }
-
-        /* 버튼 보조 설명 */
-        .btn-desc {
-            font-size: 1.1rem;
-            color: #9ca3af;
-            word-break: keep-all;
-        }
-
-        /* 하단 장식용 패럴랙스 배너 */
-        .parallax-footer {
-            width: 1920px;
-            height: 200px;
-            margin-top: 60px;
-            background: linear-gradient(#0b0f19, rgba(11, 15, 25, 0.8)), 
-                        url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1920') no-repeat center center;
             background-size: cover;
-            background-attachment: fixed;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: #4b5563;
+            background-position: center;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+            z-index: 2;
+            transition: transform 0.4s ease-out; /* 글자보다 약간 느리게 타겟팅 */
+        }
+
+        /* 페이지 유도 안내선 */
+        .swipe-guide {
+            position: absolute;
+            bottom: 50px;
+            right: 100px;
             font-size: 1.1rem;
+            color: rgba(255,255,255,0.4);
+            animation: pulse 2s infinite;
+            z-index: 10;
+        }
+
+        @keyframes pulse {
+            0% { transform: translateX(0); opacity: 0.4; }
+            50% { transform: translateX(-10px); opacity: 1; }
+            100% { transform: translateX(0); opacity: 0.4; }
         }
     </style>
 </head>
 <body>
 
-    <div class="parallax-header">
-        <h1>용의쇼룸 DIGITAL SHOWROOM</h1>
-        <p>KT Synergy Sales Team 3 단말 솔루션 시연 시스템</p>
-    </div>
-
-    <div class="main-container">
-        <div class="menu-grid">
-            
-            <a href="#" class="kiosk-btn">
-                <div class="btn-number">01</div>
-                <div class="btn-title">자담치킨 제안서</div>
-                <div class="btn-desc">프랜차이즈 DX 협업 전략 및 MOU</div>
-            </a>
-
-            <a href="#" class="kiosk-btn">
-                <div class="btn-number">02</div>
-                <div class="btn-title">하이오더 시연</div>
-                <div class="btn-desc">테이블 오더 실시간 매장 구동 테스트</div>
-            </a>
-
-            <a href="https://www.naver.com" class="kiosk-btn">
-                <div class="btn-number">03</div>
-                <div class="btn-title">네이버 포털</div>
-                <div class="btn-desc">앱 내부 브라우저 연동 검증용</div>
-            </a>
-
-            <a href="#" class="kiosk-btn">
-                <div class="btn-number">04</div>
-                <div class="btn-title">KT DX 솔루션</div>
-                <div class="btn-desc">서빙로봇 및 봇 제어 서비스 소개</div>
-            </a>
-
-            <a href="#" class="kiosk-btn">
-                <div class="btn-number">05</div>
-                <div class="btn-title">성공 사례 영상</div>
-                <div class="btn-desc">우수 가맹점 도입 전/후 비교 우위</div>
-            </a>
-
-            <a href="#" class="kiosk-btn">
-                <div class="btn-number">06</div>
-                <div class="btn-title">프로모션 안내</div>
-                <div class="btn-desc">당월 한정 패키지 결합 할인 혜택</div>
-            </a>
-
-            <a href="#" class="kiosk-btn">
-                <div class="btn-number">07</div>
-                <div class="btn-title">가맹점 상생 방안</div>
-                <div class="btn-desc">소상공인 맞춤형 제휴 마케팅 정보</div>
-            </a>
-
-            <a href="#" class="kiosk-btn">
-                <div class="btn-number">08</div>
-                <div class="btn-title">고객 센터 / 문의</div>
-                <div class="btn-desc">KT 시너지 지점 신속 지원 체계</div>
-            </a>
-
+    <div class="horizontal-scroll-wrapper" id="scrollContainer">
+        
+        <div class="section" style="background-color: #0d0d11;">
+            <div class="bg-text" style="top: 10%; left: 5%;">SYNERGY</div>
+            <div class="content-box">
+                <div class="section-num">*01</div>
+                <div class="main-title">용의쇼룸<br>디지털 플랫폼</div>
+                <div class="btn-grid">
+                    <a href="#" class="kiosk-btn">자담치킨 제안서</a>
+                    <a href="#" class="kiosk-btn">하이오더 시연</a>
+                </div>
+            </div>
+            <div class="image-box" style="background-image: url('https://images.unsplash.com/photo-1551434678-e076c223a692?q=80&w=800');"></div>
         </div>
+
+        <div class="section" style="background-color: #14141a;">
+            <div class="bg-text" style="bottom: 10%; left: 10%;">DX SOLUTION</div>
+            <div class="content-box">
+                <div class="section-num">*02</div>
+                <div class="main-title">KT 하이오더<br>미래형 매장 솔루션</div>
+                <div class="btn-grid">
+                    <a href="https://www.naver.com" class="kiosk-btn">네이버 포털</a>
+                    <a href="#" class="kiosk-btn">KT DX 솔루션</a>
+                </div>
+            </div>
+            <div class="image-box" style="background-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=800');"></div>
+        </div>
+
+        <div class="section" style="background-color: #0f111a;">
+            <div class="bg-text" style="top: 15%; left: 20%;">SUCCESS</div>
+            <div class="content-box">
+                <div class="section-num">*03</div>
+                <div class="main-title">가맹점 상생<br>성공 비즈니스</div>
+                <div class="btn-grid">
+                    <a href="#" class="kiosk-btn">성공 사례 영상</a>
+                    <a href="#" class="kiosk-btn">프로모션 안내</a>
+                </div>
+            </div>
+            <div class="image-box" style="background-image: url('https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800');"></div>
+        </div>
+
+        <div class="section" style="background-color: #16131c;">
+            <div class="bg-text" style="bottom: 15%; left: 5%;">SUPPORT</div>
+            <div class="content-box">
+                <div class="section-num">*04</div>
+                <div class="main-title">KT 시너지<br>신속 지원 체계</div>
+                <div class="btn-grid">
+                    <a href="#" class="kiosk-btn">가맹점 상생 방안</a>
+                    <a href="#" class="kiosk-btn">고객센터 문의</a>
+                </div>
+            </div>
+            <div class="image-box" style="background-image: url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=800');"></div>
+        </div>
+
     </div>
 
-    <div class="parallax-footer">
-        <p>© 2026 KT Synergy Incheon Branch. All Rights Reserved.</p>
-    </div>
+    <div class="swipe-guide">왼쪽으로 쓸어넘기세요 ➔</div>
 
+    <script>
+        const container = document.getElementById('scrollContainer');
+        let startX = 0;
+        let currentIdx = 0;
+        const totalSections = 4;
+
+        window.addEventListener('touchstart', e => {
+            startX = e.touches[0].clientX;
+        });
+
+        window.addEventListener('touchend', e => {
+            const endX = e.changedTouches[0].clientX;
+            const diffX = startX - endX;
+
+            // 터치 밀어내기 판단 기준값 (50px 이상 밀었을 때 전환)
+            if (Math.abs(diffX) > 50) {
+                if (diffX > 0 && currentIdx < totalSections - 1) {
+                    currentIdx++; // 왼쪽으로 밀기 (다음 페이지)
+                } else if (diffX < 0 && currentIdx > 0) {
+                    currentIdx--; // 오른쪽으로 밀기 (이전 페이지)
+                }
+                
+                // 가로 전체 화면 이동
+                container.style.transform = `translateX(-${currentIdx * 100}vw)`;
+                
+                // [시차 효과 적용] 각 섹션 내부 엘리먼트들을 서로 다른 속도로 엇갈리게 밀어내기
+                const bgTexts = document.querySelectorAll('.bg-text');
+                const imgBoxes = document.querySelectorAll('.image-box');
+                const contentBoxes = document.querySelectorAll('.content-box');
+
+                bgTexts.forEach(bg => {
+                    bg.style.transform = `translateX(${diffX * 0.4}px)`; // 가짜 배경 글자는 매우 느리게
+                });
+                imgBoxes.forEach(img => {
+                    img.style.transform = `translateX(${diffX * -0.15}px) scale(1.02)`; // 이미지는 반대 방향 느낌으로 입체감 부여
+                });
+            }
+        });
+    </style>
 </body>
 </html>
