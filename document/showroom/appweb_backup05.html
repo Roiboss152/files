@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>용의쇼룸 가로 패럴랙스 v1.05</title>
+    <title>용의쇼룸 가로 패럴랙스 v1.04</title>
     <style>
         * {
             margin: 0;
@@ -49,6 +49,7 @@
             will-change: transform;
         }
 
+        /* 3단 분할 시차를 위해 개별 독립 레이어 설정 */
         .content-box {
             position: relative;
             z-index: 3;
@@ -66,6 +67,7 @@
             border-radius: 6px;
         }
 
+        /* 시차를 줄 개별 요소들에 변형 기준점과 물리 엔진(will-change) 부여 */
         .section-num {
             font-size: 2.5rem;
             color: #ff3366;
@@ -107,31 +109,17 @@
             color: #ffffff;
         }
 
-        /* [★핵심 수정: 창문 효과] 도형틀과 사진을 분리하여 이중 시차 구현 */
-        .window-frame {
+        .image-box {
             position: absolute;
             right: 8%;
-            width: 700px;
-            height: 700px;
-            overflow: hidden; /* 도형 틀 밖으로 사진이 나가지 않도록 설정 */
-            z-index: 2;
-            will-change: transform;
-            /* 기하학적 도형 틀 설정 (과장님이 피드백 주신 핀터레스트 스타일!) */
-            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-            border: 1px solid #ffffff; /* 은은한 도형 테두리 */
-            box-shadow: 0 40px 70px rgba(0,0,0,0.1);
-        }
-
-        .window-image {
-            width: 100%;
-            height: 100%;
+            width: 650px;
+            height: 650px;
+            border-radius: 30px;
             background-size: cover;
             background-position: center;
-            position: absolute;
-            top: 0;
-            left: 0;
+            box-shadow: 0 40px 70px rgba(0,0,0,0.1);
+            z-index: 2;
             will-change: transform;
-            transform: scale(1.15); /* 이중 패럴랙스 효과를 위한 살짝 넉넉한 크기 */
         }
 
         .swipe-guide {
@@ -159,12 +147,10 @@
             <div class="bg-text" style="top: 10%; left: 5%;">SHOWROOM</div>
             <div class="content-box">
                 <div class="section-num">*01</div>
-                <div class="main-title">용의쇼룸<span class="version-tag">v1.05</span><br>디지털 플랫폼</div>
+                <div class="main-title">용의쇼룸<span class="version-tag">v1.04</span><br>디지털 플랫폼</div>
                 <a href="#" class="kiosk-btn">자담치킨 제안서</a>
             </div>
-            <div class="window-frame">
-                <div class="window-image" style="background-image: url('https://images.unsplash.com/photo-1551434678-e076c223a692?q=80&w=800');"></div>
-            </div>
+            <div class="image-box" style="background-image: url('https://images.unsplash.com/photo-1551434678-e076c223a692?q=80&w=800');"></div>
         </div>
 
         <div class="section" style="background-color: #f3f4f6;">
@@ -174,9 +160,7 @@
                 <div class="main-title">KT 하이오더<br>테이블오더 솔루션</div>
                 <a href="#" class="kiosk-btn">하이오더 시연하기</a>
             </div>
-            <div class="window-frame">
-                <div class="window-image" style="background-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=800');"></div>
-            </div>
+            <div class="image-box" style="background-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=800');"></div>
         </div>
 
         <div class="section" style="background-color: #f9fafb;">
@@ -186,9 +170,7 @@
                 <div class="main-title">네이버 브라우저<br>외부 연동 검증</div>
                 <a href="https://www.naver.com" class="kiosk-btn">네이버 열기</a>
             </div>
-            <div class="window-frame">
-                <div class="window-image" style="background-image: url('https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800');"></div>
-            </div>
+            <div class="image-box" style="background-image: url('https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800');"></div>
         </div>
 
         <div class="section" style="background-color: #f3f4f6;">
@@ -198,9 +180,7 @@
                 <div class="main-title">KT DX 솔루션<br>서빙로봇 시스템</div>
                 <a href="#" class="kiosk-btn">DX 솔루션 안내</a>
             </div>
-            <div class="window-frame">
-                <div class="window-image" style="background-image: url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=800');"></div>
-            </div>
+            <div class="image-box" style="background-image: url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=800');"></div>
         </div>
 
         <div class="section" style="background-color: #f9fafb;">
@@ -210,9 +190,7 @@
                 <div class="main-title">현장 도입 사례<br>솔루션 홍보 영상</div>
                 <a href="#" class="kiosk-btn">[성공 사례 시청]</a>
             </div>
-            <div class="window-frame">
-                <div class="window-image" style="background-image: url('https://upload.wikimedia.org/wikipedia/commons/e/e0/Korail_KTX-Eum_Trainset.jpeg');"></div>
-            </div>
+            <div class="image-box" style="background-image: url('https://images.unsplash.com/photo-1536240478700-b869070f9279?q=80&w=800');"></div>
         </div>
 
         <div class="section" style="background-color: #f3f4f6;">
@@ -222,9 +200,7 @@
                 <div class="main-title">KT 시너지 지점<br>당월 한정 프로모션</div>
                 <a href="#" class="kiosk-btn">결합 혜택 보기</a>
             </div>
-            <div class="window-frame">
-                <div class="window-image" style="background-image: url('https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=800');"></div>
-            </div>
+            <div class="image-box" style="background-image: url('https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=800');"></div>
         </div>
 
         <div class="section" style="background-color: #f9fafb;">
@@ -234,9 +210,7 @@
                 <div class="main-title">상생 소상공인<br>제휴 마케팅 정보</div>
                 <a href="#" class="kiosk-btn">가맹점 상생 방안</a>
             </div>
-            <div class="window-frame">
-                <div class="window-image" style="background-image: url('https://images.unsplash.com/photo-1556742044-3c52d6e88c62?q=80&w=800');"></div>
-            </div>
+            <div class="image-box" style="background-image: url('https://images.unsplash.com/photo-1556742044-3c52d6e88c62?q=80&w=800');"></div>
         </div>
 
         <div class="section" style="background-color: #e5e7eb;">
@@ -246,9 +220,7 @@
                 <div class="main-title">KT Synergy Team 3<br>신속 기술 지원</div>
                 <a href="#" class="kiosk-btn">고객센터 문의하기</a>
             </div>
-            <div class="window-frame">
-                <div class="window-image" style="background-image: url('https://images.unsplash.com/photo-1534536281715-e28d76689b4d?q=80&w=800');"></div>
-            </div>
+            <div class="image-box" style="background-image: url('https://images.unsplash.com/photo-1534536281715-e28d76689b4d?q=80&w=800');"></div>
         </div>
 
     </div>
@@ -284,7 +256,7 @@
             const currentTouchX = e.touches[0].clientX;
             const diffX = startTouchX - currentTouchX;
             
-            // 터치 감도는 1.4배로 유지하여 시원하게 쭉쭉 넘어가도록 고정!
+            // [수정] 터치 스와이프 감도를 1.4배로 올려서 묵직함 속에서도 슥슥 잘 넘어가게 보정!
             targetX = startTargetX + (diffX * 1.4); 
             
             const maxScroll = container.scrollWidth - window.innerWidth;
@@ -302,27 +274,26 @@
             const sections = document.querySelectorAll('.section');
             
             sections.forEach((sec, idx) => {
+                // 현재 섹션이 화면 정중앙을 지나갈 때의 상대적인 스크롤 위치 계산
                 const sectionOffset = currentX - (window.innerWidth * idx);
-                const bg = sec.querySelector('.bg-text');
                 
-                // [★핵심 수정: 창문 이중 시차 계산]
-                const frame = sec.querySelector('.window-frame'); // 도형 틀
-                const img = sec.querySelector('.window-image'); // 안쪽 사진
-
+                const bg = sec.querySelector('.bg-text');
+                const img = sec.querySelector('.image-box');
+                
+                // [★오늘의 하이라이트: 3단 분할 시차 계산]
                 const num = sec.querySelector('.section-num');
                 const title = sec.querySelector('.main-title');
                 const btn = sec.querySelector('.kiosk-btn');
 
+                // 1. 배경과 우측 대형 이미지는 기존 패럴랙스 유지
                 if (bg) bg.style.transform = `translateX(${sectionOffset * 0.4}px)`;
+                if (img) img.style.transform = `translateX(${sectionOffset * -0.12}px)`;
 
-                // 1차 패럴랙스: 도형 틀은 스크롤보다 느리게 움직여 '창' 역할을 고수
-                if (frame) frame.style.transform = `translateX(${sectionOffset * -0.06}px)`;
-                // 2차 패럴랙스: 안쪽 기차 사진은 도형 틀보다 더 역동적으로 엇갈려 입체감 극대화
-                if (img) img.style.transform = `translateX(${sectionOffset * 0.15}px)`; 
-
-                if (num) num.style.transform = `translateX(${sectionOffset * -0.03}px)`; 
-                if (title) title.style.transform = `translateX(0px)`;                     
-                if (btn) btn.style.transform = `translateX(${sectionOffset * 0.04}px)`;   
+                // 2. [수정] 05번 정보 텍스트들을 미세하게 쪼개서 결합 연출 구현!
+                // 정중앙(sectionOffset = 0)에 도달하면 모든 변형값(translateX)이 0이 되어 완벽히 딱 맞물립니다!
+                if (num) num.style.transform = `translateX(${sectionOffset * -0.03}px)`; // 살짝 빠르게 진입
+                if (title) title.style.transform = `translateX(0px)`;                     // 기준 속도 고정
+                if (btn) btn.style.transform = `translateX(${sectionOffset * 0.04}px)`;   // 묵직하게 뒤따라옴
             });
 
             requestAnimationFrame(animateScroll);
