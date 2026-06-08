@@ -3,107 +3,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>KT Synergy Showroom - Test Page</title>
+    <title>용의쇼룸 가로 패럴랙스 v1.02</title>
     <style>
-        /* 패드 화면에 꽉 차게 디자인 (가로 모드 최적화) */
-        body {
+        * {
             margin: 0;
             padding: 0;
-            background-color: #0f172a;
-            color: #f8fafc;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
+            box-sizing: border-box;
+            font-family: 'Malgun Gothic', sans-serif;
+            -webkit-user-select: none;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
             overflow: hidden;
-            user-select: none; /* 텍스트 드래그 방지 */
+            background-color: #0d0d11;
+            color: #ffffff;
         }
 
-        .container {
-            text-align: center;
-            padding: 40px;
-            border-radius: 24px;
-            background: rgba(255, 255, 255, 0.05);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            max-width: 80%;
-        }
-
-        h1 {
-            font-size: 3rem;
-            color: #38bdf8;
-            margin-bottom: 10px;
-            font-weight: 800;
-        }
-
-        p {
-            font-size: 1.2rem;
-            color: #94a3b8;
-            margin-bottom: 30px;
-        }
-
-        /* 테스트용 상호작용 버튼 */
-        .btn-group {
+        /* [핵심 수정] 쫀득하고 부드러운 터치감을 위해 자석(snap) 효과를 제거했습니다. */
+        .horizontal-scroll-wrapper {
             display: flex;
-            gap: 20px;
-            justify-content: center;
+            width: 100%;
+            height: 100%;
+            overflow-x: auto;
+            overflow-y: hidden;
+            scroll-behavior: auto; /* 손가락 움직임과 1:1 동기화 */
+            -webkit-overflow-scrolling: touch; /* 가속도 스크롤 유지 */
         }
 
-        .btn {
-            padding: 15px 35px;
+        .horizontal-scroll-wrapper::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* 개별 페이지 섹션 (총 8페이지이므로 flex-basis 100vw 고정) */
+        .section {
+            flex: 0 0 100vw;
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            display: flex;
+            align-items: center;
+            padding: 0 100px;
+            overflow: hidden;
+        }
+
+        /* 3D 입체감을 위한 거대 배경 글자 */
+        .bg-text {
+            position: absolute;
+            font-size: 15rem;
+            font-weight: 900;
+            color: rgba(255, 255, 255, 0.03);
+            z-index: 1;
+            white-space: nowrap;
+            will-change: transform;
+        }
+
+        /* 메인 콘텐츠 박스 */
+        .content-box {
+            position: relative;
+            z-index: 3;
+            max-width: 600px;
+        }
+
+        .version-tag {
             font-size: 1.1rem;
-            font-weight: 600;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
+            color: #00f0ff;
+            vertical-align: super;
+            margin-left: 10px;
+            font-weight: normal;
+            background: rgba(0, 240, 255, 0.1);
+            padding: 2px 8px;
+            border-radius: 6px;
+        }
+
+        .section-num {
+            font-size: 2rem;
+            color: #ff3366;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .main-title {
+            font-size: 4rem;
+            font-weight: bold;
+            line-height: 1.2;
+            margin-bottom: 30px;
+            word-break: keep-all;
+        }
+
+        /* 1페이지 1버튼 대형 레이아웃 스타일 */
+        .kiosk-btn {
+            display: inline-block;
+            background: linear-gradient(145deg, #1f2937, #111827);
+            border: 2px solid #374151;
+            border-radius: 15px;
+            padding: 30px 60px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 1.8rem;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
             transition: all 0.2s;
         }
 
-        .btn-primary {
-            background-color: #0284c7;
-            color: white;
+        .kiosk-btn:active {
+            background: #ff3366;
+            border-color: #ff3366;
+            transform: scale(0.98);
         }
-        .btn-primary:active { background-color: #0369a1; transform: scale(0.95); }
 
-        .btn-secondary {
-            background-color: #334155;
-            color: #cbd5e1;
+        /* 우측 비주얼 이미지 영역 */
+        .image-box {
+            position: absolute;
+            right: 10%;
+            width: 650px;
+            height: 650px;
+            border-radius: 20px;
+            background-size: cover;
+            background-position: center;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+            z-index: 2;
+            will-change: transform;
         }
-        .btn-secondary:active { background-color: #1e293b; transform: scale(0.95); }
 
-        /* 상태 표시 태그 */
-        .status-badge {
-            display: inline-block;
-            padding: 6px 16px;
-            background-color: #10b981;
-            color: white;
-            font-weight: bold;
-            border-radius: 9999px;
-            font-size: 0.9rem;
-            margin-bottom: 20px;
+        .swipe-guide {
+            position: absolute;
+            bottom: 50px;
+            right: 100px;
+            font-size: 1.1rem;
+            color: rgba(255,255,255,0.4);
+            animation: pulse 2s infinite;
+            z-index: 10;
+        }
+
+        @keyframes pulse {
+            0% { transform: translateX(0); opacity: 0.4; }
+            50% { transform: translateX(-10px); opacity: 1; }
+            100% { transform: translateX(0); opacity: 0.4; }
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div class="status-badge">✓ KIOSK MODE ACTIVE</div>
-        <h1>KT Synergy 디지탈 쇼룸</h1>
-        <p>본 페이지는 하이오더 전용 앱(v2.0) 구동 및 가두기 성능 검증용 테스트 페이지입니다.</p>
+    <div class="horizontal-scroll-wrapper" id="scrollContainer">
         
-        <div class="btn-group">
-            <button class="btn btn-primary" onclick="location.href='https://www.naver.com'">1. 외부 이동 테스트 (네이버)</button>
-            <button class="btn btn-secondary" onclick="alert('웹뷰 자바스크립트가 정상 작동 중입니다!')">2. 터치 알림 테스트</button>
+        <div class="section" style="background-color: #0d0d11;">
+            <div class="bg-text" style="top: 10%; left: 5%;">SHOWROOM</div>
+            <div class="content-box">
+                <div class="section-num">*01</div>
+                <div class="main-title">용의쇼룸<span class="version-tag">v1.02</span><br>디지털 플랫폼</div>
+                <a href="#" class="kiosk-btn">자담치킨 제안서</a>
+            </div>
+            <div class="image-box" style="background-image: url('https://images.unsplash.com/photo-1551434678-e076c223a692?q=80&w=800');"></div>
         </div>
-    </div>
 
-    <script>
-        // 손님들이 화면을 확대/축소해서 레이아웃 깨지는 현상 방지 (더블 탭 줌 차단)
-        document.addEventListener('touchmove', function (event) {
-            if (event.scale !== 1) { event.preventDefault(); }
-        }, { passive: false });
-    </script>
-</body>
-</html>
+        <div class="section" style="background-color: #14141a;">
+            <div class="bg-text" style="bottom: 10%; left: 10%;">HIORDER</div>
+            <div class="content-box">
+                <div class="section-num">*02</div>
+                <div class="main-title">KT 하이오더<br>테이블오더 솔루션</div>
+                <a href="#" class="kiosk-btn">하이오더 시연하기</a>
+            </div>
+            <div class="image-box" style="background-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=800');"></div>
+        </div>
