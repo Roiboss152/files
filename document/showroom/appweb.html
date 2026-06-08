@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>용의쇼룸 가로 패럴랙스 v1.10 [Interactive Show]</title>
+    <title>용의쇼룸 가로 패럴랙스 v1.11 [Layered BG]</title>
     <style>
         * {
             margin: 0;
@@ -37,6 +37,21 @@
             align-items: center;
             padding: 0 100px;
             overflow: hidden;
+        }
+
+        /* [NEW] 전체 배경 이미지 레이어 스타일 */
+        .bg-img {
+            position: absolute;
+            top: 0;
+            left: -10%; /* 시차 효과를 위한 여유 공간 */
+            width: 120%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            opacity: 0.2; /* 은은하게 뒤에 깔리도록 투명도 조절 */
+            filter: brightness(1.2); /* 화이트 테마에 맞게 밝게 처리 */
+            z-index: 1;
+            will-change: transform;
         }
 
         .bg-text {
@@ -99,12 +114,8 @@
             text-align: center;
             box-shadow: 0 10px 25px rgba(0,0,0,0.05);
             cursor: pointer;
-            transition: background 0.2s, transform 0.1s;
+            transition: background 0.2s;
             will-change: transform;
-        }
-
-        .kiosk-btn:active {
-            transform: scale(0.97);
         }
 
         .window-frame {
@@ -133,23 +144,13 @@
             will-change: transform;
         }
 
-        .swipe-guide {
-            position: absolute;
-            bottom: 50px;
-            right: 100px;
-            font-size: 1.1rem;
-            color: rgba(0,0,0,0.3);
-            z-index: 10;
-        }
-
-        /* ================= [과장님 요청] 전체화면 GIF 팝업 UI 레이어 ================= */
         .fullscreen-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
-            background-color: rgba(0, 0, 0, 0.95); /* 어두운 시네마틱 암전 효과 */
+            background-color: rgba(0, 0, 0, 0.95);
             z-index: 1000;
             display: flex;
             justify-content: center;
@@ -159,42 +160,9 @@
             transition: opacity 0.4s ease;
         }
 
-        /* 팝업 활성화 상태 */
-        .fullscreen-overlay.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .popup-gif-content {
-            max-width: 90%;
-            max-height: 85%;
-            object-fit: contain;
-            border-radius: 15px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-        }
-
-        /* 상단 고정 뒤로가기 버튼 */
-        .popup-back-btn {
-            position: absolute;
-            top: 40px;
-            right: 50px;
-            background: rgba(255, 255, 255, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: #ffffff;
-            padding: 15px 35px;
-            font-size: 1.4rem;
-            font-weight: bold;
-            border-radius: 30px;
-            cursor: pointer;
-            backdrop-filter: blur(10px);
-            transition: background 0.2s, transform 0.2s;
-        }
-
-        .popup-back-btn:active {
-            background: #ff3366;
-            border-color: #ff3366;
-            transform: scale(0.95);
-        }
+        .fullscreen-overlay.active { opacity: 1; pointer-events: auto; }
+        .popup-gif-content { max-width: 90%; max-height: 85%; object-fit: contain; border-radius: 15px; }
+        .popup-back-btn { position: absolute; top: 40px; right: 50px; background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.3); color: #ffffff; padding: 15px 35px; font-size: 1.4rem; font-weight: bold; border-radius: 30px; cursor: pointer; backdrop-filter: blur(10px); }
     </style>
 </head>
 <body>
@@ -202,7 +170,7 @@
     <div class="horizontal-scroll-wrapper" id="scrollContainer">
         
         <div class="section" style="background-color: #E8E8E8;" data-clone="8">
-            <div class="bg-text" style="bottom: 15%; left: 20%;">CENTER</div>
+            <div class="bg-img" style="background-image: url('https://kt-synergy.com/assets/image/showroom/s08.png');"></div>
             <div class="content-box">
                 <div class="section-num">*08</div>
                 <div class="main-title">KT Synergy Team 3<br>신속 기술 지원</div>
@@ -214,10 +182,10 @@
         </div>
 
         <div class="section" style="background-color: #F7F7F7;" data-id="1">
-            <div class="bg-text" style="top: 10%; left: 5%;">SHOWROOM</div>
+            <div class="bg-img" style="background-image: url('https://kt-synergy.com/assets/image/showroom/s01.png');"></div>
             <div class="content-box">
                 <div class="section-num">*01</div>
-                <div class="main-title">용의쇼룸<span class="version-tag">v1.10</span><br>디지털 플랫폼</div>
+                <div class="main-title">용의쇼룸<span class="version-tag">v1.11</span><br>디지털 플랫폼</div>
                 <div class="kiosk-btn" id="openPopupBtn">자담치킨 제안서</div>
             </div>
             <div class="window-frame shape-hexagon">
@@ -250,7 +218,7 @@
         </div>
 
         <div class="section" style="background-color: #E8E8E8;" data-id="4">
-            <div class="bg-text" style="bottom: 15%; left: 5%;">ROBOT</div>
+            <div class="bg-img" style="background-image: url('https://kt-synergy.com/assets/image/showroom/s04.png');"></div>
             <div class="content-box">
                 <div class="section-num">*04</div>
                 <div class="main-title">KT DX 솔루션<br>서빙로봇 시스템</div>
@@ -298,7 +266,7 @@
         </div>
 
         <div class="section" style="background-color: #E8E8E8;" data-id="8">
-            <div class="bg-text" style="bottom: 15%; left: 20%;">CENTER</div>
+            <div class="bg-img" style="background-image: url('https://kt-synergy.com/assets/image/showroom/s08.png');"></div>
             <div class="content-box">
                 <div class="section-num">*08</div>
                 <div class="main-title">KT Synergy Team 3<br>신속 기술 지원</div>
@@ -308,11 +276,12 @@
                 <div class="window-image" style="background-image: url('https://kt-synergy.com/assets/image/showroom/s08.png');"></div>
             </div>
         </div>
+
         <div class="section" style="background-color: #F7F7F7;" data-clone="1">
-            <div class="bg-text" style="top: 10%; left: 5%;">SHOWROOM</div>
+            <div class="bg-img" style="background-image: url('https://kt-synergy.com/assets/image/showroom/s01.png');"></div>
             <div class="content-box">
                 <div class="section-num">*01</div>
-                <div class="main-title">용의쇼룸<span class="version-tag">v1.10</span><br>디지털 플랫폼</div>
+                <div class="main-title">용의쇼룸<span class="version-tag">v1.11</span><br>디지털 플랫폼</div>
                 <div class="kiosk-btn">자담치킨 제안서</div>
             </div>
             <div class="window-frame shape-hexagon">
@@ -331,15 +300,12 @@
                 <div class="window-image" style="background-image: url('https://kt-synergy.com/assets/image/showroom/s02.png');"></div>
             </div>
         </div>
-
     </div>
 
     <div class="fullscreen-overlay" id="gifPopup">
         <button class="popup-back-btn" id="closePopupBtn">뒤로가기 ✕</button>
         <img src="https://kt-synergy.com/assets/image/showroom/s10.gif" alt="시연 영상" class="popup-gif-content">
     </div>
-
-    <div class="swipe-guide">마우스 휠 또는 스와이프 ➔</div>
 
     <script>
         const container = document.getElementById('scrollContainer');
@@ -354,69 +320,32 @@
         let lastInteractionTime = Date.now();
         const autoScrollSpeed = slideWidth / (10 * 60); 
         let isUserInteracting = false;
-        let isPopupOpen = false; // 팝업 작동 여부 스위치 변수
+        let isPopupOpen = false;
 
-        // 팝업 엘리먼트 제어 제이쿼리 스타일 자바스크립트
+        // 팝업 제어
         const gifPopup = document.getElementById('gifPopup');
         const openPopupBtn = document.getElementById('openPopupBtn');
         const closePopupBtn = document.getElementById('closePopupBtn');
 
-        // 팝업 열기 매커니즘
-        openPopupBtn.addEventListener('click', () => {
-            gifPopup.classList.add('active');
-            isPopupOpen = true; // 자동 스크롤 일시 정지 지시
-        });
+        openPopupBtn.addEventListener('click', () => { gifPopup.classList.add('active'); isPopupOpen = true; });
+        closePopupBtn.addEventListener('click', () => { gifPopup.classList.remove('active'); isPopupOpen = false; lastInteractionTime = Date.now(); });
 
-        // 팝업 닫기 (뒤로가기 완료) 매커니즘
-        closePopupBtn.addEventListener('click', () => {
-            gifPopup.classList.remove('active');
-            isPopupOpen = false;
-            lastInteractionTime = Date.now(); // 손가락 뗀 시점 초기화 (3~4초 뒤 재출발 연동)
-        });
-
-        container.addEventListener('wheel', (e) => {
-            if(isPopupOpen) return; // 팝업창 켜져 있으면 뒤 스크롤 연산 동결
-            e.preventDefault();
-            isUserInteracting = true;
-            lastInteractionTime = Date.now();
-            targetX += e.deltaY * 0.8;
-        });
+        container.addEventListener('wheel', (e) => { if(isPopupOpen) return; e.preventDefault(); isUserInteracting = true; lastInteractionTime = Date.now(); targetX += e.deltaY * 0.8; });
 
         let startX = 0, startTargetX = 0;
-        container.addEventListener('touchstart', (e) => {
-            if(isPopupOpen) return;
-            isUserInteracting = true;
-            lastInteractionTime = Date.now();
-            startX = e.touches[0].clientX;
-            startTargetX = targetX;
-        });
-
-        container.addEventListener('touchmove', (e) => {
-            if(isPopupOpen) return;
-            const diffX = startX - e.touches[0].clientX;
-            targetX = startTargetX + (diffX * 1.4); 
-            lastInteractionTime = Date.now();
-        });
-
+        container.addEventListener('touchstart', (e) => { if(isPopupOpen) return; isUserInteracting = true; lastInteractionTime = Date.now(); startX = e.touches[0].clientX; startTargetX = targetX; });
+        container.addEventListener('touchmove', (e) => { if(isPopupOpen) return; const diffX = startX - e.touches[0].clientX; targetX = startTargetX + (diffX * 1.4); lastInteractionTime = Date.now(); });
         container.addEventListener('touchend', () => { isUserInteracting = false; });
 
         function animate() {
             const now = Date.now();
-            // 사용자가 조작 중이 아니고, 팝업이 닫혀 있으며, 마지막 조작 후 3.5초가 지났을 때만 천천히 자동 주행
-            if (!isUserInteracting && !isPopupOpen && (now - lastInteractionTime > 3500)) {
-                targetX += autoScrollSpeed; 
-            }
+            if (!isUserInteracting && !isPopupOpen && (now - lastInteractionTime > 3500)) { targetX += autoScrollSpeed; }
 
             const minBoundary = slideWidth;
             const maxBoundary = slideWidth * (totalSlides + 1);
 
-            if (targetX >= maxBoundary) {
-                targetX -= (slideWidth * totalSlides);
-                currentX -= (slideWidth * totalSlides);
-            } else if (targetX < minBoundary) {
-                targetX += (slideWidth * totalSlides);
-                currentX += (slideWidth * totalSlides);
-            }
+            if (targetX >= maxBoundary) { targetX -= (slideWidth * totalSlides); currentX -= (slideWidth * totalSlides); } 
+            else if (targetX < minBoundary) { targetX += (slideWidth * totalSlides); currentX += (slideWidth * totalSlides); }
 
             currentX += (targetX - currentX) * ease;
             container.scrollLeft = currentX;
@@ -425,14 +354,17 @@
                 const offset = currentX - (slideWidth * idx);
                 if (Math.abs(offset) > slideWidth * 1.5) return;
 
-                const bg = sec.querySelector('.bg-text');
+                const bgT = sec.querySelector('.bg-text');
+                const bgI = sec.querySelector('.bg-img'); // [NEW] 배경 이미지 레이어
                 const frame = sec.querySelector('.window-frame');
                 const img = sec.querySelector('.window-image');
                 const num = sec.querySelector('.section-num');
                 const title = sec.querySelector('.main-title');
                 const btn = sec.querySelector('.kiosk-btn');
 
-                if (bg) bg.style.transform = `translateX(${offset * 0.4}px)`;
+                // [NEW] 배경 이미지 시차 효과: 다른 요소보다 더 천천히 움직여 거대한 공간감을 줍니다.
+                if (bgI) bgI.style.transform = `translateX(${offset * 0.1}px)`; 
+                if (bgT) bgT.style.transform = `translateX(${offset * 0.4}px)`;
                 if (num) num.style.transform = `translateX(${offset * -0.03}px)`;
                 if (btn && btn.id !== 'openPopupBtn') btn.style.transform = `translateX(${offset * 0.04}px)`;
 
@@ -443,22 +375,18 @@
                     const scale = 1.0 + (progress * 1.0); 
                     if (frame) frame.style.transform = `translateX(${offset * -0.06}px)`;
                     if (img) img.style.transform = `scale(${scale})`;
-                } 
-                else if (dataId === "6") {
+                } else if (dataId === "6") {
                     const progress = (offset + slideWidth) / (slideWidth * 2);
                     const scale = 2.0 - (progress * 1.5); 
                     if (frame) frame.style.transform = `translateX(${offset * -0.06}px)`;
                     if (img) img.style.transform = `scale(${scale})`;
-                } 
-                else {
+                } else {
                     if (frame) frame.style.transform = `translateX(${offset * -0.06}px)`;
                     if (img) img.style.transform = `translateX(${offset * 0.15}px) scale(1.15)`;
                 }
             });
-
             requestAnimationFrame(animate);
         }
-
         requestAnimationFrame(animate);
     </script>
 </body>
