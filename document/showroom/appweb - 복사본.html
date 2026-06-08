@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>용의쇼룸 가로 패럴랙스 v1.12 [Official Content]</title>
+    <title>용의쇼룸 가로 패럴랙스 v1.11 [Layered BG]</title>
     <style>
         * {
             margin: 0;
@@ -39,16 +39,17 @@
             overflow: hidden;
         }
 
+        /* [NEW] 전체 배경 이미지 레이어 스타일 */
         .bg-img {
             position: absolute;
             top: 0;
-            left: -10%;
+            left: -10%; /* 시차 효과를 위한 여유 공간 */
             width: 120%;
             height: 100%;
             background-size: cover;
             background-position: center;
-            opacity: 0.2;
-            filter: brightness(1.2);
+            opacity: 0.2; /* 은은하게 뒤에 깔리도록 투명도 조절 */
+            filter: brightness(1.2); /* 화이트 테마에 맞게 밝게 처리 */
             z-index: 1;
             will-change: transform;
         }
@@ -67,7 +68,7 @@
         .content-box {
             position: relative;
             z-index: 3;
-            max-width: 700px; /* 타이틀 길이에 맞춰 안정적인 박스 폭 확보 */
+            max-width: 650px;
         }
 
         .version-tag {
@@ -91,9 +92,9 @@
         }
 
         .main-title {
-            font-size: 3.8rem; /* 장문 타이틀 밸런스를 위해 미세 조정 */
+            font-size: 4rem;
             font-weight: bold;
-            line-height: 1.25;
+            line-height: 1.2;
             margin-bottom: 35px;
             color: #111827;
             word-break: keep-all;
@@ -105,10 +106,10 @@
             background: #ffffff;
             border: 1px solid #e5e7eb;
             border-radius: 15px;
-            padding: 22px 45px;
+            padding: 25px 50px;
             color: #1f2937;
             text-decoration: none;
-            font-size: 1.5rem;
+            font-size: 1.6rem;
             font-weight: bold;
             text-align: center;
             box-shadow: 0 10px 25px rgba(0,0,0,0.05);
@@ -172,8 +173,8 @@
             <div class="bg-img" style="background-image: url('https://kt-synergy.com/assets/image/showroom/s08.png');"></div>
             <div class="content-box">
                 <div class="section-num">*08</div>
-                <div class="main-title">KT 시너지3팀<br>기술지원</div>
-                <a href="#" class="kiosk-btn">클릭안됨(임시)</a>
+                <div class="main-title">KT Synergy Team 3<br>신속 기술 지원</div>
+                <a href="#" class="kiosk-btn">고객센터 문의하기</a>
             </div>
             <div class="window-frame shape-square">
                 <div class="window-image" style="background-image: url('https://kt-synergy.com/assets/image/showroom/s08.png');"></div>
@@ -184,8 +185,8 @@
             <div class="bg-img" style="background-image: url('https://kt-synergy.com/assets/image/showroom/s01.png');"></div>
             <div class="content-box">
                 <div class="section-num">*01</div>
-                <div class="main-title">용의쇼룸 디지털 플랫폼<br>테스트페이지<span class="version-tag">v1.12</span></div>
-                <div class="kiosk-btn" id="openPopupBtn">홍보영상시청</div>
+                <div class="main-title">용의쇼룸<span class="version-tag">v1.11</span><br>디지털 플랫폼</div>
+                <div class="kiosk-btn" id="openPopupBtn">자담치킨 제안서</div>
             </div>
             <div class="window-frame shape-hexagon">
                 <div class="window-image" style="background-image: url('https://kt-synergy.com/assets/image/showroom/s01.png');"></div>
@@ -193,11 +194,11 @@
         </div>
 
         <div class="section" style="background-color: #E8E8E8;" data-id="2">
-            <div class="bg-text" style="bottom: 10%; left: 10%;">SYNERGY</div>
+            <div class="bg-text" style="bottom: 10%; left: 10%;">HIORDER</div>
             <div class="content-box">
                 <div class="section-num">*02</div>
-                <div class="main-title">KT 인천지사<br>시너지3팀</div>
-                <a href="#" class="kiosk-btn">테스트중</a>
+                <div class="main-title">KT 하이오더<br>테이블오더 솔루션</div>
+                <a href="#" class="kiosk-btn">하이오더 시연하기</a>
             </div>
             <div class="window-frame shape-square">
                 <div class="window-image" style="background-image: url('https://kt-synergy.com/assets/image/showroom/s02.png');"></div>
@@ -205,11 +206,11 @@
         </div>
 
         <div class="section" style="background-color: #F7F7F7;" data-id="3">
-            <div class="bg-text" style="top: 15%; left: 20%;">HIORDER</div>
+            <div class="bg-text" style="top: 15%; left: 20%;">PORTAL</div>
             <div class="content-box">
                 <div class="section-num">*03</div>
-                <div class="main-title">하이오더<br>- 다국어 지원</div>
-                <a href="#" class="kiosk-btn">클릭안됨(임시)</a>
+                <div class="main-title">네이버 브라우저<br>외부 연동 검증</div>
+                <a href="https://www.naver.com" class="kiosk-btn">네이버 열기</a>
             </div>
             <div class="window-frame shape-circle">
                 <div class="window-image" style="background-image: url('https://kt-synergy.com/assets/image/showroom/s03.png');"></div>
@@ -220,8 +221,8 @@
             <div class="bg-img" style="background-image: url('https://kt-synergy.com/assets/image/showroom/s04.png');"></div>
             <div class="content-box">
                 <div class="section-num">*04</div>
-                <div class="main-title">DX솔루션<br>AI 전화</div>
-                <a href="#" class="kiosk-btn">클릭안됨(임시)</a>
+                <div class="main-title">KT DX 솔루션<br>서빙로봇 시스템</div>
+                <a href="#" class="kiosk-btn">DX 솔루션 안내</a>
             </div>
             <div class="window-frame shape-square">
                 <div class="window-image" style="background-image: url('https://kt-synergy.com/assets/image/showroom/s04.png');"></div>
@@ -229,11 +230,11 @@
         </div>
 
         <div class="section" style="background-color: #F7F7F7;" data-id="5">
-            <div class="bg-text" style="top: 10%; left: 10%;">ROBOT</div>
+            <div class="bg-text" style="top: 10%; left: 10%;">VIDEO</div>
             <div class="content-box">
                 <div class="section-num">*05</div>
-                <div class="main-title">하이오더 / 로봇</div>
-                <a href="#" class="kiosk-btn">클릭안됨(임시)</a>
+                <div class="main-title">현장 도입 사례<br>솔루션 홍보 영상</div>
+                <a href="#" class="kiosk-btn">[성공 사례 시청]</a>
             </div>
             <div class="window-frame shape-hexagon">
                 <div class="window-image" style="background-image: url('https://kt-synergy.com/assets/image/showroom/s05.png');"></div>
@@ -241,11 +242,11 @@
         </div>
 
         <div class="section" style="background-color: #E8E8E8;" data-id="6">
-            <div class="bg-text" style="bottom: 10%; left: 5%;">PROMOTION</div>
+            <div class="bg-text" style="bottom: 10%; left: 5%;">EVENT</div>
             <div class="content-box">
                 <div class="section-num">*06</div>
-                <div class="main-title">6월 한정 프로모션</div>
-                <a href="#" class="kiosk-btn">클릭안됨(임시)</a>
+                <div class="main-title">KT 시너지 지점<br>당월 한정 프로모션</div>
+                <a href="#" class="kiosk-btn">결합 혜택 보기</a>
             </div>
             <div class="window-frame shape-circle">
                 <div class="window-image" style="background-image: url('https://kt-synergy.com/assets/image/showroom/s06.png');"></div>
@@ -253,11 +254,11 @@
         </div>
 
         <div class="section" style="background-color: #F7F7F7;" data-id="7">
-            <div class="bg-text" style="top: 15%; left: 15%;">MARKETING</div>
+            <div class="bg-text" style="top: 15%; left: 15%;">PARTNER</div>
             <div class="content-box">
                 <div class="section-num">*07</div>
-                <div class="main-title">소상공인<br>제휴 마케팅</div>
-                <a href="#" class="kiosk-btn">클릭안됨(임시)</a>
+                <div class="main-title">상생 소상공인<br>제휴 마케팅 정보</div>
+                <a href="#" class="kiosk-btn">가맹점 상생 방안</a>
             </div>
             <div class="window-frame shape-hexagon">
                 <div class="window-image" style="background-image: url('https://kt-synergy.com/assets/image/showroom/s07.png');"></div>
@@ -268,19 +269,20 @@
             <div class="bg-img" style="background-image: url('https://kt-synergy.com/assets/image/showroom/s08.png');"></div>
             <div class="content-box">
                 <div class="section-num">*08</div>
-                <div class="main-title">KT 시너지3팀<br>기술지원</div>
-                <a href="#" class="kiosk-btn">클릭안됨(임시)</a>
+                <div class="main-title">KT Synergy Team 3<br>신속 기술 지원</div>
+                <a href="#" class="kiosk-btn">고객센터 문의하기</a>
             </div>
             <div class="window-frame shape-square">
                 <div class="window-image" style="background-image: url('https://kt-synergy.com/assets/image/showroom/s08.png');"></div>
             </div>
         </div>
+
         <div class="section" style="background-color: #F7F7F7;" data-clone="1">
             <div class="bg-img" style="background-image: url('https://kt-synergy.com/assets/image/showroom/s01.png');"></div>
             <div class="content-box">
                 <div class="section-num">*01</div>
-                <div class="main-title">용의쇼룸 디지털 플랫폼<br>테스트페이지<span class="version-tag">v1.12</span></div>
-                <div class="kiosk-btn">홍보영상시청</div>
+                <div class="main-title">용의쇼룸<span class="version-tag">v1.11</span><br>디지털 플랫폼</div>
+                <div class="kiosk-btn">자담치킨 제안서</div>
             </div>
             <div class="window-frame shape-hexagon">
                 <div class="window-image" style="background-image: url('https://kt-synergy.com/assets/image/showroom/s01.png');"></div>
@@ -288,11 +290,11 @@
         </div>
 
         <div class="section" style="background-color: #E8E8E8;" data-clone="2">
-            <div class="bg-text" style="bottom: 10%; left: 10%;">SYNERGY</div>
+            <div class="bg-text" style="bottom: 10%; left: 10%;">HIORDER</div>
             <div class="content-box">
                 <div class="section-num">*02</div>
-                <div class="main-title">KT 인천지사<br>시너지3팀</div>
-                <a href="#" class="kiosk-btn">테스트중</a>
+                <div class="main-title">KT 하이오더<br>테이블오더 솔루션</div>
+                <a href="#" class="kiosk-btn">하이오더 시연하기</a>
             </div>
             <div class="window-frame shape-square">
                 <div class="window-image" style="background-image: url('https://kt-synergy.com/assets/image/showroom/s02.png');"></div>
@@ -320,6 +322,7 @@
         let isUserInteracting = false;
         let isPopupOpen = false;
 
+        // 팝업 제어
         const gifPopup = document.getElementById('gifPopup');
         const openPopupBtn = document.getElementById('openPopupBtn');
         const closePopupBtn = document.getElementById('closePopupBtn');
@@ -352,13 +355,14 @@
                 if (Math.abs(offset) > slideWidth * 1.5) return;
 
                 const bgT = sec.querySelector('.bg-text');
-                const bgI = sec.querySelector('.bg-img');
+                const bgI = sec.querySelector('.bg-img'); // [NEW] 배경 이미지 레이어
                 const frame = sec.querySelector('.window-frame');
                 const img = sec.querySelector('.window-image');
                 const num = sec.querySelector('.section-num');
                 const title = sec.querySelector('.main-title');
                 const btn = sec.querySelector('.kiosk-btn');
 
+                // [NEW] 배경 이미지 시차 효과: 다른 요소보다 더 천천히 움직여 거대한 공간감을 줍니다.
                 if (bgI) bgI.style.transform = `translateX(${offset * 0.1}px)`; 
                 if (bgT) bgT.style.transform = `translateX(${offset * 0.4}px)`;
                 if (num) num.style.transform = `translateX(${offset * -0.03}px)`;
