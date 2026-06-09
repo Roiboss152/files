@@ -3,165 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>용의쇼룸 가로 패럴랙스 v1.12 [Official Content]</title>
+    <title>용의쇼룸 가로 패럴랙스 v1.18 [Perfect Loop]</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Malgun Gothic', sans-serif;
-            -webkit-user-select: none;
-        }
-
-        body, html {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background-color: #F7F7F7;
-            color: #1f2937;
-        }
-
-        .horizontal-scroll-wrapper {
-            display: flex;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-        }
-
-        .section {
-            flex: 0 0 100vw;
-            width: 100vw;
-            height: 100vh;
-            position: relative;
-            display: flex;
-            align-items: center;
-            padding: 0 100px;
-            overflow: hidden;
-        }
-
-        .bg-img {
-            position: absolute;
-            top: 0;
-            left: -10%;
-            width: 120%;
-            height: 100%;
-            background-size: cover;
-            background-position: center;
-            opacity: 0.2;
-            filter: brightness(1.2);
-            z-index: 1;
-            will-change: transform;
-        }
-
-        .bg-text {
-            position: absolute;
-            font-size: 15rem;
-            font-weight: 900;
-            color: #CCCCCC;
-            opacity: 0.35;
-            z-index: 1;
-            white-space: nowrap;
-            will-change: transform;
-        }
-
-        .content-box {
-            position: relative;
-            z-index: 3;
-            max-width: 700px; /* 타이틀 길이에 맞춰 안정적인 박스 폭 확보 */
-        }
-
-        .version-tag {
-            font-size: 1.1rem;
-            color: #0066ff;
-            vertical-align: super;
-            margin-left: 10px;
-            font-weight: normal;
-            background: rgba(0, 102, 255, 0.08);
-            padding: 2px 8px;
-            border-radius: 6px;
-        }
-
-        .section-num {
-            font-size: 2.5rem;
-            color: #ff3366;
-            font-weight: bold;
-            margin-bottom: 15px;
-            display: inline-block;
-            will-change: transform;
-        }
-
-        .main-title {
-            font-size: 3.8rem; /* 장문 타이틀 밸런스를 위해 미세 조정 */
-            font-weight: bold;
-            line-height: 1.25;
-            margin-bottom: 35px;
-            color: #111827;
-            word-break: keep-all;
-            will-change: transform;
-        }
-
-        .kiosk-btn {
-            display: inline-block;
-            background: #ffffff;
-            border: 1px solid #e5e7eb;
-            border-radius: 15px;
-            padding: 22px 45px;
-            color: #1f2937;
-            text-decoration: none;
-            font-size: 1.5rem;
-            font-weight: bold;
-            text-align: center;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            cursor: pointer;
-            transition: background 0.2s;
-            will-change: transform;
-        }
-
-        .window-frame {
-            position: absolute;
-            right: 8%;
-            width: 650px;
-            height: 650px;
-            overflow: hidden;
-            z-index: 2;
-            will-change: transform;
-            box-shadow: 0 40px 70px rgba(0,0,0,0.08);
-        }
-
-        .shape-square { border-radius: 30px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Noto Sans KR', sans-serif; -webkit-user-select: none; }
+        body, html { width: 100%; height: 100%; overflow: hidden; background-color: #F7F7F7; color: #1f2937; }
+        .horizontal-scroll-wrapper { display: flex; width: 100%; height: 100%; overflow: hidden; }
+        .section { flex: 0 0 100vw; width: 100vw; height: 100vh; position: relative; display: flex; align-items: center; padding: 0 100px; overflow: hidden; }
+        .bg-img-parallax { position: absolute; top: 0; left: -10%; width: 120%; height: 100%; background-size: cover; background-position: center; opacity: 0.15; filter: grayscale(1) brightness(1.2); z-index: 1; will-change: transform; }
+        .bg-text { position: absolute; font-size: 15rem; font-family: 'Montserrat', sans-serif; font-weight: 900; color: #CCCCCC; opacity: 0.3; z-index: 1; white-space: nowrap; will-change: transform; }
+        .content-box { position: relative; z-index: 3; max-width: 750px; }
+        .version-tag { font-size: 1.1rem; color: #0066ff; vertical-align: super; margin-left: 10px; font-weight: normal; background: rgba(0, 102, 255, 0.08); padding: 2px 8px; border-radius: 6px; }
+        .section-num { font-size: 2.5rem; font-family: 'Montserrat', sans-serif; color: #ff3366; font-weight: bold; margin-bottom: 15px; display: inline-block; will-change: transform; }
+        .main-title { font-size: 3.8rem; font-weight: 700; line-height: 1.25; margin-bottom: 40px; color: #111827; word-break: keep-all; will-change: transform; }
+        
+        .kiosk-btn { display: inline-block; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 15px; padding: 25px 55px; color: #1f2937; text-decoration: none; font-size: 1.6rem; font-weight: bold; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.06); cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); will-change: transform; }
+        .kiosk-btn:active { transform: scale(0.96); background: #ff3366; color: #ffffff; border-color: #ff3366; }
+        
+        .window-frame { position: absolute; right: 8%; width: 700px; height: 700px; overflow: hidden; z-index: 2; will-change: transform; box-shadow: 0 45px 80px rgba(0,0,0,0.1); background: #e5e7eb; }
+        .shape-square { border-radius: 40px; }
         .shape-hexagon { clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); }
         .shape-circle { border-radius: 50%; }
+        .window-image { width: 100%; height: 100%; background-size: cover; background-position: center; position: absolute; top: 0; left: 0; will-change: transform; }
 
-        .window-image {
-            width: 100%;
-            height: 100%;
-            background-size: cover;
-            background-position: center;
-            position: absolute;
-            top: 0;
-            left: 0;
-            will-change: transform;
-        }
-
-        .fullscreen-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background-color: rgba(0, 0, 0, 0.95);
-            z-index: 1000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.4s ease;
-        }
-
+        .fullscreen-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0, 0, 0, 0.96); z-index: 1000; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.5s ease; }
         .fullscreen-overlay.active { opacity: 1; pointer-events: auto; }
-        .popup-gif-content { max-width: 90%; max-height: 85%; object-fit: contain; border-radius: 15px; }
-        .popup-back-btn { position: absolute; top: 40px; right: 50px; background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.3); color: #ffffff; padding: 15px 35px; font-size: 1.4rem; font-weight: bold; border-radius: 30px; cursor: pointer; backdrop-filter: blur(10px); }
+        .popup-gif-content { max-width: 90%; max-height: 85%; object-fit: contain; border-radius: 20px; box-shadow: 0 0 50px rgba(0,0,0,0.8); }
+        .popup-back-btn { position: absolute; top: 40px; right: 60px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: #ffffff; padding: 18px 45px; font-size: 1.5rem; font-weight: bold; border-radius: 40px; cursor: pointer; backdrop-filter: blur(15px); transition: 0.3s; }
+        .popup-back-btn:active { background: #ff3366; }
+        .swipe-guide { position: absolute; bottom: 50px; right: 100px; font-size: 1.1rem; color: rgba(0,0,0,0.3); z-index: 10; }
+
+        /* 모바일 세로모드 완벽 대응 */
+        @media screen and (max-width: 768px) {
+            .section { padding: 0 30px; align-items: flex-start; justify-content: center; flex-direction: column; }
+            .content-box { margin-top: 15vh; z-index: 5; width: 100%; }
+            .bg-text { font-size: 5.5rem; top: 8% !important; bottom: auto !important; left: -5% !important; }
+            .section-num { font-size: 1.8rem; margin-bottom: 10px; }
+            .main-title { font-size: 2.2rem; margin-bottom: 30px; line-height: 1.3; }
+            .kiosk-btn { padding: 18px 35px; font-size: 1.2rem; width: 100%; max-width: 300px; }
+            .window-frame { width: 280px; height: 280px; right: 5%; bottom: 10%; top: auto !important; opacity: 0.9; }
+            .swipe-guide { bottom: 20px; right: 30px; font-size: 0.9rem; }
+            .popup-back-btn { top: 20px; right: 20px; padding: 12px 25px; font-size: 1.1rem; }
+            .popup-gif-content { width: 95%; max-height: 70%; }
+        }
     </style>
 </head>
 <body>
@@ -169,11 +55,11 @@
     <div class="horizontal-scroll-wrapper" id="scrollContainer">
         
         <div class="section" style="background-color: #E8E8E8;" data-clone="8">
-            <div class="bg-img" style="background-image: url('https://kt-synergy.com/assets/image/showroom/s08.png');"></div>
+            <div class="bg-img-parallax" style="background-image: url('https://kt-synergy.com/assets/image/showroom/s08.png');"></div>
             <div class="content-box">
-                <div class="section-num">*08</div>
-                <div class="main-title">KT 시너지3팀<br>기술지원</div>
-                <a href="#" class="kiosk-btn">클릭안됨(임시)</a>
+                <div class="section-num">08</div>
+                <div class="main-title">아직도 테이블오더를 고민하시나요?<br>결국, 정답은 KT 하이오더입니다</div>
+                <a href="#" class="kiosk-btn">📞 시너지3팀 다이렉트 문의</a>
             </div>
             <div class="window-frame shape-square">
                 <div class="window-image" style="background-image: url('https://kt-synergy.com/assets/image/showroom/s08.png');"></div>
@@ -181,11 +67,11 @@
         </div>
 
         <div class="section" style="background-color: #F7F7F7;" data-id="1">
-            <div class="bg-img" style="background-image: url('https://kt-synergy.com/assets/image/showroom/s01.png');"></div>
+            <div class="bg-img-parallax" style="background-image: url('https://kt-synergy.com/assets/image/showroom/s01.png');"></div>
             <div class="content-box">
-                <div class="section-num">*01</div>
-                <div class="main-title">용의쇼룸 디지털 플랫폼<br>테스트페이지<span class="version-tag">v1.12</span></div>
-                <div class="kiosk-btn" id="openPopupBtn">홍보영상시청</div>
+                <div class="section-num">01</div>
+                <div class="main-title">테이블오더의 새로운 기준<br>성공 비즈니스의 시작<span class="version-tag">v1.18</span></div>
+                <div class="kiosk-btn" id="openPopupBtn">🎬 하이오더 홍보영상 시청</div>
             </div>
             <div class="window-frame shape-hexagon">
                 <div class="window-image" style="background-image: url('https://kt-synergy.com/assets/image/showroom/s01.png');"></div>
@@ -195,9 +81,9 @@
         <div class="section" style="background-color: #E8E8E8;" data-id="2">
             <div class="bg-text" style="bottom: 10%; left: 10%;">SYNERGY</div>
             <div class="content-box">
-                <div class="section-num">*02</div>
-                <div class="main-title">KT 인천지사<br>시너지3팀</div>
-                <a href="#" class="kiosk-btn">테스트중</a>
+                <div class="section-num">02</div>
+                <div class="main-title">매장 맞춤형 1:1 컨설팅<br>믿을 수 있는 파트너, 시너지3팀</div>
+                <a href="#" class="kiosk-btn">🤝 전담 매니저 포트폴리오</a>
             </div>
             <div class="window-frame shape-square">
                 <div class="window-image" style="background-image: url('https://kt-synergy.com/assets/image/showroom/s02.png');"></div>
@@ -205,11 +91,11 @@
         </div>
 
         <div class="section" style="background-color: #F7F7F7;" data-id="3">
-            <div class="bg-text" style="top: 15%; left: 20%;">HIORDER</div>
+            <div class="bg-text" style="top: 15%; left: 20%;">NETWORK</div>
             <div class="content-box">
-                <div class="section-num">*03</div>
-                <div class="main-title">하이오더<br>- 다국어 지원</div>
-                <a href="#" class="kiosk-btn">클릭안됨(임시)</a>
+                <div class="section-num">03</div>
+                <div class="main-title">타사 6개 vs KT 150개<br>압도적인 전국 AS 인프라</div>
+                <a href="#" class="kiosk-btn">🛠️ 내 매장 주변 AS센터 확인</a>
             </div>
             <div class="window-frame shape-circle">
                 <div class="window-image" style="background-image: url('https://kt-synergy.com/assets/image/showroom/s03.png');"></div>
@@ -217,11 +103,11 @@
         </div>
 
         <div class="section" style="background-color: #E8E8E8;" data-id="4">
-            <div class="bg-img" style="background-image: url('https://kt-synergy.com/assets/image/showroom/s04.png');"></div>
+            <div class="bg-img-parallax" style="background-image: url('https://kt-synergy.com/assets/image/showroom/s04.png');"></div>
             <div class="content-box">
-                <div class="section-num">*04</div>
-                <div class="main-title">DX솔루션<br>AI 전화</div>
-                <a href="#" class="kiosk-btn">클릭안됨(임시)</a>
+                <div class="section-num">04</div>
+                <div class="main-title">결제 수수료 ZERO<br>월 수십만 원 아끼는 VAN 결제</div>
+                <a href="#" class="kiosk-btn">💰 우리 매장 수수료 절감액 계산</a>
             </div>
             <div class="window-frame shape-square">
                 <div class="window-image" style="background-image: url('https://kt-synergy.com/assets/image/showroom/s04.png');"></div>
@@ -229,11 +115,11 @@
         </div>
 
         <div class="section" style="background-color: #F7F7F7;" data-id="5">
-            <div class="bg-text" style="top: 10%; left: 10%;">ROBOT</div>
+            <div class="bg-text" style="top: 10%; left: 10%;">BRANDS</div>
             <div class="content-box">
-                <div class="section-num">*05</div>
-                <div class="main-title">하이오더 / 로봇</div>
-                <a href="#" class="kiosk-btn">클릭안됨(임시)</a>
+                <div class="section-num">05</div>
+                <div class="main-title">600여 개 대형 브랜드의 선택<br>검증된 하이오더 & 서빙로봇</div>
+                <a href="#" class="kiosk-btn">🏢 대형 프랜차이즈 도입 사례</a>
             </div>
             <div class="window-frame shape-hexagon">
                 <div class="window-image" style="background-image: url('https://kt-synergy.com/assets/image/showroom/s05.png');"></div>
@@ -243,9 +129,9 @@
         <div class="section" style="background-color: #E8E8E8;" data-id="6">
             <div class="bg-text" style="bottom: 10%; left: 5%;">PROMOTION</div>
             <div class="content-box">
-                <div class="section-num">*06</div>
-                <div class="main-title">6월 한정 프로모션</div>
-                <a href="#" class="kiosk-btn">클릭안됨(임시)</a>
+                <div class="section-num">06</div>
+                <div class="main-title">타사 위약금? 성급한 판단은 금물!<br>6월 한정 파격 결합 프로모션</div>
+                <a href="#" class="kiosk-btn">🎁 6월 시크릿 특별 혜택 보기</a>
             </div>
             <div class="window-frame shape-circle">
                 <div class="window-image" style="background-image: url('https://kt-synergy.com/assets/image/showroom/s06.png');"></div>
@@ -255,9 +141,9 @@
         <div class="section" style="background-color: #F7F7F7;" data-id="7">
             <div class="bg-text" style="top: 15%; left: 15%;">MARKETING</div>
             <div class="content-box">
-                <div class="section-num">*07</div>
-                <div class="main-title">소상공인<br>제휴 마케팅</div>
-                <a href="#" class="kiosk-btn">클릭안됨(임시)</a>
+                <div class="section-num">07</div>
+                <div class="main-title">스마트폰으로 스캔만 하세요<br>간편한 원스톱 상담 신청</div>
+                <a href="#" class="kiosk-btn">📱 상담 신청 QR코드 확대</a>
             </div>
             <div class="window-frame shape-hexagon">
                 <div class="window-image" style="background-image: url('https://kt-synergy.com/assets/image/showroom/s07.png');"></div>
@@ -265,22 +151,23 @@
         </div>
 
         <div class="section" style="background-color: #E8E8E8;" data-id="8">
-            <div class="bg-img" style="background-image: url('https://kt-synergy.com/assets/image/showroom/s08.png');"></div>
+            <div class="bg-img-parallax" style="background-image: url('https://kt-synergy.com/assets/image/showroom/s08.png');"></div>
             <div class="content-box">
-                <div class="section-num">*08</div>
-                <div class="main-title">KT 시너지3팀<br>기술지원</div>
-                <a href="#" class="kiosk-btn">클릭안됨(임시)</a>
+                <div class="section-num">08</div>
+                <div class="main-title">아직도 테이블오더를 고민하시나요?<br>결국, 정답은 KT 하이오더입니다</div>
+                <a href="#" class="kiosk-btn">📞 시너지3팀 다이렉트 문의</a>
             </div>
             <div class="window-frame shape-square">
                 <div class="window-image" style="background-image: url('https://kt-synergy.com/assets/image/showroom/s08.png');"></div>
             </div>
         </div>
+        
         <div class="section" style="background-color: #F7F7F7;" data-clone="1">
-            <div class="bg-img" style="background-image: url('https://kt-synergy.com/assets/image/showroom/s01.png');"></div>
+            <div class="bg-img-parallax" style="background-image: url('https://kt-synergy.com/assets/image/showroom/s01.png');"></div>
             <div class="content-box">
-                <div class="section-num">*01</div>
-                <div class="main-title">용의쇼룸 디지털 플랫폼<br>테스트페이지<span class="version-tag">v1.12</span></div>
-                <div class="kiosk-btn">홍보영상시청</div>
+                <div class="section-num">01</div>
+                <div class="main-title">테이블오더의 새로운 기준<br>성공 비즈니스의 시작<span class="version-tag">v1.18</span></div>
+                <div class="kiosk-btn">🎬 하이오더 홍보영상 시청</div>
             </div>
             <div class="window-frame shape-hexagon">
                 <div class="window-image" style="background-image: url('https://kt-synergy.com/assets/image/showroom/s01.png');"></div>
@@ -290,9 +177,9 @@
         <div class="section" style="background-color: #E8E8E8;" data-clone="2">
             <div class="bg-text" style="bottom: 10%; left: 10%;">SYNERGY</div>
             <div class="content-box">
-                <div class="section-num">*02</div>
-                <div class="main-title">KT 인천지사<br>시너지3팀</div>
-                <a href="#" class="kiosk-btn">테스트중</a>
+                <div class="section-num">02</div>
+                <div class="main-title">매장 맞춤형 1:1 컨설팅<br>믿을 수 있는 파트너, 시너지3팀</div>
+                <a href="#" class="kiosk-btn">🤝 전담 매니저 포트폴리오</a>
             </div>
             <div class="window-frame shape-square">
                 <div class="window-image" style="background-image: url('https://kt-synergy.com/assets/image/showroom/s02.png');"></div>
@@ -305,15 +192,19 @@
         <img src="https://kt-synergy.com/assets/image/showroom/s10.gif" alt="시연 영상" class="popup-gif-content">
     </div>
 
+    <div class="swipe-guide">스와이프 ➔</div>
+
     <script>
         const container = document.getElementById('scrollContainer');
         const sections = document.querySelectorAll('.section');
-        const slideWidth = window.innerWidth;
         const totalSlides = 8;
         
-        let targetX = slideWidth;
+        // [수정됨] 반응형 대응을 위해 let으로 선언하여 실시간 갱신 허용
+        let slideWidth = window.innerWidth; 
+        
+        let targetX = slideWidth; 
         let currentX = slideWidth;
-        const ease = 0.05;
+        const ease = 0.05; 
         
         let lastInteractionTime = Date.now();
         const autoScrollSpeed = slideWidth / (10 * 60); 
@@ -327,32 +218,64 @@
         openPopupBtn.addEventListener('click', () => { gifPopup.classList.add('active'); isPopupOpen = true; });
         closePopupBtn.addEventListener('click', () => { gifPopup.classList.remove('active'); isPopupOpen = false; lastInteractionTime = Date.now(); });
 
-        container.addEventListener('wheel', (e) => { if(isPopupOpen) return; e.preventDefault(); isUserInteracting = true; lastInteractionTime = Date.now(); targetX += e.deltaY * 0.8; });
+        container.addEventListener('wheel', (e) => { if(isPopupOpen) return; e.preventDefault(); isUserInteracting = true; lastInteractionTime = Date.now(); targetX += e.deltaY * 0.8; }, {passive: false});
 
         let startX = 0, startTargetX = 0;
-        container.addEventListener('touchstart', (e) => { if(isPopupOpen) return; isUserInteracting = true; lastInteractionTime = Date.now(); startX = e.touches[0].clientX; startTargetX = targetX; });
-        container.addEventListener('touchmove', (e) => { if(isPopupOpen) return; const diffX = startX - e.touches[0].clientX; targetX = startTargetX + (diffX * 1.4); lastInteractionTime = Date.now(); });
+        container.addEventListener('touchstart', (e) => { 
+            if(isPopupOpen) return; 
+            isUserInteracting = true; 
+            lastInteractionTime = Date.now(); 
+            startX = e.touches[0].clientX; 
+            startTargetX = targetX; 
+        }, {passive: true});
+        
+        container.addEventListener('touchmove', (e) => { 
+            if(isPopupOpen) return; 
+            const diffX = startX - e.touches[0].clientX; 
+            targetX = startTargetX + (diffX * 1.8); 
+            lastInteractionTime = Date.now(); 
+        }, {passive: true});
+        
         container.addEventListener('touchend', () => { isUserInteracting = false; });
+
+        // [수정됨] 모바일 가로/세로 전환 시 화면 폭 동기화 보정
+        window.addEventListener('resize', () => {
+            const newSlideWidth = window.innerWidth;
+            targetX = (targetX / slideWidth) * newSlideWidth;
+            currentX = (currentX / slideWidth) * newSlideWidth;
+            slideWidth = newSlideWidth; 
+        });
 
         function animate() {
             const now = Date.now();
-            if (!isUserInteracting && !isPopupOpen && (now - lastInteractionTime > 3500)) { targetX += autoScrollSpeed; }
+            if (!isUserInteracting && !isPopupOpen && (now - lastInteractionTime > 3500)) { 
+                targetX += slideWidth / (10 * 60); 
+            }
 
-            const minBoundary = slideWidth;
-            const maxBoundary = slideWidth * (totalSlides + 1);
+            // ★ [핵심 튕김 수정 구역] 오작동을 막기 위해 경계선을 정중앙(0.5)으로 넓게 확장! ★
+            const minBoundary = slideWidth * 0.5;
+            const maxBoundary = slideWidth * 8.5;
 
-            if (targetX >= maxBoundary) { targetX -= (slideWidth * totalSlides); currentX -= (slideWidth * totalSlides); } 
-            else if (targetX < minBoundary) { targetX += (slideWidth * totalSlides); currentX += (slideWidth * totalSlides); }
+            if (targetX >= maxBoundary) { 
+                targetX -= (slideWidth * totalSlides); 
+                currentX -= (slideWidth * totalSlides); 
+                startTargetX -= (slideWidth * totalSlides); // 스와이프 도중 좌표 엉킴 방지
+            } 
+            else if (targetX <= minBoundary) { 
+                targetX += (slideWidth * totalSlides); 
+                currentX += (slideWidth * totalSlides); 
+                startTargetX += (slideWidth * totalSlides); 
+            }
 
             currentX += (targetX - currentX) * ease;
             container.scrollLeft = currentX;
 
             sections.forEach((sec, idx) => {
                 const offset = currentX - (slideWidth * idx);
-                if (Math.abs(offset) > slideWidth * 1.5) return;
+                if (Math.abs(offset) > slideWidth * 1.5) return; 
 
                 const bgT = sec.querySelector('.bg-text');
-                const bgI = sec.querySelector('.bg-img');
+                const bgI = sec.querySelector('.bg-img-parallax');
                 const frame = sec.querySelector('.window-frame');
                 const img = sec.querySelector('.window-image');
                 const num = sec.querySelector('.section-num');
@@ -361,8 +284,8 @@
 
                 if (bgI) bgI.style.transform = `translateX(${offset * 0.1}px)`; 
                 if (bgT) bgT.style.transform = `translateX(${offset * 0.4}px)`;
-                if (num) num.style.transform = `translateX(${offset * -0.03}px)`;
-                if (btn && btn.id !== 'openPopupBtn') btn.style.transform = `translateX(${offset * 0.04}px)`;
+                if (num) num.style.transform = `translateX(${offset * -0.04}px)`;
+                if (btn && btn.id !== 'openPopupBtn') btn.style.transform = `translateX(${offset * 0.05}px)`;
 
                 const dataId = sec.getAttribute('data-id') || sec.getAttribute('data-clone');
                 
