@@ -3,240 +3,142 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>KT 하이오더 쇼룸 [시너지3팀]</title>
-    <!-- QR 생성 라이브러리 -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <title>KT 하이오더 맞춤 견적서</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Noto Sans KR', sans-serif; -webkit-user-select: none; }
-        body, html { width: 100%; height: 100%; overflow: hidden; background-color: #F7F7F7; }
+        body { background-color: #f4f6f8; font-family: 'Noto Sans KR', sans-serif; margin: 0; padding: 0; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
         
-        /* 가로 스크롤 및 스와이프 최적화 (태블릿 맞춤) */
-        .horizontal-scroll-wrapper { 
-            display: flex; 
-            width: 100vw; 
-            height: 100vh; 
-            overflow-x: auto; 
-            overflow-y: hidden; 
-            scroll-snap-type: x mandatory; 
-            -webkit-overflow-scrolling: touch; 
-            scrollbar-width: none; /* Firefox */
-        }
-        .horizontal-scroll-wrapper::-webkit-scrollbar { display: none; } /* Chrome, Safari */
+        /* 상단 헤더 */
+        .header { text-align: center; padding: 30px 0 20px; }
+        .header h1 { font-size: 1.4rem; color: #111; margin-bottom: 8px; font-weight: 700; }
+        .header p { color: #ff3366; font-weight: bold; font-size: 1.2rem; }
         
-        .section { 
-            flex: 0 0 100vw; 
-            width: 100vw; 
-            height: 100vh; 
-            position: relative; 
-            scroll-snap-align: start; 
-        }
+        /* 견적서 카드 내용 */
+        .card { background: #fff; border-radius: 15px; padding: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .card h2 { font-size: 1.2rem; margin-top: 0; margin-bottom: 20px; border-bottom: 2px solid #111; padding-bottom: 10px; color: #111; }
         
-        /* 공통 레이아웃 */
-        .content-box { position: absolute; top: 5vh; left: 5vw; z-index: 3; }
-        .main-title { font-weight: 700; color: #111; white-space: nowrap; line-height: 1.3; }
-        .section-num { color: #ff3366; font-weight: bold; margin-bottom: 5px; }
+        .item-row { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 0.95rem; color: #555; }
+        .item-row strong { color: #111; font-size: 1.05rem; }
         
-        .window-frame { 
-            position: absolute; top: 15vh; left: 50%; transform: translateX(-50%); 
-            width: 85vw; height: 65vh; z-index: 2; 
-            background-size: contain; background-repeat: no-repeat; background-position: center; 
-            background-color: transparent;
-        }
-
-        /* 우측 하단 플로팅 버튼 */
-        .fixed-bottom-bar { 
-            position: fixed; bottom: 30px; right: 30px; 
-            background: #ff3366; color: white; text-align: center; 
-            border-radius: 20px; font-weight: bold; cursor: pointer; 
-            z-index: 999; box-shadow: 0 10px 20px rgba(255, 51, 102, 0.4); 
-            display: flex; align-items: center; justify-content: center; line-height: 1.4;
-            transition: transform 0.2s;
-        }
-        .fixed-bottom-bar:active { transform: scale(0.95); }
-
-        /* 팝업창 스타일 */
-        .fullscreen-overlay { 
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
-            background: rgba(0,0,0,0.85); z-index: 1000; 
-            display: none; justify-content: center; align-items: center; 
-        }
-        .fullscreen-overlay.active { display: flex; }
-        .popup-container { 
-            background: #fff; width: 90%; max-width: 450px; 
-            padding: 30px; border-radius: 20px; position: relative; 
-            display: flex; flex-direction: column; align-items: center; text-align: center;
-        }
-        .popup-close { position: absolute; top: 15px; right: 20px; font-size: 1.5rem; cursor: pointer; border: none; background: none; color: #333; }
+        .divider { border-top: 1px dashed #ddd; margin: 15px 0; }
         
-        .popup-container h3 { margin-bottom: 20px; color: #111; font-size: 1.4rem; }
-        .input-group { width: 100%; margin-bottom: 15px; }
-        .input-group input { width: 100%; padding: 15px; border: 1px solid #ddd; border-radius: 10px; font-size: 1rem; outline: none; }
-        .input-group input:focus { border-color: #ff3366; }
+        /* 최종 합계 영역 */
+        .total-row { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; background: #f9f9f9; padding: 20px 15px; border-radius: 10px; }
+        .total-row span { font-size: 1rem; font-weight: bold; color: #555; }
+        .total-row strong { font-size: 1.8rem; color: #00a67e; }
         
-        button#submitBtn { 
-            width: 100%; padding: 15px; background: #ff3366; color: white; 
-            border: none; border-radius: 10px; font-weight: bold; font-size: 1.1rem; 
-            cursor: pointer; margin-top: 10px;
-        }
+        /* 메가커피 쿠폰 안내 영역 */
+        .benefit-box { background: #fff0f5; border: 1px solid #ffcccc; border-radius: 15px; padding: 20px; text-align: left; }
+        .benefit-box h3 { color: #ff3366; margin-top: 0; font-size: 1.1rem; margin-bottom: 10px; display: flex; align-items: center; }
+        .benefit-box p { font-size: 0.9rem; line-height: 1.6; color: #555; margin: 0; word-break: keep-all; }
         
-        #qrcodeContainer { margin-top: 20px; display: none; flex-direction: column; align-items: center; }
-        #qrcode { margin-top: 10px; padding: 10px; background: #fff; border: 1px solid #eee; border-radius: 10px; }
-        .success-msg { color: #ff3366; font-weight: bold; margin-top: 10px; font-size: 1.1rem; }
-
-        /* PC/태블릿 반응형 */
-        @media screen and (min-width: 1024px) {
-            .main-title { font-size: 3.5rem; }
-            .section-num { font-size: 2rem; }
-            .fixed-bottom-bar { width: 350px; height: 120px; font-size: 1.4rem; border-radius: 25px; }
-            /* PC에서는 마우스 휠로 가로 스크롤 지원 */
-            .horizontal-scroll-wrapper { overflow-x: hidden; } 
-        }
-        @media screen and (max-width: 1023px) {
-            .main-title { font-size: 1.8rem; }
-            .section-num { font-size: 1.2rem; }
-            .fixed-bottom-bar { width: 220px; height: 90px; font-size: 0.95rem; right: 20px; bottom: 20px; }
-        }
+        /* 담당자 연결 버튼 */
+        .contact-btn { display: block; width: 100%; background: #111; color: #fff; text-align: center; padding: 18px; border-radius: 12px; text-decoration: none; font-weight: bold; font-size: 1.1rem; margin-top: 20px; transition: 0.2s; }
+        .contact-btn:active { background: #ff3366; transform: scale(0.98); }
+        
+        .footer { text-align: center; margin-top: 30px; font-size: 0.85rem; color: #aaa; margin-bottom: 30px; }
     </style>
 </head>
 <body>
 
-    <!-- 가로 스크롤 전체 컨테이너 -->
-    <div class="horizontal-scroll-wrapper" id="scrollContainer">
-        
-        <!-- 섹션 1: 메인 소개 -->
-        <div class="section">
-            <div class="content-box">
-                <div class="section-num">01</div>
-                <div class="main-title">KT 하이오더,<br>매출을 올리는 새로운 방법</div>
-            </div>
-            <div class="window-frame" style="background-image: url('https://kt-synergy.com/assets/image/showroom/기능1.jpg');"></div>
+    <div class="container">
+        <div class="header">
+            <h1>KT 하이오더 모바일 견적서</h1>
+            <p id="storeNameDisplay">고객님을 위한 특별 혜택</p>
         </div>
 
-        <!-- 섹션 2: 수수료 안내 -->
-        <div class="section">
-            <div class="content-box">
-                <div class="section-num">02</div>
-                <div class="main-title">부담 없는 수수료,<br>사장님의 이익을 극대화합니다</div>
-            </div>
-            <div class="window-frame" style="background-image: url('https://kt-synergy.com/assets/image/showroom/기능2.jpg');"></div>
-        </div>
-
-        <!-- 섹션 3: 기능 특장점 -->
-        <div class="section">
-            <div class="content-box">
-                <div class="section-num">03</div>
-                <div class="main-title">하이오더 특장점,<br>테이블오더, 왜 필요할까요?</div>
-            </div>
-            <div class="window-frame" style="background-image: url('https://kt-synergy.com/assets/image/showroom/기능3.jpg');"></div>
-        </div>
-
-    </div>
-
-    <!-- 우측 하단 플로팅 버튼 (마케팅 문구) -->
-    <div class="fixed-bottom-bar" id="openEstimateBtn">
-        🎁 10초 견적 확인하고<br>메가커피 쿠폰 받기
-    </div>
-
-    <!-- 견적 및 팝업창 -->
-    <div class="fullscreen-overlay" id="estimatePopup">
-        <div class="popup-container">
-            <button class="popup-close" id="closeEstimateBtn">✕</button>
-            <h3>견적 확인 및 쿠폰 수령</h3>
+        <div class="card">
+            <h2>선택하신 기기 내역</h2>
             
-            <div id="formContainer" style="width: 100%;">
-                <div class="input-group">
-                    <input type="text" id="storeName" placeholder="매장명 (예: 하이식당)">
-                </div>
-                <div class="input-group">
-                    <input type="text" id="userName" placeholder="대표자 성함">
-                </div>
-                <div class="input-group">
-                    <input type="tel" id="userPhone" placeholder="연락처 (- 없이 입력)">
-                </div>
-                <button id="submitBtn">견적 확인 및 쿠폰 받기</button>
+            <div id="itemList">
+                <!-- 자바스크립트로 선택한 기기 목록이 여기에 출력됩니다 -->
             </div>
+            
+            <div class="divider"></div>
+            
+            <div class="item-row">
+                <span>메뉴판 합계 금액</span>
+                <strong id="menuSum">0원</strong>
+            </div>
+            <div class="item-row">
+                <span>알림판 합계 금액</span>
+                <strong id="alarmSum">0원</strong>
+            </div>
+            
+            <div class="total-row">
+                <span>예상 월 이용요금<br><span style="font-size:0.75rem; color:#999; font-weight:normal;">* VAT 별도</span></span>
+                <strong id="totalCost">0원</strong>
+            </div>
+        </div>
 
-            <!-- QR 코드 표시 영역 (제출 후 나타남) -->
-            <div id="qrcodeContainer">
-                <div class="success-msg">✅ 견적 요청이 완료되었습니다!</div>
-                <p style="margin-top: 5px; color: #555; font-size: 0.9rem;">아래 QR코드를 스캔하여 쿠폰을 받아가세요.</p>
-                <div id="qrcode"></div>
-            </div>
+        <div class="benefit-box">
+            <h3>☕ 메가커피 쿠폰 발송 안내</h3>
+            <p>
+                현재 보고 계신 견적서를 캡처해 두시면 향후 상담 시 훨씬 수월합니다!<br><br>
+                남겨주신 연락처로 <strong>송용의 과장</strong>이 내역을 확인한 후 순차적으로 메가커피 쿠폰을 발송해 드릴 예정입니다. 조금만 기다려 주시면 감사하겠습니다.
+            </p>
+        </div>
+        
+        <!-- 과장님 전화번호로 바로 걸리도록 설정하려면 href="tel:010-XXXX-XXXX" 로 변경하세요 -->
+        <a href="#" class="contact-btn" onclick="alert('담당자(송용의 과장)에게 상담 요청이 접수되어 있습니다. 곧 연락드리겠습니다!'); return false;">담당자에게 빠른 상담 받기</a>
+
+        <div class="footer">
+            KT 하이오더 시너지3팀
         </div>
     </div>
 
     <script>
-        // PC 환경에서 마우스 휠로 가로 스크롤 제어
-        const scrollContainer = document.getElementById('scrollContainer');
-        scrollContainer.addEventListener('wheel', (evt) => {
-            if (window.innerWidth >= 1024) {
-                evt.preventDefault();
-                scrollContainer.scrollLeft += evt.deltaY * 2;
-            }
-        });
+        // 숫자에 콤마 찍어주는 함수
+        function formatN(num) {
+            return num.toLocaleString('ko-KR') + '원';
+        }
 
-        // 팝업 열기/닫기 로직
-        const estimatePopup = document.getElementById('estimatePopup');
-        const formContainer = document.getElementById('formContainer');
-        const qrcodeContainer = document.getElementById('qrcodeContainer');
-        const qrcodeDiv = document.getElementById('qrcode');
+        // QR코드 주소창에서 정보(파라미터) 빼오기
+        const params = new URLSearchParams(window.location.search);
+        const store = params.get('store') || '고객';
+        const postQty = parseInt(params.get('post') || 0);
+        const preQty = parseInt(params.get('pre') || 0);
+        const al10Qty = parseInt(params.get('al10') || 0);
+        const al15Qty = parseInt(params.get('al15') || 0);
+
+        // 월 요금 세팅
+        const pricePost = 20000;
+        const pricePre = 22000;
+        const priceAl10 = 20000;
+        const priceAl15 = 22000;
+
+        // 개별 요금 계산
+        const costPost = postQty * pricePost;
+        const costPre = preQty * pricePre;
+        const costAl10 = al10Qty * priceAl10;
+        const costAl15 = al15Qty * priceAl15;
+
+        // 합계 계산
+        const menuTotal = costPost + costPre;
+        const alarmTotal = costAl10 + costAl15;
+        const grandTotal = menuTotal + alarmTotal;
+
+        // 화면에 매장명 뿌려주기
+        document.getElementById('storeNameDisplay').innerText = store + ' 매장 맞춤 견적';
+
+        // 선택한 기기만 리스트에 추가
+        let itemListHtml = '';
+        if(postQty > 0) itemListHtml += `<div class="item-row"><span>✔ 후불형 메뉴판 (${postQty}대)</span><strong>${formatN(costPost)}</strong></div>`;
+        if(preQty > 0) itemListHtml += `<div class="item-row"><span>✔ 선불형 메뉴판 (${preQty}대)</span><strong>${formatN(costPre)}</strong></div>`;
+        if(al10Qty > 0) itemListHtml += `<div class="item-row"><span>✔ 10인치 알림판 (${al10Qty}대)</span><strong>${formatN(costAl10)}</strong></div>`;
+        if(al15Qty > 0) itemListHtml += `<div class="item-row"><span>✔ 15인치 알림판 (${al15Qty}대)</span><strong>${formatN(costAl15)}</strong></div>`;
         
-        document.getElementById('openEstimateBtn').addEventListener('click', () => {
-            estimatePopup.classList.add('active');
-            // 팝업 열 때 초기화
-            formContainer.style.display = 'block';
-            qrcodeContainer.style.display = 'none';
-            qrcodeDiv.innerHTML = '';
-            document.getElementById('storeName').value = '';
-            document.getElementById('userName').value = '';
-            document.getElementById('userPhone').value = '';
-        });
+        if(itemListHtml === '') {
+            itemListHtml = '<div style="text-align:center; color:#999; padding:20px 0;">선택된 기기가 없습니다.</div>';
+        }
 
-        document.getElementById('closeEstimateBtn').addEventListener('click', () => {
-            estimatePopup.classList.remove('active');
-        });
-
-        // 데이터 전송 및 QR 생성 로직
-        document.getElementById('submitBtn').addEventListener('click', () => {
-            const store = document.getElementById('storeName').value;
-            const name = document.getElementById('userName').value;
-            const phone = document.getElementById('userPhone').value;
-            
-            if(!store || !name || !phone) {
-                alert("정보를 모두 입력해주세요.");
-                return;
-            }
-
-            // 1. 텔레그램 전송
-            const botToken = '8708881644:AAHXQ0aPQiCwW9fzosVMblNVIig8KKLjDCI'; 
-            const chatId = '458348198';
-            const message = `🔔 [메가커피 견적 요청]\n상호명: ${store}\n성함: ${name}\n연락처: ${phone}`;
-
-            fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ chat_id: chatId, text: message })
-            }).then(response => {
-                // 2. 전송 성공 시 폼을 숨기고 QR코드 생성
-                formContainer.style.display = 'none';
-                qrcodeContainer.style.display = 'flex';
-                
-                // 마케팅용 URL (예시)
-                const eventUrl = `https://kt-synergy.com/event?phone=${phone}`;
-                
-                new QRCode(qrcodeDiv, {
-                    text: eventUrl,
-                    width: 150,
-                    height: 150,
-                    colorDark : "#000000",
-                    colorLight : "#ffffff",
-                    correctLevel : QRCode.CorrectLevel.H
-                });
-
-            }).catch(err => {
-                alert("네트워크 오류가 발생했습니다. 다시 시도해주세요.");
-            });
-        });
+        document.getElementById('itemList').innerHTML = itemListHtml;
+        document.getElementById('menuSum').innerText = formatN(menuTotal);
+        document.getElementById('alarmSum').innerText = formatN(alarmTotal);
+        document.getElementById('totalCost').innerText = formatN(grandTotal);
     </script>
 </body>
 </html>
