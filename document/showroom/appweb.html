@@ -7,38 +7,36 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
+    
+    <!-- ★ QR 코드 생성 라이브러리 추가 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Noto Sans KR', sans-serif; -webkit-user-select: none; }
         body, html { width: 100%; height: 100%; overflow: hidden; background-color: #F7F7F7; color: #1f2937; }
         .horizontal-scroll-wrapper { display: flex; width: 100%; height: 100%; overflow: hidden; }
         
-        /* 섹션 레이아웃 */
         .section { flex: 0 0 100vw; width: 100vw; height: 100vh; position: relative; padding: 8vh 8vw; overflow: hidden; }
         .bg-text { position: absolute; font-size: 10rem; font-family: 'Montserrat', sans-serif; font-weight: 900; color: #CCCCCC; opacity: 0.15; z-index: 1; white-space: nowrap; will-change: transform; letter-spacing: -2px; }
         .content-box { position: absolute; top: 10vh; left: 8vw; z-index: 3; max-width: 800px; }
         .section-num { font-size: 2rem; font-family: 'Montserrat', sans-serif; color: #ff3366; font-weight: bold; margin-bottom: 10px; display: inline-block; }
         .main-title { font-size: 3rem; font-weight: 700; line-height: 1.3; color: #111827; word-break: keep-all; text-shadow: 2px 2px 10px rgba(255,255,255,0.8); }
         
-        /* 첫 페이지 동영상 버튼 */
         .kiosk-btn { display: inline-block; background: #111827; border-radius: 12px; padding: 15px 35px; color: #ffffff; text-decoration: none; font-size: 1.2rem; font-weight: bold; text-align: center; margin-top: 20px; cursor: pointer; transition: 0.2s; box-shadow: 0 10px 20px rgba(0,0,0,0.1); pointer-events: auto; }
         .kiosk-btn:active { transform: scale(0.96); background: #ff3366; }
         
-        /* 이미지/영상 프레임 */
         .window-frame { position: absolute; top: 32vh; left: 50%; transform: translateX(-50%); width: 75vw; max-width: 1000px; height: 50vh; overflow: hidden; z-index: 2; background: transparent; border-radius: 15px; }
         .window-image { width: 100%; height: 100%; background-size: contain; background-repeat: no-repeat; background-position: center; position: absolute; top: 0; left: 0; }
-        .video-bg { width: 100%; height: 100%; border: none; pointer-events: none; } /* 배경 영상 클릭 방지 */
+        .video-bg { width: 100%; height: 100%; border: none; pointer-events: none; } 
 
-        /* 하단 고정 견적 버튼 */
         .fixed-bottom-bar { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 700px; background: #ff3366; color: white; text-align: center; padding: 22px; border-radius: 50px; font-size: 1.4rem; font-weight: bold; cursor: pointer; z-index: 999; box-shadow: 0 15px 35px rgba(255, 51, 102, 0.4); border: 2px solid #fff; transition: 0.3s; animation: bounce 2s infinite; }
         .fixed-bottom-bar:hover { background: #e62e5c; transform: translateX(-50%) scale(1.02); }
         @keyframes bounce { 0%, 20%, 50%, 80%, 100% {transform: translateX(-50%) translateY(0);} 40% {transform: translateX(-50%) translateY(-10px);} 60% {transform: translateX(-50%) translateY(-5px);} }
 
-        /* 팝업 공통 */
         .fullscreen-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0, 0, 0, 0.85); z-index: 1000; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.4s ease; backdrop-filter: blur(5px); }
         .fullscreen-overlay.active { opacity: 1; pointer-events: auto; }
         .popup-close { position: absolute; top: 25px; right: 30px; background: none; border: none; font-size: 2rem; cursor: pointer; color: #333; z-index: 10; }
 
-        /* 견적 팝업 레이아웃 */
         .popup-container { background: #f8f9fb; width: 95%; max-width: 1000px; height: 90vh; border-radius: 20px; display: flex; flex-direction: column; overflow: hidden; position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
         .popup-header { padding: 30px; text-align: center; background: #fff; border-bottom: 1px solid #eee; }
         .popup-header h2 { font-size: 1.8rem; font-weight: bold; margin-bottom: 5px; color: #111; }
@@ -46,7 +44,6 @@
         
         .popup-body { display: flex; flex: 1; overflow-y: auto; padding: 20px; gap: 20px; }
         
-        /* 좌측: 수량 입력란 */
         .estimate-left { flex: 1; display: flex; flex-direction: column; gap: 15px; }
         .est-card { background: #fff; border-radius: 15px; padding: 20px; border: 1px solid #eee; position: relative; }
         .est-card.red { border-color: #ffcccc; }
@@ -68,7 +65,6 @@
         .counter button:hover { background: #eee; }
         .counter input { width: 50px; height: 35px; text-align: center; border: none; font-size: 1.1rem; font-weight: bold; background: #fff; border-left: 1px solid #ddd; border-right: 1px solid #ddd; }
 
-        /* 우측: 견적서 및 고객정보 */
         .estimate-right { flex: 1; display: flex; flex-direction: column; gap: 20px; }
         .receipt-box { border: 2px solid #00a67e; border-radius: 15px; padding: 25px; background: #fff; }
         .receipt-box h3 { font-size: 1.4rem; margin-bottom: 20px; }
@@ -87,7 +83,6 @@
         .detail-row { display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 8px; color: #555; }
         .detail-row.total { font-weight: bold; color: #111; margin-top: 10px; padding-top: 10px; border-top: 1px dotted #ccc; }
         
-        /* 고객 정보 입력 폼 */
         .customer-form { background: #fff; border-radius: 15px; padding: 20px; border: 1px solid #eee; }
         .customer-form h3 { font-size: 1.1rem; color: #ff3366; margin-bottom: 15px; display: flex; align-items: center; }
         .customer-form h3::before { content: "🎁"; margin-right: 5px; }
@@ -101,10 +96,13 @@
 
         .swipe-guide { position: absolute; top: 50%; right: 30px; transform: translateY(-50%); font-size: 1.1rem; color: rgba(0,0,0,0.4); z-index: 10; font-weight: bold; writing-mode: vertical-rl; text-orientation: mixed; }
 
-        /* 동영상 팝업 전용 스타일 */
         .video-popup-content { background: transparent; box-shadow: none; align-items: center; justify-content: center; max-width: 900px; height: auto; position: relative; width: 90%; }
         .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; width: 100%; border-radius: 15px; background: #000; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
         .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+
+        /* QR 팝업 전용 스타일 */
+        .qr-popup-content { background: #fff; padding: 40px; border-radius: 20px; text-align: center; max-width: 400px; width: 90%; position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        #qrcode { display: flex; justify-content: center; margin: 25px 0; padding: 15px; background: #fff; border: 2px solid #f0f0f0; border-radius: 10px; }
 
         @media screen and (max-width: 768px) {
             .content-box { top: 8vh; left: 5vw; width: 90vw; }
@@ -112,12 +110,10 @@
             .window-frame { top: 25vh; width: 90vw; height: 60vh; }
             .bg-text { font-size: 5rem; top: 5% !important; left: -5% !important; }
             .fixed-bottom-bar { width: 95%; padding: 18px; font-size: 1.1rem; bottom: 20px; }
-            
             .popup-body { flex-direction: column; }
             .popup-container { height: 95vh; width: 100%; border-radius: 15px 15px 0 0; position: absolute; bottom: 0; }
             .popup-header h2 { font-size: 1.3rem; }
             .summary-item strong { font-size: 1rem; }
-            
             .video-popup-content .popup-close { top: -40px; right: 0; color: #fff; }
         }
     </style>
@@ -252,10 +248,12 @@
 
     <div class="swipe-guide">스크롤 또는 스와이프 ➔</div>
 
+    <!-- 하단 고정 견적 버튼 -->
     <div class="fixed-bottom-bar" id="openEstimateBtn">
         🎁 10초 실시간 견적 확인하고 메가커피 쿠폰 받기
     </div>
 
+    <!-- 동영상 재생 팝업 -->
     <div class="fullscreen-overlay" id="videoPopup">
         <div class="video-popup-content">
             <button class="popup-close" id="closeVideoBtn" style="color: #fff; right: 0; top: -40px;">✕</button>
@@ -265,6 +263,7 @@
         </div>
     </div>
 
+    <!-- 견적내기 및 고객정보 팝업 -->
     <div class="fullscreen-overlay" id="estimatePopup">
         <div class="popup-container">
             <button class="popup-close" id="closeEstimateBtn">✕</button>
@@ -348,7 +347,7 @@
                         </div>
                         <div class="btn-group">
                             <button class="btn-call" onclick="alert('구글폼으로 이동합니다. (추후 연결 예정)')">유선문의</button>
-                            <button class="btn-download" onclick="downloadEstimate()">견적서 다운로드 받기</button>
+                            <button class="btn-download" onclick="generateQR()">견적서 QR 받기</button>
                         </div>
                     </div>
                 </div>
@@ -356,8 +355,20 @@
         </div>
     </div>
 
+    <!-- ★ 새로 추가된 QR 화면 팝업 -->
+    <div class="fullscreen-overlay" id="qrPopup">
+        <div class="qr-popup-content">
+            <button class="popup-close" onclick="document.getElementById('qrPopup').classList.remove('active'); isPopupOpen = false;">✕</button>
+            <h3 style="font-size: 1.5rem; color:#111; margin-bottom: 10px;">📱 스마트폰으로 스캔하세요</h3>
+            <p style="color: #666; font-size: 0.95rem;">고객님의 스마트폰으로 <strong>상세 견적서</strong>와<br>전문 컨설턴트의 <strong>특별 혜택 명함</strong>을 담아갑니다.</p>
+            
+            <div id="qrcode"></div>
+            
+            <p style="font-size: 1rem; color: #ff3366; font-weight: bold;">카메라 앱을 열고 화면을 비춰주세요!</p>
+        </div>
+    </div>
+
     <script>
-        /* === 스크롤 애니메이션 === */
         const container = document.getElementById('scrollContainer');
         const sections = document.querySelectorAll('.section');
         const totalSlides = 9; 
@@ -414,9 +425,6 @@
         }
         requestAnimationFrame(animate);
 
-        /* === 팝업 로직 === */
-        
-        // 1. 동영상 팝업
         const videoPopup = document.getElementById('videoPopup');
         const openVideoBtns = document.querySelectorAll('.openVideoBtn');
         const closeVideoBtn = document.getElementById('closeVideoBtn');
@@ -425,19 +433,14 @@
         openVideoBtns.forEach(btn => {
             btn.addEventListener('click', () => { 
                 youtubePlayer.src = "https://www.youtube.com/embed/oumzRa_tH60?autoplay=1&rel=0";
-                videoPopup.classList.add('active'); 
-                isPopupOpen = true; 
+                videoPopup.classList.add('active'); isPopupOpen = true; 
             });
         });
 
         closeVideoBtn.addEventListener('click', () => { 
-            videoPopup.classList.remove('active'); 
-            youtubePlayer.src = ""; // 영상 정지
-            isPopupOpen = false; 
-            lastInteractionTime = Date.now(); 
+            videoPopup.classList.remove('active'); youtubePlayer.src = ""; isPopupOpen = false; lastInteractionTime = Date.now(); 
         });
 
-        // 2. 견적 팝업
         const estimatePopup = document.getElementById('estimatePopup');
         const openEstimateBtn = document.getElementById('openEstimateBtn');
         const closeEstimateBtn = document.getElementById('closeEstimateBtn');
@@ -445,7 +448,6 @@
         openEstimateBtn.addEventListener('click', () => { estimatePopup.classList.add('active'); isPopupOpen = true; });
         closeEstimateBtn.addEventListener('click', () => { estimatePopup.classList.remove('active'); isPopupOpen = false; lastInteractionTime = Date.now(); });
 
-        /* === 견적 계산 로직 === */
         const prices = { post: 20000, pre: 22000, al10: 20000, al15: 22000 };
         let qtys = { post: 0, pre: 0, al10: 0, al15: 0 };
 
@@ -486,21 +488,44 @@
             document.getElementById('costTotal').innerText = formatN(grandTotalCost) + '원';
         }
 
-        function downloadEstimate() {
-            const phone = document.getElementById('custPhone').value;
+        // ★ 새로 추가된 QR 생성 함수
+        function generateQR() {
+            const store = document.getElementById('storeName').value;
             const agree = document.getElementById('privacyAgree').checked;
             
             if(!agree) {
-                alert('이벤트 참여 및 견적서 발송을 위해 개인정보 수집 동의가 필요합니다.');
+                alert('특별 혜택 견적서 발송을 위해 개인정보 수집 동의가 필요합니다.');
                 return;
             }
-            if(phone.length < 10) {
-                alert('정확한 연락처를 입력해주세요.');
+            if(qtys.post === 0 && qtys.pre === 0 && qtys.al10 === 0 && qtys.al15 === 0) {
+                alert('견적을 확인할 기기 수량을 최소 1개 이상 입력해주세요.');
                 return;
             }
+
+            // 현재 접속 중인 index.html의 주소를 기준으로 receipt.html 경로 생성
+            // 예) https://kt-synergy.com/index.html 이라면 https://kt-synergy.com/receipt.html 로 연결
+            let basePath = window.location.href.split('?')[0];
+            basePath = basePath.substring(0, basePath.lastIndexOf('/')) + '/receipt.html';
             
-            alert(`[발송 완료]\n${phone} 번호로 상세 견적서(QR/URL) 및 메가커피 쿠폰 안내 문자가 발송되었습니다.\n담당 매니저가 내용 확인 후 연락드리겠습니다.`);
-            closeEstimateBtn.click();
+            // 파라미터 조립
+            const params = `?store=${encodeURIComponent(store)}&post=${qtys.post}&pre=${qtys.pre}&al10=${qtys.al10}&al15=${qtys.al15}`;
+            const fullUrl = basePath + params;
+
+            // 기존 QR코드 지우고 새로 그리기
+            document.getElementById('qrcode').innerHTML = ""; 
+            new QRCode(document.getElementById("qrcode"), {
+                text: fullUrl,
+                width: 220,
+                height: 220,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
+            });
+
+            // 견적서 팝업창은 숨기고, QR 팝업창 띄우기
+            document.getElementById('estimatePopup').classList.remove('active');
+            document.getElementById('qrPopup').classList.add('active');
+            isPopupOpen = true;
         }
     </script>
 </body>
