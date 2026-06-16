@@ -8,7 +8,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
     
-    <!-- ★ QR 코드 생성 라이브러리 추가 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <style>
@@ -248,12 +247,10 @@
 
     <div class="swipe-guide">스크롤 또는 스와이프 ➔</div>
 
-    <!-- 하단 고정 견적 버튼 -->
     <div class="fixed-bottom-bar" id="openEstimateBtn">
         🎁 10초 실시간 견적 확인하고 메가커피 쿠폰 받기
     </div>
 
-    <!-- 동영상 재생 팝업 -->
     <div class="fullscreen-overlay" id="videoPopup">
         <div class="video-popup-content">
             <button class="popup-close" id="closeVideoBtn" style="color: #fff; right: 0; top: -40px;">✕</button>
@@ -263,7 +260,6 @@
         </div>
     </div>
 
-    <!-- 견적내기 및 고객정보 팝업 -->
     <div class="fullscreen-overlay" id="estimatePopup">
         <div class="popup-container">
             <button class="popup-close" id="closeEstimateBtn">✕</button>
@@ -272,19 +268,28 @@
                 <p>후불형·선불형 메뉴판과 알림판을 각각 선택해 견적을 확인하세요.</p>
             </div>
             <div class="popup-body">
+                
                 <div class="estimate-left">
-                    <h3 style="font-size:1.1rem; color:#333;">추가 주문 수량 입력</h3>
+                    <h3 style="font-size:1.1rem; color:#333;">추가 주문 수량 입력 (꾹 누르면 연속 증가)</h3>
                     <div class="est-card red">
                         <div class="card-badge">메뉴판</div>
                         <h3>하이오더 메뉴판</h3>
                         <p class="desc">인건비 절약과 PG수수료가 없는 순수 운영비</p>
                         <div class="item-row">
                             <div class="item-info"><h4>✔ 후불형 메뉴판</h4><p>10인치 테이블 주문용</p><div class="price">월 20,000원 / 1대</div></div>
-                            <div class="counter"><button onclick="updateQty('post', -1)">-</button><input type="text" id="qtyPost" value="0" readonly><button onclick="updateQty('post', 1)">+</button></div>
+                            <div class="counter">
+                                <button ontouchstart="startChange('post', -1, event)" ontouchend="stopChange()" onmousedown="startChange('post', -1, event)" onmouseup="stopChange()" onmouseleave="stopChange()">-</button>
+                                <input type="text" id="qtyPost" value="0" readonly>
+                                <button ontouchstart="startChange('post', 1, event)" ontouchend="stopChange()" onmousedown="startChange('post', 1, event)" onmouseup="stopChange()" onmouseleave="stopChange()">+</button>
+                            </div>
                         </div>
                         <div class="item-row">
                             <div class="item-info"><h4>✔ 선불형 메뉴판</h4><p>15인치 테이블 주문용</p><div class="price">월 22,000원 / 1대</div></div>
-                            <div class="counter"><button onclick="updateQty('pre', -1)">-</button><input type="text" id="qtyPre" value="0" readonly><button onclick="updateQty('pre', 1)">+</button></div>
+                            <div class="counter">
+                                <button ontouchstart="startChange('pre', -1, event)" ontouchend="stopChange()" onmousedown="startChange('pre', -1, event)" onmouseup="stopChange()" onmouseleave="stopChange()">-</button>
+                                <input type="text" id="qtyPre" value="0" readonly>
+                                <button ontouchstart="startChange('pre', 1, event)" ontouchend="stopChange()" onmousedown="startChange('pre', 1, event)" onmouseup="stopChange()" onmouseleave="stopChange()">+</button>
+                            </div>
                         </div>
                     </div>
                     <div class="est-card green">
@@ -293,11 +298,19 @@
                         <p class="desc">테이블 주문을 주방에 알려주는 알림장치</p>
                         <div class="item-row">
                             <div class="item-info"><h4>✔ 10인치 알림판</h4><p>주방·카운터용 주문 알림판</p><div class="price">월 20,000원 / 1대</div></div>
-                            <div class="counter"><button onclick="updateQty('al10', -1)">-</button><input type="text" id="qtyAl10" value="0" readonly><button onclick="updateQty('al10', 1)">+</button></div>
+                            <div class="counter">
+                                <button ontouchstart="startChange('al10', -1, event)" ontouchend="stopChange()" onmousedown="startChange('al10', -1, event)" onmouseup="stopChange()" onmouseleave="stopChange()">-</button>
+                                <input type="text" id="qtyAl10" value="0" readonly>
+                                <button ontouchstart="startChange('al10', 1, event)" ontouchend="stopChange()" onmousedown="startChange('al10', 1, event)" onmouseup="stopChange()" onmouseleave="stopChange()">+</button>
+                            </div>
                         </div>
                         <div class="item-row">
                             <div class="item-info"><h4>✔ 15인치 알림판</h4><p>대형 화면 주방·카운터용 주문 알림판</p><div class="price">월 22,000원 / 1대</div></div>
-                            <div class="counter"><button onclick="updateQty('al15', -1)">-</button><input type="text" id="qtyAl15" value="0" readonly><button onclick="updateQty('al15', 1)">+</button></div>
+                            <div class="counter">
+                                <button ontouchstart="startChange('al15', -1, event)" ontouchend="stopChange()" onmousedown="startChange('al15', -1, event)" onmouseup="stopChange()" onmouseleave="stopChange()">-</button>
+                                <input type="text" id="qtyAl15" value="0" readonly>
+                                <button ontouchstart="startChange('al15', 1, event)" ontouchend="stopChange()" onmousedown="startChange('al15', 1, event)" onmouseup="stopChange()" onmouseleave="stopChange()">+</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -355,7 +368,6 @@
         </div>
     </div>
 
-    <!-- ★ 새로 추가된 QR 화면 팝업 -->
     <div class="fullscreen-overlay" id="qrPopup">
         <div class="qr-popup-content">
             <button class="popup-close" onclick="document.getElementById('qrPopup').classList.remove('active'); isPopupOpen = false;">✕</button>
@@ -369,6 +381,7 @@
     </div>
 
     <script>
+        /* === 스크롤 애니메이션 === */
         const container = document.getElementById('scrollContainer');
         const sections = document.querySelectorAll('.section');
         const totalSlides = 9; 
@@ -425,6 +438,7 @@
         }
         requestAnimationFrame(animate);
 
+        /* === 비디오 팝업 로직 === */
         const videoPopup = document.getElementById('videoPopup');
         const openVideoBtns = document.querySelectorAll('.openVideoBtn');
         const closeVideoBtn = document.getElementById('closeVideoBtn');
@@ -441,6 +455,7 @@
             videoPopup.classList.remove('active'); youtubePlayer.src = ""; isPopupOpen = false; lastInteractionTime = Date.now(); 
         });
 
+        /* === 견적 팝업 열기/닫기 === */
         const estimatePopup = document.getElementById('estimatePopup');
         const openEstimateBtn = document.getElementById('openEstimateBtn');
         const closeEstimateBtn = document.getElementById('closeEstimateBtn');
@@ -448,12 +463,37 @@
         openEstimateBtn.addEventListener('click', () => { estimatePopup.classList.add('active'); isPopupOpen = true; });
         closeEstimateBtn.addEventListener('click', () => { estimatePopup.classList.remove('active'); isPopupOpen = false; lastInteractionTime = Date.now(); });
 
+        /* === 견적 계산 로직 (꾹 누르기 & 관리자 모드 방지 적용) === */
         const prices = { post: 20000, pre: 22000, al10: 20000, al15: 22000 };
         let qtys = { post: 0, pre: 0, al10: 0, al15: 0 };
+        let holdTimer;
+        let intervalTimer;
+
+        function startChange(type, change, event) {
+            // 키오스크 앱 백도어(연속 터치) 차단
+            if(event) {
+                event.stopPropagation(); 
+                if(event.cancelable) event.preventDefault();
+            }
+            
+            updateQty(type, change);
+            
+            holdTimer = setTimeout(() => {
+                intervalTimer = setInterval(() => {
+                    updateQty(type, change);
+                }, 80);
+            }, 400);
+        }
+
+        function stopChange() {
+            clearTimeout(holdTimer);
+            clearInterval(intervalTimer);
+        }
 
         function updateQty(type, change) {
             let newQty = qtys[type] + change;
             if(newQty < 0) newQty = 0;
+            if(newQty > 100) newQty = 100; 
             qtys[type] = newQty;
             document.getElementById('qty' + type.charAt(0).toUpperCase() + type.slice(1)).value = newQty;
             calculate();
@@ -488,7 +528,7 @@
             document.getElementById('costTotal').innerText = formatN(grandTotalCost) + '원';
         }
 
-        // ★ 새로 추가된 QR 생성 함수
+        /* === QR코드 생성 로직 === */
         function generateQR() {
             const store = document.getElementById('storeName').value;
             const agree = document.getElementById('privacyAgree').checked;
@@ -502,16 +542,12 @@
                 return;
             }
 
-            // 현재 접속 중인 index.html의 주소를 기준으로 receipt.html 경로 생성
-            // 예) https://kt-synergy.com/index.html 이라면 https://kt-synergy.com/receipt.html 로 연결
             let basePath = window.location.href.split('?')[0];
             basePath = basePath.substring(0, basePath.lastIndexOf('/')) + '/receipt.html';
             
-            // 파라미터 조립
             const params = `?store=${encodeURIComponent(store)}&post=${qtys.post}&pre=${qtys.pre}&al10=${qtys.al10}&al15=${qtys.al15}`;
             const fullUrl = basePath + params;
 
-            // 기존 QR코드 지우고 새로 그리기
             document.getElementById('qrcode').innerHTML = ""; 
             new QRCode(document.getElementById("qrcode"), {
                 text: fullUrl,
@@ -522,7 +558,6 @@
                 correctLevel : QRCode.CorrectLevel.H
             });
 
-            // 견적서 팝업창은 숨기고, QR 팝업창 띄우기
             document.getElementById('estimatePopup').classList.remove('active');
             document.getElementById('qrPopup').classList.add('active');
             isPopupOpen = true;
