@@ -8,7 +8,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
     
-    <!-- QR 코드 생성 라이브러리 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <style>
@@ -124,7 +123,6 @@
 
     <div class="horizontal-scroll-wrapper" id="scrollContainer">
         
-        <!-- [루프] Section 9 -->
         <div class="section" style="background-color: #F7F7F7;" data-clone="9">
             <div class="bg-text" style="top: 15%; left: 5%;">FEATURES</div>
             <div class="content-box">
@@ -136,7 +134,6 @@
             </div>
         </div>
 
-        <!-- Section 1 : 동영상 -->
         <div class="section" style="background-color: #E8E8E8;" data-id="1">
             <div class="bg-text" style="top: 10%; right: 5%;">SMART STORE</div>
             <div class="content-box">
@@ -237,7 +234,6 @@
             </div>
         </div>
         
-        <!-- [루프] Section 1 -->
         <div class="section" style="background-color: #E8E8E8;" data-clone="1">
             <div class="bg-text" style="top: 10%; right: 5%;">SMART STORE</div>
             <div class="content-box">
@@ -253,12 +249,10 @@
 
     <div class="swipe-guide">스크롤 또는 스와이프 ➔</div>
 
-    <!-- 하단 고정 견적 버튼 -->
     <div class="fixed-bottom-bar" id="openEstimateBtn">
         🎁 10초 실시간 견적 확인하고 메가커피 쿠폰 받기
     </div>
 
-    <!-- 동영상 재생 팝업 -->
     <div class="fullscreen-overlay" id="videoPopup">
         <div class="video-popup-content">
             <button class="popup-close" id="closeVideoBtn" style="color: #fff; right: 0; top: -40px;">✕</button>
@@ -268,7 +262,6 @@
         </div>
     </div>
 
-    <!-- 견적내기 및 고객정보 팝업 -->
     <div class="fullscreen-overlay" id="estimatePopup">
         <div class="popup-container">
             <button class="popup-close" id="closeEstimateBtn">✕</button>
@@ -368,7 +361,6 @@
                             </div>
                         </div>
                         
-                        <!-- ★ 단일 버튼으로 통합 및 기능 연결 -->
                         <div class="btn-group">
                             <button class="btn-download" onclick="generateQRAndSubmit()">견적서 QR로 다운로드 받기</button>
                         </div>
@@ -379,7 +371,6 @@
         </div>
     </div>
 
-    <!-- ★ 정보 전송 안내 & 쿠폰 발송 안내가 포함된 새 QR 팝업 -->
     <div class="fullscreen-overlay" id="qrPopup">
         <div class="qr-popup-content">
             <button class="popup-close" onclick="document.getElementById('qrPopup').classList.remove('active'); isPopupOpen = false;">✕</button>
@@ -523,10 +514,9 @@
             document.getElementById('costTotal').innerText = formatN(grandTotalCost) + '원';
         }
 
-        /* === ★ 통합된 정보 전송(텔레그램) 및 QR 생성 로직 (최종 완성본) === */
+        /* === ★ 통합된 정보 전송 및 QR 생성 로직 === */
         function generateQRAndSubmit() {
-            const store = document.getElementById('storeName').value || '미입력';
-            const custName = document.getElementById('custName').value || '미입력';
+            const store = document.getElementById('storeName').value;
             const phone = document.getElementById('custPhone').value;
             const agree = document.getElementById('privacyAgree').checked;
             
@@ -543,39 +533,7 @@
                 return;
             }
 
-            // 1️⃣ 텔레그램 메세지 전송 로직 (과장님 정보 세팅 완료!)
-            const botToken = '8708881644:AAHXQOaPQiCwW9fzosVMblNVIig8KKLjDCI'; 
-            const chatId = '458348198';     
-            
-            // 과장님께 전송될 메세지 내용 조립
-            const message = `🔔 [쇼룸 견적 & 쿠폰 요청]\n\n`
-                          + `🏢 매장명: ${store}\n`
-                          + `👤 성함: ${custName}\n`
-                          + `📞 연락처: ${phone}\n\n`
-                          + `📊 [선택한 견적]\n`
-                          + `- 후불형 메뉴판: ${qtys.post}대\n`
-                          + `- 선불형 메뉴판: ${qtys.pre}대\n`
-                          + `- 10인치 알림판: ${qtys.al10}대\n`
-                          + `- 15인치 알림판: ${qtys.al15}대`;
-
-            const telegramUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
-            
-            fetch(telegramUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    chat_id: chatId,
-                    text: message
-                })
-            }).then(response => {
-                console.log("텔레그램 전송 완료");
-            }).catch(error => {
-                console.error("텔레그램 전송 에러", error);
-            });
-
-            // 2️⃣ QR 코드 생성용 주소 조립
+            // QR 코드 생성용 주소 조립
             let basePath = window.location.href.split('?')[0];
             basePath = basePath.substring(0, basePath.lastIndexOf('/')) + '/receipt.html';
             
@@ -593,7 +551,7 @@
                 correctLevel : QRCode.CorrectLevel.H
             });
 
-            // 3️⃣ 팝업창 전환
+            // 견적서 팝업창을 닫고, QR 및 안내 팝업창 띄우기
             document.getElementById('estimatePopup').classList.remove('active');
             document.getElementById('qrPopup').classList.add('active');
             isPopupOpen = true;
