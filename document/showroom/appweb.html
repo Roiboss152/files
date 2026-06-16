@@ -126,7 +126,6 @@
 
     <div class="horizontal-scroll-wrapper" id="scrollContainer">
         
-        <!-- Section 9 (Clone for Loop) -->
         <div class="section" style="background-color: #F7F7F7;" data-clone="9">
             <div class="bg-text" style="top: 15%; left: 5%;">FEATURES</div>
             <div class="content-box">
@@ -138,7 +137,6 @@
             </div>
         </div>
 
-        <!-- Section 1 : 동영상 -->
         <div class="section" style="background-color: #E8E8E8;" data-id="1">
             <div class="bg-text" style="top: 10%; right: 5%;">SMART STORE</div>
             <div class="content-box">
@@ -147,12 +145,10 @@
                 <div class="kiosk-btn openVideoBtn">▶ 영상 재생하기</div>
             </div>
             <div class="window-frame" style="background: #000;">
-                <!-- 유튜브 배경 영상: 자동재생, 음소거, 루프, 컨트롤바 숨김 -->
                 <iframe class="video-bg" src="https://www.youtube.com/embed/yFt86wbX5s4?autoplay=1&mute=1&loop=1&playlist=yFt86wbX5s4&controls=0&showinfo=0&rel=0&modestbranding=1" allow="autoplay; encrypted-media"></iframe>
             </div>
         </div>
 
-        <!-- Section 2 : 견적내기 안내 페이지 -->
         <div class="section" style="background-color: #F7F7F7;" data-id="2">
             <div class="bg-text" style="top: 15%; left: 10%;">ESTIMATE</div>
             <div class="content-box">
@@ -164,7 +160,6 @@
             </div>
         </div>
 
-        <!-- Section 3 : 하이오더 특장점 -->
         <div class="section" style="background-color: #E8E8E8;" data-id="3">
             <div class="bg-text" style="top: 12%; right: 10%;">ADVANTAGE</div>
             <div class="content-box">
@@ -176,7 +171,6 @@
             </div>
         </div>
 
-        <!-- Section 4 : 서비스망 -->
         <div class="section" style="background-color: #F7F7F7;" data-id="4">
             <div class="bg-text" style="top: 10%; left: 5%;">NETWORK</div>
             <div class="content-box">
@@ -188,7 +182,6 @@
             </div>
         </div>
 
-        <!-- Section 5 : 결제수수료 -->
         <div class="section" style="background-color: #E8E8E8;" data-id="5">
             <div class="bg-text" style="top: 15%; left: 15%;">ZERO FEE</div>
             <div class="content-box">
@@ -196,11 +189,10 @@
                 <div class="main-title">결제 수수료 ZERO!<br>추가 수수료 없는 하이오더</div>
             </div>
             <div class="window-frame">
-                <div class="window-image" style="background-image: url('https://kt-synergy.com/assets/image/showroom/결제수수료.jpg');"></div>
+                <div class="window-image" style="background-image: url('https://kt-synergy.com/assets/image/showroom/결제수수료.png');"></div>
             </div>
         </div>
 
-        <!-- Section 6 : 브랜드 -->
         <div class="section" style="background-color: #F7F7F7;" data-id="6">
             <div class="bg-text" style="top: 5%; right: 5%;">PARTNERS</div>
             <div class="content-box">
@@ -212,7 +204,6 @@
             </div>
         </div>
 
-        <!-- Section 7 : 기능 1 -->
         <div class="section" style="background-color: #E8E8E8;" data-id="7">
             <div class="bg-text" style="top: 10%; left: 5%;">FEATURES</div>
             <div class="content-box">
@@ -224,7 +215,6 @@
             </div>
         </div>
 
-        <!-- Section 8 : 기능 2 -->
         <div class="section" style="background-color: #F7F7F7;" data-id="8">
             <div class="bg-text" style="top: 15%; right: 10%;">FEATURES</div>
             <div class="content-box">
@@ -236,7 +226,6 @@
             </div>
         </div>
 
-        <!-- Section 9 : 기능 3 -->
         <div class="section" style="background-color: #E8E8E8;" data-id="9">
             <div class="bg-text" style="top: 15%; left: 10%;">FEATURES</div>
             <div class="content-box">
@@ -248,7 +237,6 @@
             </div>
         </div>
         
-        <!-- Section 1 (Clone for Loop) -->
         <div class="section" style="background-color: #E8E8E8;" data-clone="1">
             <div class="bg-text" style="top: 10%; right: 5%;">SMART STORE</div>
             <div class="content-box">
@@ -264,12 +252,10 @@
 
     <div class="swipe-guide">스크롤 또는 스와이프 ➔</div>
 
-    <!-- 하단 고정 견적 버튼 -->
     <div class="fixed-bottom-bar" id="openEstimateBtn">
         🎁 10초 실시간 견적 확인하고 메가커피 쿠폰 받기
     </div>
 
-    <!-- 동영상 재생 팝업 -->
     <div class="fullscreen-overlay" id="videoPopup">
         <div class="video-popup-content">
             <button class="popup-close" id="closeVideoBtn" style="color: #fff; right: 0; top: -40px;">✕</button>
@@ -279,7 +265,6 @@
         </div>
     </div>
 
-    <!-- 견적내기 및 고객정보 팝업 -->
     <div class="fullscreen-overlay" id="estimatePopup">
         <div class="popup-container">
             <button class="popup-close" id="closeEstimateBtn">✕</button>
@@ -288,7 +273,6 @@
                 <p>후불형·선불형 메뉴판과 알림판을 각각 선택해 견적을 확인하세요.</p>
             </div>
             <div class="popup-body">
-                <!-- 좌측 수량 입력 -->
                 <div class="estimate-left">
                     <h3 style="font-size:1.1rem; color:#333;">추가 주문 수량 입력</h3>
                     <div class="est-card red">
@@ -319,7 +303,6 @@
                     </div>
                 </div>
 
-                <!-- 우측 견적서 및 고객정보 -->
                 <div class="estimate-right">
                     <div class="receipt-box">
                         <h3>실시간 견적서</h3>
