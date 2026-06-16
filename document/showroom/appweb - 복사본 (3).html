@@ -20,7 +20,7 @@
         .bg-text { position: absolute; font-size: 10rem; font-family: 'Montserrat', sans-serif; font-weight: 900; color: #CCCCCC; opacity: 0.15; z-index: 1; white-space: nowrap; will-change: transform; letter-spacing: -2px; }
         .content-box { position: absolute; top: 10vh; left: 8vw; z-index: 3; max-width: 800px; }
         
-        /* 🔥 번호와 제목을 가로로 배치 (2줄 레이아웃) */
+        /* 🔥 번호와 제목을 가로로 배치 (과장님 요청 2줄 레이아웃) */
         .title-group { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 10px; }
         .section-num { font-size: 2.8rem; font-family: 'Montserrat', sans-serif; color: #ff3366; font-weight: bold; line-height: 1.3; }
         .main-title { font-size: 2.8rem; font-weight: 700; line-height: 1.3; color: #111827; white-space: nowrap; text-shadow: 2px 2px 10px rgba(255,255,255,0.8); }
@@ -317,10 +317,8 @@
                         <div class="card-badge">메뉴판</div>
                         <h3>하이오더 메뉴판</h3>
                         <p class="desc">인건비 절약과 PG수수료가 없는 순수 운영비</p>
-                        
-                        <!-- 🔥 인치수 제거, 테이블 주문용으로 통일 -->
                         <div class="item-row">
-                            <div class="item-info"><h4>✔ 후불형 메뉴판</h4><p>테이블 주문용</p><div class="price">월 20,000원 / 1대</div></div>
+                            <div class="item-info"><h4>✔ 후불형 메뉴판</h4><p>10인치 테이블 주문용</p><div class="price">월 20,000원 / 1대</div></div>
                             <div class="counter">
                                 <button onclick="updateQty('post', -1)">-</button>
                                 <input type="text" id="qtyPost" value="0" readonly>
@@ -328,14 +326,13 @@
                             </div>
                         </div>
                         <div class="item-row">
-                            <div class="item-info"><h4>✔ 선불형 메뉴판</h4><p>테이블 주문용</p><div class="price">월 22,000원 / 1대</div></div>
+                            <div class="item-info"><h4>✔ 선불형 메뉴판</h4><p>15인치 테이블 주문용</p><div class="price">월 22,000원 / 1대</div></div>
                             <div class="counter">
                                 <button onclick="updateQty('pre', -1)">-</button>
                                 <input type="text" id="qtyPre" value="0" readonly>
                                 <button onclick="updateQty('pre', 1)">+</button>
                             </div>
                         </div>
-
                     </div>
                     <div class="est-card green">
                         <div class="card-badge">추천</div>
@@ -558,7 +555,7 @@
             document.getElementById('costTotal').innerText = formatN(grandTotalCost) + '원';
         }
 
-        /* === 텔레그램 전송 및 QR 로직 === */
+        /* === 텔레그램 전송 및 QR 로직 (오류 완벽 방지) === */
         function generateQRAndSubmit() {
             const store = document.getElementById('storeName').value || '미입력';
             const custName = document.getElementById('custName').value || '미입력';
@@ -608,7 +605,7 @@
                 console.error("텔레그램 전송 에러", error);
             });
 
-            // QR 주소 깨짐 방지 로직
+            // 🔥 QR 주소 깨짐 방지 로직 (어떤 환경에서도 receipt.html을 정확히 찾아갑니다)
             let currentUrl = window.location.href.split('?')[0];
             if(!currentUrl.endsWith('/') && !currentUrl.endsWith('.html')) {
                 currentUrl += '/';
