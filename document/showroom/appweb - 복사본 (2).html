@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>KT 하이오더 쇼룸 [시너지3팀]</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
+    
+    <!-- QR 코드 생성 라이브러리 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Noto Sans KR', sans-serif; -webkit-user-select: none; }
+        body, html { width: 100%; height: 100%; overflow: hidden; background-color: #F7F7F7; color: #1f2937; }
+        .horizontal-scroll-wrapper { display: flex; width: 100%; height: 100%; overflow: hidden; }
+        
+        .section { flex: 0 0 100vw; width: 100vw; height: 100vh; position: relative; padding: 8vh 8vw; overflow: hidden; }
+        .bg-text { position: absolute; font-size: 10rem; font-family: 'Montserrat', sans-serif; font-weight: 900; color: #CCCCCC; opacity: 0.15; z-index: 1; white-space: nowrap; will-change: transform; letter-spacing: -2px; }
+        .content-box { position: absolute; top: 10vh; left: 8vw; z-index: 3; max-width: 800px; }
+        .section-num { font-size: 2rem; font-family: 'Montserrat', sans-serif; color: #ff3366; font-weight: bold; margin-bottom: 10px; display: inline-block; }
+        .main-title { font-size: 3rem; font-weight: 700; line-height: 1.3; color: #111827; word-break: keep-all; text-shadow: 2px 2px 10px rgba(255,255,255,0.8); }
+        
+        .kiosk-btn { display: inline-block; background: #111827; border-radius: 12px; padding: 15px 35px; color: #ffffff; text-decoration: none; font-size: 1.2rem; font-weight: bold; text-align: center; margin-top: 20px; cursor: pointer; transition: 0.2s; box-shadow: 0 10px 20px rgba(0,0,0,0.1); pointer-events: auto; }
+        .kiosk-btn:active { transform: scale(0.96); background: #ff3366; }
+        
+        .window-frame { position: absolute; top: 32vh; left: 50%; transform: translateX(-50%); width: 75vw; max-width: 1000px; height: 50vh; overflow: hidden; z-index: 2; background: transparent; border-radius: 15px; }
+        .window-image { width: 100%; height: 100%; background-size: contain; background-repeat: no-repeat; background-position: center; position: absolute; top: 0; left: 0; }
+        .video-bg { width: 100%; height: 100%; border: none; pointer-events: none; } 
+
+        .fixed-bottom-bar { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 700px; background: #ff3366; color: white; text-align: center; padding: 22px; border-radius: 50px; font-size: 1.4rem; font-weight: bold; cursor: pointer; z-index: 999; box-shadow: 0 15px 35px rgba(255, 51, 102, 0.4); border: 2px solid #fff; transition: 0.3s; animation: bounce 2s infinite; }
+        .fixed-bottom-bar:hover { background: #e62e5c; transform: translateX(-50%) scale(1.02); }
+        @keyframes bounce { 0%, 20%, 50%, 80%, 100% {transform: translateX(-50%) translateY(0);} 40% {transform: translateX(-50%) translateY(-10px);} 60% {transform: translateX(-50%) translateY(-5px);} }
+
+        .fullscreen-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0, 0, 0, 0.85); z-index: 1000; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.4s ease; backdrop-filter: blur(5px); }
+        .fullscreen-overlay.active { opacity: 1; pointer-events: auto; }
+        .popup-close { position: absolute; top: 25px; right: 30px; background: none; border: none; font-size: 2rem; cursor: pointer; color: #333; z-index: 10; }
+
+        .popup-container { background: #f8f9fb; width: 95%; max-width: 1000px; height: 90vh; border-radius: 20px; display: flex; flex-direction: column; overflow: hidden; position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .popup-header { padding: 30px; text-align: center; background: #fff; border-bottom: 1px solid #eee; }
+        .popup-header h2 { font-size: 1.8rem; font-weight: bold; margin-bottom: 5px; color: #111; }
+        .popup-header p { color: #666; font-size: 1rem; }
+        
+        .popup-body { display: flex; flex: 1; overflow-y: auto; padding: 20px; gap: 20px; }
+        
+        .estimate-left { flex: 1; display: flex; flex-direction: column; gap: 15px; }
+        .est-card { background: #fff; border-radius: 15px; padding: 20px; border: 1px solid #eee; position: relative; }
+        .est-card.red { border-color: #ffcccc; }
+        .est-card.green { border-color: #ccffeb; }
+        .card-badge { position: absolute; top: 20px; right: 20px; background: #f0f0f0; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; }
+        .est-card.red .card-badge { background: #ffe6e6; color: #ff3366; }
+        .est-card.green .card-badge { background: #e6fffa; color: #00a67e; }
+        .est-card h3 { font-size: 1.3rem; color: #ff3366; margin-bottom: 5px; }
+        .est-card.green h3 { color: #00a67e; }
+        .est-card p.desc { font-size: 0.9rem; color: #888; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #f0f0f0; }
+        
+        .item-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .item-info h4 { font-size: 1.1rem; color: #333; margin-bottom: 3px; }
+        .item-info p { font-size: 0.85rem; color: #888; margin-bottom: 5px; }
+        .item-info .price { font-size: 1rem; font-weight: bold; color: #00a67e; }
+        
+        .counter { display: flex; align-items: center; background: #f8f9fb; border-radius: 8px; border: 1px solid #ddd; overflow: hidden; }
+        .counter button { width: 35px; height: 35px; background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #333; transition: 0.2s; }
+        .counter button:hover { background: #eee; }
+        .counter input { width: 50px; height: 35px; text-align: center; border: none; font-size: 1.1rem; font-weight: bold; background: #fff; border-left: 1px solid #ddd; border-right: 1px solid #ddd; }
+
+        .estimate-right { flex: 1; display: flex; flex-direction: column; gap: 20px; }
+        .receipt-box { border: 2px solid #00a67e; border-radius: 15px; padding: 25px; background: #fff; }
+        .receipt-box h3 { font-size: 1.4rem; margin-bottom: 20px; }
+        .price-display { background: #f4fbfa; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
+        .price-display p { font-size: 1rem; color: #666; margin-bottom: 5px; }
+        .price-display h2 { font-size: 2.5rem; color: #00a67e; }
+        .price-display span { font-size: 0.9rem; color: #888; display: block; margin-top: 5px; }
+        
+        .summary-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .summary-item { background: #f8f9fb; padding: 15px 10px; text-align: center; border-radius: 10px; border: 1px solid #eee; }
+        .summary-item p { font-size: 0.85rem; color: #666; margin-bottom: 5px; }
+        .summary-item strong { font-size: 1.2rem; color: #111; }
+        
+        .detail-list { border-top: 1px solid #eee; padding-top: 15px; margin-bottom: 15px; }
+        .detail-list h4 { font-size: 1rem; margin-bottom: 10px; color: #333; }
+        .detail-row { display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 8px; color: #555; }
+        .detail-row.total { font-weight: bold; color: #111; margin-top: 10px; padding-top: 10px; border-top: 1px dotted #ccc; }
+        
+        .customer-form { background: #fff; border-radius: 15px; padding: 20px; border: 1px solid #eee; }
+        .customer-form h3 { font-size: 1.1rem; color: #ff3366; margin-bottom: 15px; display: flex; align-items: center; }
+        .customer-form h3::before { content: "🎁"; margin-right: 5px; }
+        .form-row { margin-bottom: 12px; }
+        .form-row input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 0.95rem; }
+        .privacy-box { background: #f9f9f9; padding: 12px; border-radius: 8px; font-size: 0.8rem; color: #666; margin-bottom: 15px; line-height: 1.4; }
+        
+        /* 통합된 버튼 디자인 */
+        .btn-group { display: flex; margin-top: 15px; }
+        .btn-download { flex: 1; background: #111827; color: #fff; border: none; padding: 18px; border-radius: 12px; font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-download:hover { background: #ff3366; }
+
+        .swipe-guide { position: absolute; top: 50%; right: 30px; transform: translateY(-50%); font-size: 1.1rem; color: rgba(0,0,0,0.4); z-index: 10; font-weight: bold; writing-mode: vertical-rl; text-orientation: mixed; }
+
+        .video-popup-content { background: transparent; box-shadow: none; align-items: center; justify-content: center; max-width: 900px; height: auto; position: relative; width: 90%; }
+        .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; width: 100%; border-radius: 15px; background: #000; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+        .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+
+        /* QR 팝업 전용 스타일 (쿠폰 안내 영역 포함) */
+        .qr-popup-content { background: #fff; padding: 40px; border-radius: 20px; text-align: center; max-width: 450px; width: 90%; position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        #qrcode { display: flex; justify-content: center; margin: 15px 0; padding: 15px; background: #fff; border: 2px solid #f0f0f0; border-radius: 10px; }
+
+        @media screen and (max-width: 768px) {
+            .content-box { top: 8vh; left: 5vw; width: 90vw; }
+            .main-title { font-size: 2rem; }
+            .window-frame { top: 25vh; width: 90vw; height: 60vh; }
+            .bg-text { font-size: 5rem; top: 5% !important; left: -5% !important; }
+            .fixed-bottom-bar { width: 95%; padding: 18px; font-size: 1.1rem; bottom: 20px; }
+            .popup-body { flex-direction: column; }
+            .popup-container { height: 95vh; width: 100%; border-radius: 15px 15px 0 0; position: absolute; bottom: 0; }
+            .popup-header h2 { font-size: 1.3rem; }
+            .summary-item strong { font-size: 1rem; }
+            .video-popup-content .popup-close { top: -40px; right: 0; color: #fff; }
+            .qr-popup-content { padding: 30px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="horizontal-scroll-wrapper" id="scrollContainer">
+        
+        <!-- [루프] Section 9 -->
+        <div class="section" style="background-color: #F7F7F7;" data-clone="9">
+            <div class="bg-text" style="top: 15%; left: 5%;">FEATURES</div>
+            <div class="content-box">
+                <div class="section-num">09</div>
+                <div class="main-title">하이오더,<br>이런 기능이 있어요</div>
+            </div>
+            <div class="window-frame">
+                <div class="window-image" style="background-image: url('https://kt-synergy.com/assets/image/showroom/기능3.jpg');"></div>
+            </div>
+        </div>
+
+        <!-- Section 1 : 동영상 -->
+        <div class="section" style="background-color: #E8E8E8;" data-id="1">
+            <div class="bg-text" style="top: 10%; right: 5%;">SMART STORE</div>
+            <div class="content-box">
+                <div class="section-num">01</div>
+                <div class="main-title">하이오더 도입 후<br>매장 운영이 훨씬 편해졌어요!</div>
+                <div class="kiosk-btn openVideoBtn">▶ 영상 재생하기</div>
+            </div>
+            <div class="window-frame" style="background: #000;">
+                <iframe class="video-bg" src="https://www.youtube.com/embed/yFt86wbX5s4?autoplay=1&mute=1&loop=1&playlist=yFt86wbX5s4&controls=0&showinfo=0&rel=0&modestbranding=1" allow="autoplay; encrypted-media"></iframe>
+            </div>
+        </div>
+
+        <div class="section" style="background-color: #F7F7F7;" data-id="2">
+            <div class="bg-text" style="top: 15%; left: 10%;">ESTIMATE</div>
+            <div class="content-box">
+                <div class="section-num">02</div>
+                <div class="main-title">우리 가게 하이오더<br>도입하면 가격은 얼마일까?</div>
+            </div>
+            <div class="window-frame">
+                <div class="window-image" style="background-image: url('https://kt-synergy.com/assets/image/showroom/하이오더와함께하는브랜드\ \(2\).jpg');"></div>
+            </div>
+        </div>
+
+        <div class="section" style="background-color: #E8E8E8;" data-id="3">
+            <div class="bg-text" style="top: 12%; right: 10%;">ADVANTAGE</div>
+            <div class="content-box">
+                <div class="section-num">03</div>
+                <div class="main-title">하이오더 특장점<br>테이블오더, 왜 필요할까요?</div>
+            </div>
+            <div class="window-frame">
+                <div class="window-image" style="background-image: url('https://kt-synergy.com/assets/image/showroom/하이오더와함께하는브랜드\ \(2\).jpg');"></div>
+            </div>
+        </div>
+
+        <div class="section" style="background-color: #F7F7F7;" data-id="4">
+            <div class="bg-text" style="top: 10%; left: 5%;">NETWORK</div>
+            <div class="content-box">
+                <div class="section-num">04</div>
+                <div class="main-title">타사대비 압도적인<br>전국 150개 A/S 서비스망</div>
+            </div>
+            <div class="window-frame">
+                <div class="window-image" style="background-image: url('https://kt-synergy.com/assets/image/showroom/AS서비스망.jpg');"></div>
+            </div>
+        </div>
+
+        <div class="section" style="background-color: #E8E8E8;" data-id="5">
+            <div class="bg-text" style="top: 15%; left: 15%;">ZERO FEE</div>
+            <div class="content-box">
+                <div class="section-num">05</div>
+                <div class="main-title">결제 수수료 ZERO!<br>추가 수수료 없는 하이오더</div>
+            </div>
+            <div class="window-frame">
+                <div class="window-image" style="background-image: url('https://kt-synergy.com/assets/image/showroom/결제수수료.png');"></div>
+            </div>
+        </div>
+
+        <div class="section" style="background-color: #F7F7F7;" data-id="6">
+            <div class="bg-text" style="top: 5%; right: 5%;">PARTNERS</div>
+            <div class="content-box">
+                <div class="section-num">06</div>
+                <div class="main-title">600여 개 대형 브랜드에서<br>KT 하이오더를 선택했습니다</div>
+            </div>
+            <div class="window-frame">
+                <div class="window-image" style="background-image: url('https://kt-synergy.com/assets/image/showroom/하이오더와함께하는브랜드\ \(1\).jpg');"></div>
+            </div>
+        </div>
+
+        <div class="section" style="background-color: #E8E8E8;" data-id="7">
+            <div class="bg-text" style="top: 10%; left: 5%;">FEATURES</div>
+            <div class="content-box">
+                <div class="section-num">07</div>
+                <div class="main-title">하이오더,<br>이런 기능이 있어요</div>
+            </div>
+            <div class="window-frame">
+                <div class="window-image" style="background-image: url('https://kt-synergy.com/assets/image/showroom/기능1.jpg');"></div>
+            </div>
+        </div>
+
+        <div class="section" style="background-color: #F7F7F7;" data-id="8">
+            <div class="bg-text" style="top: 15%; right: 10%;">FEATURES</div>
+            <div class="content-box">
+                <div class="section-num">08</div>
+                <div class="main-title">하이오더,<br>이런 기능이 있어요</div>
+            </div>
+            <div class="window-frame">
+                <div class="window-image" style="background-image: url('https://kt-synergy.com/assets/image/showroom/기능2.jpg');"></div>
+            </div>
+        </div>
+
+        <div class="section" style="background-color: #E8E8E8;" data-id="9">
+            <div class="bg-text" style="top: 15%; left: 10%;">FEATURES</div>
+            <div class="content-box">
+                <div class="section-num">09</div>
+                <div class="main-title">하이오더,<br>이런 기능이 있어요</div>
+            </div>
+            <div class="window-frame">
+                <div class="window-image" style="background-image: url('https://kt-synergy.com/assets/image/showroom/기능3.jpg');"></div>
+            </div>
+        </div>
+        
+        <!-- [루프] Section 1 -->
+        <div class="section" style="background-color: #E8E8E8;" data-clone="1">
+            <div class="bg-text" style="top: 10%; right: 5%;">SMART STORE</div>
+            <div class="content-box">
+                <div class="section-num">01</div>
+                <div class="main-title">하이오더 도입 후<br>매장 운영이 훨씬 편해졌어요!</div>
+                <div class="kiosk-btn openVideoBtn">▶ 영상 재생하기</div>
+            </div>
+            <div class="window-frame" style="background: #000;">
+                <iframe class="video-bg" src="https://www.youtube.com/embed/yFt86wbX5s4?autoplay=1&mute=1&loop=1&playlist=yFt86wbX5s4&controls=0&showinfo=0&rel=0&modestbranding=1" allow="autoplay; encrypted-media"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <div class="swipe-guide">스크롤 또는 스와이프 ➔</div>
+
+    <!-- 하단 고정 견적 버튼 -->
+    <div class="fixed-bottom-bar" id="openEstimateBtn">
+        🎁 10초 실시간 견적 확인하고 메가커피 쿠폰 받기
+    </div>
+
+    <!-- 동영상 재생 팝업 -->
+    <div class="fullscreen-overlay" id="videoPopup">
+        <div class="video-popup-content">
+            <button class="popup-close" id="closeVideoBtn" style="color: #fff; right: 0; top: -40px;">✕</button>
+            <div class="video-wrapper">
+                <iframe id="youtubePlayer" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- 견적내기 및 고객정보 팝업 -->
+    <div class="fullscreen-overlay" id="estimatePopup">
+        <div class="popup-container">
+            <button class="popup-close" id="closeEstimateBtn">✕</button>
+            <div class="popup-header">
+                <h2>메뉴판·알림판 수량에 따른 월 이용요금</h2>
+                <p>후불형·선불형 메뉴판과 알림판을 각각 선택해 견적을 확인하세요.</p>
+            </div>
+            <div class="popup-body">
+                
+                <div class="estimate-left">
+                    <h3 style="font-size:1.1rem; color:#333;">추가 주문 수량 입력</h3>
+                    <div class="est-card red">
+                        <div class="card-badge">메뉴판</div>
+                        <h3>하이오더 메뉴판</h3>
+                        <p class="desc">인건비 절약과 PG수수료가 없는 순수 운영비</p>
+                        <div class="item-row">
+                            <div class="item-info"><h4>✔ 후불형 메뉴판</h4><p>10인치 테이블 주문용</p><div class="price">월 20,000원 / 1대</div></div>
+                            <div class="counter">
+                                <button onclick="updateQty('post', -1)">-</button>
+                                <input type="text" id="qtyPost" value="0" readonly>
+                                <button onclick="updateQty('post', 1)">+</button>
+                            </div>
+                        </div>
+                        <div class="item-row">
+                            <div class="item-info"><h4>✔ 선불형 메뉴판</h4><p>15인치 테이블 주문용</p><div class="price">월 22,000원 / 1대</div></div>
+                            <div class="counter">
+                                <button onclick="updateQty('pre', -1)">-</button>
+                                <input type="text" id="qtyPre" value="0" readonly>
+                                <button onclick="updateQty('pre', 1)">+</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="est-card green">
+                        <div class="card-badge">추천</div>
+                        <h3>알림판</h3>
+                        <p class="desc">테이블 주문을 주방에 알려주는 알림장치</p>
+                        <div class="item-row">
+                            <div class="item-info"><h4>✔ 10인치 알림판</h4><p>주방·카운터용 주문 알림판</p><div class="price">월 20,000원 / 1대</div></div>
+                            <div class="counter">
+                                <button onclick="updateQty('al10', -1)">-</button>
+                                <input type="text" id="qtyAl10" value="0" readonly>
+                                <button onclick="updateQty('al10', 1)">+</button>
+                            </div>
+                        </div>
+                        <div class="item-row">
+                            <div class="item-info"><h4>✔ 15인치 알림판</h4><p>대형 화면 주방·카운터용 주문 알림판</p><div class="price">월 22,000원 / 1대</div></div>
+                            <div class="counter">
+                                <button onclick="updateQty('al15', -1)">-</button>
+                                <input type="text" id="qtyAl15" value="0" readonly>
+                                <button onclick="updateQty('al15', 1)">+</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="estimate-right">
+                    <div class="receipt-box">
+                        <h3>실시간 견적서</h3>
+                        <div class="price-display">
+                            <p>예상 월 이용요금</p>
+                            <h2><span id="calcTotal" style="display:inline; font-size:inherit; color:inherit;">0</span>원</h2>
+                            <span>VAT 별도 / 설치환경에 따라 최종 견적은 달라질 수 있습니다.</span>
+                        </div>
+                        <div class="summary-grid">
+                            <div class="summary-item"><p>메뉴판 합계</p><strong id="sumMenu">0대</strong></div>
+                            <div class="summary-item"><p>알림판 합계</p><strong id="sumAlarm">0대</strong></div>
+                            <div class="summary-item" style="background:#e6fffa; border-color:#00a67e;"><p>전체 수량</p><strong id="sumTotal">0대</strong></div>
+                        </div>
+                        <div class="detail-list">
+                            <h4>상품별 상세 견적</h4>
+                            <div class="detail-row"><span>후불형 메뉴판</span><span id="dtPost">0대 / 0원</span></div>
+                            <div class="detail-row"><span>선불형 메뉴판</span><span id="dtPre">0대 / 0원</span></div>
+                            <div class="detail-row"><span>10인치 알림판</span><span id="dtAl10">0대 / 0원</span></div>
+                            <div class="detail-row"><span>15인치 알림판</span><span id="dtAl15">0대 / 0원</span></div>
+                        </div>
+                        <div class="detail-list">
+                            <h4>분류별 금액 통계</h4>
+                            <div class="detail-row"><span>메뉴판 금액 합계</span><strong id="costMenu">0원</strong></div>
+                            <div class="detail-row"><span>알림판 금액 합계</span><strong id="costAlarm">0원</strong></div>
+                            <div class="detail-row total"><span>전체 월 이용요금</span><strong id="costTotal">0원</strong></div>
+                        </div>
+                    </div>
+
+                    <div class="customer-form">
+                        <h3>메가커피 쿠폰 발송 및 견적 상담 정보</h3>
+                        <div class="form-row"><input type="text" id="storeName" placeholder="업소명 (오픈 예정명)"></div>
+                        <div class="form-row" style="display:flex; gap:10px;">
+                            <input type="text" id="custName" placeholder="성함" style="flex:1;">
+                            <input type="tel" id="custPhone" placeholder="연락처 (010-0000-0000)" style="flex:2;">
+                        </div>
+                        <div class="privacy-box">
+                            <label><input type="checkbox" id="privacyAgree" checked> 개인정보 수집 및 제3자 제공 동의 (필수)</label>
+                            <div style="margin-top:5px; color:#999; font-size:0.75rem;">
+                                * 수집목적 : 하이오더 상담 진행 및 이벤트(메가커피 쿠폰) 발송<br>
+                                * 수집항목 : 업소명, 성함, 연락처<br>
+                                ※ 개인정보 동의를 거부할 권리가 있으나, 거부 시 상담 및 쿠폰 발송이 제한될 수 있습니다.
+                            </div>
+                        </div>
+                        
+                        <!-- ★ 단일 버튼으로 통합 및 기능 연결 -->
+                        <div class="btn-group">
+                            <button class="btn-download" onclick="generateQRAndSubmit()">견적서 QR로 다운로드 받기</button>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ★ 정보 전송 안내 & 쿠폰 발송 안내가 포함된 새 QR 팝업 -->
+    <div class="fullscreen-overlay" id="qrPopup">
+        <div class="qr-popup-content">
+            <button class="popup-close" onclick="document.getElementById('qrPopup').classList.remove('active'); isPopupOpen = false;">✕</button>
+            
+            <h3 style="font-size: 1.4rem; color:#00a67e; margin-bottom: 5px;">✅ 견적 및 상담 신청 완료!</h3>
+            <p style="color: #333; font-size: 0.95rem; margin-bottom: 20px;">고객님의 정보가 담당자에게 안전하게 전송되었습니다.</p>
+            
+            <div id="qrcode"></div>
+            
+            <p style="font-size: 1.1rem; color: #111; font-weight: bold; margin-bottom: 20px;">스마트폰 카메라로 위 QR을 스캔하여<br>상세 견적서와 특별 혜택을 확인하세요.</p>
+            
+            <div style="background: #fff0f5; border: 1px solid #ffcccc; border-radius: 10px; padding: 15px; text-align: left;">
+                <h4 style="color: #ff3366; font-size: 0.95rem; margin-bottom: 5px;">☕ 메가커피 쿠폰 발송 안내</h4>
+                <p style="font-size: 0.85rem; color: #555; word-break: keep-all; line-height: 1.4;">남겨주신 연락처로 <strong>송용의 과장</strong>이 내역을 직접 확인한 후 순차적으로 쿠폰을 발송해 드립니다.<br><span style="color:#888; font-size:0.8rem;">(※ 담당자 확인 후 수동 발송되므로 즉시 도착하지 않더라도 조금만 기다려 주시면 감사하겠습니다.)</span></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* === 스크롤 애니메이션 === */
+        const container = document.getElementById('scrollContainer');
+        const sections = document.querySelectorAll('.section');
+        const totalSlides = 9; 
+        
+        let slideWidth = window.innerWidth; 
+        let targetX = slideWidth; 
+        let currentX = slideWidth;
+        const ease = 0.06; 
+        let lastInteractionTime = Date.now();
+        let isUserInteracting = false;
+        let isPopupOpen = false;
+
+        container.addEventListener('wheel', (e) => { 
+            if(isPopupOpen) return; e.preventDefault(); isUserInteracting = true; lastInteractionTime = Date.now(); targetX += e.deltaY * 0.8; 
+        }, {passive: false});
+
+        let startX = 0, startTargetX = 0;
+        container.addEventListener('touchstart', (e) => { 
+            if(isPopupOpen) return; isUserInteracting = true; lastInteractionTime = Date.now(); startX = e.touches[0].clientX; startTargetX = targetX; 
+        }, {passive: true});
+        
+        container.addEventListener('touchmove', (e) => { 
+            if(isPopupOpen) return; const diffX = startX - e.touches[0].clientX; targetX = startTargetX + (diffX * 1.8); lastInteractionTime = Date.now(); 
+        }, {passive: true});
+        
+        container.addEventListener('touchend', () => { isUserInteracting = false; });
+
+        window.addEventListener('resize', () => {
+            const newSlideWidth = window.innerWidth;
+            targetX = (targetX / slideWidth) * newSlideWidth;
+            currentX = (currentX / slideWidth) * newSlideWidth;
+            slideWidth = newSlideWidth; 
+        });
+
+        function animate() {
+            const now = Date.now();
+            if (!isUserInteracting && !isPopupOpen && (now - lastInteractionTime > 4000)) { targetX += slideWidth / (10 * 60); }
+            const minBoundary = slideWidth * 0.5;
+            const maxBoundary = slideWidth * (totalSlides + 0.5);
+
+            if (targetX >= maxBoundary) { targetX -= (slideWidth * totalSlides); currentX -= (slideWidth * totalSlides); startTargetX -= (slideWidth * totalSlides); } 
+            else if (targetX <= minBoundary) { targetX += (slideWidth * totalSlides); currentX += (slideWidth * totalSlides); startTargetX += (slideWidth * totalSlides); }
+
+            currentX += (targetX - currentX) * ease;
+            container.scrollLeft = currentX;
+
+            sections.forEach((sec, idx) => {
+                const offset = currentX - (slideWidth * idx);
+                if (Math.abs(offset) > slideWidth * 1.5) return; 
+                const frame = sec.querySelector('.window-frame');
+                if (frame) frame.style.transform = `translateX(-50%) translateX(${offset * -0.05}px)`;
+            });
+            requestAnimationFrame(animate);
+        }
+        requestAnimationFrame(animate);
+
+        /* === 비디오 팝업 로직 === */
+        const videoPopup = document.getElementById('videoPopup');
+        const openVideoBtns = document.querySelectorAll('.openVideoBtn');
+        const closeVideoBtn = document.getElementById('closeVideoBtn');
+        const youtubePlayer = document.getElementById('youtubePlayer');
+
+        openVideoBtns.forEach(btn => {
+            btn.addEventListener('click', () => { 
+                youtubePlayer.src = "https://www.youtube.com/embed/oumzRa_tH60?autoplay=1&rel=0";
+                videoPopup.classList.add('active'); isPopupOpen = true; 
+            });
+        });
+
+        closeVideoBtn.addEventListener('click', () => { 
+            videoPopup.classList.remove('active'); youtubePlayer.src = ""; isPopupOpen = false; lastInteractionTime = Date.now(); 
+        });
+
+        /* === 견적 팝업 열기/닫기 === */
+        const estimatePopup = document.getElementById('estimatePopup');
+        const openEstimateBtn = document.getElementById('openEstimateBtn');
+        const closeEstimateBtn = document.getElementById('closeEstimateBtn');
+
+        openEstimateBtn.addEventListener('click', () => { estimatePopup.classList.add('active'); isPopupOpen = true; });
+        closeEstimateBtn.addEventListener('click', () => { estimatePopup.classList.remove('active'); isPopupOpen = false; lastInteractionTime = Date.now(); });
+
+        /* === 견적 계산 로직 === */
+        const prices = { post: 20000, pre: 22000, al10: 20000, al15: 22000 };
+        let qtys = { post: 0, pre: 0, al10: 0, al15: 0 };
+
+        function updateQty(type, change) {
+            let newQty = qtys[type] + change;
+            if(newQty < 0) newQty = 0;
+            if(newQty > 100) newQty = 100;
+            qtys[type] = newQty;
+            document.getElementById('qty' + type.charAt(0).toUpperCase() + type.slice(1)).value = newQty;
+            calculate();
+        }
+
+        function formatN(num) { return num.toLocaleString('ko-KR'); }
+
+        function calculate() {
+            const costPost = qtys.post * prices.post;
+            const costPre = qtys.pre * prices.pre;
+            const costAl10 = qtys.al10 * prices.al10;
+            const costAl15 = qtys.al15 * prices.al15;
+
+            const menuTotalQty = qtys.post + qtys.pre;
+            const alarmTotalQty = qtys.al10 + qtys.al15;
+            const menuTotalCost = costPost + costPre;
+            const alarmTotalCost = costAl10 + costAl15;
+            const grandTotalCost = menuTotalCost + alarmTotalCost;
+
+            document.getElementById('calcTotal').innerText = formatN(grandTotalCost);
+            document.getElementById('sumMenu').innerText = menuTotalQty + '대';
+            document.getElementById('sumAlarm').innerText = alarmTotalQty + '대';
+            document.getElementById('sumTotal').innerText = (menuTotalQty + alarmTotalQty) + '대';
+            
+            document.getElementById('dtPost').innerText = `${qtys.post}대 / ${formatN(costPost)}원`;
+            document.getElementById('dtPre').innerText = `${qtys.pre}대 / ${formatN(costPre)}원`;
+            document.getElementById('dtAl10').innerText = `${qtys.al10}대 / ${formatN(costAl10)}원`;
+            document.getElementById('dtAl15').innerText = `${qtys.al15}대 / ${formatN(costAl15)}원`;
+            
+            document.getElementById('costMenu').innerText = formatN(menuTotalCost) + '원';
+            document.getElementById('costAlarm').innerText = formatN(alarmTotalCost) + '원';
+            document.getElementById('costTotal').innerText = formatN(grandTotalCost) + '원';
+        }
+
+        /* === ★ 통합된 정보 전송(텔레그램) 및 QR 생성 로직 (최종 완성본) === */
+        function generateQRAndSubmit() {
+            const store = document.getElementById('storeName').value || '미입력';
+            const custName = document.getElementById('custName').value || '미입력';
+            const phone = document.getElementById('custPhone').value;
+            const agree = document.getElementById('privacyAgree').checked;
+            
+            if(!agree) {
+                alert('특별 혜택 견적서 발송을 위해 개인정보 수집 동의가 필요합니다.');
+                return;
+            }
+            if(phone.length < 10) {
+                alert('정확한 연락처를 입력해주세요.');
+                return;
+            }
+            if(qtys.post === 0 && qtys.pre === 0 && qtys.al10 === 0 && qtys.al15 === 0) {
+                alert('견적을 확인할 기기 수량을 최소 1개 이상 입력해주세요.');
+                return;
+            }
+
+            // 1️⃣ 텔레그램 메세지 전송 로직 (과장님 정보 세팅 완료!)
+            const botToken = '8708881644:AAHXQ0aPQiCwW9fzosVMblNVIig8KKLjDCI'; 
+            const chatId = '458348198';     
+            
+            // 과장님께 전송될 메세지 내용 조립
+            const message = `🔔 [쇼룸 견적 & 쿠폰 요청]\n\n`
+                          + `🏢 매장명: ${store}\n`
+                          + `👤 성함: ${custName}\n`
+                          + `📞 연락처: ${phone}\n\n`
+                          + `📊 [선택한 견적]\n`
+                          + `- 후불형 메뉴판: ${qtys.post}대\n`
+                          + `- 선불형 메뉴판: ${qtys.pre}대\n`
+                          + `- 10인치 알림판: ${qtys.al10}대\n`
+                          + `- 15인치 알림판: ${qtys.al15}대`;
+
+            const telegramUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
+            
+            fetch(telegramUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    chat_id: chatId,
+                    text: message
+                })
+            }).then(response => {
+                console.log("텔레그램 전송 완료");
+            }).catch(error => {
+                console.error("텔레그램 전송 에러", error);
+            });
+
+            // 2️⃣ QR 코드 생성용 주소 조립
+            let basePath = window.location.href.split('?')[0];
+            basePath = basePath.substring(0, basePath.lastIndexOf('/')) + '/receipt.html';
+            
+            const params = `?store=${encodeURIComponent(store)}&post=${qtys.post}&pre=${qtys.pre}&al10=${qtys.al10}&al15=${qtys.al15}`;
+            const fullUrl = basePath + params;
+
+            // QR 코드 렌더링
+            document.getElementById('qrcode').innerHTML = ""; 
+            new QRCode(document.getElementById("qrcode"), {
+                text: fullUrl,
+                width: 220,
+                height: 220,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
+            });
+
+            // 3️⃣ 팝업창 전환
+            document.getElementById('estimatePopup').classList.remove('active');
+            document.getElementById('qrPopup').classList.add('active');
+            isPopupOpen = true;
+        }
+    </script>
+</body>
+</html>
