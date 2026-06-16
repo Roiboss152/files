@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>KT 하이오더 모의 견적서</title>
+    <!-- 구글 폰트 및 구글 머티리얼 아이콘(Outline) 로드 -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,400,0,0" />
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Noto Sans KR', sans-serif; }
+        body { background-color: #f4f6f8; color: #333; line-height: 1.6; padding-bottom: 80px; }
+        .header { background: #111827; color: #fff; padding: 20px; text-align: center; border-bottom: 4px solid #ff3366; }
+        .header h1 { font-size: 1.3rem; font-weight: 700; letter-spacing: -0.5px; }
+        
+        .container { padding: 20px; max-width: 600px; margin: 0 auto; }
+        
+        /* 인사말 영역 */
+        .greeting { background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .greeting span { color: #ff3366; font-weight: bold; font-size: 1.1rem; }
+        
+        /* 견적표 영역 */
+        .receipt-box { background: #fff; border-radius: 12px; padding: 25px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .receipt-box h2 { font-size: 1.2rem; margin-bottom: 15px; border-bottom: 2px solid #333; padding-bottom: 10px; }
+        .total-price { text-align: center; background: #f9fafb; padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #eee; }
+        .total-price p { font-size: 0.9rem; color: #666; margin-bottom: 5px; }
+        .total-price strong { font-size: 2rem; color: #00a67e; display: block; }
+        .total-price span { font-size: 0.8rem; color: #999; }
+        
+        .item-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed #eee; font-size: 0.95rem; }
+        .item-row:last-child { border-bottom: none; }
+        .item-row.bold { font-weight: bold; color: #111; padding-top: 15px; border-top: 1px solid #ddd; border-bottom: none; }
+        
+        /* 프로모션 혜택 문구 */
+        .promo-box { background: #fff0f5; border: 1px solid #ffcccc; border-radius: 12px; padding: 20px; margin-bottom: 20px; position: relative; }
+        .promo-box::before { content: "💡"; position: absolute; top: -15px; left: 20px; font-size: 24px; background: #f4f6f8; border-radius: 50%; padding: 2px; }
+        .promo-box h3 { color: #ff3366; font-size: 1.1rem; margin-bottom: 8px; margin-top: 5px; }
+        .promo-box p { font-size: 0.9rem; color: #555; word-break: keep-all; }
+        
+        /* 디지털 명함 영역 */
+        .biz-card { background: #111827; color: #fff; border-radius: 15px; padding: 30px 25px; position: relative; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.15); }
+        .biz-card::after { content: ""; position: absolute; top: 0; right: 0; width: 120px; height: 120px; background: #ff3366; opacity: 0.1; border-radius: 0 0 0 100%; pointer-events: none; }
+        .biz-logo { font-size: 1.4rem; font-weight: 900; margin-bottom: 20px; color: #ff3366; font-family: 'Montserrat', sans-serif; letter-spacing: 1px; }
+        .biz-name { font-size: 1.6rem; font-weight: bold; margin-bottom: 5px; }
+        .biz-title { font-size: 0.9rem; color: #9ca3af; margin-bottom: 25px; }
+        
+        /* 세련된 아이콘 정렬 디자인 */
+        .biz-info { font-size: 0.9rem; color: #d1d5db; display: flex; flex-direction: column; gap: 12px; }
+        .info-row { display: flex; align-items: flex-start; gap: 12px; }
+        .info-row i { font-family: 'Material Symbols Outlined'; font-size: 1.2rem; color: #ff3366; font-style: normal; flex-shrink: 0; line-height: 1.4; }
+        .info-row span { line-height: 1.4; word-break: keep-all; }
+        
+        /* 하단 고정 전화 버튼 */
+        .btn-call { position: fixed; bottom: 0; left: 0; width: 100%; background: #00a67e; color: #fff; text-align: center; padding: 20px; font-size: 1.2rem; font-weight: bold; text-decoration: none; box-shadow: 0 -5px 20px rgba(0,0,0,0.1); }
+        .btn-call:active { background: #008f6b; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>KT 하이오더 모의 견적서</h1>
+    </div>
+
+    <div class="container">
+        <div class="greeting">
+            <p><span id="dispStore">고객</span>님, 안녕하세요!</p>
+            <p style="font-size: 0.9rem; color: #666; margin-top: 5px;">선택하신 하이오더 기기 수량에 따른 예상 월 이용요금입니다.</p>
+        </div>
+
+        <div class="receipt-box">
+            <h2>실시간 모의 견적 내역</h2>
+            <div class="total-price">
+                <p>총 예상 월 이용요금</p>
+                <strong id="dispTotalCost">0원</strong>
+                <span>(VAT 별도)</span>
+            </div>
+            
+            <div id="receiptList"></div>
+            
+            <div class="item-row bold" style="margin-top: 10px;">
+                <span>총 기기 수량</span>
+                <span id="dispTotalQty">0대</span>
+            </div>
+        </div>
+
+        <div class="promo-box">
+            <h3>잠깐! 위 견적은 '기본가' 입니다.</h3>
+            <p>현재 보여지는 견적은 <strong>가장 기본적인 모의 견적</strong>입니다. 매장 환경에 따른 인터넷/서빙로봇/CCTV 등 <strong>'으랏차차 결합'</strong>이나 이달의 시크릿 프로모션을 적용할 경우, <strong>안내된 금액보다 훨씬 파격적인 요금 할인 혜택</strong>을 받아보실 수 있습니다.</p>
+        </div>
+
+        <!-- 송용의 과장 디지털 명함 (구글 머티리얼 아이콘 적용) -->
+        <div class="biz-card">
+            <div class="biz-logo">KT SYNERGY</div>
+            <div class="biz-name">송용의 <span style="font-size: 1rem; font-weight: normal;">과장</span></div>
+            <div class="biz-title">KT 하이오더 전문 컨설턴트</div>
+            
+            <div class="biz-info">
+                <div class="info-row">
+                    <i>domain</i>
+                    <span>KT인천지사 시너지영업3팀</span>
+                </div>
+                <div class="info-row">
+                    <i>call</i>
+                    <span>010-7333-7804</span>
+                </div>
+                <div class="info-row">
+                    <i>mail</i>
+                    <span>yongeui.song@kt.com</span>
+                </div>
+                <div class="info-row">
+                    <i>location_on</i>
+                    <span>인천시 남동구 경인로 508 KT인천지사 4층</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <a href="tel:010-7333-7804" class="btn-call">📞 송용의 과장에게 특별 혜택 문의하기</a>
+
+    <script>
+        function getParams() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                store: params.get('store') || '고객',
+                post: parseInt(params.get('post') || 0),
+                pre: parseInt(params.get('pre') || 0),
+                al10: parseInt(params.get('al10') || 0),
+                al15: parseInt(params.get('al15') || 0)
+            };
+        }
+
+        const data = getParams();
+        const prices = { post: 20000, pre: 22000, al10: 20000, al15: 22000 };
+        const names = { post: '후불형 메뉴판', pre: '선불형 메뉴판', al10: '10인치 알림판', al15: '15인치 알림판' };
+
+        document.getElementById('dispStore').innerText = data.store;
+
+        let totalQty = 0;
+        let totalCost = 0;
+        let listHtml = '';
+
+        ['post', 'pre', 'al10', 'al15'].forEach(key => {
+            if(data[key] > 0) {
+                const cost = data[key] * prices[key];
+                totalQty += data[key];
+                totalCost += cost;
+                listHtml += `
+                    <div class="item-row">
+                        <span>${names[key]} (${data[key]}대)</span>
+                        <span>${cost.toLocaleString('ko-KR')}원</span>
+                    </div>
+                `;
+            }
+        });
+
+        document.getElementById('receiptList').innerHTML = listHtml;
+        document.getElementById('dispTotalQty').innerText = totalQty + '대';
+        document.getElementById('dispTotalCost').innerText = totalCost.toLocaleString('ko-KR') + '원';
+    </script>
+</body>
+</html>

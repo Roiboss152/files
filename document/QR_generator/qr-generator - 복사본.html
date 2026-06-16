@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KT Synergy - Ultimate QR Showcase</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.1/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <style>
+        :root {
+            --bg-deep: #f5f4f1; 
+            --accent-main: #333333; 
+            --glass-bg: rgba(255, 255, 255, 0.55);
+            --glass-border: rgba(255, 255, 255, 0.9);
+            --text-main: #2b2a28;
+            --text-muted: #888681;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Pretendard", sans-serif; }
+        body { background-color: var(--bg-deep); color: var(--text-main); overflow-x: hidden; scroll-behavior: smooth; }
+
+        .kt-ci-logo { position: absolute; top: 30px; left: 30px; height: 35px; z-index: 100; filter: contrast(120%) drop-shadow(0 2px 4px rgba(0,0,0,0.05)); }
+        
+        .ambient-glow { position: fixed; width: 60vw; height: 60vw; border-radius: 50%; filter: blur(150px); opacity: 0.4; z-index: -1; pointer-events: none; }
+        .glow-1 { top: -20%; left: -10%; background: rgba(210, 208, 202, 0.8); }
+        .glow-2 { bottom: -20%; right: -10%; background: rgba(220, 218, 212, 0.8); }
+
+        .bg-watermark { position: fixed; top: 50%; right: -10%; transform: translateY(-50%); writing-mode: vertical-rl; text-orientation: upright; font-size: 35vw; font-weight: 900; color: rgba(0, 0, 0, 0.03); z-index: -2; pointer-events: none; user-select: none; letter-spacing: -2vw; }
+
+        .hero { height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; position: relative; }
+        .hero-title { font-size: clamp(3rem, 10vw, 7.5rem); font-weight: 800; line-height: 1.1; letter-spacing: -3px; color: var(--accent-main); }
+        
+        .ml4 { position: relative; height: clamp(50px, 8vw, 80px); width: 100%; margin-bottom: 20px; display: flex; justify-content: center; align-items: center; font-weight: 700; font-size: clamp(1.2rem, 5vw, 2.5rem); letter-spacing: 1px; color: var(--text-muted); }
+        .ml4 .letters { position: absolute; opacity: 0; white-space: nowrap; }
+        .ml4 .highlight { color: var(--accent-main); font-weight: 800; }
+
+        .section { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 100px 20px; max-width: 1100px; margin: 0 auto; overflow: hidden; }
+        
+        .sec-title-container { display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 60px; }
+        .sec-title { font-size: clamp(1.4rem, 6vw, 2.5rem); font-weight: 700; text-align: center; letter-spacing: -1px; white-space: nowrap; color: var(--text-main); margin: 0; }
+        
+        .sk-cube-grid { width: clamp(25px, 6vw, 40px); height: clamp(25px, 6vw, 40px); margin: 0; display: inline-block; }
+        .sk-cube-grid .sk-cube { width: 33%; height: 33%; background-color: #626260; float: left; animation: sk-cubeGridScaleDelay 4.3s infinite ease-in-out; box-shadow: inset 0 0 2px rgba(0,0,0,0.1); }
+        .sk-cube-grid .sk-cube1 { animation-delay: 0.66s; } .sk-cube-grid .sk-cube2 { animation-delay: 0.99s; } .sk-cube-grid .sk-cube3 { animation-delay: 1.32s; } .sk-cube-grid .sk-cube4 { animation-delay: 0.33s; } .sk-cube-grid .sk-cube5 { animation-delay: 0.66s; } .sk-cube-grid .sk-cube6 { animation-delay: 0.99s; } .sk-cube-grid .sk-cube7 { animation-delay: 0s; } .sk-cube-grid .sk-cube8 { animation-delay: 0.33s; } .sk-cube-grid .sk-cube9 { animation-delay: 0.66s; }
+        @keyframes sk-cubeGridScaleDelay { 0%, 70%, 100% { transform: scale3D(1, 1, 1); } 35% { transform: scale3D(0, 0, 1); } }
+
+        .reveal-left { opacity: 0; transform: translateX(-150px); transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1); }
+        .reveal-right { opacity: 0; transform: translateX(150px); transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1); }
+        .reveal-bottom { opacity: 0; transform: translateY(100px); transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1); }
+        .reveal-active { opacity: 1; transform: translate(0, 0); }
+        .delay-1 { transition-delay: 0.1s; } .delay-2 { transition-delay: 0.2s; } .delay-3 { transition-delay: 0.3s; }
+
+        .card-container { position: relative; width: 100%; display: flex; justify-content: center; padding: 50px 0; }
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 24px; width: 100%; }
+        
+        .type-card { background: var(--glass-bg); backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 24px; padding: 45px 25px; text-align: center; cursor: pointer; opacity: 0; transition: all 0.3s; box-shadow: 0 10px 30px rgba(0,0,0,0.03); position: relative; z-index: 10; }
+        .type-card:hover { border-color: var(--accent-main); box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08); transform: translateY(-5px); }
+        .card-icon { font-size: 2.2rem; margin-bottom: 20px; filter: grayscale(100%) opacity(0.7); }
+        .card-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 12px; color: var(--text-main); }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(15px); z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.4s ease; display: flex; justify-content: center; align-items: center; }
+        .modal-overlay.active { opacity: 1; pointer-events: all; }
+        .modal-content { background: rgba(250, 249, 246, 0.95); border: 1px solid #fff; border-radius: 28px; width: 90%; max-width: 600px; padding: 45px 40px; position: relative; transform: scale(0.92) translateY(20px); opacity: 0; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 30px 60px rgba(0,0,0,0.15); color: var(--text-main); }
+        .modal-overlay.active .modal-content { transform: scale(1) translateY(0); opacity: 1; }
+        .btn-close { position: absolute; top: 20px; right: 25px; background: none; border: none; color: var(--text-muted); font-size: 1.4rem; cursor: pointer; opacity: 0.6; }
+        .btn-close:hover { opacity: 1; color: var(--text-main); }
+
+        .form-group { margin-bottom: 22px; text-align: left; }
+        .form-group label { display: block; font-size: 0.85rem; font-weight: 700; color: var(--accent-main); margin-bottom: 10px; letter-spacing: 0.5px; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; background: rgba(255,255,255,0.8); border: 1px solid rgba(0,0,0,0.1); border-radius: 12px; padding: 15px 18px; color: var(--text-main); font-size: 1rem; outline: none; transition: 0.3s; }
+        .form-group input:focus, .form-group textarea:focus { border-color: var(--accent-main); box-shadow: 0 0 15px rgba(0, 0, 0, 0.05); background: #fff; }
+        .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .dynamic-form { display: none; }
+        .dynamic-form.active { display: block; }
+        .btn-save { width: 100%; padding: 18px; margin-top: 10px; border: none; border-radius: 14px; background: var(--accent-main); color: #fff; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: 0.3s; box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+        .btn-save:hover { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(0,0,0,0.2); }
+
+        .option-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; margin-bottom: 40px; }
+        .option-label input { display: none; }
+        .option-card { padding: 18px; border: 1px solid var(--glass-border); border-radius: 16px; text-align: center; background: var(--glass-bg); cursor: pointer; color: var(--text-muted); font-weight: 600; transition: 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+        .option-label input:checked ~ .option-card { border-color: var(--accent-main); color: var(--accent-main); background: rgba(0,0,0,0.03); font-weight: 800; }
+        
+        .color-picker-wrap { 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            gap: 16px; 
+            margin-bottom: 40px; 
+            padding: 20px; 
+            background: var(--glass-bg); 
+            border-radius: 18px; 
+            border: 1px solid var(--glass-border); 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02); 
+            height: 90px; 
+        }
+
+        .preset-color { 
+            width: 38px; 
+            height: 38px; 
+            border-radius: 50%; 
+            cursor: pointer; 
+            border: 2px solid transparent; 
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); 
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); 
+            flex-shrink: 0; 
+        }
+
+        .color-picker-wrap:has(.preset-color:hover) .preset-color:not(:hover) {
+            transform: scale(0.75);
+            opacity: 0.6;
+            margin: 0 -4px; 
+        }
+
+        .preset-color:hover { 
+            transform: scale(1.5); 
+            z-index: 10;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .preset-color.active { border-color: var(--accent-main); box-shadow: 0 0 0 3px rgba(255,255,255,0.8), 0 0 10px rgba(0,0,0,0.2); }
+
+        .template-grid { display: flex; flex-wrap: wrap; justify-content: center; align-content: center; align-items: center; gap: 20px 1.5%; height: 600px; margin-bottom: 30px; padding-top: 20px; position: relative; } 
+        .template-label { width: 18.2%; flex: 0 0 auto; transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s, filter 0.4s, transform 0.4s; cursor: pointer; z-index: 1; }
+
+        .template-grid:has(.template-label:hover) .template-label:not(:hover) { width: 16%; opacity: 0.5; filter: blur(2px) grayscale(40%); transform: scale(0.92); }
+        .template-label:hover { width: 27%; z-index: 50; transform: translateY(-5px); }
+
+        .template-card { border: 1px solid var(--glass-border); border-radius: 18px; position: relative; background: var(--glass-bg); padding: 12px; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 4px 15px rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: center; align-items: center; height: auto; }
+        .template-img { width: 100%; height: auto; aspect-ratio: 1000 / 1414; object-fit: contain; opacity: 0.7; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); filter: grayscale(15%); border-radius: 8px; }
+
+        .template-label:hover .template-card { background: #ffffff; border-color: rgba(51, 51, 51, 0.4); box-shadow: 0 20px 50px rgba(0,0,0,0.15); }
+        .template-label:hover .template-img { opacity: 1; filter: grayscale(0%); }
+        .template-label input { display: none; }
+
+        .template-label input:checked ~ .template-card { border: 2px solid #333333; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12); background: #ffffff; transform: scale(1.03); }
+        .template-label input:checked ~ .template-card .template-img { opacity: 1; filter: none; }
+
+        .template-label input:checked ~ .template-card::after { content: '✓ 선택됨'; position: absolute; bottom: 12px; right: 12px; background: #333333; color: #ffffff; padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 800; box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 10; animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes popIn { 0% { opacity: 0; transform: scale(0.8) translateY(10px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+
+        .template-name { position: absolute; top: -18px; left: 15px; padding: 6px 14px; font-weight: 800; font-size: 1.05rem; color: var(--text-main); background: var(--bg-deep); border: 1px solid var(--glass-border); border-radius: 10px; z-index: 2; box-shadow: 0 6px 15px rgba(0,0,0,0.05); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .template-label:hover .template-name, .template-label input:checked ~ .template-card .template-name { transform: translateY(-8px); color: var(--accent-main); border-color: var(--accent-main); }
+
+        .btn-next-section { display: block; width: 100%; max-width: 400px; margin: 0 auto 50px auto; padding: 18px; background: rgba(0,0,0,0.05); color: var(--text-main); font-size: 1.1rem; font-weight: 700; border: 1px solid var(--glass-border); border-radius: 14px; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+        .btn-next-section:hover { background: rgba(0,0,0,0.08); border-color: var(--accent-main); transform: translateY(-2px); }
+
+        .result-area { display: none; text-align: center; padding: 40px 0; }
+        .result-area.active { display: block; animation: zoomIn 0.5s ease-out forwards; }
+        @keyframes zoomIn { from { opacity:0; transform:scale(0.9); } to { opacity:1; transform:scale(1); } }
+        #finalCanvas { max-width: 100%; width: 450px; border-radius: 20px; box-shadow: 0 30px 70px rgba(0,0,0,0.15); border: 1px solid rgba(0,0,0,0.05); }
+
+        .btn-epic { display: block !important; width: 100% !important; padding: 22px !important; margin: 50px 0 !important; border: none !important; border-radius: 18px !important; background: var(--accent-main) !important; color: #fff !important; font-size: 1.3rem !important; font-weight: 800 !important; cursor: pointer !important; transition: all 0.3s !important; text-align: center !important; text-decoration: none !important; box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important; }
+        .btn-epic:hover { transform: translateY(-3px) !important; box-shadow: 0 15px 40px rgba(0,0,0,0.2) !important; }
+
+        #hero-title-trigger { display: inline-block; }
+        .kinetic-char { display: inline-block; transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); transform-origin: center bottom; }
+        .kinetic-char:hover { transform: scale(1.3) translateY(-15px) rotate(5deg); text-shadow: 0 10px 30px rgba(0, 0, 0, 0.15); }
+
+        @media (max-width: 768px) {
+            .template-grid { flex-wrap: nowrap; overflow-x: auto; justify-content: flex-start; align-content: center; height: auto; padding-bottom: 30px; padding-left: 20px; padding-right: 20px; gap: 15px; -ms-overflow-style: none; scrollbar-width: none; }
+            .template-grid::-webkit-scrollbar { display: none; }
+            .template-label { width: 60%; flex: 0 0 auto; }
+            .template-grid:has(.template-label:hover) .template-label:not(:hover) { width: 60%; opacity: 1; filter: none; transform: none; }
+            .template-label:hover { width: 60%; transform: none; }
+            .template-name { font-size: 0.9rem; padding: 4px 10px; top: -15px; }
+            .template-label input:checked ~ .template-card::after { font-size: 0.75rem; padding: 4px 10px; }
+            .color-picker-wrap { overflow-x: auto; justify-content: flex-start; padding: 20px 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-watermark">QR</div>
+
+    <img src="https://kt-synergy.com/assets/image/CI_BI/KT_CI_G01.png" class="kt-ci-logo" alt="KT CI">
+    <div class="ambient-glow glow-1"></div>
+    <div class="ambient-glow glow-2"></div>
+
+    <header class="hero">
+        <div class="ml4">
+            <span class="letters letters-1">KT</span>
+            <span class="letters letters-2">인천지사</span>
+            <span class="letters letters-3 highlight">시너지영업3팀</span>
+        </div>
+        <h1 class="hero-title" id="hero-title-trigger" data-text-black="QR" data-text-gray="Generator"></h1>
+    </header>
+
+    <section class="section" id="sec-type">
+        <div class="sec-title-container">
+            <div class="sk-cube-grid">
+                <div class="sk-cube sk-cube1"></div><div class="sk-cube sk-cube2"></div><div class="sk-cube sk-cube3"></div>
+                <div class="sk-cube sk-cube4"></div><div class="sk-cube sk-cube5"></div><div class="sk-cube sk-cube6"></div>
+                <div class="sk-cube sk-cube7"></div><div class="sk-cube sk-cube8"></div><div class="sk-cube sk-cube9"></div>
+            </div>
+            <h2 class="sec-title">01. 생성 유형 선택</h2>
+        </div>
+        <div class="card-container">
+            <div class="card-grid">
+                <div class="type-card" id="card-wifi" onclick="openModal('wifi')">
+                    <div class="card-icon">📶</div><div class="card-title">Wi-Fi</div><div style="color:var(--text-muted); font-size:0.85rem;">네트워크 자동 접속</div>
+                </div>
+                <div class="type-card" id="card-url" onclick="openModal('url')">
+                    <div class="card-icon">🔗</div><div class="card-title">URL 링크</div><div style="color:var(--text-muted); font-size:0.85rem;">웹사이트 랜딩</div>
+                </div>
+                <div class="type-card" id="card-vcard" onclick="openModal('vcard')">
+                    <div class="card-icon">🪪</div><div class="card-title">디지털 명함</div><div style="color:var(--text-muted); font-size:0.85rem;">명함 주소록 자동 저장</div>
+                </div>
+                <div class="type-card" id="card-tel" onclick="openModal('tel')">
+                    <div class="card-icon">📞</div><div class="card-title">전화 연결</div><div style="color:var(--text-muted); font-size:0.85rem;">다이렉트 통화 연결</div>
+                </div>
+                <div class="type-card" id="card-sms" onclick="openModal('sms')">
+                    <div class="card-icon">✉️</div><div class="card-title">문자 보내기</div><div style="color:var(--text-muted); font-size:0.85rem;">메시지 구문 자동 완성</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="modal-overlay" id="inputModal">
+        <div class="modal-content">
+            <button class="btn-close" onclick="closeModal()">✕</button>
+            <h3 style="font-size: 1.8rem; font-weight: 800; margin-bottom: 25px; color: var(--accent-main);" id="modalTitle">정보 입력</h3>
+            <input type="hidden" id="selectedType" value="">
+
+            <div id="form-wifi" class="dynamic-form">
+                <div class="form-group"><label>네트워크 이름 (SSID)</label><input type="text" id="wifi-ssid" placeholder="예: KT_GiGA_5G"></div>
+                <div class="input-row">
+                    <div class="form-group"><label>비밀번호</label><input type="text" id="wifi-pw" placeholder="비밀번호 입력"></div>
+                    <div class="form-group"><label>보안 방식</label><select id="wifi-type"><option value="WPA">WPA/WPA2</option><option value="WEP">WEP</option><option value="nopass">없음</option></select></div>
+                </div>
+            </div>
+
+            <div id="form-url" class="dynamic-form">
+                <div class="form-group"><label>랜딩 URL 주소</label><input type="text" id="url-input" placeholder="예: https://kt.com"></div>
+            </div>
+
+            <div id="form-vcard" class="dynamic-form">
+                <div class="input-row">
+                    <div class="form-group"><label>이름</label><input type="text" id="vc-name" placeholder="예: 이대희"></div>
+                    <div class="form-group"><label>연락처</label><input type="tel" id="vc-phone" placeholder="예: 010-7300-2632"></div>
+                </div>
+                <div class="input-row">
+                    <div class="form-group"><label>회사명</label><input type="text" id="vc-company" placeholder="예: KT"></div>
+                    <div class="form-group"><label>소속 부서</label><input type="text" id="vc-dept" placeholder="예: 인천지사 시너지영업3팀"></div>
+                </div>
+                <div class="input-row">
+                    <div class="form-group"><label>직위</label><input type="text" id="vc-title" placeholder="예: 과장"></div>
+                    <div class="form-group"><label>이메일</label><input type="email" id="vc-email" placeholder="예: daehee.lee@kt.com"></div>
+                </div>
+                <div class="form-group"><label>회사 주소</label><input type="text" id="vc-address" placeholder="예: 인천광역시 남동구 경인로 508 KT 인천지사 4F"></div>
+            </div>
+
+            <div id="form-tel" class="dynamic-form">
+                <div class="form-group"><label>전화번호</label><input type="tel" id="tel-input" placeholder="예: 010-7300-2632"></div>
+            </div>
+
+            <div id="form-sms" class="dynamic-form">
+                <div class="form-group"><label>수신 전화번호</label><input type="tel" id="sms-number" placeholder="예: 010-7300-2632"></div>
+                <div class="form-group"><label>문자 메시지 내용</label><textarea id="sms-msg" rows="3" placeholder="전송할 내용을 입력해 주세요."></textarea></div>
+            </div>
+
+            <button class="btn-save" onclick="saveAndScrollToNext('section-design')">확인 및 다음으로</button>
+        </div>
+    </div>
+
+    <section class="section" id="section-design">
+        <div class="sec-title-container reveal-bottom">
+            <div class="sk-cube-grid">
+                <div class="sk-cube sk-cube1"></div><div class="sk-cube sk-cube2"></div><div class="sk-cube sk-cube3"></div>
+                <div class="sk-cube sk-cube4"></div><div class="sk-cube sk-cube5"></div><div class="sk-cube sk-cube6"></div>
+                <div class="sk-cube sk-cube7"></div><div class="sk-cube sk-cube8"></div><div class="sk-cube sk-cube9"></div>
+            </div>
+            <h2 class="sec-title">02. 디자인 및 로고 설정</h2>
+        </div>
+        <h3 class="reveal-left" style="margin-bottom: 20px; color: var(--text-muted); font-size: 1.1rem; text-align: center;">중앙 로고 배치</h3>
+        <div class="option-grid reveal-bottom delay-1">
+            <label class="option-label"><input type="radio" name="logoType" value="none" checked><div class="option-card">없음</div></label>
+            <label class="option-label"><input type="radio" name="logoType" value="kt"><div class="option-card">KT 로고</div></label>
+            <label class="option-label"><input type="radio" name="logoType" value="custom" onchange="document.getElementById('custom-logo-input').click()"><div class="option-card" id="custom-logo-label">직접 업로드</div></label>
+        </div>
+        <input type="file" id="custom-logo-input" accept="image/png, image/jpeg" style="display:none;" onchange="if(this.files[0]){document.getElementById('custom-logo-label').innerText='업로드 완료';document.querySelector('input[value=\'custom\']').checked=true;}">
+
+        <h3 class="reveal-left delay-1" style="margin-bottom: 20px; color: var(--text-muted); font-size: 1.1rem; text-align: center;">QR코드 패턴 컬러 (미선택 시 검은색)</h3>
+        <div class="color-picker-wrap reveal-bottom delay-2" id="qr-palette">
+            <input type="hidden" id="qr-color" value="#000000">
+            <div class="preset-color" style="background: #ffffff;" onclick="setQRColor(this, '#ffffff')" title="흰색"></div>
+            <div class="preset-color active" style="background: #000000;" onclick="setQRColor(this, '#000000')" title="검은색"></div>
+            <div class="preset-color" style="background: #333333;" onclick="setQRColor(this, '#333333')" title="다크그레이"></div>
+            <div class="preset-color" style="background: #E30000;" onclick="setQRColor(this, '#E30000')" title="빨간색"></div>
+            <div class="preset-color" style="background: #FF7F00;" onclick="setQRColor(this, '#FF7F00')" title="주황색"></div>
+            <div class="preset-color" style="background: #FFD700;" onclick="setQRColor(this, '#FFD700')" title="노란색"></div>
+            <div class="preset-color" style="background: #008000;" onclick="setQRColor(this, '#008000')" title="초록색"></div>
+            <div class="preset-color" style="background: #0000FF;" onclick="setQRColor(this, '#0000FF')" title="파란색"></div>
+            <div class="preset-color" style="background: #000080;" onclick="setQRColor(this, '#000080')" title="남색"></div>
+        </div>
+
+        <h3 class="reveal-left delay-2" style="margin-bottom: 20px; margin-top: 20px; color: var(--text-muted); font-size: 1.1rem; text-align: center;">텍스트 컬러 (미선택 시 검은색)</h3>
+        <div class="color-picker-wrap reveal-bottom delay-3" id="text-palette">
+            <input type="hidden" id="text-color" value="#111111">
+            <div class="preset-color" style="background: #ffffff;" onclick="setTextColor(this, '#ffffff')" title="흰색"></div>
+            <div class="preset-color active" style="background: #111111;" onclick="setTextColor(this, '#111111')" title="검은색"></div>
+            <div class="preset-color" style="background: #333333;" onclick="setTextColor(this, '#333333')" title="다크그레이"></div>
+            <div class="preset-color" style="background: #E30000;" onclick="setTextColor(this, '#E30000')" title="빨간색"></div>
+            <div class="preset-color" style="background: #FF7F00;" onclick="setTextColor(this, '#FF7F00')" title="주황색"></div>
+            <div class="preset-color" style="background: #FFD700;" onclick="setTextColor(this, '#FFD700')" title="노란색"></div>
+            <div class="preset-color" style="background: #008000;" onclick="setTextColor(this, '#008000')" title="초록색"></div>
+            <div class="preset-color" style="background: #0000FF;" onclick="setTextColor(this, '#0000FF')" title="파란색"></div>
+            <div class="preset-color" style="background: #000080;" onclick="setTextColor(this, '#000080')" title="남색"></div>
+        </div>
+        
+        <button class="btn-next-section reveal-bottom delay-3" style="margin-top: 30px;" onclick="scrollToSection('section-template')">설정 완료 및 템플릿 선택하기 ↓</button>
+    </section>
+
+    <section class="section" id="section-template">
+        <div class="sec-title-container reveal-bottom">
+            <div class="sk-cube-grid">
+                <div class="sk-cube sk-cube1"></div><div class="sk-cube sk-cube2"></div><div class="sk-cube sk-cube3"></div>
+                <div class="sk-cube sk-cube4"></div><div class="sk-cube sk-cube5"></div><div class="sk-cube sk-cube6"></div>
+                <div class="sk-cube sk-cube7"></div><div class="sk-cube sk-cube8"></div><div class="sk-cube sk-cube9"></div>
+            </div>
+            <h2 class="sec-title">03. 배경 템플릿 선택</h2>
+        </div>
+        
+        <div class="template-grid" id="template-container">
+            <label class="template-label reveal-bottom delay-1">
+                <input type="radio" name="bgTemplate" value="none" checked>
+                <div class="template-card" style="border: 2px dashed var(--glass-border);">
+                    <div class="template-name">QR만 저장</div>
+                    <div style="aspect-ratio: 1000/1414; display: flex; align-items: center; justify-content: center; width: 100%; color: var(--text-muted); font-weight: bold;">기본 캔버스</div>
+                </div>
+            </label>
+            
+            <label class="template-label reveal-bottom delay-1"><input type="radio" name="bgTemplate" value="t1"><div class="template-card"><div class="template-name">템플릿 01</div><img src="https://kt-synergy.com/assets/image/qr_templates/qr_template_01_sample.png" class="template-img" onerror="this.style.display='none'"></div></label>
+            <label class="template-label reveal-bottom delay-2"><input type="radio" name="bgTemplate" value="t2"><div class="template-card"><div class="template-name">템플릿 02</div><img src="https://kt-synergy.com/assets/image/qr_templates/qr_template_02_sample.png" class="template-img" onerror="this.style.display='none'"></div></label>
+            <label class="template-label reveal-bottom delay-3"><input type="radio" name="bgTemplate" value="t3"><div class="template-card"><div class="template-name">템플릿 03</div><img src="https://kt-synergy.com/assets/image/qr_templates/qr_template_03_sample.png" class="template-img" onerror="this.style.display='none'"></div></label>
+            <label class="template-label reveal-bottom delay-1"><input type="radio" name="bgTemplate" value="t4"><div class="template-card"><div class="template-name">템플릿 04</div><img src="https://kt-synergy.com/assets/image/qr_templates/qr_template_04_sample.png" class="template-img" onerror="this.style.display='none'"></div></label>
+            
+            <label class="template-label reveal-bottom delay-2"><input type="radio" name="bgTemplate" value="t5"><div class="template-card"><div class="template-name">템플릿 05</div><img src="https://kt-synergy.com/assets/image/qr_templates/qr_template_05_sample.png" class="template-img" onerror="this.style.display='none'"></div></label>
+            <label class="template-label reveal-bottom delay-3"><input type="radio" name="bgTemplate" value="t6"><div class="template-card"><div class="template-name">템플릿 06</div><img src="https://kt-synergy.com/assets/image/qr_templates/qr_template_06_sample.png" class="template-img" onerror="this.style.display='none'"></div></label>
+            <label class="template-label reveal-bottom delay-1"><input type="radio" name="bgTemplate" value="t7"><div class="template-card"><div class="template-name">템플릿 07</div><img src="https://kt-synergy.com/assets/image/qr_templates/qr_template_07_sample.png" class="template-img" onerror="this.style.display='none'"></div></label>
+            <label class="template-label reveal-bottom delay-2"><input type="radio" name="bgTemplate" value="t8"><div class="template-card"><div class="template-name">템플릿 08</div><img src="https://kt-synergy.com/assets/image/qr_templates/qr_template_08_sample.png" class="template-img" onerror="this.style.display='none'"></div></label>
+            <label class="template-label reveal-bottom delay-3"><input type="radio" name="bgTemplate" value="t9"><div class="template-card"><div class="template-name">템플릿 09</div><img src="https://kt-synergy.com/assets/image/qr_templates/qr_template_09_sample.png" class="template-img" onerror="this.style.display='none'"></div></label>
+        </div>
+
+        <button class="btn-epic reveal-bottom delay-1" onclick="generateComposite()">최종 이미지 렌더링</button>
+
+        <div id="result-area" class="result-area">
+            <h2 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 30px; color: var(--accent-main);">생성 완료</h2>
+            <canvas id="finalCanvas"></canvas>
+            <br>
+            <a id="download-link" class="btn-epic" style="margin-top: 35px; background: var(--accent-main); color: #fff;" download="kt_synergy_asset.png">이미지 다운로드</a>
+        </div>
+    </section>
+
+    <script>
+        const ml4Timeline = anime.timeline({loop: true});
+        const letters = ['.letters-1', '.letters-2', '.letters-3'];
+        
+        letters.forEach((letter) => {
+            ml4Timeline.add({ targets: letter, opacity: [0, 1], scale: [0.5, 1], duration: 800, easing: "easeOutExpo" })
+                       .add({ targets: letter, opacity: [1, 0], scale: [1, 1.5], duration: 600, delay: 1200, easing: "easeInExpo" });
+        });
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('reveal-active'); });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.reveal-left, .reveal-right, .reveal-bottom, .reveal-diag-left, .reveal-diag-right, .sec-title-container').forEach((el) => observer.observe(el));
+
+        gsap.registerPlugin(ScrollTrigger);
+        gsap.set("#card-wifi", {x: -200, y: -100});
+        gsap.set("#card-url", {y: 150});
+        gsap.set("#card-vcard", {x: 200, y: -100});
+        gsap.set("#card-tel", {x: -150, y: 150});
+        gsap.set("#card-sms", {x: 150, y: 150});
+
+        gsap.to(".type-card", {
+            scrollTrigger: { trigger: "#sec-type", start: "top 95%", end: "center 50%", scrub: 1.5 },
+            x: 0, y: 0, opacity: 1, stagger: 0.05, ease: "power2.out"
+        });
+
+        const modal = document.getElementById('inputModal');
+        function openModal(type) {
+            document.getElementById('selectedType').value = type;
+            document.querySelectorAll('.dynamic-form').forEach(el => el.classList.remove('active'));
+            document.getElementById('form-' + type).classList.add('active');
+            
+            const titles = { 'wifi': 'Wi-Fi 설정', 'url': '랜딩 URL 입력', 'vcard': '디지털 명함 정보', 'tel': '전화번호 입력', 'sms': '문자 발송 설정' };
+            document.getElementById('modalTitle').innerText = titles[type];
+            modal.classList.add('active');
+        }
+        function closeModal() { modal.classList.remove('active'); }
+        
+        function scrollToSection(sectionId) { document.getElementById(sectionId).scrollIntoView({ behavior: 'smooth' }); }
+        function saveAndScrollToNext(targetId) { closeModal(); setTimeout(() => { scrollToSection(targetId); }, 200); }
+        
+        function setQRColor(element, hex) {
+            document.querySelectorAll('#qr-palette .preset-color').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+            document.getElementById('qr-color').value = hex;
+        }
+
+        function setTextColor(element, hex) {
+            document.querySelectorAll('#text-palette .preset-color').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+            document.getElementById('text-color').value = hex;
+        }
+
+        async function generateComposite() {
+            const type = document.getElementById('selectedType').value;
+            if(!type) { alert("상단에서 유형 선택 후 데이터를 입력해 주세요."); window.scrollTo({top:0, behavior:'smooth'}); return; }
+            
+            const color = document.getElementById('qr-color').value;
+            const textColor = document.getElementById('text-color').value;
+            const templateIndex = document.querySelector('input[name="bgTemplate"]:checked').value;
+            const logoType = document.querySelector('input[name="logoType"]:checked').value;
+            
+            let qrData = "";
+            const telNum = document.getElementById('tel-input').value || '010-7300-2632';
+            const smsNum = document.getElementById('sms-number').value || '010-7300-2632';
+            const smsMsg = document.getElementById('sms-msg').value || '';
+            const vcName = document.getElementById('vc-name').value || '이대희';
+            const vcPhone = document.getElementById('vc-phone').value || '010-7300-2632';
+            const vcCompany = document.getElementById('vc-company').value || 'KT';
+            const vcDept = document.getElementById('vc-dept').value || '인천지사 시너지영업3팀';
+            const vcTitle = document.getElementById('vc-title').value || '과장';
+            const vcEmail = document.getElementById('vc-email').value || 'daehee.lee@kt.com';
+            const vcAddress = document.getElementById('vc-address').value || '인천광역시 남동구 경인로 508 KT 인천지사 4F';
+
+            if (type === 'wifi') { 
+                const ssid = document.getElementById('wifi-ssid').value || 'KT_GiGA_5G';
+                const pw = document.getElementById('wifi-pw').value || '';
+                const sec = document.getElementById('wifi-type').value || 'WPA';
+                qrData = `WIFI:T:${sec};S:${ssid};P:${pw};H:false;;`; 
+            } else if (type === 'url') { 
+                qrData = document.getElementById('url-input').value || 'https://kt.com'; 
+            } else if (type === 'vcard') { 
+                qrData = `BEGIN:VCARD\nVERSION:3.0\nN:${vcName}\nFN:${vcName}\nORG:${vcCompany};${vcDept}\nTITLE:${vcTitle}\nTEL:${vcPhone}\nEMAIL:${vcEmail}\nADR:;;${vcAddress};;;;\nEND:VCARD`; 
+            } else if (type === 'tel') { qrData = `tel:${telNum}`; } 
+            else if (type === 'sms') { qrData = `smsto:${smsNum}:${smsMsg}`; }
+
+            const errorLevel = (type === 'vcard') ? 'M' : 'H';
+
+            if (typeof QRCode === 'undefined') { alert("QR 생성 엔진 라이브러리를 불러오지 못했습니다."); return; }
+
+            // [수정 완료] width 450으로 해상도 축소
+            QRCode.toDataURL(qrData, { width: 450, margin: 0, color: { dark: color, light: "#ffffff00" }, errorCorrectionLevel: errorLevel }, async function (err, qrImageURL) {
+                if (err) { alert("QR 생성 중 오류 발생: " + err); return; }
+
+                const canvas = document.getElementById('finalCanvas');
+                const ctx = canvas.getContext('2d');
+
+                let customLogoImg = null;
+                if (logoType === 'custom') {
+                    const fileInput = document.getElementById('custom-logo-input');
+                    if (fileInput.files && fileInput.files[0]) {
+                        customLogoImg = new Image();
+                        let customLogoURL = URL.createObjectURL(fileInput.files[0]);
+                        await new Promise((res) => { customLogoImg.onload = res; customLogoImg.onerror = res; customLogoImg.src = customLogoURL; });
+                    }
+                }
+
+                if (templateIndex === 'none') {
+                    canvas.width = 800; canvas.height = 800;
+                    ctx.fillStyle = color === '#ffffff' ? '#111115' : '#ffffff';
+                    ctx.fillRect(0, 0, 800, 800);
+
+                    const baseQRImg = new Image();
+                    baseQRImg.onload = async () => {
+                        // [수정 완료] 정중앙 (175, 175) 배치 및 450 크기 적용
+                        ctx.drawImage(baseQRImg, 175, 175, 450, 450);
+                        const lSize = 160; 
+                        const lX = 175 + (450 - lSize) / 2; 
+                        const lY = 175 + (450 - lSize) / 2;
+                        
+                        if (logoType === 'kt') {
+                            let logoImg = new Image(); logoImg.crossOrigin = "Anonymous";
+                            await new Promise((res) => { logoImg.onload = res; logoImg.onerror = res; logoImg.src = "https://kt-synergy.com/assets/image/CI_BI/kt_icon02.png"; });
+                            ctx.drawImage(logoImg, lX, lY, lSize, lSize);
+                        } else if (logoType === 'custom' && customLogoImg) { ctx.drawImage(customLogoImg, lX, lY, lSize, lSize); }
+                        document.getElementById('result-area').classList.add('active');
+                        document.getElementById('download-link').href = canvas.toDataURL("image/png");
+                        setTimeout(() => document.getElementById('result-area').scrollIntoView({ behavior: 'smooth', block: 'start' }), 150);
+                    };
+                    baseQRImg.src = qrImageURL;
+                    return; 
+                }
+
+                canvas.width = 1000; canvas.height = 1414;
+                let bgImg = new Image(); bgImg.crossOrigin = "Anonymous";
+                const idx = templateIndex.replace('t', '').padStart(2, '0');
+                bgImg.src = `https://kt-synergy.com/assets/image/qr_templates/qr_template_${idx}.png`;
+                await new Promise((res) => { bgImg.onload = res; bgImg.onerror = res; });
+                
+                if(bgImg.width === 0) { ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,1000,1414); } else { ctx.drawImage(bgImg, 0, 0, 1000, 1414); }
+
+                let topIconImg = new Image(); topIconImg.crossOrigin = "Anonymous";
+                topIconImg.src = type === 'wifi' ? `https://kt-synergy.com/assets/image/qr_templates/wifi_icon.png` : `https://kt-synergy.com/assets/image/qr_templates/scan_qr.png`;
+                await new Promise((res) => { topIconImg.onload = res; topIconImg.onerror = res; });
+                
+                if (type === 'wifi') { ctx.drawImage(topIconImg, 268, 33, 464, 143); } else { ctx.drawImage(topIconImg, 201, 1, 600, 201); }
+
+                const baseQRImg = new Image();
+                baseQRImg.onload = async () => {
+                    // [수정 완료] 정중앙 (276, 275) 배치 및 450 크기 적용
+                    ctx.drawImage(baseQRImg, 276, 275, 450, 450); 
+                    const lSize = 160; 
+                    const lX = 276 + (450 - lSize) / 2; 
+                    const lY = 275 + (450 - lSize) / 2; 
+
+                    if (logoType === 'kt') {
+                        let logoImg = new Image(); logoImg.crossOrigin = "Anonymous";
+                        await new Promise((res) => { logoImg.onload = res; logoImg.onerror = res; logoImg.src = "https://kt-synergy.com/assets/image/CI_BI/kt_icon02.png"; });
+                        ctx.drawImage(logoImg, lX, lY, lSize, lSize);
+                    } else if (logoType === 'custom' && customLogoImg) { ctx.drawImage(customLogoImg, lX, lY, lSize, lSize); }
+
+                    ctx.fillStyle = textColor; 
+                    ctx.textAlign = "center";
+                    let textY = 1018 + 100;
+                    
+                    if (type === 'vcard') {
+                        ctx.font = "32px Pretendard, sans-serif"; ctx.fillText(`${vcCompany} ${vcDept}`, 500, textY);
+                        ctx.font = "bold 52px Pretendard, sans-serif"; ctx.fillText(`${vcName} ${vcTitle}`, 500, textY + 60);
+                        ctx.font = "36px Pretendard, sans-serif"; ctx.fillText(vcPhone, 500, textY + 120);
+                        ctx.fillText(vcEmail, 500, textY + 175);
+                        ctx.font = "24px Pretendard, sans-serif"; ctx.fillText(vcAddress, 500, textY + 225);
+                    } else if (type === 'wifi') {
+                        const ssid = document.getElementById('wifi-ssid').value || 'KT_GiGA_5G';
+                        const pw = document.getElementById('wifi-pw').value || '';
+                        ctx.font = "bold 45px Pretendard, sans-serif"; ctx.fillText(`SSID : ${ssid}`, 500, textY + 60);
+                        if(pw) { ctx.fillText(`PW : ${pw}`, 500, textY + 150); }
+                    } else if (type === 'url') {
+                        const urlInput = document.getElementById('url-input').value || 'https://kt.com';
+                        ctx.font = "bold 46px Pretendard, sans-serif"; ctx.fillText("웹사이트 연결", 500, textY + 60);
+                        ctx.font = "32px Pretendard, sans-serif"; ctx.fillText(urlInput, 500, textY + 150);
+                    } else if (type === 'tel') {
+                        ctx.font = "bold 46px Pretendard, sans-serif"; ctx.fillText("전화 연결", 500, textY + 60);
+                        ctx.font = "38px Pretendard, sans-serif"; ctx.fillText(telNum, 500, textY + 150);
+                    } else if (type === 'sms') {
+                        ctx.font = "bold 46px Pretendard, sans-serif"; ctx.fillText("문자 전송 수신처", 500, textY + 60);
+                        ctx.font = "38px Pretendard, sans-serif"; ctx.fillText(smsNum, 500, textY + 150);
+                    }
+
+                    document.getElementById('result-area').classList.add('active');
+                    document.getElementById('download-link').href = canvas.toDataURL("image/png");
+                    setTimeout(() => document.getElementById('result-area').scrollIntoView({ behavior: 'smooth', block: 'start' }), 150);
+                };
+                baseQRImg.src = qrImageURL;
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const titleBox = document.getElementById('hero-title-trigger');
+            if (titleBox) {
+                const blackText = titleBox.getAttribute('data-text-black') || "";
+                const grayText = titleBox.getAttribute('data-text-gray') || "";
+                
+                titleBox.innerHTML = '';
+
+                blackText.split("").forEach((char) => {
+                    const span = document.createElement('span');
+                    span.classList.add('kinetic-char');
+                    span.style.color = '#000000'; 
+                    span.innerHTML = char === " " ? "&nbsp;" : char;
+                    titleBox.appendChild(span);
+                });
+
+                const spaceSpan = document.createElement('span');
+                spaceSpan.innerHTML = "&nbsp;";
+                titleBox.appendChild(spaceSpan);
+
+                grayText.split("").forEach((char) => {
+                    const span = document.createElement('span');
+                    span.classList.add('kinetic-char');
+                    span.style.color = '#626260'; 
+                    span.innerHTML = char === " " ? "&nbsp;" : char;
+                    titleBox.appendChild(span);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
