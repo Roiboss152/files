@@ -52,37 +52,32 @@
   .step-dot.active{ width:10px; height:26px; background:var(--ink); border-radius:4px; }
 
   /* ---- device frame (all breakpoints now) ---- */
-  .device-frame{
-    position:relative; width:100%; max-width:380px; margin:0 auto;
-    aspect-ratio:1841/2652;
-    background-image: url(https://kt-synergy.com/assets/image/calculator/hiorder01.png);
-    background-size:100% 100%; background-repeat:no-repeat; background-position:center;
-  }
-@media (min-width:768px){ .device-frame{max-width:440px;} }
+ background-image: url(https://kt-synergy.com/assets/image/calculator/hiorder01.png);
+
+@media (min-width:768px){ .device-frame{max-width:640px;} }
   .device-frame.hidden{display:none;}
   .device-screen{
-    position:absolute; left:6.84%; top:11.73%; width:85.99%; height:37.67%;
-    overflow:hidden; border-radius:5%/9%;
-    padding:3% 5%;
+    position:absolute; left:7.3%; top:12.2%; width:85.4%; height:37.0%;
+    overflow-y:auto; border-radius:5%/9%;
+    padding:5% 6%;
     transition: background .4s ease, color .4s ease;
     background:#fff; color:var(--ink);
-    display:flex; flex-direction:column; justify-content:center;
   }
   .device-screen.theme-dark{ background:#15151a; color:#fff; }
-  .device-screen .df-step{ display:none; flex-direction:column; justify-content:center; padding:0; width:100%; height:100%; }
+  .device-screen .df-step{ display:none; flex-direction:column; padding:0; }
   .device-screen .df-step.active{ display:flex; }
 
   .glass-summary{
     max-width:520px; margin:14px auto 0; padding:14px 18px; border-radius:16px;
-    background:rgba(30,30,40,0.72); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
-    border:1px solid rgba(255,255,255,0.18); box-shadow:0 10px 28px rgba(0,0,0,0.25);
-    display:flex; justify-content:space-around; gap:10px; text-align:center; color:#fff;
+    background:rgba(255,255,255,0.55); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+    border:1px solid rgba(255,255,255,0.6); box-shadow:0 8px 24px rgba(0,0,0,0.08);
+    display:flex; justify-content:space-around; gap:10px; text-align:center;
   }
   @media (min-width:768px){ .glass-summary{max-width:640px;} }
   .glass-summary.hidden{display:none;}
-  .glass-summary .gitem .glabel{font-size:var(--fs-hint); color:rgba(255,255,255,0.72);}
-  .glass-summary .gitem .gval{font-size:var(--fs-summary); font-weight:800; color:#fff;}
-  .glass-summary .gitem .gval small{font-size:var(--fs-hint); font-weight:400; color:rgba(255,255,255,0.6); margin-left:3px;}
+  .glass-summary .gitem .glabel{font-size:var(--fs-hint); color:var(--muted);}
+  .glass-summary .gitem .gval{font-size:var(--fs-summary); font-weight:800; color:var(--ink);}
+  .glass-summary .gitem .gval small{font-size:var(--fs-hint); font-weight:400; color:var(--muted); margin-left:3px;}
 
   /* step1/step2: 디바이스 프레임 밖, 일반 카드 영역 */
   .card-step{
@@ -208,8 +203,9 @@
   }
   .step-nav button:disabled{opacity:0; visibility:hidden; pointer-events:none;}
   .step-nav button.primary{background:var(--ink); color:#fff; border-color:var(--ink);}
-  /* step0: device-frame 바로 아래에 자연스럽게 배치, 글래스 요약 위에 위치 */
-  body.step0-active .step-nav{ margin-top:14px; }
+  /* step0에서는 다음 버튼을 아래로 내려 선택 요약이 안 가리도록 */
+  body.step0-active .step-nav{ position:relative; top:160px; margin-top:160px; }
+  @media (max-width:480px){ body.step0-active .step-nav{ top:140px; margin-top:140px; } }
 
   .table-scroll{overflow-x:auto; -webkit-overflow-scrolling:touch; border-radius:8px;}
   .table-scroll-hint{font-size:var(--fs-hint); color:var(--muted); margin-bottom:6px; display:block;}
@@ -263,14 +259,9 @@
     width:100%; max-width:380px; height:48px; background:var(--paper); border-radius:50px;
     border:1px solid var(--line); position:relative; display:flex; box-sizing:border-box;
     --tx:4px; --w:120px; --bg:#000000; margin:0 auto;
-    transition: height .3s ease, border-radius .3s ease, opacity .3s ease, transform .3s ease;
   }
-  .mp-toggle.dial-mode{ overflow:visible !important; height:128px; border-radius:32px; }
+  .mp-toggle.dial-mode{ overflow:visible !important; }
   .mp-toggle:not(.dial-mode){ overflow:hidden; }
-  /* 다이얼 모드일 때 같은 줄의 다른 토글은 페이드아웃 + 축소 */
-  .mp-wrap:has(.mp-toggle.dial-mode) .mp-toggle:not(.dial-mode){
-    opacity:0; transform:scale(.85); pointer-events:none; height:0; margin:-7px auto; border-width:0;
-  }
   .mp-slider{
     position:absolute; top:4px; bottom:4px; border-radius:40px; z-index:1;
     width:var(--w); transform:translateX(var(--tx)); background-color:var(--bg);
@@ -291,20 +282,20 @@
   .mp-btn.active.light{ color:#ffffff !important; }
   .mp-btn.active.dark{ color:#111827 !important; }
   .mp-btn-main{ flex:none; width:120px; transition:all .3s ease; font-weight:700; }
-  .mp-dial-row{ display:flex; align-items:center; justify-content:center; width:100%; height:100%; gap:14px; }
+  .mp-dial-row{ display:flex; align-items:center; justify-content:center; width:100%; height:100%; gap:10px; }
   .mp-dial-window{
-    width:84px; height:120px; background:var(--paper); border-radius:14px; overflow:hidden;
-    position:relative; cursor:ns-resize; border:1px solid var(--line); box-shadow:0 3px 10px rgba(0,0,0,.06);
+    width:42px; height:60px; background:var(--paper); border-radius:8px; overflow:hidden;
+    position:relative; cursor:ns-resize; border:1px solid var(--line); box-shadow:0 2px 6px rgba(0,0,0,.04);
     touch-action:none;
   }
-  .mp-dial-window::before, .mp-dial-window::after{ content:''; position:absolute; left:0; right:0; height:36px; z-index:5; pointer-events:none; }
+  .mp-dial-window::before, .mp-dial-window::after{ content:''; position:absolute; left:0; right:0; height:18px; z-index:5; pointer-events:none; }
   .mp-dial-window::before{ top:0; background:linear-gradient(to bottom, rgba(255,255,255,.95), transparent); }
   .mp-dial-window::after{ bottom:0; background:linear-gradient(to top, rgba(255,255,255,.95), transparent); }
-  .mp-dial-indicator{ position:absolute; top:36px; left:4px; right:4px; height:40px; border-top:1px dashed var(--line); border-bottom:1px dashed var(--line); pointer-events:none; z-index:3; }
+  .mp-dial-indicator{ position:absolute; top:18px; left:2px; right:2px; height:20px; border-top:1px dashed var(--line); border-bottom:1px dashed var(--line); pointer-events:none; z-index:3; }
   .mp-dial-track{ display:flex; flex-direction:column; transition: transform .25s cubic-bezier(.25,1,.4,1); }
-  .mp-dial-num{ height:40px; display:flex; align-items:center; justify-content:center; font-size:18px; color:#94a3b8; transition: all .2s; }
-  .mp-dial-num.active{ font-size:24px; font-weight:700; color:var(--ink); }
-  .mp-dial-confirm{ width:40px; height:40px; background:var(--ink); border:none; border-radius:50%; color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:16px; flex:none; }
+  .mp-dial-num{ height:20px; display:flex; align-items:center; justify-content:center; font-size:11px; color:#94a3b8; transition: all .2s; }
+  .mp-dial-num.active{ font-size:13px; font-weight:700; color:var(--ink); }
+  .mp-dial-confirm{ width:24px; height:24px; background:var(--ink); border:none; border-radius:50%; color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:11px; flex:none; }
   .mp-dial-confirm:hover{ background:#000; transform:scale(1.1); }
 
   /* 미니 카트(메뉴판/알림판 다중 추가 리스트) */
@@ -318,36 +309,34 @@
   .mp-cart-item .mp-cart-del{ background:transparent; border:none; color:var(--faint); font-size:15px; cursor:pointer; line-height:1; padding:2px 4px; }
   .mp-cart-item .mp-cart-del:hover{ color:var(--accent); }
 
-  /* step0 선택 요약 - device-frame 밖, 흰 배경 위 다크 글래스 */
+  /* step1 하단 선택 요약 - device-frame 내 절대위치 */
   .step1-summary{
     display:flex; 
     flex-direction:column; 
     gap:8px;
-    background:rgba(30,30,40,0.72);
-    backdrop-filter:blur(14px);
-    -webkit-backdrop-filter:blur(14px);
-    border:1px solid rgba(255,255,255,0.18);
+    background:rgba(255,255,255,0.1);
+    backdrop-filter:blur(10px);
+    border:1px solid rgba(255,255,255,0.2);
     border-radius:16px;
     padding:12px 16px;
-    box-shadow:0 10px 28px rgba(0,0,0,0.18);
   }
-  .step1-summary.hidden{display:none;}
   .sum-row{
     display:flex; 
     justify-content:space-between; 
     align-items:center; 
     gap:8px;
-    background:rgba(255,255,255,0.08);
-    border:1px solid rgba(255,255,255,0.18);
+    background:rgba(255,255,255,0.05);
+    border:1px solid rgba(255,255,255,0.15);
     border-radius:10px;
     padding:10px 12px; 
     font-size:12.5px; 
     color:#fff;
+    backdrop-filter:blur(5px);
   }
   .sum-row .sum-text{ font-weight:600; }
-  .sum-row .sum-del{ background:transparent; border:none; color:rgba(255,255,255,0.7); font-size:16px; cursor:pointer; line-height:1; padding:2px 4px; }
+  .sum-row .sum-del{ background:transparent; border:none; color:rgba(255,255,255,0.6); font-size:16px; cursor:pointer; line-height:1; padding:2px 4px; }
   .sum-row .sum-del:hover{ color:#fff; }
-  .sum-empty{ text-align:center; color:rgba(255,255,255,0.7); font-size:12.5px; padding:10px 0; }
+  .sum-empty{ text-align:center; color:rgba(255,255,255,0.5); font-size:12.5px; padding:10px 0; }
 </style>
 </head>
 <body>
@@ -452,10 +441,10 @@
       </div>
 
     </div>
-  </div>
 
-  <!-- step0 카트/약정 요약 (device-frame 밖, 자연 흐름) -->
-  <div class="step1-summary hidden" id="step1Summary" style="max-width:520px; margin:14px auto 0; width:calc(100% - 24px);"></div>
+    <!-- device-frame 내 하단: 선택 요약 영역 -->
+    <div class="step1-summary" id="step1Summary" style="position:absolute; bottom:60px; left:50%; transform:translateX(-50%); width:90%; max-width:380px;"></div>
+  </div>
 
   <div class="glass-summary hidden" id="glassSummary">
     <div class="gitem"><div class="glabel">총 단말 대수</div><div class="gval" id="gDevices">0대</div></div>
@@ -1053,10 +1042,6 @@ class MorphicComponent {
         btn.addEventListener('click', ()=>{
           const val = btn.getAttribute('data-val');
           const pos = btn.getAttribute('data-pos');
-          // 메뉴판의 색상 단계(layer 1)에서 클릭 시 즉시 화면 테마 미리보기
-          if(this.id==='menu' && i===1){
-            applyScreenTheme(val);
-          }
           if(this.selections[i-1]===val){
             if(i===this.layers.length-2){
               this.currentStep = this.layers.length-1;
@@ -1077,16 +1062,14 @@ class MorphicComponent {
     windowEl.addEventListener('click', (e)=>{
       const rect = windowEl.getBoundingClientRect();
       const y = e.clientY - rect.top;
-      // 상단 1/3 클릭 → +1(위로 올라가기), 하단 1/3 클릭 → -1
-      this.changeDialValue(y < 40 ? 1 : (y > 80 ? -1 : 0));
+      this.changeDialValue(y < 20 ? -1 : (y > 40 ? 1 : 0));
     });
     windowEl.addEventListener('wheel', (e)=>{
       e.preventDefault();
       this.changeDialValue(e.deltaY > 0 ? 1 : -1);
     }, { passive:false });
 
-    // 모바일 터치 드래그로 다이얼 조작 — 캐리어 손잡이 방향:
-    // 손가락을 위로 올리면 카운트 +, 아래로 내리면 카운트 -
+    // 모바일 터치 드래그로 다이얼 조작 (페이지 스크롤 전파 차단)
     let touchStartY = 0, touchAccum = 0, dragged = false;
     windowEl.addEventListener('touchstart', (e)=>{
       touchStartY = e.touches[0].clientY;
@@ -1095,13 +1078,12 @@ class MorphicComponent {
     windowEl.addEventListener('touchmove', (e)=>{
       e.preventDefault();
       const y = e.touches[0].clientY;
-      const delta = y - touchStartY; // 아래로 드래그면 양수
+      const delta = y - touchStartY;
       touchStartY = y;
       touchAccum += delta;
-      const step = 24; // px당 한 칸 (다이얼이 커졌으니 step도 확대)
-      // 위로 드래그(touchAccum 음수 누적) → +1, 아래로 드래그(양수 누적) → -1
-      while(touchAccum <= -step){ this.changeDialValue(1); touchAccum += step; dragged = true; }
-      while(touchAccum >= step){ this.changeDialValue(-1); touchAccum -= step; dragged = true; }
+      const step = 16; // px당 한 칸
+      while(touchAccum <= -step){ this.changeDialValue(-1); touchAccum += step; dragged = true; }
+      while(touchAccum >= step){ this.changeDialValue(1); touchAccum -= step; dragged = true; }
       if(Math.abs(delta) > 2) dragged = true;
     }, { passive:false });
     windowEl.addEventListener('touchend', (e)=>{
@@ -1129,10 +1111,6 @@ class MorphicComponent {
     const bg = GLOBAL_COLORS[this.currentStep] || GLOBAL_COLORS[GLOBAL_COLORS.length-1];
     const txtMode = GLOBAL_TEXT_MODES[this.currentStep] || GLOBAL_TEXT_MODES[GLOBAL_TEXT_MODES.length-1];
     this.updateFocusUI(foundBtn.getAttribute('data-pos'), foundBtn, bg, txtMode);
-    // 메뉴판 색상 단계(currentStep===1)에서는 즉시 화면 테마 프리뷰
-    if(this.id==='menu' && this.currentStep===1){
-      applyScreenTheme(foundBtn.getAttribute('data-val'));
-    }
   }
   updateFocusUI(pos, activeBtn, customBg, customTxtMode){
     const contW = this.container.clientWidth;
@@ -1181,7 +1159,7 @@ class MorphicComponent {
   }
   syncDialUI(){
     const track = this.container.querySelector('.mp-dial-track');
-    track.style.transform = `translateY(${(1-this.dialValue)*40}px)`;
+    track.style.transform = `translateY(${(1-this.dialValue)*20}px)`;
     this.container.querySelectorAll('.mp-dial-num').forEach(n=> n.classList.remove('active'));
     const c = this.container.querySelector(`.mp-dial-num[data-n="${this.dialValue}"]`);
     if(c) c.classList.add('active');
@@ -1368,7 +1346,7 @@ function renderStep1Summary(){
 
   const contractType = $('contractType').value;
   const devicePay = $('devicePay').value;
-  if(contractType && window.settleCommitted){
+  if(contractType){
     const ctLabel = contractType==='free' ? '무약정' : '3년약정';
     const dpLabel = devicePay==='lump' ? '일시납' : '월납';
     rows.push(`<div class="sum-row">
@@ -1411,7 +1389,6 @@ function initMorphicComponents(){
       setHidden('contractType', contractType);
       setHidden('devicePay', devicePay);
       setHidden('servicePay', 'monthly'); // 서비스이용료는 항상 월납 고정
-      window.settleCommitted = true;
       fullRender();
       window.settleComponent.reset();
       renderStep1Summary();
@@ -1483,7 +1460,6 @@ function showStep(n){
   const inDeviceFrame = currentStep === 0;
   const inCardStep = currentStep === 1;
   $('deviceFrame').classList.toggle('hidden', !inDeviceFrame);
-  $('step1Summary').classList.toggle('hidden', !inDeviceFrame);
   $('glassSummary').classList.toggle('hidden', !inCardStep);
   $('cardStep1').classList.toggle('hidden', currentStep !== 1);
   $('pageHeader').classList.toggle('hidden', inDeviceFrame || inCardStep);
