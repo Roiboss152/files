@@ -64,7 +64,6 @@
         .est-card p.desc { font-size: 0.9rem; color: #888; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #f0f0f0; }
         
         .item-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .item-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .item-info h4 { font-size: 1.1rem; color: #333; margin-bottom: 3px; }
         .item-info p { font-size: 0.85rem; color: #888; margin-bottom: 5px; }
         .item-info .price { font-size: 1rem; font-weight: bold; color: #00a67e; }
@@ -133,6 +132,7 @@
 
     <div class="horizontal-scroll-wrapper" id="scrollContainer">
         
+        <!-- [루프] Section 9 -->
         <div class="section" style="background-color: #F7F7F7;" data-clone="9">
             <div class="bg-text" style="top: 15%; left: 5%;">FEATURES</div>
             <div class="content-box">
@@ -146,6 +146,7 @@
             </div>
         </div>
 
+        <!-- Section 1 : 동영상 -->
         <div class="section" style="background-color: #E8E8E8;" data-id="1">
             <div class="bg-text" style="top: 10%; right: 5%;">SMART STORE</div>
             <div class="content-box">
@@ -264,6 +265,7 @@
             </div>
         </div>
         
+        <!-- [루프] Section 1 -->
         <div class="section" style="background-color: #E8E8E8;" data-clone="1">
             <div class="bg-text" style="top: 10%; right: 5%;">SMART STORE</div>
             <div class="content-box">
@@ -544,26 +546,6 @@
             document.getElementById('costTotal').innerText = formatN(grandTotalCost) + '원';
         }
 
-        function resetEstimateForm() {
-            // 수량 변수 및 입력창 0으로 초기화
-            qtys = { post: 0, pre: 0, al10: 0, al15: 0 };
-            document.getElementById('qtyPost').value = 0;
-            document.getElementById('qtyPre').value = 0;
-            document.getElementById('qtyAl10').value = 0;
-            document.getElementById('qtyAl15').value = 0;
-            
-            // 계산 결과(화면의 금액 표시) 초기화
-            calculate();
-            
-            // 고객 정보 입력창 비우기
-            document.getElementById('storeName').value = '';
-            document.getElementById('custName').value = '';
-            document.getElementById('custPhone').value = '';
-            
-            // 개인정보 동의 체크박스 원상복구
-            document.getElementById('privacyAgree').checked = true;
-        }
-
         function generateQRAndSubmit() {
             const store = document.getElementById('storeName').value || '미입력';
             const custName = document.getElementById('custName').value || '미입력';
@@ -583,8 +565,8 @@
                 return;
             }
 
-            const botToken = '8462777332:AAESj97wWa70k48-yE_aJhrSQmT8Yn90eJk'; 
-            const chatId = '1269763048';     
+            const botToken = '8708881644:AAHXQ0aPQiCwW9fzosVMblNVIig8KKLjDCI'; 
+            const chatId = '458348198';     
             
             // 🔥 이모티콘을 모두 제거한 깔끔한 텔레그램 메시지 구성
             const message = `[쇼룸 견적 & 쿠폰 요청]\n\n`
@@ -597,7 +579,7 @@
                           + `- 10인치 알림판: ${qtys.al10}대\n`
                           + `- 15인치 알림판: ${qtys.al15}대`;
 
-            const telegramUrl = `https://api.telegram.org/bot\${botToken}/sendMessage`;
+            const telegramUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
             
             fetch(telegramUrl, {
                 method: 'POST',
@@ -618,7 +600,7 @@
             if(!currentUrl.endsWith('/') && !currentUrl.endsWith('.html')) {
                 currentUrl += '/';
             }
-            const params = `?store=\${encodeURIComponent(store)}&post=\${qtys.post}&pre=\${qtys.pre}&al10=\${qtys.al10}&al15=\${qtys.al15}`;
+            const params = `?store=${encodeURIComponent(store)}&post=${qtys.post}&pre=${qtys.pre}&al10=${qtys.al10}&al15=${qtys.al15}`;
             const fullUrl = new URL('receipt.html' + params, currentUrl).href;
 
             document.getElementById('qrcode').innerHTML = ""; 
@@ -634,9 +616,6 @@
             document.getElementById('estimatePopup').classList.remove('active');
             document.getElementById('qrPopup').classList.add('active');
             isPopupOpen = true;
-
-            // 추가된 폼 초기화 로직 실행
-            resetEstimateForm();
         }
     </script>
 </body>

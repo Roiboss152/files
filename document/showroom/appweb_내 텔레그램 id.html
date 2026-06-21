@@ -64,7 +64,6 @@
         .est-card p.desc { font-size: 0.9rem; color: #888; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #f0f0f0; }
         
         .item-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .item-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .item-info h4 { font-size: 1.1rem; color: #333; margin-bottom: 3px; }
         .item-info p { font-size: 0.85rem; color: #888; margin-bottom: 5px; }
         .item-info .price { font-size: 1rem; font-weight: bold; color: #00a67e; }
@@ -583,8 +582,8 @@
                 return;
             }
 
-            const botToken = '8462777332:AAESj97wWa70k48-yE_aJhrSQmT8Yn90eJk'; 
-            const chatId = '1269763048';     
+            const botToken = '8708881644:AAHXQ0aPQiCwW9fzosVMblNVIig8KKLjDCI'; 
+            const chatId = '458348198';     
             
             // 🔥 이모티콘을 모두 제거한 깔끔한 텔레그램 메시지 구성
             const message = `[쇼룸 견적 & 쿠폰 요청]\n\n`
@@ -597,7 +596,7 @@
                           + `- 10인치 알림판: ${qtys.al10}대\n`
                           + `- 15인치 알림판: ${qtys.al15}대`;
 
-            const telegramUrl = `https://api.telegram.org/bot\${botToken}/sendMessage`;
+            const telegramUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
             
             fetch(telegramUrl, {
                 method: 'POST',
@@ -618,7 +617,7 @@
             if(!currentUrl.endsWith('/') && !currentUrl.endsWith('.html')) {
                 currentUrl += '/';
             }
-            const params = `?store=\${encodeURIComponent(store)}&post=\${qtys.post}&pre=\${qtys.pre}&al10=\${qtys.al10}&al15=\${qtys.al15}`;
+            const params = `?store=${encodeURIComponent(store)}&post=${qtys.post}&pre=${qtys.pre}&al10=${qtys.al10}&al15=${qtys.al15}`;
             const fullUrl = new URL('receipt.html' + params, currentUrl).href;
 
             document.getElementById('qrcode').innerHTML = ""; 
