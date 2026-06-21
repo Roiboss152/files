@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>프랜차이즈 전용 Wi-Fi QR 생성기 | KT 인천지사 시너지영업3팀</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.1/qrcode.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,700,900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --kt-red: #e30613;
+      --kt-dark: #1a1a1a;
+      --kt-gray: #f5f5f5;
+      --kt-border: rgba(0,0,0,0.08);
+      --radius: 16px;
+      --transition: 220ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+    body {
+      font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
+      background: #f0f0f0;
+      color: var(--kt-dark);
+      min-height: 100dvh;
+    }
+
+    /* ── Header ── */
+    header {
+      background: #fff;
+      border-bottom: 1px solid var(--kt-border);
+      padding: 18px 32px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    header img.kt-logo { height: 32px; }
+    header .divider { width: 1px; height: 28px; background: var(--kt-border); }
+    header .header-text h1 { font-size: 1rem; font-weight: 800; color: var(--kt-dark); }
+    header .header-text p { font-size: 0.78rem; color: #888; font-weight: 500; margin-top: 1px; }
+
+    /* ── Layout ── */
+    .page-wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      gap: 32px;
+      align-items: start;
+    }
+    @media (max-width: 900px) {
+      .page-wrap { grid-template-columns: 1fr; }
+    }
+
+    /* ── Section cards ── */
+    .card {
+      background: #fff;
+      border-radius: var(--radius);
+      border: 1px solid var(--kt-border);
+      padding: 32px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.04);
+    }
+    .card + .card { margin-top: 20px; }
+    .section-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px; height: 28px;
+      background: var(--kt-red);
+      color: #fff;
+      font-size: 0.82rem;
+      font-weight: 800;
+      border-radius: 50%;
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+    .section-title {
+      display: flex;
+      align-items: center;
+      font-size: 1.15rem;
+      font-weight: 800;
+      margin-bottom: 24px;
+      color: var(--kt-dark);
+    }
+
+    /* ── Franchise Grid ── */
+    .franchise-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 12px;
+    }
+    .franchise-label { cursor: pointer; }
+    .franchise-label input { display: none; }
+    .franchise-card {
+      border: 2px solid var(--kt-border);
+      border-radius: 12px;
+      padding: 14px 10px;
+      text-align: center;
+      background: var(--kt-gray);
+      transition: var(--transition);
+      position: relative;
+    }
+    .franchise-card .brand-thumb {
+      width: 72px; height: 72px;
+      object-fit: contain;
+      border-radius: 8px;
+      margin: 0 auto 10px;
+      display: block;
+      background: #fff;
+    }
+    .franchise-card .brand-thumb-placeholder {
+      width: 72px; height: 72px;
+      border-radius: 8px;
+      margin: 0 auto 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #e8e8e8;
+      font-size: 1.8rem;
+    }
+    .franchise-card .brand-name {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--kt-dark);
+      line-height: 1.3;
+    }
+    .franchise-label input:checked ~ .franchise-card {
+      border-color: var(--kt-red);
+      background: #fff5f5;
+      box-shadow: 0 4px 16px rgba(227,6,19,0.12);
+    }
+    .franchise-label input:checked ~ .franchise-card::after {
+      content: '✓';
+      position: absolute;
+      top: 8px; right: 10px;
+      font-size: 0.85rem;
+      font-weight: 900;
+      color: var(--kt-red);
+    }
+    .franchise-card:hover {
+      border-color: rgba(227,6,19,0.4);
+      background: #fff;
+    }
+
+    /* ── Form ── */
+    .form-group { margin-bottom: 20px; }
+    .form-group label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--kt-red);
+      margin-bottom: 8px;
+      letter-spacing: 0.3px;
+    }
+    .form-group input, .form-group select {
+      width: 100%;
+      border: 1.5px solid var(--kt-border);
+      border-radius: 10px;
+      padding: 13px 16px;
+      font-size: 1rem;
+      font-family: inherit;
+      color: var(--kt-dark);
+      background: var(--kt-gray);
+      outline: none;
+      transition: var(--transition);
+    }
+    .form-group input:focus, .form-group select:focus {
+      border-color: var(--kt-red);
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(227,6,19,0.08);
+    }
+    .form-group input::placeholder { color: #bbb; }
+
+    /* ── Generate Button ── */
+    .btn-generate {
+      width: 100%;
+      padding: 18px;
+      background: var(--kt-red);
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 800;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: 0 6px 20px rgba(227,6,19,0.25);
+      margin-top: 8px;
+    }
+    .btn-generate:hover { background: #c0000f; box-shadow: 0 8px 24px rgba(227,6,19,0.35); }
+    .btn-generate:active { transform: scale(0.98); }
+
+    /* ── Preview Panel ── */
+    .preview-panel {
+      position: sticky;
+      top: 88px;
+    }
+    .preview-inner {
+      background: #fff;
+      border-radius: var(--radius);
+      border: 1px solid var(--kt-border);
+      padding: 24px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.04);
+    }
+    .preview-title {
+      font-size: 1rem;
+      font-weight: 800;
+      margin-bottom: 16px;
+      color: var(--kt-dark);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .preview-title::before {
+      content: '';
+      width: 4px; height: 18px;
+      background: var(--kt-red);
+      border-radius: 2px;
+    }
+    #previewCanvas {
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+      border: 1px solid var(--kt-border);
+      display: block;
+    }
+    .preview-placeholder {
+      aspect-ratio: 1240/1754;
+      background: var(--kt-gray);
+      border-radius: 10px;
+      border: 2px dashed #ddd;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #bbb;
+      font-size: 0.9rem;
+      font-weight: 600;
+      gap: 10px;
+    }
+    .preview-placeholder svg { opacity: 0.3; }
+
+    /* ── Download Button ── */
+    .btn-download {
+      display: block;
+      width: 100%;
+      margin-top: 16px;
+      padding: 16px;
+      background: var(--kt-dark);
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 800;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: var(--transition);
+      text-align: center;
+    }
+    .btn-download:hover { background: #333; }
+    .btn-download:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    /* ── Status ── */
+    .status-bar {
+      margin-top: 12px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      display: none;
+    }
+    .status-bar.success { display: block; background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+    .status-bar.error { display: block; background: #fff5f5; color: #dc2626; border: 1px solid #fecaca; }
+    .status-bar.loading { display: block; background: #f0f9ff; color: #0369a1; border: 1px solid #bae6fd; }
+
+    /* ── Notice ── */
+    .notice {
+      background: #fff9e6;
+      border: 1px solid #fde68a;
+      border-radius: 10px;
+      padding: 14px 16px;
+      font-size: 0.82rem;
+      color: #92400e;
+      line-height: 1.6;
+      margin-top: 20px;
+    }
+    .notice strong { display: block; margin-bottom: 4px; font-weight: 800; }
+  </style>
+</head>
+<body>
+
+<header>
+  <img src="https://kt-synergy.com/assets/image/CI_BI/KT_CI_G01.png" class="kt-logo" alt="KT" onerror="this.style.display='none'">
+  <div class="divider"></div>
+  <div class="header-text">
+    <h1>프랜차이즈 전용 Wi-Fi QR 생성기</h1>
+    <p>KT 인천지사 시너지영업3팀 · DX상품 영업 지원 서비스</p>
+  </div>
+</header>
+
+<div class="page-wrap">
+
+  <!-- Left column: steps -->
+  <div class="left-col">
+
+    <!-- Step 1: 프랜차이즈 선택 -->
+    <div class="card">
+      <div class="section-title">
+        <span class="section-num">1</span>
+        프랜차이즈 선택
+      </div>
+      <div class="franchise-grid" id="franchiseGrid">
+
+        <!-- tem01 강경불고기 -->
+        <label class="franchise-label">
+          <input type="radio" name="franchise" value="0">
+          <div class="franchise-card">
+            <img src="https://kt-synergy.com/assets/image/qr_templates/tem01_sample.png"
+                 class="brand-thumb"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                 alt="강경불고기">
+            <div class="brand-thumb-placeholder" style="display:none;">🍖</div>
+            <div class="brand-name">강경불고기</div>
+          </div>
+        </label>
+
+        <!-- tem02 경아식당 -->
+        <label class="franchise-label">
+          <input type="radio" name="franchise" value="1">
+          <div class="franchise-card">
+            <img src="https://kt-synergy.com/assets/image/qr_templates/tem02_sample.png"
+                 class="brand-thumb"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                 alt="경아식당">
+            <div class="brand-thumb-placeholder" style="display:none;">🍽️</div>
+            <div class="brand-name">경아식당</div>
+          </div>
+        </label>
+
+        <!-- tem03 귀한족발 -->
+        <label class="franchise-label">
+          <input type="radio" name="franchise" value="2">
+          <div class="franchise-card">
+            <img src="https://kt-synergy.com/assets/image/qr_templates/tem03_sample.png"
+                 class="brand-thumb"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                 alt="귀한족발">
+            <div class="brand-thumb-placeholder" style="display:none;">🐷</div>
+            <div class="brand-name">귀한족발</div>
+          </div>
+        </label>
+
+        <!-- tem04 뉴욕야시장 -->
+        <label class="franchise-label">
+          <input type="radio" name="franchise" value="3">
+          <div class="franchise-card">
+            <img src="https://kt-synergy.com/assets/image/qr_templates/tem04_sample.png"
+                 class="brand-thumb"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                 alt="뉴욕야시장">
+            <div class="brand-thumb-placeholder" style="display:none;">🌃</div>
+            <div class="brand-name">뉴욕야시장</div>
+          </div>
+        </label>
+
+        <!-- tem05 신포우리만두 -->
+        <label class="franchise-label">
+          <input type="radio" name="franchise" value="4">
+          <div class="franchise-card">
+            <img src="https://kt-synergy.com/assets/image/qr_templates/tem05_sample.png"
+                 class="brand-thumb"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                 alt="신포우리만두">
+            <div class="brand-thumb-placeholder" style="display:none;">🥟</div>
+            <div class="brand-name">신포우리만두</div>
+          </div>
+        </label>
+
+        <!-- tem06 오봉집 -->
+        <label class="franchise-label">
+          <input type="radio" name="franchise" value="5">
+          <div class="franchise-card">
+            <img src="https://kt-synergy.com/assets/image/qr_templates/tem06_sample.png"
+                 class="brand-thumb"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                 alt="오봉집">
+            <div class="brand-thumb-placeholder" style="display:none;">🍱</div>
+            <div class="brand-name">오봉집</div>
+          </div>
+        </label>
+
+        <!-- tem07 오븐마루 -->
+        <label class="franchise-label">
+          <input type="radio" name="franchise" value="6">
+          <div class="franchise-card">
+            <img src="https://kt-synergy.com/assets/image/qr_templates/tem07_sample.png"
+                 class="brand-thumb"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                 alt="오븐마루">
+            <div class="brand-thumb-placeholder" style="display:none;">🍕</div>
+            <div class="brand-name">오븐마루</div>
+          </div>
+        </label>
+
+        <!-- tem08 육대장 -->
+        <label class="franchise-label">
+          <input type="radio" name="franchise" value="7">
+          <div class="franchise-card">
+            <img src="https://kt-synergy.com/assets/image/qr_templates/tem08_sample.png"
+                 class="brand-thumb"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                 alt="육대장">
+            <div class="brand-thumb-placeholder" style="display:none;">🥩</div>
+            <div class="brand-name">육대장</div>
+          </div>
+        </label>
+
+        <!-- tem09 자담치킨 -->
+        <label class="franchise-label">
+          <input type="radio" name="franchise" value="8">
+          <div class="franchise-card">
+            <img src="https://kt-synergy.com/assets/image/qr_templates/tem09_sample.png"
+                 class="brand-thumb"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                 alt="자담치킨">
+            <div class="brand-thumb-placeholder" style="display:none;">🍗</div>
+            <div class="brand-name">자담치킨</div>
+          </div>
+        </label>
+
+      </div>
+    </div>
+
+    <!-- Step 2: Wi-Fi 정보 입력 -->
+    <div class="card">
+      <div class="section-title">
+        <span class="section-num">2</span>
+        Wi-Fi 정보 입력
+      </div>
+
+      <div class="form-group">
+        <label>네트워크 이름 (SSID)</label>
+        <input type="text" id="inputSSID" placeholder="예: KT_WiFi_5G_1234" autocomplete="off">
+      </div>
+
+      <div class="form-group">
+        <label>비밀번호</label>
+        <input type="text" id="inputPW" placeholder="예: kt012345678" autocomplete="off">
+      </div>
+
+      <div class="form-group">
+        <label>보안 방식</label>
+        <select id="inputSec">
+          <option value="WPA">WPA/WPA2</option>
+          <option value="WEP">WEP</option>
+          <option value="">없음 (개방형)</option>
+        </select>
+      </div>
+
+      <button class="btn-generate" onclick="generateQR()">
+        📲 QR코드 생성하기
+      </button>
+
+      <div class="status-bar" id="statusBar"></div>
+
+      <div class="notice">
+        <strong>📌 이용 안내</strong>
+        프랜차이즈를 먼저 선택하고 가맹점의 Wi-Fi 정보를 입력 후 생성하세요.
+        생성된 이미지는 PNG 파일로 다운로드되어 바로 출력할 수 있습니다.
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Right column: preview -->
+  <div class="preview-panel">
+    <div class="preview-inner">
+      <div class="preview-title">미리보기</div>
+
+      <div class="preview-placeholder" id="previewPlaceholder">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+          <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="4" height="4"/>
+          <rect x="20" y="14" width="1" height="1"/><rect x="14" y="20" width="1" height="1"/>
+          <rect x="20" y="20" width="1" height="1"/>
+        </svg>
+        프랜차이즈 선택 후<br>QR 생성하면 미리보기가 표시됩니다
+      </div>
+
+      <canvas id="previewCanvas" style="display:none;"></canvas>
+
+      <button class="btn-download" id="btnDownload" disabled onclick="downloadImage()">
+        ⬇️ PNG 다운로드
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── 프랜차이즈 데이터 ──────────────────────────────────────────────
+// 모든 이미지 사이즈: 1240x1754px (동일)
+// QR / 텍스트 좌표: 모든 템플릿 동일
+const BASE_URL = 'https://kt-synergy.com/assets/image/qr_templates/';
+
+const FRANCHISES = [
+  { name: '강경불고기', file: 'tem01.png' },
+  { name: '경아식당',   file: 'tem02.png' },
+  { name: '귀한족발',   file: 'tem03.png' },
+  { name: '뉴욕야시장', file: 'tem04.png' },
+  { name: '신포우리만두',file: 'tem05.png' },
+  { name: '오봉집',     file: 'tem06.png' },
+  { name: '오븐마루',   file: 'tem07.png' },
+  { name: '육대장',     file: 'tem08.png' },
+  { name: '자담치킨',   file: 'tem09.png' },
+];
+
+// ── Canvas 렌더링 좌표 (1240×1754 기준, 픽셀 분석 결과) ──────────
+const LAYOUT = {
+  canvasW: 1240,
+  canvasH: 1754,
+  // QR코드 영역
+  qr: { x: 444, y: 1212, size: 350 },
+  // 검정 바
+  bar: { top: 1357, bottom: 1410 },
+  // 텍스트 (center-aligned)
+  ssid: { x: 247,  y: 1382 }, // 바 좌측 영역 중앙 (픽셀 분석값)
+  pw:   { x: 970,  y: 1382 }, // 바 우측 영역 중앙 (픽셀 분석값)
+  // 폰트
+  fontSize: 36,
+  fontBold: 42,
+};
+
+let generatedCanvas = null;
+let selectedFranchise = null;
+
+// 프랜차이즈 선택 감지
+document.querySelectorAll('input[name="franchise"]').forEach(radio => {
+  radio.addEventListener('change', () => {
+    selectedFranchise = parseInt(radio.value);
+  });
+});
+
+// ── QR 생성 메인 함수 ─────────────────────────────────────────────
+async function generateQR() {
+  const ssid = document.getElementById('inputSSID').value.trim();
+  const pw   = document.getElementById('inputPW').value.trim();
+  const sec  = document.getElementById('inputSec').value;
+  const status = document.getElementById('statusBar');
+
+  // 유효성 검사
+  if (selectedFranchise === null) {
+    showStatus('error', '❌ 프랜차이즈를 먼저 선택해 주세요.');
+    return;
+  }
+  if (!ssid) {
+    showStatus('error', '❌ 네트워크 이름(SSID)을 입력해 주세요.');
+    return;
+  }
+
+  showStatus('loading', '⏳ QR코드를 생성하는 중입니다...');
+
+  const franchise = FRANCHISES[selectedFranchise];
+  const qrData = `WIFI:T:${sec};S:${ssid};P:${pw};H:false;;`;
+
+  try {
+    // 1. QR코드 이미지 생성
+    const qrDataURL = await new Promise((resolve, reject) => {
+      QRCode.toDataURL(qrData, {
+        width: LAYOUT.qr.size,
+        margin: 0,
+        color: { dark: '#000000', light: '#ffffff' },
+        errorCorrectionLevel: 'H'
+      }, (err, url) => err ? reject(err) : resolve(url));
+    });
+
+    // 2. QR 이미지 로드
+    const qrImg = await loadImage(qrDataURL);
+
+    // 3. 배경 템플릿 로드
+    const bgImg = await loadImage(BASE_URL + franchise.file);
+
+    // 4. Canvas 렌더링
+    const canvas = document.getElementById('previewCanvas');
+    canvas.width  = LAYOUT.canvasW;
+    canvas.height = LAYOUT.canvasH;
+    const ctx = canvas.getContext('2d');
+
+    // 배경 그리기
+    ctx.clearRect(0, 0, LAYOUT.canvasW, LAYOUT.canvasH);
+    ctx.drawImage(bgImg, 0, 0, LAYOUT.canvasW, LAYOUT.canvasH);
+
+    // QR코드 그리기
+    ctx.drawImage(qrImg, LAYOUT.qr.x, LAYOUT.qr.y, LAYOUT.qr.size, LAYOUT.qr.size);
+
+    // SSID 텍스트 (좌측 바 영역)
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#ffffff';
+    ctx.font = `800 ${LAYOUT.fontBold}px 'Pretendard', 'Apple SD Gothic Neo', sans-serif`;
+    ctx.fillText(ssid, LAYOUT.ssid.x, LAYOUT.ssid.y);
+
+    // PW 텍스트 (우측 바 영역)
+    if (pw) {
+      ctx.fillText(pw, LAYOUT.pw.x, LAYOUT.pw.y);
+    }
+
+    // 미리보기 표시
+    document.getElementById('previewPlaceholder').style.display = 'none';
+    canvas.style.display = 'block';
+    generatedCanvas = canvas;
+
+    document.getElementById('btnDownload').disabled = false;
+    showStatus('success', `✅ ${franchise.name} Wi-Fi QR코드 생성 완료!`);
+
+  } catch (err) {
+    console.error(err);
+    showStatus('error', '❌ 생성 중 오류가 발생했습니다. 이미지 경로를 확인해 주세요.');
+  }
+}
+
+// ── 이미지 로드 헬퍼 ──────────────────────────────────────────────
+function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = 'Anonymous';
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error(`이미지 로드 실패: ${src}`));
+    img.src = src;
+  });
+}
+
+// ── PNG 다운로드 ──────────────────────────────────────────────────
+function downloadImage() {
+  if (!generatedCanvas) return;
+
+  const franchise = FRANCHISES[selectedFranchise];
+  const ssid = document.getElementById('inputSSID').value.trim();
+  const safeName = ssid.replace(/[^a-zA-Z0-9가-힣_\-]/g, '_');
+  const filename = `wifi_qr_${franchise.name}_${safeName}.png`;
+
+  generatedCanvas.toBlob(blob => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }, 'image/png');
+}
+
+// ── 상태 메시지 ───────────────────────────────────────────────────
+function showStatus(type, msg) {
+  const el = document.getElementById('statusBar');
+  el.className = `status-bar ${type}`;
+  el.textContent = msg;
+}
+</script>
+</body>
+</html>
