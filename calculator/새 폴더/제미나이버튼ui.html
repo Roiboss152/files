@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HighOrder Unified Estimate Calculator</title>
+<style>
+  body {
+    display: flex; flex-direction: column; justify-content: flex-start; align-items: center;
+    min-height: 100vh; background-color: #f3f4f6; margin: 0; padding: 40px 20px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  .wrapper {
+    display: flex; flex-direction: column; gap: 24px; background: #ffffff;
+    padding: 40px; border-radius: 24px; box-shadow: 0 16px 48px rgba(0,0,0,0.04); width: 440px;
+  }
+  .section-title { margin: 0 0 12px 0; color: #111827; font-size: 16px; font-weight: 700; }
+  .component-group { display: flex; flex-direction: column; gap: 16px; margin-bottom: 8px; }
+
+  /* 1. 메인 토글 뼈대 */
+  .toggle-container {
+    width: 380px; height: 52px; background-color: #ffffff; border-radius: 50px;
+    border: 1px solid #e5e7eb; position: relative; display: flex; box-sizing: border-box;
+    --tx: 4px; --w: 120px; --bg: #000000;
+  }
+  .toggle-container.dial-mode { overflow: visible !important; }
+  .toggle-container:not(.dial-mode) { overflow: hidden; }
+
+  .focus-slider {
+    position: absolute; top: 4px; bottom: 4px; border-radius: 40px; z-index: 1;
+    width: var(--w); transform: translateX(var(--tx)); background-color: var(--bg);
+    transition: transform 0.38s cubic-bezier(0.25, 1, 0.4, 1), width 0.38s cubic-bezier(0.25, 1, 0.4, 1), background-color 0.38s ease;
+  }
+
+  .content-area { position: relative; z-index: 10; display: flex; width: 100%; height: 100%; padding: 4px; box-sizing: border-box; }
+  .right-area { flex: 1; position: relative; }
+  
+  /* 텍스트 엘리베이터 효과 */
+  .step-layer {
+    position: absolute; inset: 0; display: flex; transition: all 0.4s cubic-bezier(0.25, 1, 0.4, 1); opacity: 0; pointer-events: none;
+  }
+  .active-layer { opacity: 1; transform: translateY(0) scale(1) !important; pointer-events: auto !important; }
+  .prev-layer { opacity: 0; transform: translateY(-100%); pointer-events: none; }
+  .next-layer { opacity: 0; transform: translateY(100%); pointer-events: none; }
+
+  .btn {
+    background: transparent; border: none; font-size: 13px; font-weight: 600; cursor: pointer;
+    display: flex; justify-content: center; align-items: center; flex: 1; color: #9ca3af;
+    transition: color 0.25s ease, transform 0.25s cubic-bezier(0.25, 1, 0.4, 1); transform: scale(1);
+  }
+  .btn.active { transform: scale(1.06); font-weight: 700; }
+  /* 자바스크립트 전역 컬러 팔레트와 연동되는 폰트 색상 강제 지정 */
+  .btn.active.light-text { color: #ffffff !important; }
+  .btn.active.dark-text { color: #111827 !important; }
+  
+  /* 라벨 타이틀 변경 트랜지션 처리 */
+  .btn-menu { flex: none; width: 120px; transition: all 0.3s ease; }
+
+  /* 2. 인라인 다이얼 스피너 */
+  .inline-dial-container { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; gap: 12px; }
+  .dial-window {
+    width: 44px; height: 64px; background: #ffffff; border-radius: 8px; overflow: hidden;
+    position: relative; cursor: ns-resize; border: 1px solid #cbd5e1; box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  }
+  .dial-window::before, .dial-window::after {
+    content: ''; position: absolute; left: 0; right: 0; height: 20px; z-index: 5; pointer-events: none;
+  }
+  .dial-window::before { top: 0; background: linear-gradient(to bottom, rgba(255,255,255,0.95), transparent); }
+  .dial-window::after { bottom: 0; background: linear-gradient(to top, rgba(255,255,255,0.95), transparent); }
+  
+  .dial-indicator {
+    position: absolute; top: 20px; left: 2px; right: 2px; height: 22px;
+    border-top: 1px dashed #cbd5e1; border-bottom: 1px dashed #cbd5e1; pointer-events: none; z-index: 3;
+  }
+  .dial-track { display: flex; flex-direction: column; transition: transform 0.25s cubic-bezier(0.25, 1, 0.4, 1); }
+  .dial-num { height: 22px; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #94a3b8; transition: all 0.2s; }
+  .dial-num.active { font-size: 14px; font-weight: 700; color: #111827; }
+
+  .dial-confirm-btn {
+    width: 24px; height: 24px; background: #111827; border: none; border-radius: 50%;
+    color: #ffffff; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 11px;
+  }
+  .dial-confirm-btn:hover { background: #000000; transform: scale(1.1); }
+
+  /* 3. 부가서비스 체크박스 */
+  .checkbox-wrapper { display: flex; flex-direction: column; gap: 10px; background: #f8fafc; padding: 16px; border-radius: 14px; border: 1px solid #e2e8f0; }
+  .checkbox-label { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 600; color: #475569; cursor: pointer; }
+  .checkbox-label input { display: none; }
+  .custom-checkbox {
+    width: 18px; height: 18px; border: 2px solid #cbd5e1; border-radius: 4px; background: #ffffff;
+    display: flex; align-items: center; justify-content: center; transition: all 0.2s; font-size: 10px; color: transparent;
+  }
+  .checkbox-label input:checked + .custom-checkbox { background: #111827; border-color: #111827; color: #ffffff; }
+
+  /* 4. 견적서 리포트 */
+  .final-report-container {
+    width: 440px; background: #111827; border-radius: 24px; padding: 30px; box-sizing: border-box;
+    color: #ffffff; display: flex; flex-direction: column; gap: 18px; box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+  }
+  .report-header { font-size: 16px; font-weight: 700; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 12px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }
+  .report-list { display: flex; flex-direction: column; gap: 10px; }
+  .report-item { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #e5e7eb; background: rgba(255,255,255,0.05); padding: 10px 14px; border-radius: 10px; }
+  .report-item .del-btn { background: transparent; border: none; color: #9ca3af; font-size: 16px; cursor: pointer; padding: 0; }
+  .report-item .del-btn:hover { color: #f87171; }
+  .empty-msg { font-size: 13px; color: #9ca3af; text-align: center; padding: 10px 0; }
+</style>
+</head>
+<body>
+
+<div class="wrapper">
+  <div>
+    <div class="section-title">기기 및 단말 설정</div>
+    <div class="component-group">
+      <div class="toggle-container" id="tg-menu">
+        <div class="focus-slider"></div>
+        <div class="content-area">
+          <button class="btn btn-menu" id="main-menu">메뉴판</button>
+          <div class="right-area">
+            <div class="step-layer" id="menu-layer-0"><button class="btn btn-full">색상</button></div>
+            <div class="step-layer" id="menu-layer-1"><button class="btn" data-pos="left" data-val="블랙">블랙</button><button class="btn" data-pos="right" data-val="화이트">화이트</button></div>
+            <div class="step-layer" id="menu-layer-2"><button class="btn" data-pos="left" data-val="스텐드">스텐드</button><button class="btn" data-pos="right" data-val="아일랜드">아일랜드</button></div>
+            <div class="step-layer" id="menu-layer-3"><button class="btn" data-pos="left" data-val="후불형">후불형</button><button class="btn" data-pos="right" data-val="선불형">선불형</button></div>
+            <div class="step-layer" id="menu-layer-4">
+              <div class="inline-dial-container">
+                <div class="dial-window" data-comp="menu"><div class="dial-indicator"></div><div class="dial-track"></div></div>
+                <span style="font-size:12px; font-weight:600; color:#475569;">개</span>
+                <button class="dial-confirm-btn" id="confirm-menu">✓</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="toggle-container" id="tg-notice">
+        <div class="focus-slider"></div>
+        <div class="content-area">
+          <button class="btn btn-menu" id="main-notice">알림판</button>
+          <div class="right-area">
+            <div class="step-layer" id="notice-layer-0"><button class="btn btn-full">크기</button></div>
+            <div class="step-layer" id="notice-layer-1"><button class="btn" data-pos="left" data-val="10인치">10인치</button><button class="btn" data-pos="right" data-val="15인치">15인치</button></div>
+            <div class="step-layer" id="notice-layer-2"><button class="btn" data-pos="left" data-val="스텐드">스텐드</button><button class="btn" data-pos="right" data-val="벽걸이">벽걸이</button></div>
+            <div class="step-layer" id="notice-layer-3">
+              <div class="inline-dial-container">
+                <div class="dial-window" data-comp="notice"><div class="dial-indicator"></div><div class="dial-track"></div></div>
+                <span style="font-size:12px; font-weight:600; color:#475569;">개</span>
+                <button class="dial-confirm-btn" id="confirm-notice">✓</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="section-title">가입 조건 설정</div>
+    <div class="toggle-container" id="tg-contract">
+      <div class="focus-slider"></div>
+      <div class="content-area">
+        <button class="btn btn-menu" id="main-contract">약정형태</button>
+        <div class="right-area">
+          <div class="step-layer" id="contract-layer-0"><button class="btn btn-full">선택</button></div>
+          <div class="step-layer" id="contract-layer-1"><button class="btn" data-pos="left" data-val="3년 약정">3년 약정</button><button class="btn" data-pos="right" data-val="무약정">무약정</button></div>
+          <div class="step-layer" id="contract-layer-2"><button class="btn" data-pos="left" data-val="월납">월납</button><button class="btn" data-pos="right" data-val="일시납">일시납</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="section-title">할인 및 부가서비스</div>
+    <div class="checkbox-wrapper">
+      <label class="checkbox-label"><input type="checkbox" value="테이블 광고 수신 동의"><div class="custom-checkbox">✓</div>테이블 광고 수신 동의</label>
+      <label class="checkbox-label"><input type="checkbox" value="MOU 체결 프랜차이즈"><div class="custom-checkbox">✓</div>MOU 체결 프랜차이즈</label>
+      <label class="checkbox-label"><input type="checkbox" value="으랏차차 결합(2종 이상)"><div class="custom-checkbox">✓</div>으랏차차 결합(2종 이상)</label>
+      <label class="checkbox-label"><input type="checkbox" value="하이오더 안심매입 가입"><div class="custom-checkbox">✓</div>하이오더 안심매입 가입</label>
+    </div>
+  </div>
+</div>
+
+<div class="final-report-container">
+  <div class="report-header"><span>최종 견적 명세서</span></div>
+  <div class="report-list" id="finalReportList">
+    <div class="empty-msg">선택 항목이 없습니다.</div>
+  </div>
+</div>
+
+<script>
+  let cartData = [];
+
+  // ★ 글로벌 전역 컬러 팔레트 & 폰트 대비 모드 (0단계부터 순차 적용)
+  // 순서: Black -> Cornflower -> Coral -> Pear -> Mist -> Stone
+  const GLOBAL_COLORS = ['#000000', '#000000', '#6AA6DA', '#F95C4B', '#E1E5AC', '#DBE3E9', '#E4E0D2'];
+  const GLOBAL_TEXT_MODES = ['light-text', 'light-text', 'light-text', 'light-text', 'dark-text', 'dark-text', 'dark-text'];
+
+  function initDialTrack(windowEl) {
+    const track = windowEl.querySelector('.dial-track');
+    let html = '<div class="dial-num">&nbsp;</div>';
+    for(let i=1; i<=99; i++) html += `<div class="dial-num" data-n="${i}">${i}</div>`;
+    html += '<div class="dial-num">&nbsp;</div>';
+    track.innerHTML = html;
+  }
+
+  class MorphicComponent {
+    constructor(id, type, defaultRoute) {
+      this.id = id;
+      this.type = type; 
+      this.route = defaultRoute; 
+      this.container = document.getElementById(`tg-${id}`);
+      this.mainBtn = document.getElementById(`main-${id}`);
+      this.originalTitle = this.mainBtn.innerText; // 최초 타이틀 저장 (약정형태 등)
+      this.layers = this.container.querySelectorAll('.step-layer');
+      this.currentStep = 0;
+      this.selections = [];
+      this.dialValue = 1;
+
+      this.initEvents();
+      this.reset();
+    }
+
+    initEvents() {
+      this.mainBtn.addEventListener('click', () => this.reset());
+
+      this.layers[0].querySelector('button').addEventListener('click', () => {
+        this.currentStep = 1;
+        this.applyStepData(this.route[0]);
+      });
+
+      for (let i = 1; i < this.layers.length; i++) {
+        const btns = this.layers[i].querySelectorAll('.btn');
+        if(btns.length === 0) continue; 
+        
+        btns.forEach(btn => {
+          btn.addEventListener('click', () => {
+            const val = btn.getAttribute('data-val');
+            const pos = btn.getAttribute('data-pos');
+
+            if (this.selections[i-1] === val) {
+              if (i === this.layers.length - 1 || (this.type === 'dial' && i === this.layers.length - 2)) {
+                if (this.type === 'dial') {
+                  this.currentStep = this.layers.length - 1;
+                  this.openDialMode();
+                } else {
+                  this.commitDirect();
+                }
+              } else {
+                if (this.id === 'contract' && val === '무약정') {
+                  this.selections[i] = '-';
+                  this.commitDirect();
+                  return;
+                }
+                this.currentStep = i + 1;
+                this.applyStepData(this.route[this.currentStep-1]);
+                
+                // ★ 약정형태 -> 단말대금 라벨 변경 모핑 로직
+                if (this.id === 'contract' && this.currentStep === 2) {
+                  this.mainBtn.innerText = '단말대금';
+                }
+              }
+            } else {
+              this.selections[i-1] = val;
+              this.updateFocusUI(pos, btn);
+              if (this.id === 'contract' && this.currentStep === 2) this.mainBtn.innerText = '단말대금';
+            }
+          });
+        });
+      }
+
+      if (this.type === 'dial') {
+        const windowEl = this.container.querySelector('.dial-window');
+        initDialTrack(windowEl);
+        
+        windowEl.addEventListener('click', (e) => {
+          const rect = windowEl.getBoundingClientRect();
+          const clickY = e.clientY - rect.top;
+          this.changeDialValue(clickY < 22 ? -1 : (clickY > 42 ? 1 : 0));
+        });
+
+        windowEl.addEventListener('wheel', (e) => {
+          e.preventDefault();
+          this.changeDialValue(e.deltaY > 0 ? 1 : -1);
+        }, { passive: false });
+
+        document.getElementById(`confirm-${this.id}`).addEventListener('click', () => this.commitDialData());
+      }
+    }
+
+    reset() {
+      this.currentStep = 0;
+      this.selections = [];
+      this.dialValue = 1;
+      this.container.classList.remove('dial-mode');
+      
+      // 타이틀 원래대로 복구
+      this.mainBtn.innerText = this.originalTitle;
+      this.updateFocusUI('menu', this.mainBtn, GLOBAL_COLORS[0], GLOBAL_TEXT_MODES[0]);
+    }
+
+    applyStepData(targetVal) {
+      const layer = this.layers[this.currentStep];
+      let foundBtn = null;
+      layer.querySelectorAll('.btn').forEach(b => {
+        if(b.getAttribute('data-val') === targetVal) foundBtn = b;
+      });
+      if(!foundBtn) foundBtn = layer.querySelectorAll('.btn')[0];
+
+      this.selections[this.currentStep-1] = foundBtn.getAttribute('data-val');
+      
+      // 전역 팔레트에서 스텝에 맞는 컬러 추출
+      const bg = GLOBAL_COLORS[this.currentStep] || GLOBAL_COLORS[GLOBAL_COLORS.length - 1];
+      const txtMode = GLOBAL_TEXT_MODES[this.currentStep] || GLOBAL_TEXT_MODES[GLOBAL_TEXT_MODES.length - 1];
+
+      this.updateFocusUI(foundBtn.getAttribute('data-pos'), foundBtn, bg, txtMode);
+    }
+
+    updateFocusUI(pos, activeBtn, customBg, customTxtMode) {
+      let tx = 4, w = 120;
+      if (pos === 'left') { tx = 124; w = 124; }
+      else if (pos === 'right') { tx = 252; w = 124; }
+      
+      this.container.style.setProperty('--tx', `${tx}px`);
+      this.container.style.setProperty('--w', `${w}px`);
+      if(customBg) this.container.style.setProperty('--bg', customBg);
+
+      this.layers.forEach((layer, idx) => {
+        layer.className = 'step-layer';
+        if (idx === this.currentStep) layer.classList.add('active-layer');
+        else if (idx < this.currentStep) layer.classList.add('prev-layer');
+        else layer.classList.add('next-layer');
+      });
+
+      this.container.querySelectorAll('.btn').forEach(b => b.classList.remove('active', 'light-text', 'dark-text'));
+      if (activeBtn) {
+        activeBtn.classList.add('active');
+        activeBtn.classList.add(customTxtMode ? customTxtMode : 'light-text');
+      }
+    }
+
+    openDialMode() {
+      this.container.classList.add('dial-mode');
+      this.container.style.setProperty('--tx', '124px');
+      this.container.style.setProperty('--w', '252px');
+      // 다이얼 모드 진입 시에도 전역 팔레트 컬러 매핑
+      this.container.style.setProperty('--bg', GLOBAL_COLORS[this.currentStep] || '#E4E0D2'); 
+
+      this.layers.forEach((layer, idx) => {
+        layer.className = 'step-layer';
+        if (idx === this.currentStep) layer.classList.add('active-layer');
+        else if (idx < this.currentStep) layer.classList.add('prev-layer');
+        else layer.classList.add('next-layer');
+      });
+
+      this.mainBtn.classList.remove('active', 'light-text', 'dark-text');
+      this.syncDialUI();
+    }
+
+    changeDialValue(diff) {
+      const target = this.dialValue + diff;
+      if(target >= 1 && target <= 99) { 
+        this.dialValue = target;
+        this.syncDialUI();
+      }
+    }
+
+    syncDialUI() {
+      const track = this.container.querySelector('.dial-track');
+      track.style.transform = `translateY(${(1 - this.dialValue) * 22}px)`;
+      
+      this.container.querySelectorAll('.dial-num').forEach(n => n.classList.remove('active'));
+      const centerNum = this.container.querySelector(`.dial-num[data-n="${this.dialValue}"]`);
+      if(centerNum) centerNum.classList.add('active');
+    }
+
+    commitDialData() {
+      const mainTitle = this.originalTitle;
+      const optionString = this.selections.join(' / ');
+      updateCart(this.id, `${mainTitle} [${optionString}]`, this.dialValue);
+      this.reset();
+    }
+
+    commitDirect() {
+      const mainTitle = this.originalTitle;
+      const optStr = this.selections[1] === '-' ? this.selections[0] : `${this.selections[0]} / ${this.selections[1]}`;
+      updateCart(this.id, `${mainTitle} [${optStr}]`, null);
+      this.reset();
+    }
+  }
+
+  function initCheckboxEvents() {
+    document.querySelectorAll('.checkbox-label input').forEach(chk => {
+      chk.addEventListener('change', updateCheckboxCart);
+    });
+  }
+
+  function updateCheckboxCart() {
+    let selectedAddons = [];
+    document.querySelectorAll('.checkbox-label input:checked').forEach(chk => {
+      selectedAddons.push(chk.value);
+    });
+
+    if(selectedAddons.length > 0) updateCart('addons', `할인/부가서비스 [${selectedAddons.join(', ')}]`, null);
+    else updateCart('addons', null, null); 
+  }
+
+  function updateCart(id, text, qty) {
+    cartData = cartData.filter(item => item.id !== id);
+    if (text !== null) cartData.push({ id, text, qty });
+    renderReport();
+  }
+
+  function renderReport() {
+    const reportList = document.getElementById('finalReportList');
+    if (cartData.length === 0) {
+      reportList.innerHTML = '<div class="empty-msg">선택 항목이 없습니다.</div>';
+      return;
+    }
+
+    let html = '';
+    cartData.forEach(item => {
+      const qtyText = item.qty ? ` <span style="color:#F95C4B; font-weight:700; margin-left:6px;">${item.qty}개</span>` : '';
+      html += `
+        <div class="report-item">
+          <span>${item.text}${qtyText}</span>
+          <button class="del-btn" onclick="removeItemFromCart('${item.id}')">&times;</button>
+        </div>
+      `;
+    });
+    reportList.innerHTML = html;
+  }
+
+  window.removeItemFromCart = function(id) {
+    cartData = cartData.filter(item => item.id !== id);
+    if(id === 'menu') compMenu.reset();
+    if(id === 'notice') compNotice.reset();
+    if(id === 'contract') compContract.reset();
+    if(id === 'addons') document.querySelectorAll('.checkbox-label input').forEach(chk => chk.checked = false);
+    renderReport();
+  };
+
+  const compMenu = new MorphicComponent('menu', 'dial', ['블랙', '스텐드', '후불형']);
+  const compNotice = new MorphicComponent('notice', 'dial', ['10인치', '스텐드']);
+  const compContract = new MorphicComponent('contract', 'direct', ['3년 약정', '월납']);
+
+  initCheckboxEvents();
+</script>
+
+</body>
+</html>
