@@ -208,9 +208,6 @@
   }
   .step-nav button:disabled{opacity:0; visibility:hidden; pointer-events:none;}
   .step-nav button.primary{background:var(--ink); color:#fff; border-color:var(--ink);}
-  /* step0(메뉴판/알림판/약정형태)에서는 다음 버튼을 위로 당겨 스크롤 없이 한눈에 보이게 */
-  body.step0-active .step-nav{ position:relative; top:-200px; margin-bottom:-200px; }
-  @media (max-width:480px){ body.step0-active .step-nav{ top:-180px; margin-bottom:-180px; } }
 
   .table-scroll{overflow-x:auto; -webkit-overflow-scrolling:touch; border-radius:8px;}
   .table-scroll-hint{font-size:var(--fs-hint); color:var(--muted); margin-bottom:6px; display:block;}
@@ -304,21 +301,6 @@
   .mp-cart-item .mp-cart-text{ font-weight:600; }
   .mp-cart-item .mp-cart-del{ background:transparent; border:none; color:var(--faint); font-size:15px; cursor:pointer; line-height:1; padding:2px 4px; }
   .mp-cart-item .mp-cart-del:hover{ color:var(--accent); }
-
-  /* step1 하단 선택 요약 */
-  .step1-summary{
-    width:100%; max-width:380px; margin:18px auto 0 auto;
-    display:flex; flex-direction:column; gap:6px;
-  }
-  .sum-row{
-    display:flex; justify-content:space-between; align-items:center; gap:8px;
-    background:var(--surface); border:1px solid var(--line); border-radius:10px;
-    padding:9px 14px; font-size:12.5px; color:var(--ink);
-  }
-  .sum-row .sum-text{ font-weight:600; }
-  .sum-row .sum-del{ background:transparent; border:none; color:var(--faint); font-size:16px; cursor:pointer; line-height:1; padding:2px 4px; }
-  .sum-row .sum-del:hover{ color:var(--accent); }
-  .sum-empty{ text-align:center; color:var(--faint); font-size:12.5px; padding:10px 0; }
 </style>
 </head>
 <body>
@@ -336,13 +318,14 @@
     <button class="step-dot" data-step="3"></button>
     <button class="step-dot" data-step="4"></button>
     <button class="step-dot" data-step="5"></button>
+    <button class="step-dot" data-step="6"></button>
   </nav>
 
   <!-- DEVICE FRAME: steps 0,1,2 -->
   <div class="device-frame" id="deviceFrame">
     <div class="device-screen" id="deviceScreen">
 
-      <!-- df-step 0: 메뉴판 / 알림판 / 약정형태 / 결제형태 -->
+      <!-- df-step 0: 메뉴판 / 알림판 -->
       <div class="df-step active" id="dfStep0">
         <div class="df-device-row mp-wrap">
           <div class="mp-toggle" id="mp-menu">
@@ -360,10 +343,6 @@
                   <button type="button" class="mp-btn" data-pos="right" data-val="아일랜드">아일랜드</button>
                 </div>
                 <div class="mp-layer" id="mp-menu-layer-3">
-                  <button type="button" class="mp-btn" data-pos="left" data-val="후불형">후불형</button>
-                  <button type="button" class="mp-btn" data-pos="right" data-val="선불형">선불형</button>
-                </div>
-                <div class="mp-layer" id="mp-menu-layer-4">
                   <div class="mp-dial-row">
                     <div class="mp-dial-window" data-comp="menu"><div class="mp-dial-indicator"></div><div class="mp-dial-track"></div></div>
                     <span style="font-size:11px;font-weight:600;color:var(--muted);">대</span>
@@ -400,30 +379,7 @@
             </div>
           </div>
           <div class="mp-cart" id="mp-cart-notice"></div>
-
-          <div class="tg-label" style="margin-top:4px;">가입 조건 설정</div>
-          <div class="mp-toggle" id="mp-contract">
-            <div class="mp-slider"></div>
-            <div class="mp-content">
-              <button type="button" class="mp-btn mp-btn-main" id="mp-main-contract">약정형태</button>
-              <div class="mp-right">
-                <div class="mp-layer" id="mp-contract-layer-0"><button type="button" class="mp-btn">선택</button></div>
-                <div class="mp-layer" id="mp-contract-layer-1">
-                  <button type="button" class="mp-btn" data-pos="left" data-val="contract">3년약정</button>
-                  <button type="button" class="mp-btn" data-pos="right" data-val="free">무약정</button>
-                </div>
-                <div class="mp-layer" id="mp-contract-layer-2">
-                  <button type="button" class="mp-btn" data-pos="left" data-val="monthly">월납</button>
-                  <button type="button" class="mp-btn" data-pos="right" data-val="lump">일시납</button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div id="readerChainWrap" class="hidden"></div>
         </div>
-
-        <div class="step1-summary" id="step1Summary"></div>
       </div>
 
     </div>
@@ -434,13 +390,23 @@
     <div class="gitem"><div class="glabel">월 합계</div><div class="gval" id="gMonthly">0원<small>VAT포함</small></div></div>
   </div>
 
-  <!-- step 1: 상호명 + 정책지원금 + 할인옵션 -->
+  <!-- step 1: 약정형태 -->
   <div class="card-step hidden" id="cardStep1">
-    <div class="tg-label">상호명</div>
-    <input type="text" id="storeName" placeholder="예: 용현동 김밥천국" style="width:100%; padding:12px 14px; border:1px solid var(--line); border-radius:12px; font-size:var(--fs-base); font-weight:600; background:var(--paper); margin-bottom:18px; box-sizing:border-box;">
-    <div class="tg-label">정책지원금 (대당, VAT포함)</div>
-    <input type="text" inputmode="numeric" id="subsidyPerDevice" placeholder="0" style="width:100%; padding:12px 14px; border:none; border-radius:12px; font-size:var(--fs-h2); font-weight:800; background:rgba(0,0,0,0.05); margin-bottom:16px; box-sizing:border-box;">
-    <div class="tg-label">할인 및 부가서비스</div>
+    <div class="tg-label">약정 형태</div>
+    <div class="tg-group" id="tgContract"></div>
+    <div class="tg-label" style="margin-top:18px;">단말대금 납부방식</div>
+    <div class="tg-group" id="tgDevicePay"></div>
+    <div class="tg-label" style="margin-top:18px;">서비스이용료 납부방식</div>
+    <div class="tg-group" id="tgServicePay"></div>
+  </div>
+
+  <!-- step 2: 판매형태 + 리더기 + 정책지원금/할인옵션 -->
+  <div class="card-step hidden" id="cardStep2">
+    <div class="tg-label">판매 형태</div>
+    <div class="tg-group" id="tgSale"></div>
+    <div id="readerChainWrap"></div>
+    <div class="tg-label" style="margin-top:18px;">정책지원금 (대당, VAT포함)</div>
+    <input type="number" id="subsidyPerDevice" min="0" value="0" style="width:100%; padding:12px 14px; border:none; border-radius:12px; font-size:var(--fs-h2); font-weight:800; background:rgba(0,0,0,0.05); margin-bottom:16px;">
     <div id="rewardChecks"></div>
   </div>
 
@@ -467,7 +433,7 @@
       </div>
       <div class="card">
         <label style="display:block; font-size:var(--fs-label); color:var(--muted); margin-bottom:5px; font-weight:600;">상호명</label>
-        <div id="storeNameDisplay" style="font-size:var(--fs-input); font-weight:700;">매장명 미입력</div>
+        <input type="text" id="storeName" placeholder="예: 용현동 김밥천국" style="width:100%; max-width:360px; padding:var(--pad-input); border:1px solid var(--line); border-radius:7px; font-size:var(--fs-input);">
       </div>
     </section>
 
@@ -552,6 +518,10 @@
     <button id="nextStepBtn" class="primary">다음 →</button>
   </div>
 
+  <footer>
+    단가 기준: 하이오더 2 견적서(2026.03.24), 가입신청서(2026.04.01), KT 으랏차차 패키지 공식 페이지·요식업 고객 요금표(2026.06 확인). 단가가 변경되면 본 계산기 상단 PRICE 상수값을 갱신해야 합니다.
+  </footer>
+
 </div>
 
 <!-- hidden state inputs (single source of truth for calculation engine) -->
@@ -616,7 +586,7 @@ function getConfig(){
     readerCount: Math.max(0, +$('readerCount').value || 0),
     devicePay: $('devicePay').value,
     servicePay: $('servicePay').value,
-    subsidyPerDevice: Math.max(0, +String($('subsidyPerDevice').value || '0').replace(/,/g,'') || 0),
+    subsidyPerDevice: Math.max(0, +$('subsidyPerDevice').value || 0),
     adConsent: $('adConsent').checked,
     ansim: $('ansim').checked,
     mou: $('mouFranchise').checked,
@@ -631,7 +601,11 @@ function getConfig(){
 function applyConstraints(){
   const free = $('contractType').value === 'free';
   if(free){ $('devicePay').value = 'lump'; $('servicePay').value = 'monthly'; }
-  // readerChainWrap 표시 여부는 syncMenuHidden()에서 saleType 변경 시 처리됨
+  renderToggleGroup('tgDevicePay', [{value:'monthly',label:'월납'},{value:'lump',label:'일시불'}], $('devicePay').value, v=>{ if(!free){ setHidden('devicePay', v); } }, free);
+  renderToggleGroup('tgServicePay', [{value:'monthly',label:'월납'},{value:'prepay',label:'선납(10%)'}], $('servicePay').value, v=>{ if(!free){ setHidden('servicePay', v); } }, free);
+
+  const prepaid = $('saleType').value === 'prepaid';
+  $('readerChainWrap').style.display = prepaid ? 'block' : 'none';
 }
 
 function findOptimalAllocation(countA, countB, budgetIncl){
@@ -978,8 +952,8 @@ function buildSpinner(container, {min, max, value, onChange}){
    - 카트 합계만 기존 hidden input(menuCount/notice10Count 등)에
      반영하여 계산 엔진(getConfig/renderAll)은 그대로 사용.
    ========================================================= */
-const GLOBAL_COLORS = ['#000000', '#000000', '#6AA6DA', '#F95C4B', '#2E7D32'];
-const GLOBAL_TEXT_MODES = ['light', 'light', 'light', 'light', 'light'];
+const GLOBAL_COLORS = ['#000000', '#000000', '#6AA6DA', '#F95C4B'];
+const GLOBAL_TEXT_MODES = ['light', 'light', 'light', 'light'];
 
 function applyScreenTheme(color){
   const screen = $('deviceScreen');
@@ -1153,112 +1127,6 @@ class MorphicComponent {
   }
 }
 
-/* =========================================================
-   SETTLE COMPONENT (약정형태→납부방식, 다이얼 없이 단일확정)
-   "약정형태"[선택] → [3년약정|무약정] → 버튼명이 "단말대금"으로 바뀌며
-   [월납|일시납] → 선택 즉시 확정 (다이얼 없음, 카트 누적 없음, 항상 1건)
-   ========================================================= */
-class SettleComponent {
-  constructor(id, steps, onCommit){
-    // steps: [{ key, label, options:[{value,label}] }, ...]
-    this.id = id;
-    this.steps = steps;
-    this.onCommit = onCommit;
-    this.container = $(`mp-${id}`);
-    this.mainBtn = $(`mp-main-${id}`);
-    this.originalTitle = this.mainBtn.innerText;
-    this.layers = this.container.querySelectorAll('.mp-layer');
-    this.currentStep = 0;
-    this.selections = [];
-    this.initEvents();
-    this.reset();
-  }
-  initEvents(){
-    this.mainBtn.addEventListener('click', ()=>{
-      if(this.currentStep===0) return; // 이미 처음 상태면 무시
-      this.reset();
-    });
-    this.layers[0].querySelector('button').addEventListener('click', ()=>{
-      this.goToStep(1);
-    });
-    for(let i=1;i<this.layers.length;i++){
-      const btns = this.layers[i].querySelectorAll('.mp-btn');
-      btns.forEach(btn=>{
-        btn.addEventListener('click', ()=>{
-          const val = btn.getAttribute('data-val');
-          const pos = btn.getAttribute('data-pos');
-          const isLast = (i === this.layers.length-1);
-          if(this.selections[i-1] === val){
-            // 같은 값 재클릭: 마지막 단계면 확정, 아니면 다음 단계로
-            if(isLast){
-              this.onCommit([...this.selections]);
-            } else {
-              this.goToStep(i+1, this.steps[i].label);
-            }
-          } else {
-            this.selections[i-1] = val;
-            this.updateFocusUI(pos, btn, GLOBAL_COLORS[i] || '#000000', 'light');
-            if(isLast){
-              // 마지막 단계는 첫 클릭으로 바로 확정 (포커스만 보여줄 필요 없음)
-              this.onCommit([...this.selections]);
-            }
-          }
-        });
-      });
-    }
-  }
-  goToStep(stepIdx, mainLabel){
-    this.currentStep = stepIdx;
-    if(mainLabel) this.mainBtn.innerText = mainLabel;
-    this.layers.forEach((layer, idx)=>{
-      layer.className = 'mp-layer';
-      if(idx===stepIdx) layer.classList.add('active');
-      else if(idx<stepIdx) layer.classList.add('prev');
-      else layer.classList.add('next');
-    });
-    const contW = this.container.clientWidth;
-    const pad = 4;
-    const mainW = this.mainBtn.offsetWidth || 120;
-    const rightW = contW - mainW - pad*2;
-    this.container.style.setProperty('--tx', `${pad}px`);
-    this.container.style.setProperty('--w', `${mainW}px`);
-    this.container.style.setProperty('--bg', '#000000');
-    this.container.querySelectorAll('.mp-btn').forEach(b=> b.classList.remove('active','light','dark'));
-  }
-  updateFocusUI(pos, activeBtn, customBg, customTxtMode){
-    const contW = this.container.clientWidth;
-    const pad = 4;
-    const mainW = this.mainBtn.offsetWidth || 120;
-    const rightW = contW - mainW - pad*2;
-    let tx = pad, w = mainW;
-    if(pos==='left'){ tx = pad + mainW; w = rightW/2; }
-    else if(pos==='right'){ tx = pad + mainW + rightW/2; w = rightW/2; }
-    this.container.style.setProperty('--tx', `${tx}px`);
-    this.container.style.setProperty('--w', `${w}px`);
-    if(customBg) this.container.style.setProperty('--bg', customBg);
-    this.container.querySelectorAll('.mp-btn').forEach(b=> b.classList.remove('active','light','dark'));
-    if(activeBtn){
-      activeBtn.classList.add('active');
-      activeBtn.classList.add(customTxtMode || 'light');
-    }
-  }
-  reset(){
-    this.currentStep = 0;
-    this.selections = [];
-    this.mainBtn.innerText = this.originalTitle;
-    this.updateFocusUI('menu', this.mainBtn, '#000000', 'light');
-    this.layers.forEach((layer, idx)=>{
-      layer.className = 'mp-layer';
-      if(idx===0) layer.classList.add('active');
-      else layer.classList.add('next');
-    });
-  }
-  setExternal(values){
-    // 외부에서 약정형태가 이미 확정된 값으로 시작 표시 (재진입시)
-    this.selections = [...values];
-  }
-}
-
 function syncMenuHidden(){
   const totalQty = menuCart.reduce((s,it)=> s+it.qty, 0);
   setHidden('menuCount', totalQty);
@@ -1267,19 +1135,21 @@ function syncMenuHidden(){
     setHidden('deviceColor', last.color);
     setHidden('menuMount', last.mount);
     applyScreenTheme(last.color);
-    const saleVal = last.saleType==='선불형' ? 'prepaid' : 'postpaid';
-    setHidden('saleType', saleVal);
-    const isPrepaid = saleVal==='prepaid';
-    $('readerChainWrap').classList.toggle('hidden', !isPrepaid);
-    if(isPrepaid && !$('readerChainWrap').dataset.rendered){
-      renderReaderChain();
-      $('readerChainWrap').dataset.rendered = '1';
-    }
   }
 }
 function renderMenuCart(){
-  // 카트 상세 내용은 버튼 바로 아래가 아닌 화면 하단 요약(step1Summary)에 표시
-  renderStep1Summary();
+  const el = $('mp-cart-menu');
+  el.innerHTML = menuCart.map((it, idx)=>`
+    <div class="mp-cart-item">
+      <span class="mp-cart-text">메뉴판 [${it.color} / ${it.mount}] <b>${it.qty}대</b></span>
+      <button type="button" class="mp-cart-del" data-idx="${idx}">&times;</button>
+    </div>`).join('');
+  el.querySelectorAll('.mp-cart-del').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      menuCart.splice(+btn.dataset.idx, 1);
+      renderMenuCart(); syncMenuHidden(); fullRender();
+    });
+  });
 }
 
 function syncNoticeHidden(){
@@ -1293,67 +1163,23 @@ function syncNoticeHidden(){
   if(last15) setHidden('notice15Mount', last15.mount);
 }
 function renderNoticeCart(){
-  // 카트 상세 내용은 버튼 바로 아래가 아닌 화면 하단 요약(step1Summary)에 표시
-  renderStep1Summary();
-}
-
-function removeMenuCartItem(idx){
-  menuCart.splice(idx, 1);
-  syncMenuHidden(); fullRender(); renderStep1Summary();
-}
-function removeNoticeCartItem(idx){
-  noticeCart.splice(idx, 1);
-  syncNoticeHidden(); fullRender(); renderStep1Summary();
-}
-
-/* =========================================================
-   STEP1 하단 선택 요약 (메뉴판/알림판 카트 + 약정형태 + 결제형태)
-   ========================================================= */
-function renderStep1Summary(){
-  const wrap = $('step1Summary');
-  if(!wrap) return;
-  let rows = [];
-
-  menuCart.forEach((it, idx)=>{
-    rows.push(`<div class="sum-row">
-      <span class="sum-text">메뉴판 · ${it.color} · ${it.mount} · ${it.saleType||'후불형'} · <b>${it.qty}대</b></span>
-      <button type="button" class="sum-del" data-kind="menu" data-idx="${idx}">&times;</button>
-    </div>`);
-  });
-  noticeCart.forEach((it, idx)=>{
-    rows.push(`<div class="sum-row">
-      <span class="sum-text">알림판 · ${it.size}인치 · ${it.mount} · <b>${it.qty}대</b></span>
-      <button type="button" class="sum-del" data-kind="notice" data-idx="${idx}">&times;</button>
-    </div>`);
-  });
-
-  const contractType = $('contractType').value;
-  const devicePay = $('devicePay').value;
-  if(contractType){
-    const ctLabel = contractType==='free' ? '무약정' : '3년약정';
-    const dpLabel = devicePay==='lump' ? '일시납' : '월납';
-    rows.push(`<div class="sum-row">
-      <span class="sum-text">가입조건 · ${ctLabel} · 단말대금 ${dpLabel}</span>
-    </div>`);
-  }
-
-  wrap.innerHTML = rows.length
-    ? rows.join('')
-    : `<div class="sum-empty">선택한 항목이 여기에 표시됩니다</div>`;
-
-  wrap.querySelectorAll('.sum-del').forEach(btn=>{
-    btn.addEventListener('click', (e)=>{
-      e.stopPropagation();
-      const idx = +btn.dataset.idx;
-      if(btn.dataset.kind==='menu') removeMenuCartItem(idx);
-      else removeNoticeCartItem(idx);
+  const el = $('mp-cart-notice');
+  el.innerHTML = noticeCart.map((it, idx)=>`
+    <div class="mp-cart-item">
+      <span class="mp-cart-text">알림판 [${it.size}인치 / ${it.mount}] <b>${it.qty}대</b></span>
+      <button type="button" class="mp-cart-del" data-idx="${idx}">&times;</button>
+    </div>`).join('');
+  el.querySelectorAll('.mp-cart-del').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      noticeCart.splice(+btn.dataset.idx, 1);
+      renderNoticeCart(); syncNoticeHidden(); fullRender();
     });
   });
 }
 
 function initMorphicComponents(){
-  new MorphicComponent('menu', ['블랙','스탠드','후불형'], (sel, qty)=>{
-    menuCart.push({ color:sel[0], mount:sel[1], saleType:sel[2], qty });
+  new MorphicComponent('menu', ['블랙','스탠드'], (sel, qty)=>{
+    menuCart.push({ color:sel[0], mount:sel[1], qty });
     renderMenuCart(); syncMenuHidden(); fullRender();
   });
   new MorphicComponent('notice', ['10인치','스탠드'], (sel, qty)=>{
@@ -1361,22 +1187,6 @@ function initMorphicComponents(){
     noticeCart.push({ size, mount:sel[1], qty });
     renderNoticeCart(); syncNoticeHidden(); fullRender();
   });
-  window.settleComponent = new SettleComponent('contract',
-    [
-      { key:'contractType', label:'약정형태', options:[] },
-      { key:'devicePay', label:'단말대금', options:[] },
-    ],
-    (sel)=>{
-      const contractType = sel[0]==='무약정' || sel[0]==='free' ? 'free' : 'contract';
-      const devicePay = sel[1]==='일시납' || sel[1]==='lump' ? 'lump' : 'monthly';
-      setHidden('contractType', contractType);
-      setHidden('devicePay', devicePay);
-      setHidden('servicePay', 'monthly'); // 서비스이용료는 항상 월납 고정
-      fullRender();
-      window.settleComponent.reset();
-      renderStep1Summary();
-    }
-  );
 }
 
 /* =========================================================
@@ -1435,25 +1245,24 @@ function renderRewardChecks(){
    STEP NAVIGATION
    ========================================================= */
 let currentStep = 0;
-const totalSteps = 6; // 0..5
+const totalSteps = 7; // 0..6
 function showStep(n){
   currentStep = Math.max(0, Math.min(totalSteps-1, n));
   document.querySelectorAll('.step-dot').forEach((d,i)=> d.classList.toggle('active', i===currentStep));
 
   const inDeviceFrame = currentStep === 0;
-  const inCardStep = currentStep === 1;
+  const inCardStep = currentStep === 1 || currentStep === 2;
   $('deviceFrame').classList.toggle('hidden', !inDeviceFrame);
   $('glassSummary').classList.toggle('hidden', !inCardStep);
   $('cardStep1').classList.toggle('hidden', currentStep !== 1);
+  $('cardStep2').classList.toggle('hidden', currentStep !== 2);
   $('pageHeader').classList.toggle('hidden', inDeviceFrame || inCardStep);
   $('regularWrap').classList.toggle('hidden', inDeviceFrame || inCardStep);
-  document.body.classList.toggle('step0-active', inDeviceFrame);
 
   if(inDeviceFrame){
-    document.querySelectorAll('.df-step').forEach((p,i)=> p.classList.toggle('active', i===0));
-    renderStep1Summary();
+    document.querySelectorAll('.df-step').forEach((p,i)=> p.classList.toggle('active', i===currentStep));
   } else if(!inCardStep){
-    const pageIdx = currentStep - 2; // 0..3 -> pageStep3..6
+    const pageIdx = currentStep - 3; // 0..3 -> pageStep3..6
     ['pageStep3','pageStep4','pageStep5','pageStep6'].forEach((id,i)=>{
       $(id).style.display = (i===pageIdx) ? 'block' : 'none';
     });
@@ -1596,20 +1405,7 @@ document.addEventListener('click', (e)=>{
 function fullRender(){
   renderAll();
   if($('rewardChecks')._refresh) $('rewardChecks')._refresh();
-  const sn = ($('storeName').value || '').trim();
-  $('storeNameDisplay').textContent = sn || '매장명 미입력';
 }
-$('storeName').addEventListener('input', fullRender);
-
-// 정책지원금: 입력값에서 숫자만 추출해 천단위 콤마로 표시
-(function(){
-  const el = $('subsidyPerDevice');
-  el.addEventListener('input', ()=>{
-    const digits = el.value.replace(/[^0-9]/g,'');
-    el.value = digits ? Number(digits).toLocaleString('ko-KR') : '';
-  });
-})();
-
 document.querySelectorAll('#regularWrap input, #regularWrap select, #subsidyPerDevice').forEach(el=>{
   el.addEventListener('input', fullRender);
   el.addEventListener('change', fullRender);
@@ -1621,11 +1417,13 @@ document.querySelectorAll('#regularWrap input, #regularWrap select, #subsidyPerD
 });
 
 initMorphicComponents();
+renderReaderChain();
 renderRewardChecks();
 applyScreenTheme($('deviceColor').value);
+renderToggleGroup('tgContract', [{value:'contract',label:'3년 약정'},{value:'free',label:'무약정'}], $('contractType').value, v=> setHidden('contractType', v));
+renderToggleGroup('tgSale', [{value:'postpaid',label:'후불형'},{value:'prepaid',label:'선불형'}], $('saleType').value, v=> setHidden('saleType', v));
 
 fullRender();
-renderStep1Summary();
 showStep(0);
 </script>
 </body>
