@@ -84,15 +84,6 @@
   .glass-summary .gitem .gval{font-size:var(--fs-summary); font-weight:800; color:var(--ink);}
   .glass-summary .gitem .gval small{font-size:var(--fs-hint); font-weight:400; color:var(--muted); margin-left:3px;}
 
-  /* step1/step2: 디바이스 프레임 밖, 일반 카드 영역 */
-  .card-step{
-    width:100%; max-width:520px; margin:0 auto 18px auto;
-    background:var(--paper); border:1px solid var(--line); border-radius:18px;
-    padding:22px 20px; box-sizing:border-box;
-  }
-  @media (min-width:768px){ .card-step{max-width:640px;} }
-  .card-step.hidden{display:none;}
-
   /* ---- toggle group (binary/ternary pill buttons) ---- */
   .tg-label{font-size:var(--fs-label); color:var(--muted); font-weight:700; margin-bottom:8px;}
   .tg-group{display:flex; gap:6px; background:rgba(0,0,0,0.05); padding:6px; border-radius:999px; margin-bottom:14px;}
@@ -206,7 +197,7 @@
     appearance:none; border:1px solid var(--line); background:#fff; color:var(--ink);
     font-size:var(--fs-base); font-weight:700; padding:13px 22px; border-radius:9px; cursor:pointer;
   }
-  .step-nav button:disabled{opacity:0; visibility:hidden; pointer-events:none;}
+  .step-nav button:disabled{opacity:.35; cursor:default;}
   .step-nav button.primary{background:var(--ink); color:#fff; border-color:var(--ink);}
 
   .table-scroll{overflow-x:auto; -webkit-overflow-scrolling:touch; border-radius:8px;}
@@ -279,7 +270,6 @@
   .mp-dial-window{
     width:42px; height:60px; background:var(--paper); border-radius:8px; overflow:hidden;
     position:relative; cursor:ns-resize; border:1px solid var(--line); box-shadow:0 2px 6px rgba(0,0,0,.04);
-    touch-action:none;
   }
   .mp-dial-window::before, .mp-dial-window::after{ content:''; position:absolute; left:0; right:0; height:18px; z-index:5; pointer-events:none; }
   .mp-dial-window::before{ top:0; background:linear-gradient(to bottom, rgba(255,255,255,.95), transparent); }
@@ -382,32 +372,32 @@
         </div>
       </div>
 
+      <!-- df-step 1: 약정형태/판매형태/납부방식 -->
+      <div class="df-step" id="dfStep1">
+        <div class="tg-label">약정 형태</div>
+        <div class="tg-group" id="tgContract"></div>
+        <div class="tg-label">판매 형태</div>
+        <div class="tg-group" id="tgSale"></div>
+        <div id="readerChainWrap"></div>
+        <div class="tg-label">단말대금 납부방식</div>
+        <div class="tg-group" id="tgDevicePay"></div>
+        <div class="tg-label">서비스이용료 납부방식</div>
+        <div class="tg-group" id="tgServicePay"></div>
+      </div>
+
+      <!-- df-step 2: 정책지원금 + 할인옵션 -->
+      <div class="df-step" id="dfStep2">
+        <div class="tg-label">정책지원금 (대당, VAT포함)</div>
+        <input type="number" id="subsidyPerDevice" min="0" value="0" style="width:100%; padding:12px 14px; border:none; border-radius:12px; font-size:var(--fs-h2); font-weight:800; background:rgba(0,0,0,0.05); margin-bottom:16px;">
+        <div id="rewardChecks"></div>
+      </div>
+
     </div>
   </div>
 
   <div class="glass-summary hidden" id="glassSummary">
     <div class="gitem"><div class="glabel">총 단말 대수</div><div class="gval" id="gDevices">0대</div></div>
     <div class="gitem"><div class="glabel">월 합계</div><div class="gval" id="gMonthly">0원<small>VAT포함</small></div></div>
-  </div>
-
-  <!-- step 1: 약정형태 -->
-  <div class="card-step hidden" id="cardStep1">
-    <div class="tg-label">약정 형태</div>
-    <div class="tg-group" id="tgContract"></div>
-    <div class="tg-label" style="margin-top:18px;">단말대금 납부방식</div>
-    <div class="tg-group" id="tgDevicePay"></div>
-    <div class="tg-label" style="margin-top:18px;">서비스이용료 납부방식</div>
-    <div class="tg-group" id="tgServicePay"></div>
-  </div>
-
-  <!-- step 2: 판매형태 + 리더기 + 정책지원금/할인옵션 -->
-  <div class="card-step hidden" id="cardStep2">
-    <div class="tg-label">판매 형태</div>
-    <div class="tg-group" id="tgSale"></div>
-    <div id="readerChainWrap"></div>
-    <div class="tg-label" style="margin-top:18px;">정책지원금 (대당, VAT포함)</div>
-    <input type="number" id="subsidyPerDevice" min="0" value="0" style="width:100%; padding:12px 14px; border:none; border-radius:12px; font-size:var(--fs-h2); font-weight:800; background:rgba(0,0,0,0.05); margin-bottom:16px;">
-    <div id="rewardChecks"></div>
   </div>
 
   <!-- REGULAR PAGE: steps 3,4,5,6 -->
@@ -1025,28 +1015,6 @@ class MorphicComponent {
       e.preventDefault();
       this.changeDialValue(e.deltaY > 0 ? 1 : -1);
     }, { passive:false });
-
-    // 모바일 터치 드래그로 다이얼 조작 (페이지 스크롤 전파 차단)
-    let touchStartY = 0, touchAccum = 0, dragged = false;
-    windowEl.addEventListener('touchstart', (e)=>{
-      touchStartY = e.touches[0].clientY;
-      touchAccum = 0; dragged = false;
-    }, { passive:true });
-    windowEl.addEventListener('touchmove', (e)=>{
-      e.preventDefault();
-      const y = e.touches[0].clientY;
-      const delta = y - touchStartY;
-      touchStartY = y;
-      touchAccum += delta;
-      const step = 16; // px당 한 칸
-      while(touchAccum <= -step){ this.changeDialValue(-1); touchAccum += step; dragged = true; }
-      while(touchAccum >= step){ this.changeDialValue(1); touchAccum -= step; dragged = true; }
-      if(Math.abs(delta) > 2) dragged = true;
-    }, { passive:false });
-    windowEl.addEventListener('touchend', (e)=>{
-      if(dragged) e.preventDefault();
-    }, { passive:false });
-
     $(`mp-confirm-${this.id}`).addEventListener('click', ()=> this.commitDialData());
   }
   reset(){
@@ -1070,13 +1038,9 @@ class MorphicComponent {
     this.updateFocusUI(foundBtn.getAttribute('data-pos'), foundBtn, bg, txtMode);
   }
   updateFocusUI(pos, activeBtn, customBg, customTxtMode){
-    const contW = this.container.clientWidth;
-    const pad = 4; // .mp-content padding
-    const mainW = this.mainBtn.offsetWidth || 120;
-    const rightW = contW - mainW - pad*2;
-    let tx = pad, w = mainW;
-    if(pos==='left'){ tx = pad + mainW; w = rightW/2; }
-    else if(pos==='right'){ tx = pad + mainW + rightW/2; w = rightW/2; }
+    let tx=4, w=120;
+    if(pos==='left'){ tx=124; w=124; }
+    else if(pos==='right'){ tx=252; w=124; }
     this.container.style.setProperty('--tx', `${tx}px`);
     this.container.style.setProperty('--w', `${w}px`);
     if(customBg) this.container.style.setProperty('--bg', customBg);
@@ -1094,12 +1058,8 @@ class MorphicComponent {
   }
   openDialMode(){
     this.container.classList.add('dial-mode');
-    const contW = this.container.clientWidth;
-    const pad = 4;
-    const mainW = this.mainBtn.offsetWidth || 120;
-    const rightW = contW - mainW - pad*2;
-    this.container.style.setProperty('--tx', `${pad+mainW}px`);
-    this.container.style.setProperty('--w', `${rightW}px`);
+    this.container.style.setProperty('--tx', '124px');
+    this.container.style.setProperty('--w', '252px');
     this.container.style.setProperty('--bg', GLOBAL_COLORS[this.currentStep] || '#000000');
     this.layers.forEach((layer, idx)=>{
       layer.className = 'mp-layer';
@@ -1250,18 +1210,15 @@ function showStep(n){
   currentStep = Math.max(0, Math.min(totalSteps-1, n));
   document.querySelectorAll('.step-dot').forEach((d,i)=> d.classList.toggle('active', i===currentStep));
 
-  const inDeviceFrame = currentStep === 0;
-  const inCardStep = currentStep === 1 || currentStep === 2;
+  const inDeviceFrame = currentStep <= 2;
   $('deviceFrame').classList.toggle('hidden', !inDeviceFrame);
-  $('glassSummary').classList.toggle('hidden', !inCardStep);
-  $('cardStep1').classList.toggle('hidden', currentStep !== 1);
-  $('cardStep2').classList.toggle('hidden', currentStep !== 2);
-  $('pageHeader').classList.toggle('hidden', inDeviceFrame || inCardStep);
-  $('regularWrap').classList.toggle('hidden', inDeviceFrame || inCardStep);
+  $('glassSummary').classList.toggle('hidden', !(currentStep===1 || currentStep===2));
+  $('pageHeader').classList.toggle('hidden', inDeviceFrame);
+  $('regularWrap').classList.toggle('hidden', inDeviceFrame);
 
   if(inDeviceFrame){
     document.querySelectorAll('.df-step').forEach((p,i)=> p.classList.toggle('active', i===currentStep));
-  } else if(!inCardStep){
+  } else {
     const pageIdx = currentStep - 3; // 0..3 -> pageStep3..6
     ['pageStep3','pageStep4','pageStep5','pageStep6'].forEach((id,i)=>{
       $(id).style.display = (i===pageIdx) ? 'block' : 'none';
