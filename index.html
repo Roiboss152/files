@@ -207,7 +207,46 @@
             .next-content > p { font-size: 1.1rem; margin-bottom: 50px; }
             .grid-card { padding: 30px; }
         }
-    </style>
+    
+        /* ── Skip Button ── */
+        @keyframes floatUpDown {
+            0%, 100% { transform: translateY(0); }
+            50%       { transform: translateY(-10px); }
+        }
+        @keyframes fadeInSkip {
+            from { opacity: 0; transform: translateY(14px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .skip-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 34px;
+            padding: 12px 30px;
+            background: rgba(255, 255, 255, 0.06);
+            color: rgba(255, 255, 255, 0.70);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            opacity: 0;
+            animation:
+                fadeInSkip 1s ease 2.5s forwards,
+                floatUpDown 3s ease-in-out 3.5s infinite;
+            transition: background 0.25s, color 0.25s, border-color 0.25s;
+        }
+        .skip-btn:hover {
+            background: rgba(74, 172, 254, 0.18);
+            color: #fff;
+            border-color: rgba(74, 172, 254, 0.5);
+            box-shadow: 0 0 24px rgba(74, 172, 254, 0.22);
+        }
+        </style>
 </head>
 <body class="locked">
 
@@ -215,6 +254,12 @@
         <div class="intro" id="intro-text">
 		<h1 class="main-title">THE FOUNDATION <br class="mobile-br">OF YOUR DX BUSINESS</h1>
             <p class="sub-title">비즈니스 스케일을 더하다</p>
+            <button class="skip-btn" onclick="skipToBottom()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"/>
+                </svg>
+                Skip
+            </button>
         </div>
 
         <canvas id="webgl-canvas"></canvas>
@@ -392,8 +437,8 @@
 
             window.addEventListener("scroll", () => {
                 if(!isIntroComplete) {
-                    window.scrollTo(0, 0); 
-                    return; 
+                    if (!window.__skipForce) window.scrollTo(0, 0);
+                    return;
                 }
                 const scrollerSpace = document.querySelector('.timeline-space');
                 const totalScrollRange = scrollerSpace.offsetHeight - window.innerHeight;
@@ -418,7 +463,7 @@
                     introProgress += 0.0045; 
                     if (introProgress >= 1) {
                         introProgress = 1;
-                        isIntroComplete = true;
+                        isIntroComplete = true; window._introComplete = true;
                         window.scrollTo(0, 0);
                         targetScroll = 0;
                         scrollProgress = 0;
@@ -454,7 +499,12 @@
                     }
 
                 } else {
-                    scrollProgress += (targetScroll - scrollProgress) * 0.05;
+                    if (window.__skipForce) {
+                        scrollProgress = 1;
+                        targetScroll   = 1;
+                    } else {
+                        scrollProgress += (targetScroll - scrollProgress) * 0.05;
+                    }
                     introTextWrapper.style.opacity = scrollProgress > 0.01 ? 0 : 1;
 
                     if (scrollProgress <= 0.90) {
@@ -574,5 +624,54 @@
             });
         });
     </script>
+
+    <script>
+    window.__skipForce = false;
+
+    function skipToBottom() {
+        // ① scroll 이벤트 리셋 차단 + animate() 강제 완료 모드 ON
+        window.__skipForce = true;
+
+        // ② body.locked 해제
+        document.body.classList.remove('locked');
+
+        // ③ intro 텍스트 즉시 숨기기
+        var introEl = document.getElementById('intro-text');
+        if (introEl) introEl.style.opacity = '0';
+
+        // ④ timeline-space 끝까지 scrollTo (animate 루프가 targetScroll을 읽음)
+        var space = document.querySelector('.timeline-space');
+        if (!space) {
+            window.scrollTo({ top: document.body.scrollHeight });
+            window.__skipForce = false;
+            return;
+        }
+        var endY = space.offsetHeight - window.innerHeight;
+
+        // ⑤ 애니메이션으로 부드럽게 스크롤
+        var dur = 950, t0 = null;
+        function ease(t) { return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3)/2; }
+        function step(ts) {
+            if (!t0) t0 = ts;
+            var p = Math.min((ts - t0) / dur, 1);
+            window.scrollTo(0, Math.round(endY * ease(p)));
+            if (p < 1) {
+                requestAnimationFrame(step);
+            } else {
+                // ⑥ 스크롤 완료 → next-page-section으로 최종 snap
+                setTimeout(function() {
+                    var nextPage = document.querySelector('.next-page-section');
+                    if (nextPage) {
+                        nextPage.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                    // ⑦ 강제 모드 해제
+                    setTimeout(function() { window.__skipForce = false; }, 600);
+                }, 100);
+            }
+        }
+        requestAnimationFrame(step);
+    }
+    </script>
+
 </body>
 </html>
