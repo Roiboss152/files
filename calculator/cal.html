@@ -36,6 +36,13 @@
     -webkit-touch-callout:none;
     -webkit-user-select:none; user-select:none;
   }
+  .device-screen, .device-screen *{
+    -webkit-touch-callout:none;
+    -webkit-user-select:none; user-select:none;
+  }
+  .device-screen input, .device-screen textarea{
+    -webkit-user-select:text; user-select:text;
+  }
   html,body{height:100%;}
   body{
     margin:0; font-family:-apple-system,"Segoe UI","Pretendard","Noto Sans KR",sans-serif;
@@ -66,12 +73,14 @@
   .device-frame.hidden{display:none;}
   .device-screen{
     position:absolute; left:6.84%; top:11.73%; width:85.99%; height:37.67%;
-    overflow:hidden; border-radius:5%/9%;
+    overflow-y:auto; overflow-x:hidden; border-radius:5%/9%;
     padding:3% 5%;
     transition: background .4s ease, color .4s ease;
     background:#fff; color:var(--ink);
-    display:flex; flex-direction:column; justify-content:center;
+    display:flex; flex-direction:column; justify-content:safe center;
+    scrollbar-width:none; -ms-overflow-style:none;
   }
+  .device-screen::-webkit-scrollbar{ display:none; width:0; height:0; }
   .device-screen.theme-dark{ background:#15151a; color:#fff; }
   .device-screen .df-step{ display:none; flex-direction:column; justify-content:center; padding:0; width:100%; height:100%; }
   .device-screen .df-step.active{ display:flex; }
@@ -99,16 +108,33 @@
 
   /* ---- toggle group (binary/ternary pill buttons) ---- */
   .tg-label{font-size:var(--fs-label); color:var(--muted); font-weight:700; margin-bottom:8px;}
-  .tg-group{display:flex; gap:6px; background:rgba(0,0,0,0.05); padding:6px; border-radius:999px; margin-bottom:14px;}
+  .tg-group{
+    display:flex; background:rgba(0,0,0,0.05); padding:6px; 
+    border-radius:999px; margin-bottom:14px;
+    position:relative; --n:2; --idx:0;
+  }
+  .tg-group::before{
+    content:''; 
+    position:absolute; top:6px; bottom:6px; left:6px;
+    width:calc((100% - 12px) / var(--n));
+    background:#1a1a1a; border-radius:999px;
+    box-shadow:0 4px 10px rgba(0,0,0,.28), 0 1px 2px rgba(0,0,0,.15);
+    transform: translateX(calc(var(--idx) * 100%));
+    transition: transform .42s cubic-bezier(.34, 1.56, .55, 1);
+    z-index:0;
+    pointer-events:none;
+  }
   .theme-dark .tg-group{background:rgba(255,255,255,0.12);}
+  .theme-dark .tg-group::before{ background:#fff; box-shadow:0 4px 14px rgba(0,0,0,.4); }
   .tg-btn{
+    position:relative; z-index:1;
     flex:1; border:none; background:transparent; padding:13px 8px; border-radius:999px;
     font-weight:700; font-size:var(--fs-base); color:#999; cursor:pointer;
-    transition: all .25s cubic-bezier(.3,1.2,.4,1); white-space:nowrap;
+    transition: color .3s ease; white-space:nowrap;
   }
   .theme-dark .tg-btn{ color:#aaa; }
-  .tg-btn.active{ background:#1a1a1a; color:#fff; box-shadow:0 4px 10px rgba(0,0,0,.28), 0 1px 2px rgba(0,0,0,.15); }
-  .theme-dark .tg-btn.active{ background:#fff; color:#15151a; box-shadow:0 4px 14px rgba(0,0,0,.4); }
+  .tg-btn.active{ color:#fff; }
+  .theme-dark .tg-btn.active{ color:#15151a; }
 
   .chip-row{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;}
   .chip{
@@ -358,6 +384,46 @@
   .sum-row .sum-del{ background:transparent; border:none; color:rgba(255,255,255,0.85); font-size:15px; cursor:pointer; line-height:1; padding:2px 4px; }
   .sum-row .sum-del:hover{ color:#fff; }
   .sum-empty{ text-align:center; color:rgba(255,255,255,0.85); font-size:11.5px; padding:6px 0; text-shadow:0 1px 2px rgba(0,0,0,0.25); }
+  /* ---- 카드리더기 설정 모달 ---- */
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(0,0,0,0.55);
+    display:flex; align-items:center; justify-content:center;
+    z-index:9999; padding:20px;
+    backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px);
+    animation:modalFadeIn .2s ease;
+  }
+  .modal-overlay.hidden{ display:none; }
+  @keyframes modalFadeIn{ from{opacity:0;} to{opacity:1;} }
+  .modal-card{
+    background:#fff; border-radius:18px; width:100%; max-width:420px;
+    box-shadow:0 24px 60px rgba(0,0,0,0.3);
+    overflow:hidden; animation:modalSlideUp .25s cubic-bezier(.2,.9,.3,1);
+  }
+  @keyframes modalSlideUp{ from{transform:translateY(20px); opacity:0;} to{transform:translateY(0); opacity:1;} }
+  .modal-header{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:18px 22px 12px; border-bottom:1px solid var(--line);
+  }
+  .modal-header h3{ margin:0; font-size:17px; font-weight:800; color:var(--ink); }
+  .modal-close{
+    background:transparent; border:none; font-size:26px; line-height:1;
+    color:var(--muted); cursor:pointer; padding:0 4px;
+  }
+  .modal-close:hover{ color:var(--ink); }
+  .modal-body{ padding:22px 22px 8px; }
+  .modal-body .tg-label{ margin-bottom:10px; }
+  .modal-footer{
+    display:flex; gap:8px; padding:14px 22px 22px;
+  }
+  .modal-btn-secondary, .modal-btn-primary{
+    flex:1; padding:13px 18px; border-radius:11px; font-size:15px; font-weight:700;
+    border:1px solid var(--line); cursor:pointer; transition:all .2s;
+  }
+  .modal-btn-secondary{ background:#fff; color:var(--ink); }
+  .modal-btn-secondary:hover{ background:#f5f5f5; }
+  .modal-btn-primary{ background:var(--ink); color:#fff; border-color:var(--ink); }
+  .modal-btn-primary:hover{ background:#000; }
+
 </style>
 </head>
 <body>
@@ -456,7 +522,6 @@
             </div>
           </div>
 
-          <div id="readerChainWrap" class="hidden"></div>
         </div>
 
       </div>
@@ -611,6 +676,28 @@
   <select id="menuMount"><option value="스탠드" selected>스탠드</option><option value="아일랜드">아일랜드</option></select>
   <select id="notice10Mount"><option value="스탠드" selected>스탠드</option><option value="벽걸이">벽걸이</option></select>
   <select id="notice15Mount"><option value="스탠드" selected>스탠드</option><option value="벽걸이">벽걸이</option></select>
+</div>
+
+<!-- 카드리더기 설정 모달 (선불형 카트 추가 시 자동 오픈) -->
+<div class="modal-overlay hidden" id="readerModal" aria-hidden="true">
+  <div class="modal-card" role="dialog" aria-labelledby="readerModalTitle">
+    <div class="modal-header">
+      <h3 id="readerModalTitle">카드리더기 설정</h3>
+      <button type="button" class="modal-close" id="readerModalClose" aria-label="닫기">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="tg-label">카드리더기 종류</div>
+      <div class="tg-group" id="modalReaderType"></div>
+      <div class="spinner-wrap" style="margin-top:18px;">
+        <div class="spinner-section-label">리더기 수량</div>
+        <div class="spinner" id="modalReaderQty"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="modal-btn-secondary" id="readerModalCancel">취소</button>
+      <button type="button" class="modal-btn-primary" id="readerModalConfirm">확정</button>
+    </div>
+  </div>
 </div>
 
 <div id="renderCustomer" style="position:fixed; left:-99999px; top:0; width:680px; background:#fff;"></div>
@@ -965,10 +1052,19 @@ function renderToggleGroup(containerId, options, currentValue, onSelect, disable
   const el = $(containerId);
   if(!el) return;
   el.className = 'tg-group';
+  el.style.setProperty('--n', options.length);
+  const activeIdx = Math.max(0, options.findIndex(o=> o.value===currentValue));
+  el.style.setProperty('--idx', activeIdx);
   el.innerHTML = options.map(o=>`<button type="button" class="tg-btn ${o.value===currentValue?'active':''}" data-val="${o.value}" ${disabled?'disabled':''}>${o.label}</button>`).join('');
   if(!disabled){
-    el.querySelectorAll('.tg-btn').forEach(btn=>{
-      btn.addEventListener('click', ()=> onSelect(btn.dataset.val));
+    el.querySelectorAll('.tg-btn').forEach((btn, idx)=>{
+      btn.addEventListener('click', ()=>{
+        // 클릭 즉시 active 클래스 갱신 + 슬라이더 transform 이동
+        el.querySelectorAll('.tg-btn').forEach(b=> b.classList.remove('active'));
+        btn.classList.add('active');
+        el.style.setProperty('--idx', idx);
+        onSelect(btn.dataset.val);
+      });
     });
   }
 }
@@ -1006,6 +1102,10 @@ function buildSpinner(container, {min, max, value, onChange}){
     }, 90);
   });
   selectValue(value, false);
+  // 활성 셀이 가운데 오도록 스크롤 위치 셋팅 (휠 형태이므로)
+  requestAnimationFrame(()=>{
+    container.scrollTop = (value - min) * cellH;
+  });
   container._spinnerSelect = (v)=> selectValue(v, false);
 }
 
@@ -1319,10 +1419,15 @@ function syncMenuHidden(){
     const saleVal = last.saleType==='선불형' ? 'prepaid' : 'postpaid';
     setHidden('saleType', saleVal);
     const isPrepaid = saleVal==='prepaid';
-    $('readerChainWrap').classList.toggle('hidden', !isPrepaid);
-    if(isPrepaid && !$('readerChainWrap').dataset.rendered){
-      renderReaderChain();
-      $('readerChainWrap').dataset.rendered = '1';
+    // 선불형이 처음 카트에 들어왔고 아직 카드리더기 설정이 안 됐으면 모달 자동 오픈
+    if(isPrepaid && !window.readerModalShown){
+      window.readerModalShown = true;
+      setTimeout(()=> openReaderModal(), 300);
+    }
+    // 선불형이 아니면 카드리더기 값 초기화 (재가입 시 다시 묻기 위함)
+    if(!isPrepaid){
+      setHidden('readerCount', 0);
+      window.readerModalShown = false;
     }
   }
 }
@@ -1386,6 +1491,21 @@ function renderStep1Summary(){
     </div>`);
   }
 
+  // 카드리더기 (선불형이 카트에 있을 때만)
+  const hasPrepaid = menuCart.some(it=> it.saleType==='선불형');
+  if(hasPrepaid){
+    const rType = $('readerType').value === 'nice' ? '나이스' : '기본';
+    const rCount = +$('readerCount').value || 0;
+    const isSet = rCount > 0;
+    const text = isSet
+      ? `카드리더기 · ${rType} · <b>${rCount}대</b>`
+      : `카드리더기 · <span style="color:#ffd166;">설정 필요</span>`;
+    rows.push(`<div class="sum-row" data-action="open-reader" style="cursor:pointer;">
+      <span class="sum-text">${text}</span>
+      <span style="color:rgba(255,255,255,0.7); font-size:12px;">설정 ↗</span>
+    </div>`);
+  }
+
   wrap.innerHTML = rows.length
     ? rows.join('')
     : `<div class="sum-empty">선택한 항목이 여기에 표시됩니다</div>`;
@@ -1397,6 +1517,10 @@ function renderStep1Summary(){
       if(btn.dataset.kind==='menu') removeMenuCartItem(idx);
       else removeNoticeCartItem(idx);
     });
+  });
+  // 카드리더기 행 탭 시 모달 재오픈
+  wrap.querySelectorAll('[data-action="open-reader"]').forEach(row=>{
+    row.addEventListener('click', ()=> openReaderModal());
   });
 }
 
@@ -1432,16 +1556,65 @@ function initMorphicComponents(){
 /* =========================================================
    READER CHAIN (binary toggle + spinner, conditional on 선불형)
    ========================================================= */
-function renderReaderChain(){
-  const wrap = $('readerChainWrap');
-  wrap.innerHTML = `
-    <div class="tg-label">카드리더기 종류</div>
-    <div class="tg-group" id="tgReaderType"></div>
-    <div class="spinner-wrap"><div class="spinner-section-label">리더기 수량</div><div class="spinner" id="readerQtySpinner"></div></div>
-  `;
-  renderToggleGroup('tgReaderType', [{value:'basic',label:'기본'},{value:'nice',label:'나이스'}], $('readerType').value, v=> setHidden('readerType', v));
-  buildSpinner($('readerQtySpinner'), { min:0, max:30, value:+$('readerCount').value||0, onChange:v=> setHidden('readerCount', v) });
+function openReaderModal(){
+  const modal = $('readerModal');
+  // 종류 토글 렌더링 (현재값 반영)
+  renderToggleGroup('modalReaderType',
+    [{value:'basic',label:'기본'},{value:'nice',label:'나이스'}],
+    $('readerType').value,
+    v=> $('readerType').value = v  // 확정 전엔 임시 보관, fullRender는 확정 시
+  );
+  // 첫 오픈이면 메뉴판 단말 수에 맞춰 기본값 매칭
+  if(!window.readerCountAdjusted){
+    const menuCount = +$('menuCount').value || 1;
+    $('readerCount').value = menuCount;
+  }
+  const defaultQty = +$('readerCount').value || 1;
+  buildSpinner($('modalReaderQty'), {
+    min:0, max:30, value:defaultQty,
+    onChange:v=>{
+      $('readerCount').value = v;
+      window.readerCountAdjusted = true;
+    }
+  });
+  modal.classList.remove('hidden');
+  modal.setAttribute('aria-hidden','false');
 }
+
+function closeReaderModal(commit){
+  const modal = $('readerModal');
+  if(commit){
+    // 확정: hidden input 값 fullRender로 반영
+    fullRender();
+    renderStep1Summary();
+  } else {
+    // 취소: 기존 값 복구는 별도 안 함 (모달 안에서 임시 변경한 readerType/readerCount가 그대로 남음)
+    // 사용자가 다시 열어서 조정 가능
+    fullRender();
+    renderStep1Summary();
+  }
+  modal.classList.add('hidden');
+  modal.setAttribute('aria-hidden','true');
+}
+
+// 모달 닫기 이벤트 바인딩
+document.addEventListener('DOMContentLoaded', ()=>{
+  const closeBtn = $('readerModalClose');
+  const cancelBtn = $('readerModalCancel');
+  const confirmBtn = $('readerModalConfirm');
+  const overlay = $('readerModal');
+  if(closeBtn) closeBtn.addEventListener('click', ()=> closeReaderModal(false));
+  if(cancelBtn) cancelBtn.addEventListener('click', ()=> closeReaderModal(false));
+  if(confirmBtn) confirmBtn.addEventListener('click', ()=> closeReaderModal(true));
+  // 오버레이 클릭(카드 밖) 시 닫기
+  if(overlay) overlay.addEventListener('click', (e)=>{
+    if(e.target === overlay) closeReaderModal(false);
+  });
+  // ESC 키로 닫기
+  document.addEventListener('keydown', (e)=>{
+    if(e.key === 'Escape' && !overlay.classList.contains('hidden')) closeReaderModal(false);
+  });
+});
 
 /* =========================================================
    REWARD CHECKS (할인옵션)
@@ -1678,6 +1851,43 @@ applyScreenTheme($('deviceColor').value);
 fullRender();
 renderStep1Summary();
 showStep(0);
+
+// device-screen 안 콘텐츠 변경 시 마지막 활성 컴포넌트로 자동 스크롤
+(function setupDeviceScreenAutoScroll(){
+  const screen = $('deviceScreen');
+  if(!screen) return;
+  let timer = null;
+  const scrollToLatest = () => {
+    // 다이얼 모드가 활성화돼 있으면 그 토글을 가운데로
+    let target = screen.querySelector('.mp-toggle.dial-mode');
+    if(!target){
+      const items = Array.from(screen.querySelectorAll('.mp-toggle, #readerChainWrap > *'));
+      const visible = items.filter(el => {
+        if(el.classList.contains('hidden')) return false;
+        const cs = getComputedStyle(el);
+        return el.offsetHeight > 0 && cs.opacity !== '0' && cs.visibility !== 'hidden';
+      });
+      target = visible[visible.length - 1];
+    }
+    if(!target) return;
+    // 콘텐츠가 컨테이너 안에 다 들어가면 스크롤 안 함
+    if(screen.scrollHeight <= screen.clientHeight + 2) return;
+    const screenRect = screen.getBoundingClientRect();
+    const targetRect = target.getBoundingClientRect();
+    const desired = screen.scrollTop + (targetRect.top - screenRect.top) + targetRect.height/2 - screen.clientHeight/2;
+    const maxScroll = screen.scrollHeight - screen.clientHeight;
+    const top = Math.max(0, Math.min(maxScroll, desired));
+    screen.scrollTo({ top, behavior:'smooth' });
+  };
+  const observer = new MutationObserver(()=>{
+    clearTimeout(timer);
+    timer = setTimeout(scrollToLatest, 80);
+  });
+  observer.observe(screen, {
+    attributes:true, childList:true, subtree:true,
+    attributeFilter:['class','style']
+  });
+})();
 </script>
 </body>
 </html>
