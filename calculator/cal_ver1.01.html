@@ -69,8 +69,8 @@
     background:#fff; color:var(--ink);
   }
   .device-screen.theme-dark{ background:#15151a; color:#fff; }
-  .device-screen .df-step{ display:none; flex-direction:column; padding:0; }
-  .device-screen .df-step.active{ display:flex; }
+  .device-screen .df-step{ display:none; height:100%; }
+  .device-screen .df-step.active{ display:flex; flex-direction:column; }
 
   .glass-summary{
     max-width:520px; margin:14px auto 0; padding:14px 18px; border-radius:16px;
@@ -208,9 +208,9 @@
   }
   .step-nav button:disabled{opacity:0; visibility:hidden; pointer-events:none;}
   .step-nav button.primary{background:var(--ink); color:#fff; border-color:var(--ink);}
-  /* step0에서는 다음 버튼을 아래로 내려 선택 요약이 안 가리도록 */
-  body.step0-active .step-nav{ position:relative; top:160px; margin-top:160px; }
-  @media (max-width:480px){ body.step0-active .step-nav{ top:140px; margin-top:140px; } }
+  /* step0(메뉴판/알림판/약정형태)에서는 다음 버튼을 위로 당겨 스크롤 없이 한눈에 보이게 */
+  body.step0-active .step-nav{ position:relative; top:-200px; margin-bottom:-200px; }
+  @media (max-width:480px){ body.step0-active .step-nav{ top:-180px; margin-bottom:-180px; } }
 
   .table-scroll{overflow-x:auto; -webkit-overflow-scrolling:touch; border-radius:8px;}
   .table-scroll-hint{font-size:var(--fs-hint); color:var(--muted); margin-bottom:6px; display:block;}
@@ -250,16 +250,7 @@
   /* =========================================================
      MORPHIC TOGGLE BUTTON (제미나이 버튼 UI 디자인 이식)
      ========================================================= */
-  .mp-wrap{ 
-    display:flex; 
-    flex-direction:column; 
-    gap:14px; 
-    width:100%; 
-    height:auto;
-    justify-content:center;
-    padding:0 10px;
-    box-sizing:border-box;
-  }
+  .mp-wrap{ display:flex; flex-direction:column; gap:10px; }
   .mp-toggle{
     width:100%; max-width:380px; height:48px; background:var(--paper); border-radius:50px;
     border:1px solid var(--line); position:relative; display:flex; box-sizing:border-box;
@@ -314,34 +305,20 @@
   .mp-cart-item .mp-cart-del{ background:transparent; border:none; color:var(--faint); font-size:15px; cursor:pointer; line-height:1; padding:2px 4px; }
   .mp-cart-item .mp-cart-del:hover{ color:var(--accent); }
 
-  /* step1 하단 선택 요약 - device-frame 내 절대위치 */
+  /* step1 하단 선택 요약 */
   .step1-summary{
-    display:flex; 
-    flex-direction:column; 
-    gap:8px;
-    background:rgba(255,255,255,0.1);
-    backdrop-filter:blur(10px);
-    border:1px solid rgba(255,255,255,0.2);
-    border-radius:16px;
-    padding:12px 16px;
+    width:100%; max-width:380px; margin:18px auto 0 auto;
+    display:flex; flex-direction:column; gap:6px;
   }
   .sum-row{
-    display:flex; 
-    justify-content:space-between; 
-    align-items:center; 
-    gap:8px;
-    background:rgba(255,255,255,0.05);
-    border:1px solid rgba(255,255,255,0.15);
-    border-radius:10px;
-    padding:10px 12px; 
-    font-size:12.5px; 
-    color:#fff;
-    backdrop-filter:blur(5px);
+    display:flex; justify-content:space-between; align-items:center; gap:8px;
+    background:var(--surface); border:1px solid var(--line); border-radius:10px;
+    padding:9px 14px; font-size:12.5px; color:var(--ink);
   }
   .sum-row .sum-text{ font-weight:600; }
-  .sum-row .sum-del{ background:transparent; border:none; color:rgba(255,255,255,0.6); font-size:16px; cursor:pointer; line-height:1; padding:2px 4px; }
-  .sum-row .sum-del:hover{ color:#fff; }
-  .sum-empty{ text-align:center; color:rgba(255,255,255,0.5); font-size:12.5px; padding:10px 0; }
+  .sum-row .sum-del{ background:transparent; border:none; color:var(--faint); font-size:16px; cursor:pointer; line-height:1; padding:2px 4px; }
+  .sum-row .sum-del:hover{ color:var(--accent); }
+  .sum-empty{ text-align:center; color:var(--faint); font-size:12.5px; padding:10px 0; }
 </style>
 </head>
 <body>
@@ -396,6 +373,7 @@
               </div>
             </div>
           </div>
+          <div class="mp-cart" id="mp-cart-menu"></div>
 
           <div class="mp-toggle" id="mp-notice">
             <div class="mp-slider"></div>
@@ -421,7 +399,9 @@
               </div>
             </div>
           </div>
+          <div class="mp-cart" id="mp-cart-notice"></div>
 
+          <div class="tg-label" style="margin-top:4px;">가입 조건 설정</div>
           <div class="mp-toggle" id="mp-contract">
             <div class="mp-slider"></div>
             <div class="mp-content">
@@ -443,12 +423,10 @@
           <div id="readerChainWrap" class="hidden"></div>
         </div>
 
+        <div class="step1-summary" id="step1Summary"></div>
       </div>
 
     </div>
-
-    <!-- device-frame 내 하단: 선택 요약 영역 -->
-    <div class="step1-summary" id="step1Summary" style="position:absolute; bottom:60px; left:50%; transform:translateX(-50%); width:90%; max-width:380px;"></div>
   </div>
 
   <div class="glass-summary hidden" id="glassSummary">
