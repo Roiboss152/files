@@ -382,15 +382,9 @@
     color:#1a1a1a;
   }
   .sum-row .sum-text{ font-weight:600; }
-<<<<<<< HEAD
   .sum-row .sum-del{ background:transparent; border:none; color:#1a1a1a; opacity:0.45; font-size:15px; cursor:pointer; line-height:1; padding:2px 4px; transition:opacity .2s; }
   .sum-row .sum-del:hover{ opacity:1; }
   .sum-empty{ text-align:center; color:#1a1a1a; opacity:0.55; font-size:11.5px; padding:6px 0; }
-=======
-  .sum-row .sum-del{ background:transparent; border:none; color:rgba(255,255,255,0.85); font-size:15px; cursor:pointer; line-height:1; padding:2px 4px; }
-  .sum-row .sum-del:hover{ color:#fff; }
-  .sum-empty{ text-align:center; color:rgba(255,255,255,0.85); font-size:11.5px; padding:6px 0; text-shadow:0 1px 2px rgba(0,0,0,0.25); }
->>>>>>> 4802f8281916906bc207cab25853c3d3395d6618
   /* MOU 등급 슬라이드 토글 (체크박스 활성 시에만 노출) */
   .mou-tier-wrap{
     margin-top:10px; max-height:80px; opacity:1;
@@ -1725,17 +1719,10 @@ function renderStep1Summary(){
     const isSet = rCount > 0;
     const text = isSet
       ? `카드리더기 · ${rType} · <b>${rCount}대</b>`
-<<<<<<< HEAD
       : `카드리더기 · <span style="color:#c0392b;">설정 필요</span>`;
     rows.push(`<div class="sum-row" data-action="open-reader" style="cursor:pointer;">
       <span class="sum-text">${text}</span>
       <span style="color:#1a1a1a; opacity:0.5; font-size:12px;">설정 ↗</span>
-=======
-      : `카드리더기 · <span style="color:#ffd166;">설정 필요</span>`;
-    rows.push(`<div class="sum-row" data-action="open-reader" style="cursor:pointer;">
-      <span class="sum-text">${text}</span>
-      <span style="color:rgba(255,255,255,0.7); font-size:12px;">설정 ↗</span>
->>>>>>> 4802f8281916906bc207cab25853c3d3395d6618
     </div>`);
   }
 
