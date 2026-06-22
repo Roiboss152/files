@@ -384,6 +384,41 @@
   .sum-row .sum-del{ background:transparent; border:none; color:rgba(255,255,255,0.85); font-size:15px; cursor:pointer; line-height:1; padding:2px 4px; }
   .sum-row .sum-del:hover{ color:#fff; }
   .sum-empty{ text-align:center; color:rgba(255,255,255,0.85); font-size:11.5px; padding:6px 0; text-shadow:0 1px 2px rgba(0,0,0,0.25); }
+  /* MOU 등급 슬라이드 토글 (체크박스 활성 시에만 노출) */
+  .mou-tier-wrap{
+    margin-top:10px; max-height:80px; opacity:1;
+    transition: max-height .4s cubic-bezier(.4,1.2,.5,1), opacity .3s ease, margin-top .3s ease;
+    overflow:hidden;
+  }
+  .mou-tier-wrap.inactive{ max-height:0; opacity:0; margin-top:0; pointer-events:none; }
+  .mou-tier-toggle{ margin-bottom:0 !important; font-size:13px; }
+  .mou-tier-toggle .tg-btn{ padding:9px 8px; font-size:12.5px; font-weight:600; }
+
+  /* "한 번 더 탭" 힌트 - active 상태에서 1초간 머뭇거리면 부드럽게 펄스 + 안내 텍스트 */
+  .mp-btn.tap-again{
+    animation: tapAgainPulse 1.6s ease-in-out infinite;
+    position:relative;
+  }
+  @keyframes tapAgainPulse{
+    0%, 100%{ transform:scale(1); box-shadow:0 4px 10px rgba(0,0,0,.28), 0 1px 2px rgba(0,0,0,.15); }
+    50%    { transform:scale(1.04); box-shadow:0 0 0 5px rgba(255,255,255,0.22), 0 8px 22px rgba(0,0,0,.42); }
+  }
+  .mp-btn.tap-again::after{
+    content:'한 번 더 ↻';
+    display:block;
+    font-size:0.55em;
+    font-weight:600;
+    opacity:0;
+    margin-top:-3px;
+    line-height:1.1;
+    animation: tapHintFadeIn .45s ease-out forwards;
+    letter-spacing:-0.3px;
+  }
+  @keyframes tapHintFadeIn{
+    from{ opacity:0; transform:translateY(-2px); }
+    to  { opacity:0.85; transform:translateY(0); }
+  }
+
   /* ---- 사용방법(?) 헤더 버튼 ---- */
   .step-indicator{ position:relative; }
   .help-btn{
@@ -763,6 +798,7 @@
   <input type="checkbox" id="adConsent">
   <input type="checkbox" id="ansim">
   <input type="checkbox" id="mouFranchise">
+  <select id="mouTier"><option value="tier10" selected>tier10</option><option value="tier30">tier30</option></select>
   <input type="checkbox" id="bundleDiscount">
   <select id="deviceColor"><option value="화이트" selected>화이트</option><option value="블랙">블랙</option></select>
   <select id="menuMount"><option value="스탠드" selected>스탠드</option><option value="아일랜드">아일랜드</option></select>
@@ -839,7 +875,7 @@ const PRICE = {
   reader: { basic: 2000, nice: 3000 },
   adMonthly: 556,
   ansim: { monthly: 1650, minDevices: 5 },
-  mouPerDevice: 2000,
+  mouPerDevice: { tier10: 1000, tier30: 2000 },
   bundleFlat: 5500,
   vat: 0.10,
 };
@@ -871,6 +907,7 @@ function getConfig(){
     adConsent: $('adConsent').checked,
     ansim: $('ansim').checked,
     mou: $('mouFranchise').checked,
+    mouTier: $('mouTier').value, // tier10 (10점포~) | tier30 (30점포~)
     bundle: $('bundleDiscount').checked,
     color: $('deviceColor').value,
     menuMount: $('menuMount').value,
@@ -923,7 +960,8 @@ function computeCore(cfg, forceContract){
   const readerMonthly = cfg.saleType === 'prepaid' ? cfg.readerCount * PRICE.reader[cfg.readerType] : 0;
   const adDiscountMonthly = cfg.adConsent ? totalDevices * PRICE.adMonthly : 0;
   const ansimMonthlyIncl = cfg.ansim ? totalDevices * PRICE.ansim.monthly : 0;
-  const mouDiscountMonthly = (cfg.mou && isContract) ? totalDevices * PRICE.mouPerDevice : 0;
+  const mouUnit = PRICE.mouPerDevice[cfg.mouTier] || PRICE.mouPerDevice.tier10;
+  const mouDiscountMonthly = (cfg.mou && isContract) ? totalDevices * mouUnit : 0;
   const bundleDiscountMonthly = cfg.bundle ? PRICE.bundleFlat : 0;
   const totalSubsidyIncl = cfg.subsidyPerDevice * totalDevices;
   return { countA, countB, totalDevices, deviceMonthlyExFull, deviceLumpExFull, deviceLumpInclFull,
@@ -973,9 +1011,12 @@ function renderQuote(cfg){
     quoteLineItems.push({l:'광고 수신동의 할인', ex:-c.adDiscountMonthly}); monthlyEx -= c.adDiscountMonthly;
   }
   if(c.mouDiscountMonthly > 0){
-    const label = `MOU 프랜차이즈 할인 (${c.totalDevices}대 × 2,000원)`;
+    const cfg = getConfig();
+    const mouUnit = PRICE.mouPerDevice[cfg.mouTier] || PRICE.mouPerDevice.tier10;
+    const tierLabel = cfg.mouTier==='tier30' ? '30점포 이상' : '10점포 이상';
+    const label = `MOU 프랜차이즈 할인 (${tierLabel} · ${c.totalDevices}대 × ${won(mouUnit)})`;
     html += `<div class="linerow minus"><span class="l">${label}</span><span class="r"><b>−${won(c.mouDiscountMonthly)}</b><small>VAT포함 −${won(c.mouDiscountMonthly*1.1)}</small></span></div>`;
-    quoteLineItems.push({l:'MOU 프랜차이즈 할인', ex:-c.mouDiscountMonthly}); monthlyEx -= c.mouDiscountMonthly;
+    quoteLineItems.push({l:`MOU 프랜차이즈 할인 (${tierLabel})`, ex:-c.mouDiscountMonthly}); monthlyEx -= c.mouDiscountMonthly;
   }
   if(c.bundleDiscountMonthly > 0){
     html += `<div class="linerow minus"><span class="l">으랏차차 결합할인 (고정)</span><span class="r"><b>−${won(c.bundleDiscountMonthly)}</b><small>VAT포함 −${won(c.bundleDiscountMonthly*1.1)}</small></span></div>`;
@@ -1070,7 +1111,11 @@ function renderSelectSummary(cfg, c){
   const items = [];
   if(cfg.adConsent) items.push({t:'테이블 광고 수신 동의', d:'단말 1대당 월 556원 할인 (36개월간, 총 2만원 상당)'});
   if(cfg.ansim) items.push({t:'하이오더 안심매입 가입', d:'대당 월 1,650원(VAT포함) · 36개월 · 폐업 시 단말 최대 15만원/대, 가구세트 최대 25만원/세트 매입 보장 · 최소 5대 이상 구매 사업소 한정'});
-  if(cfg.mou) items.push({t:'MOU체결 프랜차이즈 가맹점', d:'3년 약정 한정 · 단말 1대당 월 2,000원 정액 할인'});
+  if(cfg.mou){
+    const mouUnit = PRICE.mouPerDevice[cfg.mouTier] || PRICE.mouPerDevice.tier10;
+    const tierLabel = cfg.mouTier==='tier30' ? '30점포 이상' : '10점포 이상';
+    items.push({t:`MOU체결 프랜차이즈 가맹점 (${tierLabel})`, d:`3년 약정 한정 · 단말 1대당 월 ${won(mouUnit)} 정액 할인`});
+  }
   if(cfg.bundle) items.push({t:'으랏차차 결합 (2종 이상 상품 가입)', d:'하이오더 결합할인 월 5,500원 고정 (대수·조합 상품과 무관, 계약당 1회)'});
   if(cfg.contractType==='free') items.push({t:'무약정 선택', d:'단말은 일시불만 가능하고, 서비스이용료는 월 21,000원/대로 청구되며 선납 할인과 MOU 할인이 적용되지 않습니다.'});
   $('selectSummary').innerHTML = items.length
@@ -1387,10 +1432,21 @@ class MorphicComponent {
       else if(idx<this.currentStep) layer.classList.add('prev');
       else layer.classList.add('next');
     });
-    this.container.querySelectorAll('.mp-btn').forEach(b=> b.classList.remove('active','light','dark'));
+    this.container.querySelectorAll('.mp-btn').forEach(b=> b.classList.remove('active','light','dark','tap-again'));
     if(activeBtn){
       activeBtn.classList.add('active');
       activeBtn.classList.add(customTxtMode || 'light');
+    }
+    // "한 번 더 탭" 힌트 - 사용자가 1초간 머뭇거리면 펄스 + 안내 텍스트 표시
+    // layer 0(메뉴판 큰 버튼 자체)에선 표시 안 함 - 한 번 탭으로 즉시 다음 단계로 가니까
+    if(this._tapAgainTimer){ clearTimeout(this._tapAgainTimer); this._tapAgainTimer = null; }
+    if(activeBtn && this.currentStep > 0){
+      this._tapAgainTimer = setTimeout(()=>{
+        // 타이머 발동 시점에 여전히 같은 active이면 힌트 부여
+        if(activeBtn.classList.contains('active')){
+          activeBtn.classList.add('tap-again');
+        }
+      }, 900);
     }
   }
   openDialMode(){
@@ -1511,10 +1567,20 @@ class SettleComponent {
     this.container.style.setProperty('--tx', `${tx}px`);
     this.container.style.setProperty('--w', `${w}px`);
     if(customBg) this.container.style.setProperty('--bg', customBg);
-    this.container.querySelectorAll('.mp-btn').forEach(b=> b.classList.remove('active','light','dark'));
+    this.container.querySelectorAll('.mp-btn').forEach(b=> b.classList.remove('active','light','dark','tap-again'));
     if(activeBtn){
       activeBtn.classList.add('active');
       activeBtn.classList.add(customTxtMode || 'light');
+    }
+    // 약정형태 단계 진행 중에도 동일하게 "한 번 더 탭" 힌트 (단, 마지막 단계는 첫 클릭으로 바로 확정되므로 제외)
+    if(this._tapAgainTimer){ clearTimeout(this._tapAgainTimer); this._tapAgainTimer = null; }
+    const isLastStep = this.currentStep === this.steps.length - 1;
+    if(activeBtn && this.currentStep > 0 && !isLastStep){
+      this._tapAgainTimer = setTimeout(()=>{
+        if(activeBtn.classList.contains('active')){
+          activeBtn.classList.add('tap-again');
+        }
+      }, 900);
     }
   }
   reset(){
@@ -1749,25 +1815,61 @@ function renderRewardChecks(){
   const defs = [
     { id:'adConsent', t:'테이블 광고 수신 동의', hint:'단말 1대당 월 556원 할인', rewardFn:c=> c.adDiscountMonthly },
     { id:'ansim', t:'하이오더 안심매입 가입', hint:'대당 월 1,650원(VAT포함) · 최소 5대 이상', rewardFn:c=> c.ansimMonthlyIncl, isCost:true },
-    { id:'mouFranchise', t:'MOU체결 프랜차이즈', hint:'3년 약정 한정 · 대당 월 2,000원 할인', rewardFn:c=> c.mouDiscountMonthly },
+    { id:'mouFranchise', t:'MOU체결 프랜차이즈', hint:'3년 약정 한정 · 가맹점 등급 선택', rewardFn:c=> c.mouDiscountMonthly, hasTier:true },
     { id:'bundleDiscount', t:'으랏차차 결합 (2종 이상)', hint:'고정 월 5,500원 할인', rewardFn:c=> c.bundleDiscountMonthly },
   ];
-  const html = defs.map(d=>`
+  const html = defs.map(d=>{
+    const tierUI = d.hasTier ? `
+      <div class="mou-tier-wrap" id="mouTierWrap">
+        <div class="tg-group mou-tier-toggle" id="mouTierToggle"></div>
+      </div>` : '';
+    return `
     <label class="reward-check">
       <input type="checkbox" id="rc_${d.id}">
       <span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M4 12l5 5L20 6"/></svg></span>
-      <div class="ctext">${d.t}<span class="reward-pill" id="rcPill_${d.id}"></span><span class="hint">${d.hint}</span></div>
-    </label>`).join('');
+      <div class="ctext">${d.t}<span class="reward-pill" id="rcPill_${d.id}"></span><span class="hint" id="rcHint_${d.id}">${d.hint}</span>${tierUI}</div>
+    </label>`;
+  }).join('');
   $('rewardChecks').innerHTML = html;
+
   defs.forEach(d=>{
     const cb = $('rc_'+d.id);
     cb.checked = $(d.id).checked;
     cb.addEventListener('change', ()=>{
       setHiddenChecked(d.id, cb.checked);
+      if(d.id==='mouFranchise') updateMouTierVisibility();
       updateRewardPills();
+      updateMouHint();
     });
   });
+
+  // MOU 등급 슬라이드 토글 렌더
+  renderToggleGroup('mouTierToggle',
+    [{value:'tier10', label:'10점포~ · 월 1,000원'},
+     {value:'tier30', label:'30점포~ · 월 2,000원'}],
+    $('mouTier').value,
+    v=>{ setHidden('mouTier', v); updateRewardPills(); updateMouHint(); }
+  );
+  updateMouTierVisibility();
+  updateMouHint();
   updateRewardPills();
+
+  function updateMouTierVisibility(){
+    const wrap = $('mouTierWrap');
+    if(!wrap) return;
+    wrap.classList.toggle('inactive', !$('mouFranchise').checked);
+  }
+  function updateMouHint(){
+    const hint = $('rcHint_mouFranchise');
+    if(!hint) return;
+    if($('mouFranchise').checked){
+      const unit = PRICE.mouPerDevice[$('mouTier').value] || PRICE.mouPerDevice.tier10;
+      const tierLbl = $('mouTier').value==='tier30' ? '30점포 이상' : '10점포 이상';
+      hint.textContent = `3년 약정 한정 · ${tierLbl} · 대당 월 ${won(unit)} 할인`;
+    } else {
+      hint.textContent = '3년 약정 한정 · 가맹점 등급 선택';
+    }
+  }
   function updateRewardPills(){
     const cfg = getConfig(); const c = computeCore(cfg, false);
     defs.forEach(d=>{
@@ -1778,6 +1880,7 @@ function renderRewardChecks(){
     });
   }
   $('rewardChecks')._refresh = updateRewardPills;
+  $('rewardChecks')._refreshMou = ()=>{ updateMouTierVisibility(); updateMouHint(); };
 }
 
 /* =========================================================
@@ -1946,6 +2049,7 @@ document.addEventListener('click', (e)=>{
 function fullRender(){
   renderAll();
   if($('rewardChecks')._refresh) $('rewardChecks')._refresh();
+  if($('rewardChecks')._refreshMou) $('rewardChecks')._refreshMou();
   const sn = ($('storeName').value || '').trim();
   $('storeNameDisplay').textContent = sn || '매장명 미입력';
 }
@@ -1965,7 +2069,7 @@ document.querySelectorAll('#regularWrap input, #regularWrap select, #subsidyPerD
   el.addEventListener('change', fullRender);
 });
 // hidden inputs also trigger recompute
-['menuCount','notice10Count','notice15Count','contractType','saleType','readerType','readerCount','devicePay','servicePay','adConsent','ansim','mouFranchise','bundleDiscount','deviceColor','menuMount','notice10Mount','notice15Mount'].forEach(id=>{
+['menuCount','notice10Count','notice15Count','contractType','saleType','readerType','readerCount','devicePay','servicePay','adConsent','ansim','mouFranchise','mouTier','bundleDiscount','deviceColor','menuMount','notice10Mount','notice15Mount'].forEach(id=>{
   $(id).addEventListener('input', fullRender);
   $(id).addEventListener('change', fullRender);
 });
