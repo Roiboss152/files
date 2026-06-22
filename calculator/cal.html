@@ -297,6 +297,8 @@
   }
   .mp-toggle.dial-mode{ overflow:visible !important; height:128px; border-radius:32px; }
   .mp-toggle:not(.dial-mode){ overflow:hidden; }
+  /* tap-again 힌트가 활성된 토글은 풍선이 외부로 나올 수 있게 overflow 해제 */
+  .mp-toggle:has(.mp-btn.tap-again){ overflow:visible !important; }
   /* 다이얼 모드일 때 같은 줄의 다른 토글은 페이드아웃 + 축소 */
   .mp-wrap:has(.mp-toggle.dial-mode) .mp-toggle:not(.dial-mode){
     opacity:0; transform:scale(.85); pointer-events:none; height:0; margin:-7px auto; border-width:0;
@@ -398,25 +400,52 @@
   .mp-btn.tap-again{
     animation: tapAgainPulse 1.6s ease-in-out infinite;
     position:relative;
+    overflow:visible;
   }
   @keyframes tapAgainPulse{
-    0%, 100%{ transform:scale(1); box-shadow:0 4px 10px rgba(0,0,0,.28), 0 1px 2px rgba(0,0,0,.15); }
-    50%    { transform:scale(1.04); box-shadow:0 0 0 5px rgba(255,255,255,0.22), 0 8px 22px rgba(0,0,0,.42); }
+    0%, 100%{ transform:scale(1); }
+    50%    { transform:scale(1.05); }
   }
+  /* 버튼 아래쪽에 떠 있는 floating tooltip - 알약 모양으로 active 버튼과 시각적 일관성 */
   .mp-btn.tap-again::after{
     content:'한 번 더 ↻';
-    display:block;
-    font-size:0.55em;
-    font-weight:600;
+    position:absolute;
+    top:calc(100% + 8px); left:50%;
+    transform:translateX(-50%);
+    background:#1a1a1a; color:#fff;
+    font-size:10px; font-weight:700;
+    padding:4px 11px;
+    border-radius:999px;
+    white-space:nowrap;
+    letter-spacing:-0.2px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.28);
+    pointer-events:none;
+    z-index:30;
     opacity:0;
-    margin-top:-3px;
-    line-height:1.1;
-    animation: tapHintFadeIn .45s ease-out forwards;
-    letter-spacing:-0.3px;
+    animation: tapHintFloat .4s ease-out forwards, tapHintBob 1.6s ease-in-out infinite .4s;
   }
-  @keyframes tapHintFadeIn{
-    from{ opacity:0; transform:translateY(-2px); }
-    to  { opacity:0.85; transform:translateY(0); }
+  /* 말풍선 꼬리 (위쪽 작은 삼각형) */
+  .mp-btn.tap-again::before{
+    content:'';
+    position:absolute;
+    top:calc(100% + 1px); left:50%;
+    transform:translateX(-50%);
+    width:0; height:0;
+    border-left:5px solid transparent;
+    border-right:5px solid transparent;
+    border-bottom:6px solid #1a1a1a;
+    pointer-events:none;
+    z-index:30;
+    opacity:0;
+    animation: tapHintFloat .4s ease-out forwards;
+  }
+  @keyframes tapHintFloat{
+    from{ opacity:0; transform:translateX(-50%) translateY(4px); }
+    to  { opacity:1; transform:translateX(-50%) translateY(0); }
+  }
+  @keyframes tapHintBob{
+    0%, 100%{ transform:translateX(-50%) translateY(0); }
+    50%    { transform:translateX(-50%) translateY(-2px); }
   }
 
   /* ---- 사용방법(?) 헤더 버튼 ---- */
@@ -1013,7 +1042,7 @@ function renderQuote(cfg){
   if(c.mouDiscountMonthly > 0){
     const cfg = getConfig();
     const mouUnit = PRICE.mouPerDevice[cfg.mouTier] || PRICE.mouPerDevice.tier10;
-    const tierLabel = cfg.mouTier==='tier30' ? '30점포 이상' : '10점포 이상';
+    const tierLabel = cfg.mouTier==='tier30' ? '30가맹점 이상' : '10가맹점 이상';
     const label = `MOU 프랜차이즈 할인 (${tierLabel} · ${c.totalDevices}대 × ${won(mouUnit)})`;
     html += `<div class="linerow minus"><span class="l">${label}</span><span class="r"><b>−${won(c.mouDiscountMonthly)}</b><small>VAT포함 −${won(c.mouDiscountMonthly*1.1)}</small></span></div>`;
     quoteLineItems.push({l:`MOU 프랜차이즈 할인 (${tierLabel})`, ex:-c.mouDiscountMonthly}); monthlyEx -= c.mouDiscountMonthly;
@@ -1113,7 +1142,7 @@ function renderSelectSummary(cfg, c){
   if(cfg.ansim) items.push({t:'하이오더 안심매입 가입', d:'대당 월 1,650원(VAT포함) · 36개월 · 폐업 시 단말 최대 15만원/대, 가구세트 최대 25만원/세트 매입 보장 · 최소 5대 이상 구매 사업소 한정'});
   if(cfg.mou){
     const mouUnit = PRICE.mouPerDevice[cfg.mouTier] || PRICE.mouPerDevice.tier10;
-    const tierLabel = cfg.mouTier==='tier30' ? '30점포 이상' : '10점포 이상';
+    const tierLabel = cfg.mouTier==='tier30' ? '30가맹점 이상' : '10가맹점 이상';
     items.push({t:`MOU체결 프랜차이즈 가맹점 (${tierLabel})`, d:`3년 약정 한정 · 단말 1대당 월 ${won(mouUnit)} 정액 할인`});
   }
   if(cfg.bundle) items.push({t:'으랏차차 결합 (2종 이상 상품 가입)', d:'하이오더 결합할인 월 5,500원 고정 (대수·조합 상품과 무관, 계약당 1회)'});
@@ -1845,8 +1874,8 @@ function renderRewardChecks(){
 
   // MOU 등급 슬라이드 토글 렌더
   renderToggleGroup('mouTierToggle',
-    [{value:'tier10', label:'10점포~ · 월 1,000원'},
-     {value:'tier30', label:'30점포~ · 월 2,000원'}],
+    [{value:'tier10', label:'10가맹점 이상 · 월 1,000원'},
+     {value:'tier30', label:'30가맹점 이상 · 월 2,000원'}],
     $('mouTier').value,
     v=>{ setHidden('mouTier', v); updateRewardPills(); updateMouHint(); }
   );
@@ -1864,7 +1893,7 @@ function renderRewardChecks(){
     if(!hint) return;
     if($('mouFranchise').checked){
       const unit = PRICE.mouPerDevice[$('mouTier').value] || PRICE.mouPerDevice.tier10;
-      const tierLbl = $('mouTier').value==='tier30' ? '30점포 이상' : '10점포 이상';
+      const tierLbl = $('mouTier').value==='tier30' ? '30가맹점 이상' : '10가맹점 이상';
       hint.textContent = `3년 약정 한정 · ${tierLbl} · 대당 월 ${won(unit)} 할인`;
     } else {
       hint.textContent = '3년 약정 한정 · 가맹점 등급 선택';
