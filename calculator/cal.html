@@ -384,6 +384,97 @@
   .sum-row .sum-del{ background:transparent; border:none; color:rgba(255,255,255,0.85); font-size:15px; cursor:pointer; line-height:1; padding:2px 4px; }
   .sum-row .sum-del:hover{ color:#fff; }
   .sum-empty{ text-align:center; color:rgba(255,255,255,0.85); font-size:11.5px; padding:6px 0; text-shadow:0 1px 2px rgba(0,0,0,0.25); }
+  /* ---- 사용방법(?) 헤더 버튼 ---- */
+  .step-indicator{ position:relative; }
+  .help-btn{
+    position:absolute; right:0; top:50%; transform:translateY(-50%);
+    width:26px; height:26px; border-radius:50%;
+    background:rgba(0,0,0,0.06); border:none; color:var(--ink);
+    font-size:14px; font-weight:800; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    transition:all .2s;
+  }
+  .help-btn:hover{ background:rgba(0,0,0,0.12); transform:translateY(-50%) scale(1.1); }
+
+  /* ---- 튜토리얼 모달 (사용방법) ---- */
+  .tutorial-card{ max-width:440px; }
+  .tut-stage{
+    position:relative; height:170px;
+    background:#f7f7f8; border-radius:14px;
+    display:flex; align-items:center; justify-content:center;
+    margin-bottom:18px; overflow:hidden;
+  }
+  /* 미니어처 mp-toggle (실제 UI 미니 사본) */
+  .tut-mp-toggle{
+    position:relative; width:280px; height:54px;
+    background:#fff; border:1px solid var(--line); border-radius:50px;
+    display:flex; overflow:hidden;
+  }
+  .tut-mp-slider{
+    position:absolute; top:4px; left:4px;
+    width:138px; height:46px;
+    background:#1a1a1a; border-radius:50px;
+    transition: transform .45s cubic-bezier(.34, 1.4, .55, 1),
+                width .45s cubic-bezier(.34, 1.4, .55, 1),
+                background .3s ease;
+    z-index:1;
+  }
+  .tut-mp-layer{
+    position:relative; z-index:2; display:flex; width:100%; height:100%;
+  }
+  .tut-mp-btn{
+    flex:1; display:flex; align-items:center; justify-content:center;
+    font-size:14px; font-weight:700; color:#9a9a9a;
+    transition: color .3s ease, transform .3s ease;
+  }
+  .tut-mp-btn.active{ color:#fff; }
+  .tut-mp-btn.confirm-circle{
+    flex:0 0 46px; background:#1a1a1a; color:#fff; border-radius:50%;
+    width:46px; height:46px; margin:auto 4px; font-size:18px;
+    z-index:3;
+  }
+  /* 다이얼 모드 (수량 선택 단계) */
+  .tut-mp-toggle.dial{
+    height:96px; border-radius:24px;
+  }
+  .tut-mp-toggle.dial .tut-mp-slider{
+    width:60px; height:80px; border-radius:14px;
+    background:#f0f0f2; border:1px solid var(--line);
+  }
+  .tut-mp-toggle.dial .tut-mp-dial-num{
+    flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    color:var(--ink);
+  }
+  .tut-mp-toggle.dial .tut-mp-dial-num .big{ font-size:24px; font-weight:800; }
+  .tut-mp-toggle.dial .tut-mp-dial-num .sm{ font-size:11px; color:#bbb; }
+
+  /* 손가락 아이콘 - 자동 이동 */
+  .tut-finger{
+    position:absolute; font-size:36px;
+    pointer-events:none; z-index:10;
+    transition: top .55s cubic-bezier(.4,1.2,.5,1),
+                left .55s cubic-bezier(.4,1.2,.5,1);
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.25));
+    animation: fingerTap 1.4s ease-in-out infinite;
+  }
+  @keyframes fingerTap{
+    0%, 100%{ transform: translate(-50%, 0) scale(1); }
+    50%    { transform: translate(-50%, 6px) scale(0.88); }
+  }
+
+  .tut-caption{
+    text-align:center; font-size:14.5px; font-weight:600;
+    color:var(--ink); margin-bottom:14px; min-height:42px;
+    line-height:1.5;
+  }
+  .tut-caption b{ color:#1a1a1a; background:#fff3a3; padding:1px 6px; border-radius:4px; }
+  .tut-progress{ display:flex; justify-content:center; gap:7px; }
+  .tut-dot{
+    width:7px; height:7px; border-radius:50%;
+    background:#d0d0d4; transition: all .3s;
+  }
+  .tut-dot.active{ width:22px; border-radius:4px; background:#1a1a1a; }
+
   /* ---- 카드리더기 설정 모달 ---- */
   .modal-overlay{
     position:fixed; inset:0; background:rgba(0,0,0,0.55);
@@ -441,6 +532,7 @@
     <button class="step-dot" data-step="3"></button>
     <button class="step-dot" data-step="4"></button>
     <button class="step-dot" data-step="5"></button>
+    <button class="help-btn" id="helpBtn" type="button" aria-label="사용방법" title="사용방법 보기">?</button>
   </nav>
 
   <!-- DEVICE FRAME: steps 0,1,2 -->
@@ -676,6 +768,40 @@
   <select id="menuMount"><option value="스탠드" selected>스탠드</option><option value="아일랜드">아일랜드</option></select>
   <select id="notice10Mount"><option value="스탠드" selected>스탠드</option><option value="벽걸이">벽걸이</option></select>
   <select id="notice15Mount"><option value="스탠드" selected>스탠드</option><option value="벽걸이">벽걸이</option></select>
+</div>
+
+<!-- 사용방법 튜토리얼 모달 (첫 진입 시 자동 / 헤더의 ? 버튼으로 재오픈) -->
+<div class="modal-overlay hidden" id="tutorialModal" aria-hidden="true">
+  <div class="modal-card tutorial-card" role="dialog" aria-labelledby="tutorialTitle">
+    <div class="modal-header">
+      <h3 id="tutorialTitle">사용방법</h3>
+      <button type="button" class="modal-close" id="tutorialClose" aria-label="닫기">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="tut-stage" id="tutStage">
+        <!-- 실제 mp-toggle 미니어처가 자동 시연됨 -->
+        <div class="tut-mp-toggle" id="tutToggle">
+          <div class="tut-mp-slider" id="tutSlider"></div>
+          <div class="tut-mp-layer" id="tutLayer"></div>
+        </div>
+        <!-- 손가락 아이콘 -->
+        <div class="tut-finger" id="tutFinger">👆</div>
+      </div>
+      <div class="tut-caption" id="tutCaption">버튼을 한 번 탭하세요</div>
+      <div class="tut-progress" id="tutProgress">
+        <span class="tut-dot active"></span>
+        <span class="tut-dot"></span>
+        <span class="tut-dot"></span>
+        <span class="tut-dot"></span>
+        <span class="tut-dot"></span>
+        <span class="tut-dot"></span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="modal-btn-secondary" id="tutorialPrev">◀ 이전</button>
+      <button type="button" class="modal-btn-primary" id="tutorialNext">다음 ▶</button>
+    </div>
+  </div>
 </div>
 
 <!-- 카드리더기 설정 모달 (선불형 카트 추가 시 자동 오픈) -->
@@ -1888,6 +2014,145 @@ showStep(0);
     attributeFilter:['class','style']
   });
 })();
+
+/* =========================================================
+   사용방법 튜토리얼 - 자동 시연 시퀀스
+   메뉴판 → 색상 → 블랙 → 아일랜드 → 후불형 → 수량 → ✓
+   ========================================================= */
+const TUT_STEPS = [
+  {
+    // 1. 메뉴판 단계 시작
+    caption: '<b>메뉴판</b> 버튼을 한 번 탭해서 설정을 시작합니다',
+    toggleHTML: `<div class="tut-mp-btn active">메뉴판</div><div class="tut-mp-btn">색상</div>`,
+    sliderStyle: 'width:138px; transform:translateX(0)',
+    fingerPos: { left:'30%', top:'52%' },
+    dialMode: false,
+  },
+  {
+    // 2. 색상 단계 - 블랙 선택
+    caption: '색상에서 <b>블랙</b>을 탭하세요 (한 번 더 탭하면 다음 단계)',
+    toggleHTML: `<div class="tut-mp-btn">화이트</div><div class="tut-mp-btn active">블랙</div>`,
+    sliderStyle: 'width:138px; transform:translateX(138px)',
+    fingerPos: { left:'70%', top:'52%' },
+    dialMode: false,
+  },
+  {
+    // 3. 거치대 - 아일랜드
+    caption: '거치대 종류에서 <b>아일랜드</b>를 선택합니다',
+    toggleHTML: `<div class="tut-mp-btn">스탠드</div><div class="tut-mp-btn active">아일랜드</div><div class="tut-mp-btn">마운트</div>`,
+    sliderStyle: 'width:92px; transform:translateX(92px)',
+    fingerPos: { left:'52%', top:'52%' },
+    dialMode: false,
+  },
+  {
+    // 4. 결제형태 - 후불형
+    caption: '결제 형태는 <b>후불형</b>을 선택합니다',
+    toggleHTML: `<div class="tut-mp-btn">선불형</div><div class="tut-mp-btn active">후불형</div>`,
+    sliderStyle: 'width:138px; transform:translateX(138px)',
+    fingerPos: { left:'70%', top:'52%' },
+    dialMode: false,
+  },
+  {
+    // 5. 수량 다이얼 - 위로 올려서 +
+    caption: '<b>휠을 위로 올려</b> 수량을 늘립니다 (아래로 내리면 줄어듭니다)',
+    toggleHTML: `<div class="tut-mp-dial-num"><span class="sm">1</span><span class="big">3</span><span class="sm">대</span></div><div class="tut-mp-btn confirm-circle">✓</div>`,
+    sliderStyle: 'left:50%; transform:translateX(-72px)',
+    fingerPos: { left:'45%', top:'34%' },
+    dialMode: true,
+  },
+  {
+    // 6. 확정
+    caption: '<b>✓ 확정</b> 버튼을 누르면 카트에 추가됩니다',
+    toggleHTML: `<div class="tut-mp-dial-num"><span class="sm">2</span><span class="big">3</span><span class="sm">대</span></div><div class="tut-mp-btn confirm-circle">✓</div>`,
+    sliderStyle: 'left:50%; transform:translateX(-72px)',
+    fingerPos: { left:'88%', top:'52%' },
+    dialMode: true,
+  },
+];
+
+let tutIdx = 0;
+let tutAutoTimer = null;
+
+function renderTutorialStep(idx){
+  const step = TUT_STEPS[idx];
+  const toggle = $('tutToggle');
+  toggle.classList.toggle('dial', !!step.dialMode);
+  $('tutLayer').innerHTML = step.toggleHTML;
+  const slider = $('tutSlider');
+  slider.style.cssText = step.sliderStyle;
+  const finger = $('tutFinger');
+  finger.style.left = step.fingerPos.left;
+  finger.style.top = step.fingerPos.top;
+  $('tutCaption').innerHTML = step.caption;
+  document.querySelectorAll('#tutProgress .tut-dot').forEach((d,i)=>{
+    d.classList.toggle('active', i===idx);
+  });
+  $('tutorialPrev').disabled = idx===0;
+  $('tutorialNext').textContent = idx===TUT_STEPS.length-1 ? '닫기 ✓' : '다음 ▶';
+}
+
+function tutorialNext(){
+  if(tutIdx >= TUT_STEPS.length-1){
+    closeTutorial();
+    return;
+  }
+  tutIdx++;
+  renderTutorialStep(tutIdx);
+  resetTutAutoTimer();
+}
+function tutorialPrev(){
+  if(tutIdx <= 0) return;
+  tutIdx--;
+  renderTutorialStep(tutIdx);
+  resetTutAutoTimer();
+}
+function resetTutAutoTimer(){
+  if(tutAutoTimer) clearTimeout(tutAutoTimer);
+  // 마지막 단계는 자동 진행 안 함 (사용자가 닫기 누르길 기다림)
+  if(tutIdx < TUT_STEPS.length-1){
+    tutAutoTimer = setTimeout(()=> tutorialNext(), 3200);
+  }
+}
+
+function openTutorial(){
+  tutIdx = 0;
+  renderTutorialStep(0);
+  $('tutorialModal').classList.remove('hidden');
+  $('tutorialModal').setAttribute('aria-hidden','false');
+  resetTutAutoTimer();
+}
+function closeTutorial(){
+  if(tutAutoTimer){ clearTimeout(tutAutoTimer); tutAutoTimer = null; }
+  $('tutorialModal').classList.add('hidden');
+  $('tutorialModal').setAttribute('aria-hidden','true');
+  try { sessionStorage.setItem('hiorderTutorialSeen', '1'); } catch(e){}
+}
+
+// 이벤트 바인딩
+document.addEventListener('DOMContentLoaded', ()=>{
+  const helpBtn = $('helpBtn');
+  if(helpBtn) helpBtn.addEventListener('click', openTutorial);
+  const closeBtn = $('tutorialClose');
+  if(closeBtn) closeBtn.addEventListener('click', closeTutorial);
+  const nextBtn = $('tutorialNext');
+  if(nextBtn) nextBtn.addEventListener('click', tutorialNext);
+  const prevBtn = $('tutorialPrev');
+  if(prevBtn) prevBtn.addEventListener('click', tutorialPrev);
+  const overlay = $('tutorialModal');
+  if(overlay) overlay.addEventListener('click', (e)=>{
+    if(e.target === overlay) closeTutorial();
+  });
+  document.addEventListener('keydown', (e)=>{
+    if(e.key === 'Escape' && overlay && !overlay.classList.contains('hidden')) closeTutorial();
+  });
+
+  // 첫 진입 시 자동 오픈 (sessionStorage로 본 적 있으면 안 띄움)
+  let seen = false;
+  try { seen = sessionStorage.getItem('hiorderTutorialSeen') === '1'; } catch(e){}
+  if(!seen){
+    setTimeout(()=> openTutorial(), 600);
+  }
+});
 </script>
 </body>
 </html>
