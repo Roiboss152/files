@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>KT Synergy Briefing Slider</title>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400&display=swap');
+
+    body, html {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #050505; /* 고급스러운 다크 배경 */
+        overflow: hidden;
+        font-family: 'Montserrat', sans-serif;
+    }
+
+    .slider-container {
+        position: relative;
+        width: 100%;
+        height: 100%;
+    }
+
+    /* 슬라이드 기본 설정 */
+    .slide {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        /* 이미지가 화면을 꽉 채우게 (만약 글씨가 잘리면 cover를 contain으로 변경하세요) */
+        background-size: cover; 
+        background-position: center;
+        background-repeat: no-repeat;
+        
+        /* 트랜지션 핵심: 투명도와 크기가 서서히 변함 */
+        opacity: 0;
+        transform: scale(1.1); /* 처음에 약간 커진 상태 */
+        transition: opacity 1.5s ease-in-out, transform 6.5s ease-out;
+        will-change: transform, opacity;
+    }
+
+    /* 활성화된 슬라이드 */
+    .slide.active {
+        opacity: 1;
+        transform: scale(1); /* 원래 크기로 서서히 줌아웃 */
+    }
+    
+    /* 힙한 요소 1: 모던 프로그레스 바 */
+    .progress-container {
+        position: absolute;
+        bottom: 40px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 250px;
+        height: 2px;
+        background: rgba(255, 255, 255, 0.15);
+        overflow: hidden;
+        z-index: 10;
+    }
+    .progress-bar {
+        height: 100%;
+        width: 0%;
+        background: #fff;
+    }
+
+    /* 힙한 요소 2: 미니멀한 슬라이드 카운터 */
+    .counter {
+        position: absolute;
+        bottom: 55px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: #fff;
+        font-size: 13px;
+        font-weight: 300;
+        letter-spacing: 3px;
+        z-index: 10;
+        opacity: 0.8;
+    }
+</style>
+</head>
+<body>
+    <div class="slider-container" id="slider">
+        <div class="slide active" style="background-image: url('https://kt-synergy.com/assets/image/briefing/sl01.png');"></div>
+        <div class="slide" style="background-image: url('https://kt-synergy.com/assets/image/briefing/sl02.png');"></div>
+        <div class="slide" style="background-image: url('https://kt-synergy.com/assets/image/briefing/sl03.png');"></div>
+        <div class="slide" style="background-image: url('https://kt-synergy.com/assets/image/briefing/sl04.png');"></div>
+        <div class="slide" style="background-image: url('https://kt-synergy.com/assets/image/briefing/sl05.png');"></div>
+        <div class="slide" style="background-image: url('https://kt-synergy.com/assets/image/briefing/sl06.png');"></div>
+        
+        <div class="counter"><span id="current">01</span> / 06</div>
+        <div class="progress-container">
+            <div class="progress-bar" id="progress"></div>
+        </div>
+    </div>
+
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        const progress = document.getElementById('progress');
+        const currentText = document.getElementById('current');
+        let currentIndex = 0;
+        const intervalTime = 5000; // 5초 (5000ms)
+
+        function animateProgress() {
+            // 프로그레스 바 초기화
+            progress.style.transition = 'none';
+            progress.style.width = '0%';
+            
+            // 약간의 딜레이 후 5초 동안 차오르게 애니메이션 시작
+            setTimeout(() => {
+                progress.style.transition = `width ${intervalTime}ms linear`;
+                progress.style.width = '100%';
+            }, 50);
+        }
+
+        function nextSlide() {
+            // 현재 슬라이드 아웃
+            slides[currentIndex].classList.remove('active');
+            
+            // 다음 슬라이드 인덱스 계산
+            currentIndex = (currentIndex + 1) % slides.length;
+            
+            // 다음 슬라이드 인
+            slides[currentIndex].classList.add('active');
+            
+            // 카운터 텍스트 업데이트
+            currentText.innerText = '0' + (currentIndex + 1);
+            
+            // 프로그레스 바 다시 시작
+            animateProgress();
+        }
+
+        // 브라우저가 열리자마자 진행 바 애니메이션 시작
+        animateProgress();
+        
+        // 5초 간격으로 슬라이드 넘김 무한 반복
+        setInterval(nextSlide, intervalTime);
+    </script>
+</body>
+</html>
