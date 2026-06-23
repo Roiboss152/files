@@ -37,7 +37,7 @@
         /* 트랜지션 핵심: 투명도와 크기가 서서히 변함 */
         opacity: 0;
         transform: scale(1.1); /* 처음에 약간 커진 상태 */
-        transition: opacity 1.5s ease-in-out, transform 6.5s ease-out;
+        transition: opacity 1.5s ease-in-out, transform 9.5s ease-out;
         will-change: transform, opacity;
     }
 
@@ -100,7 +100,7 @@
         const progress = document.getElementById('progress');
         const currentText = document.getElementById('current');
         let currentIndex = 0;
-        const intervalTime = 5000; // 5초 (5000ms)
+        const intervalTime = 8000; // 8초 (8000ms)
 
         function animateProgress() {
             // 프로그레스 바 초기화
