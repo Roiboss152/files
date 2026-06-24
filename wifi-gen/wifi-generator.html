@@ -3,87 +3,228 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>와이파이 플레이스 연동 페이지 생성기 — KT Synergy</title>
+<title>와이파이 QR 생성기 — KT 인천지사 시너지영업3팀</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
+/* ── 리셋 ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* ── 토큰 ── */
 :root {
-  --bg:       #f8f8f6;
-  --surface:  #ffffff;
-  --border:   #e4e4e0;
-  --text:     #111;
-  --muted:    #888;
-  --accent:   #03C75A;
-  --accent-d: #029447;
-  --kt-red:   #e8002d;
-  --radius:   12px;
+  --bg:        #FAFAF9;
+  --surface:   #FFFFFF;
+  --border:    #E5E5E3;
+  --border-2:  #D1D1CF;
+  --text:      #0A0A0A;
+  --muted:     #6B7280;
+  --hint:      #9CA3AF;
+  --kt:        #E8002D;
+  --kt-dark:   #B8001F;
+  --naver:     #03C75A;
+  --naver-d:   #029447;
+  --radius:    10px;
+  --radius-lg: 16px;
+  --shadow:    0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,.08), 0 2px 4px rgba(0,0,0,.04);
 }
 
-html { font-size: 16px; }
-body {
+html {
   font-family: 'Apple SD Gothic Neo', 'Pretendard', -apple-system, 'Malgun Gothic', sans-serif;
+  font-size: 16px;
   background: var(--bg);
   color: var(--text);
-  min-height: 100vh;
   -webkit-font-smoothing: antialiased;
 }
 
-/* ── 헤더 ── */
-.top-bar {
-  background: var(--surface);
+/* ── 상단 바 ── */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(250,250,249,.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
-  padding: 14px 24px;
+  padding: 0 24px;
+  height: 52px;
   display: flex;
   align-items: center;
-  gap: 12px;
+  justify-content: space-between;
 }
-.top-bar .logo {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--kt-red);
-  letter-spacing: 0.04em;
-}
-.top-bar .sep { color: var(--border); }
-.top-bar .page-title { font-size: 13px; color: var(--muted); }
-
-/* ── 레이아웃 ── */
-.layout {
-  display: grid;
-  grid-template-columns: 440px 1fr;
-  gap: 0;
-  min-height: calc(100vh - 49px);
-}
-
-/* ── 좌측: 폼 패널 ── */
-.form-panel {
-  background: var(--surface);
-  border-right: 1px solid var(--border);
-  padding: 32px 28px 40px;
-  overflow-y: auto;
-}
-
-.section-label {
+.topbar-left { display: flex; align-items: center; gap: 10px; }
+.kt-badge {
+  background: var(--kt);
+  color: #fff;
   font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  padding: 3px 7px;
+  border-radius: 4px;
+}
+.topbar-title { font-size: 13px; font-weight: 600; color: var(--text); }
+.topbar-contact { font-size: 11px; color: var(--muted); }
+
+/* ── 히어로 ── */
+.hero {
+  padding: 56px 24px 48px;
+  max-width: 560px;
+  margin: 0 auto;
+  text-align: center;
+}
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.14em;
-  color: var(--muted);
+  letter-spacing: .1em;
+  color: var(--kt);
   text-transform: uppercase;
   margin-bottom: 16px;
 }
+.hero-eyebrow .dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--kt);
+  animation: blink 2s ease-in-out infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
 
-.field-group { margin-bottom: 20px; }
-
-.field-group label {
-  display: block;
-  font-size: 12px;
-  font-weight: 600;
-  color: #444;
-  margin-bottom: 6px;
-  letter-spacing: 0.02em;
+.hero h1 {
+  font-size: clamp(26px, 5vw, 34px);
+  font-weight: 800;
+  letter-spacing: -.03em;
+  line-height: 1.2;
+  margin-bottom: 14px;
+}
+.hero h1 em {
+  font-style: normal;
+  color: var(--kt);
+}
+.hero-sub {
+  font-size: 15px;
+  color: var(--muted);
+  line-height: 1.7;
 }
 
-.field-group input {
+/* ── 작동 흐름 ── */
+.flow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin: 32px auto 0;
+  max-width: 480px;
+  flex-wrap: wrap;
+  row-gap: 8px;
+}
+.flow-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 72px;
+}
+.flow-icon {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  box-shadow: var(--shadow);
+}
+.flow-label { font-size: 10px; color: var(--muted); text-align: center; line-height: 1.4; }
+.flow-arrow { color: var(--border-2); font-size: 16px; flex-shrink: 0; margin: 0 2px; padding-bottom: 18px; }
+
+/* ── 메인 카드 ── */
+.main {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 0 16px 80px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+/* ── 모드 선택 ── */
+.mode-section { padding: 24px 24px 20px; }
+.section-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  color: var(--hint);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.mode-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.mode-btn {
+  position: relative;
+  padding: 14px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  background: var(--surface);
+  text-align: left;
+  transition: border-color .2s, box-shadow .2s, background .2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.mode-btn:hover { border-color: var(--border-2); }
+.mode-btn.active {
+  border-color: var(--kt);
+  background: #fff8f8;
+  box-shadow: 0 0 0 3px rgba(232,0,45,.08);
+}
+.mode-btn .mode-icon { font-size: 20px; margin-bottom: 6px; display: block; }
+.mode-btn .mode-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 3px;
+}
+.mode-btn .mode-desc {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.mode-btn .mode-badge {
+  position: absolute;
+  top: 10px; right: 10px;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: .05em;
+}
+.mode-btn.active .mode-badge { background: var(--kt); color: #fff; }
+.mode-btn:not(.active) .mode-badge { background: #F3F4F6; color: var(--muted); }
+
+/* ── 입력 섹션 ── */
+.input-section { padding: 0 24px 24px; border-top: 1px solid var(--border); }
+.input-group { margin-top: 20px; }
+.input-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 7px;
+}
+.input-label .req { color: var(--kt); }
+.input-wrap { position: relative; }
+.input-field {
   width: 100%;
   padding: 11px 14px;
   border: 1.5px solid var(--border);
@@ -93,139 +234,183 @@ body {
   color: var(--text);
   background: var(--surface);
   outline: none;
-  transition: border-color 0.2s;
+  transition: border-color .2s, box-shadow .2s;
+  -webkit-appearance: none;
 }
-.field-group input:focus { border-color: var(--accent); }
-.field-group input::placeholder { color: #bbb; }
-
-.field-hint {
+.input-field:focus {
+  border-color: var(--kt);
+  box-shadow: 0 0 0 3px rgba(232,0,45,.08);
+}
+.input-field::placeholder { color: #C4C4C2; }
+.input-hint {
   margin-top: 5px;
   font-size: 11px;
-  color: var(--muted);
+  color: var(--hint);
   line-height: 1.5;
 }
+.input-hint.success { color: var(--naver); }
 
-.divider {
-  height: 1px;
-  background: var(--border);
-  margin: 24px 0;
+/* URL 도움말 버튼 */
+.help-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--kt);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
-/* 생성 버튼 */
+/* 혜택형 추가 필드 — 슬라이드 */
+.extra-fields {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height .4s cubic-bezier(.4,0,.2,1), opacity .3s ease;
+}
+.extra-fields.open { max-height: 600px; opacity: 1; }
+
+/* 커스텀 문구 textarea */
+.textarea-field {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--text);
+  background: var(--surface);
+  outline: none;
+  resize: vertical;
+  min-height: 72px;
+  transition: border-color .2s, box-shadow .2s;
+  line-height: 1.6;
+}
+.textarea-field:focus {
+  border-color: var(--kt);
+  box-shadow: 0 0 0 3px rgba(232,0,45,.08);
+}
+.textarea-field::placeholder { color: #C4C4C2; }
+
+/* 체크박스 토글 */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-top: 1px solid var(--border);
+  margin-top: 20px;
+}
+.toggle-info .toggle-title { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+.toggle-info .toggle-sub { font-size: 11px; color: var(--muted); }
+.toggle-switch {
+  position: relative;
+  width: 40px; height: 22px;
+  flex-shrink: 0;
+}
+.toggle-switch input { opacity: 0; width: 0; height: 0; position: absolute; }
+.toggle-slider {
+  position: absolute;
+  inset: 0;
+  background: #E5E7EB;
+  border-radius: 11px;
+  cursor: pointer;
+  transition: background .2s;
+}
+.toggle-slider::after {
+  content: '';
+  position: absolute;
+  left: 3px; top: 3px;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform .2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,.15);
+}
+.toggle-switch input:checked + .toggle-slider { background: var(--naver); }
+.toggle-switch input:checked + .toggle-slider::after { transform: translateX(18px); }
+
+/* ── 생성 버튼 ── */
+.generate-wrap { padding: 0 24px 24px; }
 .generate-btn {
   width: 100%;
-  padding: 14px;
-  background: var(--accent);
+  padding: 15px;
+  background: var(--kt);
   border: none;
   border-radius: 10px;
   font-size: 15px;
-  font-weight: 700;
+  font-weight: 800;
   color: #fff;
   cursor: pointer;
   font-family: inherit;
-  transition: background 0.2s, transform 0.1s;
+  letter-spacing: -.01em;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  letter-spacing: -0.01em;
+  transition: background .2s, transform .1s, box-shadow .2s;
+  box-shadow: 0 2px 8px rgba(232,0,45,.3);
+  -webkit-tap-highlight-color: transparent;
 }
-.generate-btn:hover { background: var(--accent-d); }
-.generate-btn:active { transform: scale(0.98); }
-
-/* ── 우측: 결과 패널 ── */
-.result-panel {
-  padding: 32px 32px 40px;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
+.generate-btn:hover {
+  background: var(--kt-dark);
+  box-shadow: 0 4px 16px rgba(232,0,45,.35);
 }
+.generate-btn:active { transform: scale(.98); }
+.generate-btn:disabled { background: #E5E7EB; color: #9CA3AF; box-shadow: none; cursor: not-allowed; }
+.btn-spinner {
+  width: 16px; height: 16px;
+  border: 2px solid rgba(255,255,255,.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin .6s linear infinite;
+  display: none;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 
-.result-section {
+/* ── 결과 카드 ── */
+.result-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
   overflow: hidden;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity .4s ease, transform .4s ease;
+  pointer-events: none;
 }
-
-.result-section-header {
-  padding: 14px 20px;
+.result-card.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+.result-header {
+  padding: 18px 24px;
   border-bottom: 1px solid var(--border);
-  font-size: 12px;
-  font-weight: 700;
-  color: #444;
-  letter-spacing: 0.04em;
   display: flex;
   align-items: center;
-  gap: 8px;
-  background: #fafaf8;
+  justify-content: space-between;
 }
-
-.badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 2px 8px;
-  border-radius: 4px;
+.result-title { font-size: 13px; font-weight: 700; }
+.result-badge {
   font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.06em;
-}
-.badge-green { background: #e6f9ee; color: #027a3a; }
-.badge-blue  { background: #e6f0ff; color: #1a56c4; }
-
-/* 플레이스홀더 */
-.placeholder {
-  padding: 48px 24px;
-  text-align: center;
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.7;
-}
-.placeholder .icon {
-  font-size: 32px;
-  margin-bottom: 12px;
-  opacity: 0.4;
-  display: block;
+  padding: 3px 8px;
+  border-radius: 5px;
+  background: #ECFDF5;
+  color: #065F46;
+  letter-spacing: .05em;
 }
 
-/* URL 결과 */
-.url-box {
-  padding: 16px 20px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.url-text {
-  flex: 1;
-  font-size: 12px;
-  color: #444;
-  word-break: break-all;
-  line-height: 1.5;
-  font-family: 'SF Mono', 'Consolas', monospace;
-  background: #f5f5f3;
-  padding: 8px 10px;
-  border-radius: 6px;
-  border: 1px solid var(--border);
-}
-.copy-url-btn {
-  flex-shrink: 0;
-  padding: 8px 14px;
-  background: #f0f0ee;
-  border: 1px solid var(--border);
-  border-radius: 7px;
-  font-size: 12px;
-  font-weight: 600;
-  color: #444;
-  cursor: pointer;
-  font-family: inherit;
-  transition: all 0.15s;
-  white-space: nowrap;
-}
-.copy-url-btn:hover { background: #e8e8e5; }
-.copy-url-btn.copied { border-color: var(--accent); color: var(--accent); background: #e6f9ee; }
-
-/* QR 결과 */
-.qr-area {
+/* QR + 액션 */
+.result-body {
   padding: 24px;
   display: flex;
   align-items: flex-start;
@@ -233,301 +418,555 @@ body {
 }
 #qrcode {
   flex-shrink: 0;
-  width: 140px;
-  height: 140px;
-  background: #fff;
+  width: 120px; height: 120px;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
 }
 #qrcode canvas, #qrcode img { display: block; }
-.qr-actions { flex: 1; }
-.qr-actions p {
-  font-size: 12px;
+.result-actions { flex: 1; min-width: 0; }
+.result-url {
+  font-size: 11px;
   color: var(--muted);
-  line-height: 1.7;
-  margin-bottom: 14px;
+  font-family: 'SF Mono', 'Consolas', monospace;
+  background: var(--bg);
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  word-break: break-all;
+  line-height: 1.5;
+  margin-bottom: 12px;
 }
-.dl-btn {
-  display: inline-flex;
+.action-btns { display: flex; flex-direction: column; gap: 7px; }
+.action-btn {
+  display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 9px 16px;
-  border: 1.5px solid var(--accent);
+  gap: 7px;
+  padding: 9px 14px;
   border-radius: 8px;
   font-size: 12px;
   font-weight: 700;
-  color: var(--accent);
-  background: #fff;
   cursor: pointer;
   font-family: inherit;
-  transition: all 0.15s;
+  transition: all .15s;
+  border: 1.5px solid transparent;
+  -webkit-tap-highlight-color: transparent;
   text-decoration: none;
-  margin-right: 8px;
-  margin-bottom: 8px;
 }
-.dl-btn:hover { background: #e6f9ee; }
-.dl-btn.primary { background: var(--accent); color: #fff; }
-.dl-btn.primary:hover { background: var(--accent-d); }
+.action-btn.primary {
+  background: var(--naver);
+  color: #fff;
+  border-color: var(--naver);
+  box-shadow: 0 2px 6px rgba(3,199,90,.25);
+}
+.action-btn.primary:hover { background: var(--naver-d); }
+.action-btn.secondary {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+}
+.action-btn.secondary:hover { border-color: var(--border-2); background: var(--bg); }
+.action-btn.secondary.copied { border-color: var(--naver); color: var(--naver); }
 
-/* 미리보기 iframe */
-.preview-wrap {
-  padding: 20px;
-  background: #1a1a1a;
+/* ── 팝업 모달 ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.4);
+  backdrop-filter: blur(4px);
+  z-index: 200;
   display: flex;
+  align-items: flex-end;
   justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s ease;
 }
-.phone-frame {
-  width: 280px;
-  height: 520px;
-  border-radius: 28px;
-  overflow: hidden;
-  border: 6px solid #333;
-  background: #0f0f0f;
-  position: relative;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-}
-.phone-notch {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80px;
-  height: 22px;
-  background: #222;
-  border-radius: 0 0 14px 14px;
-  z-index: 2;
-}
-#previewFrame {
+.modal-overlay.open { opacity: 1; pointer-events: auto; }
+.modal {
+  background: var(--surface);
+  border-radius: 20px 20px 0 0;
+  padding: 32px 24px 40px;
   width: 100%;
-  height: 100%;
+  max-width: 560px;
+  transform: translateY(20px);
+  transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+}
+.modal-overlay.open .modal { transform: translateY(0); }
+.modal-handle {
+  width: 36px; height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  margin: 0 auto 24px;
+}
+.modal h3 { font-size: 17px; font-weight: 800; margin-bottom: 6px; }
+.modal-sub { font-size: 13px; color: var(--muted); margin-bottom: 24px; line-height: 1.6; }
+.modal-options { display: flex; flex-direction: column; gap: 10px; }
+.modal-option {
+  padding: 16px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: border-color .2s, background .2s;
+}
+.modal-option:hover { border-color: var(--border-2); background: var(--bg); }
+.modal-option-title { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+.modal-option-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+.modal-option-pros { font-size: 11px; color: var(--naver); margin-top: 6px; font-weight: 600; }
+.modal-option-cons { font-size: 11px; color: #F59E0B; margin-top: 2px; }
+.modal-divider { height: 1px; background: var(--border); margin: 16px 0; }
+.modal-search-hint {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+.modal-search-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 16px;
+  background: #03C75A10;
+  border: 1.5px solid var(--naver);
+  border-radius: 8px;
+  color: var(--naver);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background .15s;
+}
+.modal-search-btn:hover { background: #03C75A1A; }
+.modal-close {
+  margin-top: 16px;
+  width: 100%;
+  padding: 12px;
+  background: none;
   border: none;
-  transform-origin: top left;
+  font-size: 13px;
+  color: var(--muted);
+  cursor: pointer;
+  font-family: inherit;
 }
 
-/* 반응형 */
-@media (max-width: 900px) {
-  .layout { grid-template-columns: 1fr; }
-  .form-panel { border-right: none; border-bottom: 1px solid var(--border); }
-  .result-panel { padding: 20px; }
-  .qr-area { flex-direction: column; align-items: center; text-align: center; }
+/* ── 푸터 ── */
+.footer {
+  text-align: center;
+  padding: 32px 24px;
+  font-size: 11px;
+  color: var(--hint);
+  line-height: 1.8;
+}
+.footer strong { color: var(--muted); }
+
+/* ── 반응형 ── */
+@media (max-width: 480px) {
+  .hero { padding: 40px 16px 32px; }
+  .main { padding: 0 12px 60px; }
+  .result-body { flex-direction: column; align-items: center; }
+  #qrcode { width: 140px; height: 140px; }
+  .result-url { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
 </style>
 </head>
 <body>
 
-<div class="top-bar">
-  <span class="logo">KT SYNERGY</span>
-  <span class="sep">|</span>
-  <span class="page-title">와이파이 × 네이버 플레이스 연동 페이지 생성기</span>
-</div>
-
-<div class="layout">
-
-  <!-- ── 좌측: 입력 폼 ── -->
-  <div class="form-panel">
-
-    <p class="section-label">매장 정보</p>
-
-    <div class="field-group">
-      <label>매장명 <span style="color:#e8002d">*</span></label>
-      <input type="text" id="storeName" placeholder="예: 신포우리만두 신포점" maxlength="30">
-    </div>
-
-    <div class="field-group">
-      <label>네이버 플레이스 URL <span style="color:#e8002d">*</span></label>
-      <input type="url" id="placeUrl" placeholder="https://naver.me/xxxxxxxx" value="https://naver.me/Fy2F6RQ5">
-      <p class="field-hint" id="placeHint">네이버 플레이스 → 공유하기 → 링크 복사<br>naver.me 단축 URL 또는 place.naver.com 주소 모두 가능</p>
-    </div>
-
-    <div class="divider"></div>
-    <p class="section-label">와이파이 정보</p>
-
-    <div class="field-group">
-      <label>네트워크 이름 (SSID) <span style="color:#e8002d">*</span></label>
-      <input type="text" id="ssid" placeholder="예: SINPO_GUEST" maxlength="32">
-    </div>
-
-    <div class="field-group">
-      <label>비밀번호 <span style="color:#e8002d">*</span></label>
-      <input type="text" id="password" placeholder="예: sinpo1234" maxlength="63">
-    </div>
-
-    <div class="divider"></div>
-    <p class="section-label">추가 설정 (선택)</p>
-
-    <div class="field-group">
-      <label>하단 안내 문구</label>
-      <input type="text" id="footerMsg" placeholder="와이파이를 즐겁게 이용하세요 😊" maxlength="50"
-             value="리뷰 한 줄이 저희에게 큰 힘이 됩니다 🙏">
-    </div>
-
-    <div class="divider"></div>
-
-    <button class="generate-btn" onclick="generate()">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
-              stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      페이지 생성하기
-    </button>
-
-    <p style="margin-top:14px;font-size:11px;color:#bbb;text-align:center;line-height:1.6">
-      생성된 링크를 QR코드로 만들어 테이블에 부착하세요.<br>
-      서버 없이 순수 URL 파라미터로 동작합니다.
-    </p>
-
+<!-- 상단 바 -->
+<header class="topbar">
+  <div class="topbar-left">
+    <span class="kt-badge">KT</span>
+    <span class="topbar-title">와이파이 QR 생성기</span>
   </div>
+  <span class="topbar-contact">시너지영업3팀 · 032-000-0000</span>
+</header>
 
-  <!-- ── 우측: 결과 ── -->
-  <div class="result-panel">
+<!-- 히어로 -->
+<section class="hero">
+  <div class="hero-eyebrow">
+    <span class="dot"></span>
+    소상공인 플레이스 점수 올리기
+  </div>
+  <h1>QR 하나로<br><em>와이파이 + 네이버 플레이스</em></h1>
+  <p class="hero-sub">
+    손님이 와이파이 비밀번호를 받으러 QR을 찍는 순간,<br>
+    자연스럽게 매장 플레이스를 방문하게 됩니다.
+  </p>
+  <!-- 작동 흐름 -->
+  <div class="flow">
+    <div class="flow-step">
+      <div class="flow-icon">📱</div>
+      <div class="flow-label">QR 스캔</div>
+    </div>
+    <div class="flow-arrow">›</div>
+    <div class="flow-step">
+      <div class="flow-icon">🗺️</div>
+      <div class="flow-label">플레이스<br>자동 열림</div>
+    </div>
+    <div class="flow-arrow">›</div>
+    <div class="flow-step">
+      <div class="flow-icon">🔑</div>
+      <div class="flow-label">비밀번호<br>확인</div>
+    </div>
+    <div class="flow-arrow">›</div>
+    <div class="flow-step">
+      <div class="flow-icon">📶</div>
+      <div class="flow-label">와이파이<br>접속</div>
+    </div>
+  </div>
+</section>
 
-    <!-- URL -->
-    <div class="result-section">
-      <div class="result-section-header">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"
-                stroke="#444" stroke-width="2" stroke-linecap="round"/>
-          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"
-                stroke="#444" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-        공유 링크
-        <span class="badge badge-blue">URL</span>
+<!-- 메인 -->
+<main class="main">
+
+  <!-- 입력 카드 -->
+  <div class="card">
+
+    <!-- 모드 선택 -->
+    <div class="mode-section">
+      <div class="section-label">어떤 방식으로 운영하시겠어요?</div>
+      <div class="mode-toggle">
+        <button class="mode-btn active" onclick="setMode('basic')" id="btn-basic">
+          <span class="mode-icon">📶</span>
+          <div class="mode-name">기본형</div>
+          <div class="mode-desc">와이파이 연결하면서 플레이스 자연 노출</div>
+          <span class="mode-badge">간편</span>
+        </button>
+        <button class="mode-btn" onclick="setMode('reward')" id="btn-reward">
+          <span class="mode-icon">🎁</span>
+          <div class="mode-name">혜택형</div>
+          <div class="mode-desc">별점 남기면 서비스 제공, 하이오더 연동</div>
+          <span class="mode-badge">추천</span>
+        </button>
       </div>
-      <div class="url-box">
-        <div class="url-text" id="urlDisplay">— 아직 생성 전입니다 —</div>
-        <button class="copy-url-btn" id="copyUrlBtn" onclick="copyUrl()">복사</button>
+
+      <!-- 모드 설명 -->
+      <div id="mode-desc-basic" style="margin-top:12px;padding:12px;background:#F9FAFB;border-radius:8px;font-size:12px;color:var(--muted);line-height:1.7;transition:opacity .3s">
+        손님이 QR을 찍으면 버튼 탭 한 번으로 플레이스가 열리고 비밀번호가 표시됩니다.
+        강요 없이 자연스럽게 플레이스 방문 수를 늘릴 수 있어요.
+      </div>
+      <div id="mode-desc-reward" style="margin-top:12px;padding:12px;background:#FFF8F8;border:1px solid #FFE4E4;border-radius:8px;font-size:12px;color:var(--muted);line-height:1.7;display:none">
+        <strong style="color:var(--kt)">★ 하이오더 사용 매장 추천</strong><br>
+        손님이 플레이스에 별점을 남기고 하이오더 테이블 번호를 후기에 적으면,
+        점주님이 결제 내역과 대조해 바로 서비스를 드릴 수 있어요.
+        스마트폰 보여달라고 할 필요가 없습니다.
       </div>
     </div>
 
-    <!-- QR 코드 -->
-    <div class="result-section">
-      <div class="result-section-header">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-          <rect x="3" y="3" width="7" height="7" rx="1" stroke="#444" stroke-width="2"/>
-          <rect x="14" y="3" width="7" height="7" rx="1" stroke="#444" stroke-width="2"/>
-          <rect x="3" y="14" width="7" height="7" rx="1" stroke="#444" stroke-width="2"/>
-          <path d="M14 14h.01M14 17h3M17 14v3M20 17v3M20 14h.01" stroke="#444" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-        QR 코드
-        <span class="badge badge-green">인쇄용</span>
+    <!-- 입력 필드 -->
+    <div class="input-section">
+
+      <div class="input-group">
+        <div class="input-label">매장명 <span class="req">*</span></div>
+        <input class="input-field" type="text" id="storeName" placeholder="예: 신포우리만두 신포점" maxlength="30">
       </div>
-      <div class="qr-area">
-        <div id="qrcode">
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" opacity="0.2">
-            <rect x="3" y="3" width="7" height="7" rx="1" stroke="#888" stroke-width="2"/>
-            <rect x="14" y="3" width="7" height="7" rx="1" stroke="#888" stroke-width="2"/>
-            <rect x="3" y="14" width="7" height="7" rx="1" stroke="#888" stroke-width="2"/>
-          </svg>
+
+      <div class="input-group">
+        <div class="input-label">
+          네이버 플레이스 URL <span class="req">*</span>
+          <button class="help-btn" onclick="openModal()">어떤 링크를 써야 하나요?</button>
         </div>
-        <div class="qr-actions">
-          <p>생성 후 QR 코드를 다운받아<br>테이블 스티커로 인쇄하세요.<br>권장 크기: <strong>5cm × 5cm</strong> 이상</p>
-          <a class="dl-btn primary" id="dlPng" href="#" onclick="downloadQR(event)">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
-              <path d="M12 15V3M12 15l-4-4M12 15l4-4" stroke="white" stroke-width="2" stroke-linecap="round"/>
-              <path d="M3 17v2a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-2" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        <input class="input-field" type="url" id="placeUrl" placeholder="https://m.place.naver.com/..." oninput="onPlaceInput(this)">
+        <div class="input-hint" id="placeHint">네이버 플레이스 공유 링크 또는 브라우저 주소창 URL</div>
+      </div>
+
+      <div class="input-group">
+        <div class="input-label">와이파이 이름 (SSID) <span class="req">*</span></div>
+        <input class="input-field" type="text" id="ssid" placeholder="예: SINPO_GUEST" maxlength="32">
+      </div>
+
+      <div class="input-group">
+        <div class="input-label">와이파이 비밀번호 <span class="req">*</span></div>
+        <input class="input-field" type="text" id="password" placeholder="예: sinpo1234" maxlength="63">
+      </div>
+
+      <!-- 혜택형 추가 필드 -->
+      <div class="extra-fields" id="extraFields">
+
+        <div class="input-group">
+          <div class="input-label">혜택 안내 문구</div>
+          <textarea class="textarea-field" id="rewardMsg"
+            placeholder="예: 별점 남겨주시면 사이드 메뉴 드립니다 😊&#10;하이오더 테이블 번호를 후기에 남겨주세요!">별점 남겨주시면 사이드 메뉴 드립니다 😊
+하이오더 테이블 번호를 후기에 남겨주세요!</textarea>
+          <div class="input-hint">손님이 QR을 찍었을 때 첫 화면에 표시되는 문구입니다</div>
+        </div>
+
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-title">하이오더 테이블번호 안내</div>
+            <div class="toggle-sub">후기에 테이블 번호 + 시간으로 결제내역 대조 가능</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="hiorderToggle" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="input-group" id="hiorderExField">
+          <div class="input-label">후기 예시 문구</div>
+          <input class="input-field" type="text" id="hiorderExample"
+            value="하이오더 3번 테이블, 된장찌개 맛있었어요 ★★★★★"
+            placeholder="예: 하이오더 3번 테이블, 음식 맛있었어요 ★★★★★">
+          <div class="input-hint">손님에게 이런 형식으로 남겨달라고 안내합니다. 번호는 본인 테이블로 바꾸도록 안내돼요.</div>
+        </div>
+
+      </div><!-- /extra-fields -->
+
+    </div><!-- /input-section -->
+
+    <!-- 생성 버튼 -->
+    <div class="generate-wrap">
+      <button class="generate-btn" id="generateBtn" onclick="generate()">
+        <div class="btn-spinner" id="spinner"></div>
+        <span id="btnText">QR 페이지 생성하기</span>
+      </button>
+    </div>
+
+  </div><!-- /card -->
+
+  <!-- 결과 카드 -->
+  <div class="result-card" id="resultCard">
+    <div class="result-header">
+      <span class="result-title">생성 완료</span>
+      <span class="result-badge">✓ 준비됨</span>
+    </div>
+    <div class="result-body">
+      <div id="qrcode"></div>
+      <div class="result-actions">
+        <div class="result-url" id="urlDisplay"></div>
+        <div class="action-btns">
+          <button class="action-btn primary" onclick="downloadQR()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+              <path d="M12 15V3M12 15l-4-4M12 15l4-4" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+              <path d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
             </svg>
             QR 이미지 다운로드
-          </a>
-          <a class="dl-btn" id="dlHtml" href="#" onclick="downloadHtml(event)">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
-              <path d="M12 15V3M12 15l-4-4M12 15l4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <path d="M3 17v2a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </button>
+          <button class="action-btn secondary" id="copyBtn" onclick="copyUrl()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+              <rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2"/>
+              <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            링크 복사
+          </button>
+          <button class="action-btn secondary" onclick="downloadHtml()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+              <path d="M12 15V3M12 15l-4-4M12 15l4-4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+              <path d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
             </svg>
             HTML 파일 다운로드
-          </a>
+          </button>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- 미리보기 -->
-    <div class="result-section">
-      <div class="result-section-header">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-          <rect x="5" y="2" width="14" height="20" rx="3" stroke="#444" stroke-width="2"/>
-          <path d="M12 18h.01" stroke="#444" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-        스마트폰 미리보기
+</main>
+
+<!-- 푸터 -->
+<footer class="footer">
+  <strong>KT 인천지사 시너지영업3팀 기획·채널운영파트</strong><br>
+  이대희 과장 · 010-7300-2632 · daehee.lee@kt.com<br>
+  이 서비스는 소상공인 디지털 전환 지원을 위해 무료로 제공됩니다.
+</footer>
+
+<!-- URL 도움말 모달 -->
+<div class="modal-overlay" id="helpModal" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h3>어떤 링크를 써야 하나요?</h3>
+    <p class="modal-sub">링크 종류에 따라 손님 경험이 달라집니다</p>
+    <div class="modal-options">
+      <div class="modal-option" onclick="selectUrlType('simple')">
+        <div class="modal-option-title">① 간편하게 — naver.me 단축 링크</div>
+        <div class="modal-option-desc">네이버 플레이스 앱 → 공유하기 → 링크 복사</div>
+        <div class="modal-option-pros">✓ 점주가 쓰기 쉬움</div>
+        <div class="modal-option-cons">⚠ 손님 폰에 네이버지도 앱이 뜰 수 있음</div>
       </div>
-      <div class="preview-wrap">
-        <div class="phone-frame">
-          <div class="phone-notch"></div>
-          <iframe id="previewFrame" src="about:blank" sandbox="allow-scripts allow-same-origin"></iframe>
-        </div>
+      <div class="modal-option" onclick="selectUrlType('web')">
+        <div class="modal-option-title">② 깔끔하게 — m.place.naver.com 주소</div>
+        <div class="modal-option-desc">크롬 브라우저에서 매장 검색 → 주소창 URL 복사</div>
+        <div class="modal-option-pros">✓ 앱 실행 없이 브라우저로만 열림</div>
+        <div class="modal-option-cons">⚠ 브라우저에서 직접 복사해야 함</div>
       </div>
     </div>
-
+    <div class="modal-divider"></div>
+    <p class="modal-search-hint">
+      크롬에서 바로 검색하려면 아래 버튼을 누르세요.<br>
+      열린 페이지에서 주소창 URL을 복사해 붙여넣으세요.
+    </p>
+    <button class="modal-search-btn" id="searchBtn" onclick="openNaverSearch()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <path d="M16.273 12.845L7.376 0H0v24h7.727V11.155L16.624 24H24V0h-7.727z" fill="#03C75A"/>
+      </svg>
+      네이버에서 매장 검색하기
+    </button>
+    <button class="modal-close" onclick="closeModal()">닫기</button>
   </div>
 </div>
 
 <script>
-/* ── 랜딩페이지 HTML 템플릿 ── */
-function buildLandingHtml(cfg) {
+/* ── 상태 ── */
+let mode = 'basic';
+let currentUrl = '';
+let currentHtml = '';
+let qrInstance = null;
+
+/* ── 모드 전환 ── */
+function setMode(m) {
+  mode = m;
+  document.getElementById('btn-basic').classList.toggle('active', m === 'basic');
+  document.getElementById('btn-reward').classList.toggle('active', m === 'reward');
+  document.getElementById('mode-desc-basic').style.display = m === 'basic' ? '' : 'none';
+  document.getElementById('mode-desc-reward').style.display = m === 'reward' ? '' : 'none';
+  const extra = document.getElementById('extraFields');
+  extra.classList.toggle('open', m === 'reward');
+}
+
+/* ── 하이오더 예시 필드 토글 ── */
+document.getElementById('hiorderToggle').addEventListener('change', function() {
+  document.getElementById('hiorderExField').style.display = this.checked ? '' : 'none';
+});
+
+/* ── 플레이스 URL 입력 처리 ── */
+function onPlaceInput(el) {
+  const v = el.value.trim();
+  const hint = document.getElementById('placeHint');
+  if (v.includes('place.naver.com') && !v.includes('m.place.naver.com')) {
+    el.value = v.replace('place.naver.com', 'm.place.naver.com');
+    hint.textContent = '✓ 앱 실행 없는 모바일 웹 URL로 자동 변환됐습니다';
+    hint.className = 'input-hint success';
+  } else if (v.includes('m.place.naver.com')) {
+    hint.textContent = '✓ 좋습니다! 앱 없이 브라우저로만 열립니다';
+    hint.className = 'input-hint success';
+  } else if (v.includes('naver.me')) {
+    hint.textContent = '⚠ 손님 폰에 네이버지도 앱이 실행될 수 있습니다';
+    hint.className = 'input-hint';
+    hint.style.color = '#F59E0B';
+  } else {
+    hint.textContent = '네이버 플레이스 공유 링크 또는 브라우저 주소창 URL';
+    hint.className = 'input-hint';
+    hint.style.color = '';
+  }
+}
+
+/* ── 모달 ── */
+function openModal() {
+  const sn = document.getElementById('storeName').value.trim();
+  document.getElementById('searchBtn').dataset.store = sn;
+  document.getElementById('helpModal').classList.add('open');
+}
+function closeModal() { document.getElementById('helpModal').classList.remove('open'); }
+function closeModalOutside(e) { if (e.target === document.getElementById('helpModal')) closeModal(); }
+function selectUrlType(t) {
+  closeModal();
+  const hint = document.getElementById('placeHint');
+  if (t === 'simple') {
+    hint.textContent = '네이버 플레이스 앱 → 공유하기 → 링크 복사 후 붙여넣기';
+    hint.className = 'input-hint';
+    hint.style.color = '';
+  } else {
+    hint.textContent = '크롬에서 매장 검색 → 주소창 URL 복사 후 붙여넣기';
+    hint.className = 'input-hint success';
+  }
+}
+function openNaverSearch() {
+  const store = document.getElementById('searchBtn').dataset.store || '';
+  const q = encodeURIComponent(store ? store : '내 매장');
+  window.open('https://m.place.naver.com/search?query=' + q, '_blank', 'noopener,noreferrer');
+}
+
+/* ── 랜딩 HTML 빌더 ── */
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function escJs(s) {
+  return String(s).replace(/\\/g,'\\\\').replace(/"/g,'\\"').replace(/\n/g,'\\n');
+}
+
+function buildHtml(cfg) {
+  const rewardSection = cfg.mode === 'reward' ? `
+    <div class="reward-box" id="rewardBox">
+      <div class="reward-title">🎁 잠깐만요!</div>
+      <div class="reward-msg">${esc(cfg.rewardMsg).replace(/\\n/g,'<br>')}</div>
+      ${cfg.hiorder ? `<div class="reward-example">후기 예시: <em>"${esc(cfg.hiorderExample)}"</em><br><span>번호는 본인 테이블 번호로 바꿔주세요 😊</span></div>` : ''}
+    </div>` : '';
+
   return `<!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 <meta name="theme-color" content="#0f0f0f">
 <title>${esc(cfg.storeName)} — 와이파이 안내</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--accent:#03C75A;--accent-dark:#029447}
+:root{--accent:#03C75A;--accent-d:#029447}
 html,body{height:100%;font-family:'Apple SD Gothic Neo','Pretendard',-apple-system,'Malgun Gothic',sans-serif;background:#0f0f0f;color:#f0f0f0;-webkit-font-smoothing:antialiased}
-body{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100dvh;padding:24px 20px 40px}
+body{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100dvh;padding:24px 20px 48px}
 body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(circle,#ffffff08 1px,transparent 1px);background-size:28px 28px;pointer-events:none;z-index:0}
 .card{position:relative;z-index:1;width:100%;max-width:360px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:20px;overflow:hidden}
-.header{background:#111;padding:28px 24px 24px;text-align:center;border-bottom:1px solid #222}
-.wifi-icon{display:flex;justify-content:center;margin-bottom:16px}
-.wifi-icon svg{width:48px;height:48px}
-.store-label{font-size:11px;letter-spacing:.18em;color:#666;text-transform:uppercase;margin-bottom:6px}
-.store-name{font-size:22px;font-weight:700;color:#f0f0f0;letter-spacing:-.02em}
-.body{padding:28px 24px}
-.guide-text{font-size:14px;line-height:1.75;color:#999;text-align:center;margin-bottom:24px}
-.guide-text strong{color:#f0f0f0;font-weight:600}
-.steps{display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:28px}
-.step{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1}
-.step-num{width:32px;height:32px;border-radius:50%;border:1.5px solid #333;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#666;background:#111;transition:all .4s ease}
-.step-num.active{border-color:var(--accent);color:var(--accent);box-shadow:0 0 12px #03C75A33}
+.header{background:#111;padding:24px 24px 20px;text-align:center;border-bottom:1px solid #222}
+.wifi-icon{display:flex;justify-content:center;margin-bottom:12px}
+.store-label{font-size:10px;letter-spacing:.18em;color:#555;text-transform:uppercase;margin-bottom:4px}
+.store-name{font-size:21px;font-weight:700;color:#f0f0f0;letter-spacing:-.02em}
+.body{padding:24px}
+.reward-box{background:#111;border:1px solid #2a2a2a;border-radius:12px;padding:16px;margin-bottom:20px}
+.reward-title{font-size:14px;font-weight:700;color:#f0f0f0;margin-bottom:8px}
+.reward-msg{font-size:13px;color:#aaa;line-height:1.7;margin-bottom:10px}
+.reward-example{font-size:11px;color:#666;line-height:1.6;padding-top:10px;border-top:1px solid #222}
+.reward-example em{color:#03C75A;font-style:normal}
+.reward-example span{color:#555}
+.guide-text{font-size:14px;line-height:1.75;color:#999;text-align:center;margin-bottom:20px}
+.guide-text strong{color:#f0f0f0}
+.steps{display:flex;align-items:center;justify-content:center;margin-bottom:24px}
+.step{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1}
+.step-num{width:30px;height:30px;border-radius:50%;border:1.5px solid #333;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#555;background:#111;transition:all .4s}
+.step-num.active{border-color:var(--accent);color:var(--accent);box-shadow:0 0 10px #03C75A33}
 .step-num.done{border-color:var(--accent);background:var(--accent);color:#fff}
-.step-label{font-size:10px;color:#555;text-align:center;line-height:1.3;white-space:nowrap}
-.step-label.active{color:#aaa}
-.step-line{width:28px;height:1.5px;background:#2a2a2a;margin-bottom:18px;flex-shrink:0}
+.step-label{font-size:10px;color:#444;text-align:center;line-height:1.3;white-space:nowrap}
+.step-label.active{color:#999}
+.step-line{width:24px;height:1.5px;background:#222;margin-bottom:16px;flex-shrink:0;transition:background .4s}
 .step-line.done{background:var(--accent)}
-.naver-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:16px;background:var(--accent);border:none;border-radius:12px;font-size:16px;font-weight:700;color:#fff;cursor:pointer;letter-spacing:-.01em;transition:background .2s,transform .15s;-webkit-tap-highlight-color:transparent}
-.naver-btn:active{background:var(--accent-dark);transform:scale(.98)}
-.naver-btn svg{width:22px;height:22px;flex-shrink:0}
-.pw-box{margin-top:20px;background:#111;border:1px solid #2a2a2a;border-radius:12px;overflow:hidden;opacity:0;transform:translateY(8px);transition:opacity .5s ease,transform .5s ease;pointer-events:none}
+.naver-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:15px;background:var(--accent);border:none;border-radius:12px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;letter-spacing:-.01em;transition:background .2s,transform .15s;-webkit-tap-highlight-color:transparent;font-family:inherit}
+.naver-btn:active{background:var(--accent-d);transform:scale(.98)}
+.pw-box{margin-top:16px;background:#111;border:1px solid #2a2a2a;border-radius:12px;overflow:hidden;opacity:0;transform:translateY(8px);transition:opacity .5s,transform .5s;pointer-events:none}
 .pw-box.visible{opacity:1;transform:translateY(0);pointer-events:auto}
-.pw-box-header{padding:10px 16px;background:#161616;border-bottom:1px solid #2a2a2a;display:flex;align-items:center;gap:8px}
-.pw-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px #03C75A66;animation:pulse 2s ease-in-out infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.pw-box-title{font-size:11px;color:#555;letter-spacing:.1em;text-transform:uppercase}
-.pw-content{padding:16px}
-.pw-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.pw-head{padding:9px 14px;background:#161616;border-bottom:1px solid #222;display:flex;align-items:center;gap:7px}
+.pw-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 7px #03C75A66;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.pw-title{font-size:10px;color:#444;letter-spacing:.1em;text-transform:uppercase}
+.pw-body{padding:14px}
+.pw-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
 .pw-row:last-child{margin-bottom:0}
-.pw-key{font-size:11px;color:#555;letter-spacing:.06em}
-.pw-value{font-size:15px;font-weight:700;color:#f0f0f0;letter-spacing:.08em;font-variant-numeric:tabular-nums}
-.pw-value.ssid{font-size:13px;color:#ccc}
-.copy-btn{width:100%;margin-top:12px;padding:10px;background:transparent;border:1px solid #2a2a2a;border-radius:8px;font-size:12px;color:#666;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .2s;-webkit-tap-highlight-color:transparent}
-.copy-btn:active{background:#222;color:#aaa}
+.pw-key{font-size:11px;color:#444}
+.pw-val{font-size:15px;font-weight:700;color:#f0f0f0;letter-spacing:.06em}
+.pw-val.ssid{font-size:12px;color:#bbb}
+.copy-btn{width:100%;margin-top:10px;padding:9px;background:transparent;border:1px solid #2a2a2a;border-radius:8px;font-size:12px;color:#555;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;transition:all .2s;-webkit-tap-highlight-color:transparent;font-family:inherit}
 .copy-btn.copied{border-color:var(--accent);color:var(--accent)}
-.footer-note{margin-top:20px;font-size:11px;color:#444;text-align:center;line-height:1.6}
-@media(prefers-color-scheme:light){body{background:#f5f5f5}body::before{background-image:radial-gradient(circle,#00000008 1px,transparent 1px)}.card{background:#fff;border-color:#e8e8e8}.header{background:#fafafa;border-color:#eee}.store-label{color:#aaa}.store-name{color:#111}.guide-text{color:#888}.guide-text strong{color:#111}.step-num{background:#fafafa;border-color:#ddd;color:#aaa}.step-line{background:#e8e8e8}.pw-box{background:#fafafa;border-color:#e8e8e8}.pw-box-header{background:#f5f5f5;border-color:#eee}.pw-box-title{color:#aaa}.pw-key{color:#aaa}.pw-value{color:#111}.pw-value.ssid{color:#444}.copy-btn{border-color:#e0e0e0;color:#aaa}.footer-note{color:#bbb}}
+.footer-note{margin-top:16px;font-size:10px;color:#333;text-align:center;line-height:1.6}
+.kt-credit{margin-top:8px;font-size:10px;color:#2a2a2a;text-align:center}
+@media(prefers-color-scheme:light){body{background:#f5f5f5}body::before{background-image:radial-gradient(circle,#00000008 1px,transparent 1px)}.card{background:#fff;border-color:#e8e8e8}.header{background:#fafafa;border-color:#eee}.store-label{color:#aaa}.store-name{color:#111}.guide-text{color:#888}.guide-text strong{color:#111}.reward-box{background:#fafafa;border-color:#eee}.step-num{background:#fafafa;border-color:#ddd;color:#aaa}.step-line{background:#e8e8e8}.pw-box{background:#fafafa;border-color:#eee}.pw-head{background:#f5f5f5;border-color:#eee}.pw-key{color:#aaa}.pw-val{color:#111}.pw-val.ssid{color:#555}.copy-btn{border-color:#e0e0e0;color:#aaa}.footer-note{color:#bbb}.kt-credit{color:#ddd}}
 </style>
 </head>
 <body>
 <div class="card">
   <div class="header">
-    <div class="wifi-icon"><svg viewBox="0 0 48 48" fill="none"><path d="M24 36a3 3 0 1 1 0 6 3 3 0 0 1 0-6z" fill="#03C75A"/><path d="M14.5 27.5C17.1 24.8 20.4 23 24 23s6.9 1.8 9.5 4.5" stroke="#03C75A" stroke-width="2.5" stroke-linecap="round" opacity=".7"/><path d="M7 20.5C11.5 15.8 17.4 13 24 13s12.5 2.8 17 7.5" stroke="#03C75A" stroke-width="2.5" stroke-linecap="round" opacity=".35"/></svg></div>
+    <div class="wifi-icon"><svg viewBox="0 0 48 48" fill="none" width="44" height="44"><path d="M24 36a3 3 0 1 1 0 6 3 3 0 0 1 0-6z" fill="#03C75A"/><path d="M14.5 27.5C17.1 24.8 20.4 23 24 23s6.9 1.8 9.5 4.5" stroke="#03C75A" stroke-width="2.5" stroke-linecap="round" opacity=".7"/><path d="M7 20.5C11.5 15.8 17.4 13 24 13s12.5 2.8 17 7.5" stroke="#03C75A" stroke-width="2.5" stroke-linecap="round" opacity=".35"/></svg></div>
     <p class="store-label">Guest Wi-Fi</p>
     <p class="store-name">${esc(cfg.storeName)}</p>
   </div>
   <div class="body">
-    <p class="guide-text">비밀번호는 아래 버튼을 누른 후<br><strong>네이버 플레이스</strong>에서 확인하실 수 있어요 😊</p>
+    ${rewardSection}
+    <p class="guide-text">${esc(cfg.guideText).replace(/\\n/g,'<br>')}</p>
     <div class="steps">
       <div class="step"><div class="step-num active" id="s1">1</div><div class="step-label active">플레이스<br>방문</div></div>
       <div class="step-line" id="l1"></div>
@@ -535,54 +974,52 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
       <div class="step-line" id="l2"></div>
       <div class="step"><div class="step-num" id="s3">3</div><div class="step-label">와이파이<br>접속</div></div>
     </div>
-    <button class="naver-btn" id="naverBtn" onclick="openPlace()">
-      <svg viewBox="0 0 24 24" fill="none"><path d="M16.273 12.845L7.376 0H0v24h7.727V11.155L16.624 24H24V0h-7.727z" fill="white"/></svg>
-      네이버 플레이스에서 비밀번호 확인
+    <button class="naver-btn" id="naverBtn" onclick="go()">
+      <svg viewBox="0 0 24 24" fill="none" width="20" height="20"><path d="M16.273 12.845L7.376 0H0v24h7.727V11.155L16.624 24H24V0h-7.727z" fill="white"/></svg>
+      ${esc(cfg.btnText)}
     </button>
     <div class="pw-box" id="pwBox">
-      <div class="pw-box-header"><div class="pw-dot"></div><span class="pw-box-title">Wi-Fi 접속 정보</span></div>
-      <div class="pw-content">
-        <div class="pw-row"><span class="pw-key">네트워크</span><span class="pw-value ssid">${esc(cfg.ssid)}</span></div>
-        <div class="pw-row"><span class="pw-key">비밀번호</span><span class="pw-value" id="pwText">${esc(cfg.password)}</span></div>
-        <button class="copy-btn" id="copyBtn" onclick="copyPw()">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2"/></svg>
+      <div class="pw-head"><div class="pw-dot"></div><span class="pw-title">Wi-Fi 접속 정보</span></div>
+      <div class="pw-body">
+        <div class="pw-row"><span class="pw-key">네트워크</span><span class="pw-val ssid">${esc(cfg.ssid)}</span></div>
+        <div class="pw-row"><span class="pw-key">비밀번호</span><span class="pw-val" id="pwEl">${esc(cfg.password)}</span></div>
+        <button class="copy-btn" id="cpBtn" onclick="cp()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke="currentColor" stroke-width="2"/></svg>
           비밀번호 복사
         </button>
       </div>
     </div>
     <p class="footer-note">${esc(cfg.footerMsg)}</p>
+    <p class="kt-credit">Powered by KT 인천지사 시너지영업3팀</p>
   </div>
 </div>
 <script>
-var PW="${escJs(cfg.password)}",PLACE="${escJs(cfg.placeUrl)}",opened=false;
-function openPlace(){
-  var btn=document.getElementById('naverBtn'),box=document.getElementById('pwBox');
-  btn.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg> 플레이스 열림 — 비밀번호 확인하세요';
-  btn.style.background='#029447';btn.onclick=null;
-  document.getElementById('s1').className='step-num done';document.getElementById('s1').textContent='✓';
-  document.getElementById('l1').className='step-line done';
-  document.getElementById('s2').className='step-num active';
-  box.classList.add('visible');
-  if(!opened){
-    var a=document.createElement('a');
-    a.href=PLACE;a.target='_blank';a.rel='noopener noreferrer';
-    document.body.appendChild(a);a.click();document.body.removeChild(a);
-    opened=true;
-  }
+var PW="${escJs(cfg.password)}",PLACE="${escJs(cfg.placeUrl)}",done=false;
+function go(){
+  if(done)return;done=true;
+  var btn=document.getElementById('naverBtn');
+  btn.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg> 열림 — 비밀번호 확인하세요';
+  btn.style.background='#029447';
+  var s1=document.getElementById('s1'),l1=document.getElementById('l1'),s2=document.getElementById('s2');
+  s1.className='step-num done';s1.textContent='✓';
+  l1.className='step-line done';
+  s2.className='step-num active';
+  document.getElementById('pwBox').classList.add('visible');
+  var a=document.createElement('a');a.href=PLACE;a.target='_blank';a.rel='noopener noreferrer';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
   setTimeout(function(){
-    document.getElementById('s2').className='step-num done';document.getElementById('s2').textContent='✓';
+    s2.className='step-num done';s2.textContent='✓';
     document.getElementById('l2').className='step-line done';
     document.getElementById('s3').className='step-num active';
   },2000);
 }
-function copyPw(){
-  var btn=document.getElementById('copyBtn');
+function cp(){
+  var btn=document.getElementById('cpBtn');
   navigator.clipboard.writeText(PW).then(function(){
-    btn.textContent='✓  복사 완료!';btn.classList.add('copied');
+    btn.textContent='✓ 복사됨';btn.classList.add('copied');
     setTimeout(function(){btn.textContent='비밀번호 복사';btn.classList.remove('copied');},2500);
   }).catch(function(){
-    var el=document.getElementById('pwText');
-    var r=document.createRange();r.selectNode(el);
+    var r=document.createRange();r.selectNode(document.getElementById('pwEl'));
     window.getSelection().removeAllRanges();window.getSelection().addRange(r);
   });
 }
@@ -591,145 +1028,114 @@ function copyPw(){
 </html>`;
 }
 
-/* ── HTML 이스케이프 ── */
-function esc(s) {
-  return String(s)
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;')
-    .replace(/'/g,'&#39;');
-}
-function escJs(s) {
-  return String(s).replace(/\\/g,'\\\\').replace(/"/g,'\\"').replace(/'/g,"\\'");
-}
-
-/* ── 현재 생성된 데이터 ── */
-let currentHtml = '';
-let currentUrl  = '';
-let qrInstance  = null;
-
-/* ── naver.me → m.place.naver.com 변환 ── */
-function toMobilePlace(url) {
-  /* place.naver.com → m.place.naver.com (앱 딥링크 제거) */
-  if (url.includes('place.naver.com') && !url.includes('m.place.naver.com')) {
-    return url.replace('place.naver.com', 'm.place.naver.com');
-  }
-  /* naver.me 단축 URL은 그대로 유지하되 접미사로 웹뷰 파라미터 추가 불가 —
-     실제 변환은 서버사이드 리다이렉트 추적이 필요하므로 원본 유지 */
-  return url;
-}
-
-/* ── 생성 메인 ── */
+/* ── 생성 ── */
 function generate() {
-  const storeName   = document.getElementById('storeName').value.trim();
-  const placeUrlRaw = document.getElementById('placeUrl').value.trim();
-  const ssid        = document.getElementById('ssid').value.trim();
-  const password    = document.getElementById('password').value.trim();
-  const footerMsg   = document.getElementById('footerMsg').value.trim() || '와이파이를 즐겁게 이용하세요 😊';
+  const storeName  = document.getElementById('storeName').value.trim();
+  const placeUrl   = document.getElementById('placeUrl').value.trim();
+  const ssid       = document.getElementById('ssid').value.trim();
+  const password   = document.getElementById('password').value.trim();
+  const rewardMsg  = document.getElementById('rewardMsg').value.trim();
+  const hiorder    = document.getElementById('hiorderToggle').checked;
+  const hiorderEx  = document.getElementById('hiorderExample').value.trim();
 
-  /* 필수값 검증 */
-  if (!storeName)   { alert('매장명을 입력해주세요.'); return; }
-  if (!placeUrlRaw) { alert('네이버 플레이스 URL을 입력해주세요.'); return; }
-  if (!ssid)        { alert('와이파이 SSID를 입력해주세요.'); return; }
-  if (!password)    { alert('와이파이 비밀번호를 입력해주세요.'); return; }
+  if (!storeName) { alert('매장명을 입력해주세요.'); return; }
+  if (!placeUrl)  { alert('네이버 플레이스 URL을 입력해주세요.'); return; }
+  if (!ssid)      { alert('와이파이 이름을 입력해주세요.'); return; }
+  if (!password)  { alert('와이파이 비밀번호를 입력해주세요.'); return; }
 
-  /* URL 변환: place.naver.com → m.place.naver.com */
-  const placeUrl = toMobilePlace(placeUrlRaw);
-  /* 변환 결과를 입력창에 반영 */
-  if (placeUrl !== placeUrlRaw) {
-    document.getElementById('placeUrl').value = placeUrl;
-    document.getElementById('placeHint').textContent = '✓ 앱 실행 없는 모바일 웹 URL로 자동 변환됐습니다.';
-    document.getElementById('placeHint').style.color = '#03C75A';
-  }
+  /* 버튼 로딩 */
+  const btn = document.getElementById('generateBtn');
+  const spinner = document.getElementById('spinner');
+  const btnText = document.getElementById('btnText');
+  btn.disabled = true;
+  spinner.style.display = 'block';
+  btnText.textContent = '생성 중...';
 
-  const cfg = { storeName, placeUrl, ssid, password, footerMsg };
+  setTimeout(() => {
+    const guideText = mode === 'reward'
+      ? '아래 버튼을 눌러 별점을 남겨주시면\n비밀번호를 확인하실 수 있어요 😊'
+      : '아래 버튼을 누른 후\n네이버 플레이스에서 비밀번호를 확인하세요';
+    const btnTxt = mode === 'reward'
+      ? '플레이스에서 별점 남기기'
+      : '네이버 플레이스에서 비밀번호 확인';
+    const footerMsg = mode === 'reward'
+      ? '리뷰 하나가 저희에게 큰 힘이 됩니다 🙏'
+      : '와이파이를 즐겁게 이용해주세요 😊';
 
-  /* HTML 생성 */
-  currentHtml = buildLandingHtml(cfg);
+    const cfg = { storeName, placeUrl, ssid, password, mode, rewardMsg, hiorder, hiorderExample: hiorderEx, guideText, btnText: btnTxt, footerMsg };
+    currentHtml = buildHtml(cfg);
 
-  /* ── URL 방식: Data URI (서버 없이 공유 가능한 방법) ── */
-  /* 실제 서버 배포 시에는 아래를 kt-synergy.com/wifi?store=...&place=...&ssid=...&pw=... 형태로 교체 */
-  const params = new URLSearchParams({
-    store: storeName,
-    place: placeUrl,
-    ssid:  ssid,
-    pw:    password,
-    msg:   footerMsg
-  });
-  /* 현재 페이지 기반 링크 생성 */
-  const base = window.location.href.replace(/wifi-generator\.html.*$/, 'wifi.html');
-  currentUrl = base + '?' + params.toString();
+    /* URL 생성 */
+    const params = new URLSearchParams({ store: storeName, place: placeUrl, ssid, pw: password, mode, msg: footerMsg });
+    if (mode === 'reward') {
+      params.set('reward', rewardMsg);
+      params.set('hiorder', hiorder ? '1' : '0');
+      params.set('hiex', hiorderEx);
+    }
+    const base = location.href.replace(/wifi-generator\.html.*$/, 'wifi.html');
+    currentUrl = base + '?' + params.toString();
 
-  /* URL 표시 */
-  document.getElementById('urlDisplay').textContent = currentUrl;
-  document.getElementById('copyUrlBtn').textContent = '복사';
-  document.getElementById('copyUrlBtn').classList.remove('copied');
+    /* UI 업데이트 */
+    document.getElementById('urlDisplay').textContent = currentUrl;
 
-  /* QR 코드 생성 */
-  const qrEl = document.getElementById('qrcode');
-  qrEl.innerHTML = '';
-  qrInstance = new QRCode(qrEl, {
-    text:          currentUrl,
-    width:         140,
-    height:        140,
-    colorDark:     '#000000',
-    colorLight:    '#ffffff',
-    correctLevel:  QRCode.CorrectLevel.M
-  });
+    /* QR */
+    const qrEl = document.getElementById('qrcode');
+    qrEl.innerHTML = '';
+    qrInstance = new QRCode(qrEl, {
+      text: currentUrl,
+      width: 120, height: 120,
+      colorDark: '#000', colorLight: '#fff',
+      correctLevel: QRCode.CorrectLevel.M
+    });
 
-  /* iframe 미리보기 */
-  const frame = document.getElementById('previewFrame');
-  const blob = new Blob([currentHtml], { type: 'text/html;charset=utf-8' });
-  const blobUrl = URL.createObjectURL(blob);
-  frame.src = blobUrl;
+    /* 결과 카드 애니메이션 */
+    const rc = document.getElementById('resultCard');
+    rc.classList.add('visible');
+    rc.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    /* 버튼 복원 */
+    btn.disabled = false;
+    spinner.style.display = 'none';
+    btnText.textContent = '다시 생성하기';
+  }, 600);
 }
 
-/* ── URL 복사 ── */
-function copyUrl() {
-  if (!currentUrl) return;
-  const btn = document.getElementById('copyUrlBtn');
-  navigator.clipboard.writeText(currentUrl).then(() => {
-    btn.textContent = '복사됨 ✓';
-    btn.classList.add('copied');
-    setTimeout(() => { btn.textContent = '복사'; btn.classList.remove('copied'); }, 2500);
-  });
-}
-
-/* ── QR PNG 다운로드 ── */
-function downloadQR(e) {
-  e.preventDefault();
-  if (!qrInstance) { alert('먼저 페이지를 생성해주세요.'); return; }
+/* ── 다운로드 ── */
+function downloadQR() {
+  if (!qrInstance) return;
   const canvas = document.querySelector('#qrcode canvas');
-  if (!canvas) { alert('QR 코드를 먼저 생성해주세요.'); return; }
-
-  /* 여백 추가한 최종 캔버스 */
-  const pad = 24;
+  if (!canvas) return;
+  const pad = 20;
   const size = canvas.width + pad * 2;
   const out = document.createElement('canvas');
   out.width = size; out.height = size;
   const ctx = out.getContext('2d');
-  ctx.fillStyle = '#ffffff';
+  ctx.fillStyle = '#fff';
   ctx.fillRect(0, 0, size, size);
   ctx.drawImage(canvas, pad, pad);
-
   const a = document.createElement('a');
-  const storeName = document.getElementById('storeName').value.trim() || '매장';
-  a.download = `QR_와이파이_${storeName}.png`;
+  a.download = 'QR_' + (document.getElementById('storeName').value.trim() || '매장') + '.png';
   a.href = out.toDataURL('image/png');
   a.click();
 }
 
-/* ── HTML 파일 다운로드 ── */
-function downloadHtml(e) {
-  e.preventDefault();
-  if (!currentHtml) { alert('먼저 페이지를 생성해주세요.'); return; }
+function downloadHtml() {
+  if (!currentHtml) return;
   const blob = new Blob([currentHtml], { type: 'text/html;charset=utf-8' });
   const a = document.createElement('a');
-  const storeName = document.getElementById('storeName').value.trim() || '매장';
-  a.download = `와이파이_랜딩_${storeName}.html`;
+  a.download = '와이파이_' + (document.getElementById('storeName').value.trim() || '매장') + '.html';
   a.href = URL.createObjectURL(blob);
   a.click();
+}
+
+function copyUrl() {
+  if (!currentUrl) return;
+  const btn = document.getElementById('copyBtn');
+  navigator.clipboard.writeText(currentUrl).then(() => {
+    btn.textContent = '✓ 복사됨';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke="currentColor" stroke-width="2"/></svg> 링크 복사'; btn.classList.remove('copied'); }, 2500);
+  });
 }
 </script>
 </body>
