@@ -633,7 +633,7 @@ function generate() {
     msg:   footerMsg
   });
   /* 현재 페이지 기반 링크 생성 */
-  const base = window.location.href.replace(/generator\.html.*$/, 'wifi.html');
+  const base = window.location.href.replace(/wifi-generator\.html.*$/, 'wifi.html');
   currentUrl = base + '?' + params.toString();
 
   /* URL 표시 */
