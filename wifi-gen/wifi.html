@@ -190,7 +190,20 @@ function openPlace() {
   if (s2) s2.className = 'step-num active';
   if (box) box.classList.add('visible');
 
-  if (!opened) { window.open(CFG.placeUrl, '_blank'); opened = true; }
+  if (!opened) {
+    /* 새 탭으로 열되 앱 실행 억제:
+       m.place.naver.com 은 앱 딥링크 없이 모바일 웹으로만 열림
+       naver.me 단축 URL은 앱을 띄울 수 있어 가능하면 변환 권장 */
+    const a = document.createElement('a');
+    a.href = CFG.placeUrl;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    /* noreferrer: 리퍼러 차단으로 일부 앱 딥링크 트리거 방지 */
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    opened = true;
+  }
 
   setTimeout(() => {
     const s2b = document.getElementById('s2');

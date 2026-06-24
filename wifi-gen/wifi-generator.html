@@ -340,7 +340,7 @@ body {
     <div class="field-group">
       <label>네이버 플레이스 URL <span style="color:#e8002d">*</span></label>
       <input type="url" id="placeUrl" placeholder="https://naver.me/xxxxxxxx" value="https://naver.me/Fy2F6RQ5">
-      <p class="field-hint">네이버 플레이스 → 공유하기 → 링크 복사</p>
+      <p class="field-hint" id="placeHint">네이버 플레이스 → 공유하기 → 링크 복사<br>naver.me 단축 URL 또는 place.naver.com 주소 모두 가능</p>
     </div>
 
     <div class="divider"></div>
@@ -563,7 +563,12 @@ function openPlace(){
   document.getElementById('l1').className='step-line done';
   document.getElementById('s2').className='step-num active';
   box.classList.add('visible');
-  if(!opened){window.open(PLACE,'_blank');opened=true;}
+  if(!opened){
+    var a=document.createElement('a');
+    a.href=PLACE;a.target='_blank';a.rel='noopener noreferrer';
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
+    opened=true;
+  }
   setTimeout(function(){
     document.getElementById('s2').className='step-num done';document.getElementById('s2').textContent='✓';
     document.getElementById('l2').className='step-line done';
@@ -604,19 +609,39 @@ let currentHtml = '';
 let currentUrl  = '';
 let qrInstance  = null;
 
+/* ── naver.me → m.place.naver.com 변환 ── */
+function toMobilePlace(url) {
+  /* place.naver.com → m.place.naver.com (앱 딥링크 제거) */
+  if (url.includes('place.naver.com') && !url.includes('m.place.naver.com')) {
+    return url.replace('place.naver.com', 'm.place.naver.com');
+  }
+  /* naver.me 단축 URL은 그대로 유지하되 접미사로 웹뷰 파라미터 추가 불가 —
+     실제 변환은 서버사이드 리다이렉트 추적이 필요하므로 원본 유지 */
+  return url;
+}
+
 /* ── 생성 메인 ── */
 function generate() {
-  const storeName = document.getElementById('storeName').value.trim();
-  const placeUrl  = document.getElementById('placeUrl').value.trim();
-  const ssid      = document.getElementById('ssid').value.trim();
-  const password  = document.getElementById('password').value.trim();
-  const footerMsg = document.getElementById('footerMsg').value.trim() || '와이파이를 즐겁게 이용하세요 😊';
+  const storeName   = document.getElementById('storeName').value.trim();
+  const placeUrlRaw = document.getElementById('placeUrl').value.trim();
+  const ssid        = document.getElementById('ssid').value.trim();
+  const password    = document.getElementById('password').value.trim();
+  const footerMsg   = document.getElementById('footerMsg').value.trim() || '와이파이를 즐겁게 이용하세요 😊';
 
   /* 필수값 검증 */
-  if (!storeName) { alert('매장명을 입력해주세요.'); return; }
-  if (!placeUrl)  { alert('네이버 플레이스 URL을 입력해주세요.'); return; }
-  if (!ssid)      { alert('와이파이 SSID를 입력해주세요.'); return; }
-  if (!password)  { alert('와이파이 비밀번호를 입력해주세요.'); return; }
+  if (!storeName)   { alert('매장명을 입력해주세요.'); return; }
+  if (!placeUrlRaw) { alert('네이버 플레이스 URL을 입력해주세요.'); return; }
+  if (!ssid)        { alert('와이파이 SSID를 입력해주세요.'); return; }
+  if (!password)    { alert('와이파이 비밀번호를 입력해주세요.'); return; }
+
+  /* URL 변환: place.naver.com → m.place.naver.com */
+  const placeUrl = toMobilePlace(placeUrlRaw);
+  /* 변환 결과를 입력창에 반영 */
+  if (placeUrl !== placeUrlRaw) {
+    document.getElementById('placeUrl').value = placeUrl;
+    document.getElementById('placeHint').textContent = '✓ 앱 실행 없는 모바일 웹 URL로 자동 변환됐습니다.';
+    document.getElementById('placeHint').style.color = '#03C75A';
+  }
 
   const cfg = { storeName, placeUrl, ssid, password, footerMsg };
 
