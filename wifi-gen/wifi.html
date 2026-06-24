@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#0f0f0f">
+<title>와이파이 비밀번호 안내</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--accent:#03C75A;--accent-dark:#029447}
+html,body{height:100%;font-family:'Apple SD Gothic Neo','Pretendard',-apple-system,'Malgun Gothic',sans-serif;background:#0f0f0f;color:#f0f0f0;-webkit-font-smoothing:antialiased}
+body{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100dvh;padding:24px 20px 40px}
+body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(circle,#ffffff08 1px,transparent 1px);background-size:28px 28px;pointer-events:none;z-index:0}
+.card{position:relative;z-index:1;width:100%;max-width:360px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:20px;overflow:hidden}
+.header{background:#111;padding:28px 24px 24px;text-align:center;border-bottom:1px solid #222}
+.wifi-icon{display:flex;justify-content:center;margin-bottom:16px}
+.wifi-icon svg{width:48px;height:48px}
+.store-label{font-size:11px;letter-spacing:.18em;color:#666;text-transform:uppercase;margin-bottom:6px}
+.store-name{font-size:22px;font-weight:700;color:#f0f0f0;letter-spacing:-.02em}
+.body{padding:28px 24px}
+.guide-text{font-size:14px;line-height:1.75;color:#999;text-align:center;margin-bottom:24px}
+.guide-text strong{color:#f0f0f0;font-weight:600}
+.steps{display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:28px}
+.step{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1}
+.step-num{width:32px;height:32px;border-radius:50%;border:1.5px solid #333;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#666;background:#111;transition:all .4s ease}
+.step-num.active{border-color:var(--accent);color:var(--accent);box-shadow:0 0 12px #03C75A33}
+.step-num.done{border-color:var(--accent);background:var(--accent);color:#fff}
+.step-label{font-size:10px;color:#555;text-align:center;line-height:1.3;white-space:nowrap}
+.step-label.active{color:#aaa}
+.step-line{width:28px;height:1.5px;background:#2a2a2a;margin-bottom:18px;flex-shrink:0}
+.step-line.done{background:var(--accent)}
+.naver-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:16px;background:var(--accent);border:none;border-radius:12px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;letter-spacing:-.01em;transition:background .2s,transform .15s;-webkit-tap-highlight-color:transparent;font-family:inherit}
+.naver-btn:active{background:var(--accent-dark);transform:scale(.98)}
+.naver-btn svg{width:22px;height:22px;flex-shrink:0}
+.pw-box{margin-top:20px;background:#111;border:1px solid #2a2a2a;border-radius:12px;overflow:hidden;opacity:0;transform:translateY(8px);transition:opacity .5s ease,transform .5s ease;pointer-events:none}
+.pw-box.visible{opacity:1;transform:translateY(0);pointer-events:auto}
+.pw-box-header{padding:10px 16px;background:#161616;border-bottom:1px solid #2a2a2a;display:flex;align-items:center;gap:8px}
+.pw-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px #03C75A66;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.pw-box-title{font-size:11px;color:#555;letter-spacing:.1em;text-transform:uppercase}
+.pw-content{padding:16px}
+.pw-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.pw-row:last-child{margin-bottom:0}
+.pw-key{font-size:11px;color:#555;letter-spacing:.06em}
+.pw-value{font-size:15px;font-weight:700;color:#f0f0f0;letter-spacing:.08em;font-variant-numeric:tabular-nums}
+.pw-value.ssid{font-size:13px;color:#ccc}
+.copy-btn{width:100%;margin-top:12px;padding:10px;background:transparent;border:1px solid #2a2a2a;border-radius:8px;font-size:12px;color:#666;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .2s;-webkit-tap-highlight-color:transparent;font-family:inherit}
+.copy-btn:active{background:#222;color:#aaa}
+.copy-btn.copied{border-color:var(--accent);color:var(--accent)}
+.footer-note{margin-top:20px;font-size:11px;color:#444;text-align:center;line-height:1.6}
+/* 오류 화면 */
+.error-card{text-align:center;padding:40px 24px}
+.error-card p{font-size:14px;color:#666;line-height:1.7}
+@media(prefers-color-scheme:light){
+  body{background:#f5f5f5}
+  body::before{background-image:radial-gradient(circle,#00000008 1px,transparent 1px)}
+  .card{background:#fff;border-color:#e8e8e8}
+  .header{background:#fafafa;border-color:#eee}
+  .store-label{color:#aaa}.store-name{color:#111}
+  .guide-text{color:#888}.guide-text strong{color:#111}
+  .step-num{background:#fafafa;border-color:#ddd;color:#aaa}
+  .step-line{background:#e8e8e8}
+  .pw-box{background:#fafafa;border-color:#e8e8e8}
+  .pw-box-header{background:#f5f5f5;border-color:#eee}
+  .pw-box-title{color:#aaa}.pw-key{color:#aaa}
+  .pw-value{color:#111}.pw-value.ssid{color:#444}
+  .copy-btn{border-color:#e0e0e0;color:#aaa}
+  .footer-note{color:#bbb}
+}
+</style>
+</head>
+<body>
+<div class="card" id="card"></div>
+
+<script>
+/* URL 파라미터 파싱 */
+const p = new URLSearchParams(location.search);
+const CFG = {
+  storeName : p.get('store') || '',
+  placeUrl  : p.get('place') || '',
+  ssid      : p.get('ssid')  || '',
+  password  : p.get('pw')    || '',
+  footerMsg : p.get('msg')   || '와이파이를 즐겁게 이용하세요 😊'
+};
+
+function esc(s) {
+  return document.createTextNode(s).textContent || String(s);
+}
+
+const card = document.getElementById('card');
+
+/* 필수 파라미터 없을 때 */
+if (!CFG.storeName || !CFG.placeUrl || !CFG.ssid || !CFG.password) {
+  document.title = '잘못된 링크';
+  card.innerHTML = `
+    <div class="error-card">
+      <p style="font-size:32px;margin-bottom:16px">⚠️</p>
+      <p>잘못된 링크입니다.<br>QR 코드를 다시 스캔해주세요.</p>
+    </div>`;
+} else {
+  document.title = CFG.storeName + ' — 와이파이 안내';
+
+  card.innerHTML = `
+    <div class="header">
+      <div class="wifi-icon">
+        <svg viewBox="0 0 48 48" fill="none">
+          <path d="M24 36a3 3 0 1 1 0 6 3 3 0 0 1 0-6z" fill="#03C75A"/>
+          <path d="M14.5 27.5C17.1 24.8 20.4 23 24 23s6.9 1.8 9.5 4.5" stroke="#03C75A" stroke-width="2.5" stroke-linecap="round" opacity=".7"/>
+          <path d="M7 20.5C11.5 15.8 17.4 13 24 13s12.5 2.8 17 7.5" stroke="#03C75A" stroke-width="2.5" stroke-linecap="round" opacity=".35"/>
+        </svg>
+      </div>
+      <p class="store-label">Guest Wi-Fi</p>
+      <p class="store-name" id="sname"></p>
+    </div>
+    <div class="body">
+      <p class="guide-text">비밀번호는 아래 버튼을 누른 후<br><strong>네이버 플레이스</strong>에서 확인하실 수 있어요 😊</p>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num active" id="s1">1</div>
+          <div class="step-label active">플레이스<br>방문</div>
+        </div>
+        <div class="step-line" id="l1"></div>
+        <div class="step">
+          <div class="step-num" id="s2">2</div>
+          <div class="step-label">비밀번호<br>확인</div>
+        </div>
+        <div class="step-line" id="l2"></div>
+        <div class="step">
+          <div class="step-num" id="s3">3</div>
+          <div class="step-label">와이파이<br>접속</div>
+        </div>
+      </div>
+      <button class="naver-btn" id="naverBtn" onclick="openPlace()">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M16.273 12.845L7.376 0H0v24h7.727V11.155L16.624 24H24V0h-7.727z" fill="white"/>
+        </svg>
+        네이버 플레이스에서 비밀번호 확인
+      </button>
+      <div class="pw-box" id="pwBox">
+        <div class="pw-box-header">
+          <div class="pw-dot"></div>
+          <span class="pw-box-title">Wi-Fi 접속 정보</span>
+        </div>
+        <div class="pw-content">
+          <div class="pw-row">
+            <span class="pw-key">네트워크</span>
+            <span class="pw-value ssid" id="ssidEl"></span>
+          </div>
+          <div class="pw-row">
+            <span class="pw-key">비밀번호</span>
+            <span class="pw-value" id="pwEl"></span>
+          </div>
+          <button class="copy-btn" id="copyBtn" onclick="copyPw()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+              <rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2"/>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            비밀번호 복사
+          </button>
+        </div>
+      </div>
+      <p class="footer-note" id="footer"></p>
+    </div>`;
+
+  /* 텍스트 안전하게 삽입 (XSS 방지) */
+  document.getElementById('sname').textContent  = CFG.storeName;
+  document.getElementById('ssidEl').textContent = CFG.ssid;
+  document.getElementById('pwEl').textContent   = CFG.password;
+  document.getElementById('footer').textContent = CFG.footerMsg;
+}
+
+let opened = false;
+
+function openPlace() {
+  const btn = document.getElementById('naverBtn');
+  const box = document.getElementById('pwBox');
+  if (!btn) return;
+
+  btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+    <path d="M5 13l4 4L19 7" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    플레이스 열림 — 비밀번호 확인하세요`;
+  btn.style.background = '#029447';
+  btn.onclick = null;
+
+  const s1 = document.getElementById('s1');
+  const l1 = document.getElementById('l1');
+  const s2 = document.getElementById('s2');
+  if (s1) { s1.className = 'step-num done'; s1.textContent = '✓'; }
+  if (l1) l1.className = 'step-line done';
+  if (s2) s2.className = 'step-num active';
+  if (box) box.classList.add('visible');
+
+  if (!opened) { window.open(CFG.placeUrl, '_blank'); opened = true; }
+
+  setTimeout(() => {
+    const s2b = document.getElementById('s2');
+    const l2  = document.getElementById('l2');
+    const s3  = document.getElementById('s3');
+    if (s2b) { s2b.className = 'step-num done'; s2b.textContent = '✓'; }
+    if (l2)  l2.className = 'step-line done';
+    if (s3)  s3.className = 'step-num active';
+  }, 2000);
+}
+
+function copyPw() {
+  const btn = document.getElementById('copyBtn');
+  navigator.clipboard.writeText(CFG.password).then(() => {
+    btn.textContent = '✓  복사 완료!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = '비밀번호 복사';
+      btn.classList.remove('copied');
+    }, 2500);
+  }).catch(() => {
+    const el = document.getElementById('pwEl');
+    const r = document.createRange();
+    r.selectNode(el);
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(r);
+  });
+}
+</script>
+</body>
+</html>
