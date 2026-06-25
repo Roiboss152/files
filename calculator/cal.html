@@ -904,7 +904,7 @@ const PRICE = {
   adMonthly: 556,
   ansim: { monthly: 1650, minDevices: 5 },
   mouPerDevice: { tier10: 1000, tier30: 2000 },
-  bundleFlat: 5500,
+  bundleFlat: 5000,  // VAT별도 (VAT포함 5,500원 → /1.1 = 5,000원)
   vat: 0.10,
 };
 PRICE.device10.lumpIncl = Math.round(PRICE.device10.lumpEx * (1+PRICE.vat));
@@ -1144,7 +1144,7 @@ function renderSelectSummary(cfg, c){
     const tierLabel = cfg.mouTier==='tier30' ? '30가맹점 이상' : '10가맹점 이상';
     items.push({t:`MOU체결 프랜차이즈 가맹점 (${tierLabel})`, d:`3년 약정 한정 · 단말 1대당 월 ${won(mouUnit)} 정액 할인`});
   }
-  if(cfg.bundle) items.push({t:'으랏차차 결합 (2종 이상 상품 가입)', d:'하이오더 결합할인 월 5,500원 고정 (대수·조합 상품과 무관, 계약당 1회)'});
+  if(cfg.bundle) items.push({t:'으랏차차 결합 (2종 이상 상품 가입)', d:'하이오더 결합할인 월 5,500원 고정 · VAT포함 기준 (대수·조합 상품과 무관, 계약당 1회)'});
   if(cfg.contractType==='free') items.push({t:'무약정 선택', d:'단말은 일시불만 가능하고, 서비스이용료는 월 21,000원/대로 청구되며 선납 할인과 MOU 할인이 적용되지 않습니다.'});
   $('selectSummary').innerHTML = items.length
     ? items.map(i=>`<div class="selectSummaryItem"><div class="t">✓ ${i.t}</div><div class="d">${i.d}</div></div>`).join('')
@@ -1844,7 +1844,7 @@ function renderRewardChecks(){
     { id:'adConsent', t:'테이블 광고 수신 동의', hint:'단말 1대당 월 556원 할인', rewardFn:c=> c.adDiscountMonthly },
     { id:'ansim', t:'하이오더 안심매입 가입', hint:'대당 월 1,650원(VAT포함) · 최소 5대 이상', rewardFn:c=> c.ansimMonthlyIncl, isCost:true },
     { id:'mouFranchise', t:'MOU체결 프랜차이즈', hint:'3년 약정 한정 · 가맹점 등급 선택', rewardFn:c=> c.mouDiscountMonthly, hasTier:true },
-    { id:'bundleDiscount', t:'으랏차차 결합 (2종 이상)', hint:'고정 월 5,500원 할인', rewardFn:c=> c.bundleDiscountMonthly },
+    { id:'bundleDiscount', t:'으랏차차 결합 (2종 이상)', hint:'고정 월 5,500원 할인 (VAT포함)', rewardFn:c=> c.bundleDiscountMonthly },
   ];
   const html = defs.map(d=>{
     const tierUI = d.hasTier ? `
