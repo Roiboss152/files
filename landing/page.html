@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KT Synergy - Wi-Fi 연결</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 20px; }
+        .btn { display: block; width: 80%; margin: 10px auto; padding: 15px; border-radius: 10px; border: none; font-size: 16px; cursor: pointer; }
+        .btn-wifi { background-color: #007bff; color: white; }
+        .btn-copy { background-color: #6c757d; color: white; }
+        .info { margin-top: 20px; color: #555; }
+    </style>
+</head>
+<body>
+    <h1>방문을 환영합니다!</h1>
+    <p>아래 버튼을 눌러 와이파이를 연결하세요.</p>
+
+    <a href="intent://#Intent;action=android.settings.WIFI_SETTINGS;end" class="btn btn-wifi">와이파이 설정 바로가기</a>
+
+    <button class="btn btn-copy" onclick="copyPassword()">비밀번호 복사하기</button>
+
+    <div class="info">
+        <p><strong>네트워크:</strong> KT_GiGA_5G_Wave2_28A5</p>
+        <p id="msg"></p>
+    </div>
+
+    <script>
+        function copyPassword() {
+            const password = "0faefgh312";
+            navigator.clipboard.writeText(password).then(() => {
+                document.getElementById('msg').innerText = "비밀번호가 복사되었습니다! 와이파이 설정에서 붙여넣으세요.";
+            });
+        }
+    </script>
+</body>
+</html>
