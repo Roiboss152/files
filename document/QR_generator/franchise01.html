@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>프랜차이즈 전용 Wi-Fi QR 생성기 | KT 인천지사 시너지영업3팀</title>
+  <title>프랜차이즈 전용 Wi-Fi QR 생성기 v1.11 | KT 인천지사 시너지영업3팀</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.1/qrcode.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -295,6 +295,104 @@
       margin-top: 20px;
     }
     .notice strong { display: block; margin-bottom: 4px; font-weight: 800; }
+
+    /* ── Custom (직접 만들기) ── */
+    .franchise-label.custom .franchise-card {
+      background: linear-gradient(135deg, #fff5f5 0%, #ffe8ea 100%);
+      border-color: rgba(227,6,19,0.25);
+      border-style: dashed;
+    }
+    .franchise-label.custom .franchise-card:hover {
+      background: #fff;
+      border-color: var(--kt-red);
+      border-style: solid;
+    }
+    .franchise-label.custom .brand-thumb-placeholder {
+      background: #fff;
+      border: 2px dashed rgba(227,6,19,0.3);
+      color: var(--kt-red);
+    }
+
+    /* Custom 입력 패널 */
+    .custom-panel {
+      display: none;
+      margin-top: 20px;
+      padding: 20px;
+      background: #fff5f5;
+      border: 1.5px solid rgba(227,6,19,0.2);
+      border-radius: 12px;
+      animation: fadeIn 0.3s ease;
+    }
+    .custom-panel.active { display: block; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .custom-panel .panel-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--kt-red);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* 파일 업로드 */
+    .file-upload {
+      position: relative;
+      width: 100%;
+      border: 2px dashed #d1d5db;
+      border-radius: 10px;
+      padding: 24px;
+      background: #fff;
+      cursor: pointer;
+      transition: var(--transition);
+      text-align: center;
+    }
+    .file-upload:hover {
+      border-color: var(--kt-red);
+      background: #fffafa;
+    }
+    .file-upload input[type="file"] {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+    .file-upload-label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      color: #6b7280;
+      font-size: 0.88rem;
+      font-weight: 600;
+      pointer-events: none;
+    }
+    .file-upload-label svg { color: var(--kt-red); }
+    .file-upload.has-file { border-style: solid; border-color: #10b981; background: #f0fdf4; }
+    .file-upload.has-file .file-upload-label { color: #047857; }
+    .file-preview {
+      display: none;
+      margin-top: 12px;
+      text-align: center;
+    }
+    .file-preview.active { display: block; }
+    .file-preview img {
+      max-width: 100%;
+      max-height: 180px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .file-preview .file-name {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: #6b7280;
+      word-break: break-all;
+    }
   </style>
 </head>
 <body>
@@ -303,7 +401,7 @@
   <img src="https://kt-synergy.com/assets/image/CI_BI/KT_CI_G01.png" class="kt-logo" alt="KT" onerror="this.style.display='none'">
   <div class="divider"></div>
   <div class="header-text">
-    <h1>프랜차이즈 전용 Wi-Fi QR 생성기</h1>
+    <h1>프랜차이즈 전용 Wi-Fi QR 생성기 <span style="font-size:0.7rem;color:#aaa;font-weight:600;">v1.11</span></h1>
     <p>KT 인천지사 시너지영업3팀 · DX상품 영업 지원 서비스</p>
   </div>
 </header>
@@ -320,6 +418,15 @@
         프랜차이즈 선택
       </div>
       <div class="franchise-grid" id="franchiseGrid">
+
+        <!-- 직접 만들기 (Custom) -->
+        <label class="franchise-label custom">
+          <input type="radio" name="franchise" value="custom">
+          <div class="franchise-card">
+            <div class="brand-thumb-placeholder">✏️</div>
+            <div class="brand-name">직접 만들기</div>
+          </div>
+        </label>
 
         <!-- tem01 강경불고기 -->
         <label class="franchise-label">
@@ -439,9 +546,38 @@
         </label>
 
       </div>
-    </div>
 
-    <!-- Step 2: Wi-Fi 정보 입력 -->
+      <!-- 직접 만들기 입력 패널 -->
+      <div class="custom-panel" id="customPanel">
+        <div class="panel-title">
+          ✏️ 직접 만들기 정보 입력
+        </div>
+
+        <div class="form-group">
+          <label>가게 상호 (메인 이미지 위에 표시)</label>
+          <input type="text" id="inputShopName" placeholder="예: 우리집 맛있는 식당" autocomplete="off" maxlength="20">
+        </div>
+
+        <div class="form-group">
+          <label>가게 이미지 (PNG, JPG / 자동 중앙정렬·확대축소)</label>
+          <div class="file-upload" id="fileUploadBox">
+            <input type="file" id="inputShopImage" accept="image/*">
+            <div class="file-upload-label">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                <circle cx="8.5" cy="8.5" r="1.5"/>
+                <polyline points="21 15 16 10 5 21"/>
+              </svg>
+              <span id="fileUploadText">클릭 또는 드래그하여 이미지 업로드</span>
+            </div>
+          </div>
+          <div class="file-preview" id="filePreview">
+            <img id="filePreviewImg" alt="미리보기">
+            <div class="file-name" id="fileName"></div>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="card">
       <div class="section-title">
         <span class="section-num">2</span>
@@ -534,21 +670,55 @@ const LAYOUT = {
   // 검정 바
   bar: { top: 1357, bottom: 1410 },
   // 텍스트 (center-aligned)
-  ssid: { x: 247,  y: 1387 }, // 바 좌측 영역 중앙 (픽셀 분석값)
-  pw:   { x: 970,  y: 1387 }, // 바 우측 영역 중앙 (픽셀 분석값)
+  ssid: { x: 247,  y: 1387 },
+  pw:   { x: 970,  y: 1387 },
   // 폰트
   fontSize: 36,
   fontBold: 42,
+  // ── Custom 모드용 추가 좌표 ──
+  // 가게 사진 영역 (출력템플릿02.png의 투명 영역에 정확히 맞춤)
+  photo:    { x: 98,  y: 33,  w: 1043, h: 998, radius: 0 },
+  // 가게 상호 위치 (사진 위 오버레이, 가운데 정렬)
+  shopName: { x: 620, y: 260, maxWidth: 920, maxFont: 140, minFont: 70 },
 };
 
-let generatedCanvas = null;
-let selectedFranchise = null;
+// ── 직접 만들기 모드용 템플릿 (출력템플릿01.png base64 인라인) ──
+// (외부 호스팅 없이 자체 포함되어 작동)
+const CUSTOM_TEMPLATE_URL = 'https://kt-synergy.com/assets/image/qr_templates/%EC%B6%9C%EB%A0%A5%ED%85%9C%ED%94%8C%EB%A6%BF02.png';
 
-// 프랜차이즈 선택 감지
+let generatedCanvas = null;
+let selectedFranchise = null;    // 정수(0~8) 또는 'custom'
+let customImageData = null;       // base64 dataURL
+
+// ── 프랜차이즈 선택 감지 ──────────────────────────────────────────
 document.querySelectorAll('input[name="franchise"]').forEach(radio => {
   radio.addEventListener('change', () => {
-    selectedFranchise = parseInt(radio.value);
+    const v = radio.value;
+    selectedFranchise = (v === 'custom') ? 'custom' : parseInt(v);
+    const panel = document.getElementById('customPanel');
+    if (selectedFranchise === 'custom') {
+      panel.classList.add('active');
+    } else {
+      panel.classList.remove('active');
+    }
   });
+});
+
+// ── 이미지 업로드 처리 ────────────────────────────────────────────
+document.getElementById('inputShopImage').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    customImageData = ev.target.result;
+    const previewImg = document.getElementById('filePreviewImg');
+    previewImg.src = customImageData;
+    document.getElementById('filePreview').classList.add('active');
+    document.getElementById('fileName').textContent = file.name;
+    document.getElementById('fileUploadBox').classList.add('has-file');
+    document.getElementById('fileUploadText').textContent = '✓ 이미지 업로드 완료 (다시 선택하여 변경)';
+  };
+  reader.readAsDataURL(file);
 });
 
 // ── QR 생성 메인 함수 ─────────────────────────────────────────────
@@ -556,7 +726,6 @@ async function generateQR() {
   const ssid = document.getElementById('inputSSID').value.trim();
   const pw   = document.getElementById('inputPW').value.trim();
   const sec  = document.getElementById('inputSec').value;
-  const status = document.getElementById('statusBar');
 
   // 유효성 검사
   if (selectedFranchise === null) {
@@ -568,10 +737,24 @@ async function generateQR() {
     return;
   }
 
+  // Custom 모드 추가 검증
+  const isCustom = (selectedFranchise === 'custom');
+  const shopName = document.getElementById('inputShopName').value.trim();
+  if (isCustom) {
+    if (!shopName) {
+      showStatus('error', '❌ 가게 상호를 입력해 주세요.');
+      return;
+    }
+    if (!customImageData) {
+      showStatus('error', '❌ 가게 이미지를 업로드해 주세요.');
+      return;
+    }
+  }
+
   showStatus('loading', '⏳ QR코드를 생성하는 중입니다...');
 
-  const franchise = FRANCHISES[selectedFranchise];
   const qrData = `WIFI:T:${sec};S:${ssid};P:${pw};H:false;;`;
+  const brandName = isCustom ? shopName : FRANCHISES[selectedFranchise].name;
 
   try {
     // 1. QR코드 이미지 생성
@@ -583,37 +766,43 @@ async function generateQR() {
         errorCorrectionLevel: 'H'
       }, (err, url) => err ? reject(err) : resolve(url));
     });
-
-    // 2. QR 이미지 로드
     const qrImg = await loadImage(qrDataURL);
 
-    // 3. 배경 템플릿 로드
-    const bgImg = await loadImage(BASE_URL + franchise.file);
+    // 2. 배경 템플릿 로드
+    let bgImg;
+    if (isCustom) {
+      bgImg = await loadImage(CUSTOM_TEMPLATE_URL);
+    } else {
+      bgImg = await loadImage(BASE_URL + FRANCHISES[selectedFranchise].file);
+    }
 
-    // 4. Canvas 렌더링
+    // 3. Canvas 렌더링
     const canvas = document.getElementById('previewCanvas');
     canvas.width  = LAYOUT.canvasW;
     canvas.height = LAYOUT.canvasH;
     const ctx = canvas.getContext('2d');
-
-    // 배경 그리기
     ctx.clearRect(0, 0, LAYOUT.canvasW, LAYOUT.canvasH);
-    ctx.drawImage(bgImg, 0, 0, LAYOUT.canvasW, LAYOUT.canvasH);
 
-    // QR코드 그리기
+    // Custom 모드: 먼저 가게 사진을 그린 후 배경 템플릿(검정바·QR박스·WIFI아이콘·KT로고) 오버레이
+    if (isCustom) {
+      const shopImg = await loadImage(customImageData);
+      drawImageCover(ctx, shopImg, LAYOUT.photo.x, LAYOUT.photo.y,
+                                   LAYOUT.photo.w, LAYOUT.photo.h, LAYOUT.photo.radius);
+      // 배경 템플릿(투명PNG)을 위에 덮기
+      ctx.drawImage(bgImg, 0, 0, LAYOUT.canvasW, LAYOUT.canvasH);
+      // 가게 상호 (검은 글씨 + 두꺼운 흰 stroke)
+      drawShopName(ctx, shopName);
+    } else {
+      // 기존 프랜차이즈 모드: 배경만 깔기
+      ctx.drawImage(bgImg, 0, 0, LAYOUT.canvasW, LAYOUT.canvasH);
+    }
+
+    // QR코드 그리기 (가운데 박스에)
     ctx.drawImage(qrImg, LAYOUT.qr.x, LAYOUT.qr.y, LAYOUT.qr.size, LAYOUT.qr.size);
 
-    // SSID 텍스트 (좌측 바 영역)
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillStyle = '#ffffff';
-    ctx.font = `800 ${LAYOUT.fontBold}px 'Pretendard', 'Apple SD Gothic Neo', sans-serif`;
-    ctx.fillText(ssid, LAYOUT.ssid.x, LAYOUT.ssid.y);
-
-    // PW 텍스트 (우측 바 영역)
-    if (pw) {
-      ctx.fillText(pw, LAYOUT.pw.x, LAYOUT.pw.y);
-    }
+    // SSID / PW 텍스트 (검정바 위, 자동 폰트 축소)
+    drawBarText(ctx, ssid, LAYOUT.ssid.x, LAYOUT.ssid.y);
+    if (pw) drawBarText(ctx, pw, LAYOUT.pw.x, LAYOUT.pw.y);
 
     // 미리보기 표시
     document.getElementById('previewPlaceholder').style.display = 'none';
@@ -621,12 +810,96 @@ async function generateQR() {
     generatedCanvas = canvas;
 
     document.getElementById('btnDownload').disabled = false;
-    showStatus('success', `✅ ${franchise.name} Wi-Fi QR코드 생성 완료!`);
+    showStatus('success', `✅ ${brandName} Wi-Fi QR코드 생성 완료!`);
 
   } catch (err) {
     console.error(err);
     showStatus('error', '❌ 생성 중 오류가 발생했습니다. 이미지 경로를 확인해 주세요.');
   }
+}
+
+// ── 검정바 텍스트 그리기 (자동 폰트 축소) ─────────────────────────
+function drawBarText(ctx, text, x, y) {
+  // 검정바 좌/우 영역 너비: 약 323px → 좌우 20px 마진 → 약 280
+  const maxWidth = 280;
+  let fs = LAYOUT.fontBold;
+  const fontFamily = `'Pretendard', 'Apple SD Gothic Neo', sans-serif`;
+  ctx.font = `800 ${fs}px ${fontFamily}`;
+  const w = ctx.measureText(text).width;
+  if (w > maxWidth) {
+    fs = Math.max(22, Math.floor(fs * maxWidth / w));
+    ctx.font = `800 ${fs}px ${fontFamily}`;
+  }
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#ffffff';
+  ctx.fillText(text, x, y);
+}
+
+// ── 둥근 사각형 클립 + object-fit: cover로 이미지 그리기 ──────────
+function drawImageCover(ctx, img, x, y, w, h, radius) {
+  ctx.save();
+  // 둥근 사각형 path
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.lineTo(x + w - radius, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+  ctx.lineTo(x + w, y + h - radius);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+  ctx.lineTo(x + radius, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
+  ctx.lineTo(x, y + radius);
+  ctx.quadraticCurveTo(x, y, x + radius, y);
+  ctx.closePath();
+  ctx.clip();
+
+  // cover: 영역을 가득 채우고 잘리는 부분은 중앙 기준으로 잘림
+  const imgRatio = img.width / img.height;
+  const dstRatio = w / h;
+  let drawW, drawH, drawX, drawY;
+  if (imgRatio > dstRatio) {
+    // 이미지가 더 가로형 → 높이를 맞추고 가로는 잘림
+    drawH = h;
+    drawW = h * imgRatio;
+    drawX = x - (drawW - w) / 2;
+    drawY = y;
+  } else {
+    // 이미지가 더 세로형 → 너비를 맞추고 세로는 잘림
+    drawW = w;
+    drawH = w / imgRatio;
+    drawX = x;
+    drawY = y - (drawH - h) / 2;
+  }
+  ctx.drawImage(img, drawX, drawY, drawW, drawH);
+  ctx.restore();
+}
+
+// ── 가게 상호 그리기 (검은 글씨 + 흰 stroke / 자동 폰트 크기) ────
+function drawShopName(ctx, text) {
+  const cfg = LAYOUT.shopName;
+  // 폰트 크기 자동 조정
+  let fontSize = cfg.maxFont;
+  const fontFamily = `'Pretendard', 'Apple SD Gothic Neo', sans-serif`;
+  ctx.font = `900 ${fontSize}px ${fontFamily}`;
+  let textWidth = ctx.measureText(text).width;
+  if (textWidth > cfg.maxWidth) {
+    fontSize = Math.max(cfg.minFont, Math.floor(fontSize * cfg.maxWidth / textWidth));
+    ctx.font = `900 ${fontSize}px ${fontFamily}`;
+  }
+
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.lineJoin = 'round';
+  ctx.miterLimit = 2;
+
+  // 두꺼운 흰색 외곽선 (어떤 배경색에서도 가독성 보장)
+  ctx.lineWidth = Math.max(14, fontSize * 0.18);
+  ctx.strokeStyle = '#ffffff';
+  ctx.strokeText(text, cfg.x, cfg.y);
+
+  // 검은색 본문
+  ctx.fillStyle = '#000000';
+  ctx.fillText(text, cfg.x, cfg.y);
 }
 
 // ── 이미지 로드 헬퍼 ──────────────────────────────────────────────
@@ -644,10 +917,13 @@ function loadImage(src) {
 function downloadImage() {
   if (!generatedCanvas) return;
 
-  const franchise = FRANCHISES[selectedFranchise];
   const ssid = document.getElementById('inputSSID').value.trim();
   const safeName = ssid.replace(/[^a-zA-Z0-9가-힣_\-]/g, '_');
-  const filename = `wifi_qr_${franchise.name}_${safeName}.png`;
+  const isCustom = (selectedFranchise === 'custom');
+  const brandName = isCustom
+    ? document.getElementById('inputShopName').value.trim().replace(/[^a-zA-Z0-9가-힣_\-]/g, '_')
+    : FRANCHISES[selectedFranchise].name;
+  const filename = `wifi_qr_${brandName}_${safeName}.png`;
 
   generatedCanvas.toBlob(blob => {
     const a = document.createElement('a');
