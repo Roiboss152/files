@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DX상품 에셋 · KT Synergy 3</title>
+    <style>
+        body, html {
+            margin: 0; padding: 0;
+            background-color: #09090b; color: #fff;
+            font-family: 'Pretendard', -apple-system, sans-serif;
+            overflow-x: hidden; scroll-behavior: smooth;
+        }
+        body.modal-open { overflow: hidden; }
+
+        /* ── 상단 헤더 (index.html과 통일) ── */
+        .page-header {
+            position: sticky; top: 0; z-index: 50;
+            padding: 22px 60px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(9, 9, 11, 0.85);
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            box-sizing: border-box;
+        }
+        .header-logo {
+            font-size: 1.2rem; font-weight: 800; letter-spacing: 1px;
+            color: #fff; text-decoration: none;
+        }
+        .header-back {
+            color: #a1a1aa; text-decoration: none; font-size: 0.95rem; font-weight: 500;
+            display: inline-flex; align-items: center; gap: 8px;
+            transition: color 0.3s, text-shadow 0.3s;
+        }
+        .header-back:hover {
+            color: #4facfe; text-shadow: 0 0 12px rgba(79, 172, 254, 0.6);
+        }
+
+        /* ── 페이지 본문 ── */
+        .page-body {
+            max-width: 1400px; margin: 0 auto;
+            padding: 90px 40px 120px 40px;
+            box-sizing: border-box;
+        }
+        .page-title {
+            font-size: 3.2rem; font-weight: 800; margin: 0 0 20px 0;
+            letter-spacing: -1px;
+            background: linear-gradient(to right, #ffffff, #a1a1aa);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .page-ver {
+            display: inline-block;
+            margin-left: 12px;
+            font-size: 11px;
+            color: #aaa;
+            font-weight: 400;
+            letter-spacing: 0;
+            vertical-align: middle;
+            -webkit-text-fill-color: #aaa;
+            background: none;
+        }
+        .page-sub {
+            color: #71717a; font-size: 1.15rem; margin: 0 0 60px 0;
+            line-height: 1.7;
+        }
+
+        /* ── 갤러리 그리드 ── */
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 24px;
+        }
+        .thumb {
+            position: relative;
+            background: #141416;
+            border: 1px solid #232326;
+            border-radius: 16px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1), border-color 0.35s, box-shadow 0.35s;
+            display: flex; flex-direction: column;
+        }
+        .thumb:hover {
+            transform: translateY(-6px);
+            border-color: rgba(79, 172, 254, 0.5);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4), 0 0 40px rgba(79, 172, 254, 0.08);
+        }
+        .thumb-img-wrap {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            background: #0b0b0d;
+            overflow: hidden;
+        }
+        .thumb-img-wrap img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.5s ease;
+        }
+        .thumb:hover .thumb-img-wrap img { transform: scale(1.05); }
+
+        .thumb-tag {
+            position: absolute; top: 10px; left: 10px;
+            font-size: 0.7rem; font-weight: 700; letter-spacing: 1px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: rgba(79, 172, 254, 0.85);
+            color: #0b0b0d;
+            text-transform: uppercase;
+        }
+        .thumb-tag.gif {
+            background: rgba(255, 200, 87, 0.9);
+        }
+
+        .thumb-caption {
+            padding: 14px 16px;
+            border-top: 1px solid #232326;
+            background: #0f0f11;
+        }
+        .thumb-filename {
+            font-size: 0.82rem;
+            color: #a1a1aa;
+            font-family: 'SF Mono', Menlo, Consolas, monospace;
+            word-break: break-all;
+            line-height: 1.5;
+        }
+        .thumb:hover .thumb-filename { color: #e4e4e7; }
+
+        /* ── 라이트박스 (index.html img-modal과 동일 컨셉) ── */
+        .lightbox {
+            display: none;
+            position: fixed; top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            z-index: 9999;
+            justify-content: center; align-items: center;
+        }
+        .lightbox.open { display: flex; animation: lbFade 0.25s ease; }
+        @keyframes lbFade { from { opacity: 0; } to { opacity: 1; } }
+
+        .lb-backdrop {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.92);
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+        }
+        .lb-body {
+            position: relative; z-index: 1;
+            max-width: 92vw; max-height: 92vh;
+            display: flex; flex-direction: column; align-items: center;
+        }
+        .lb-img-wrap {
+            max-width: 92vw; max-height: 82vh;
+            display: inline-block;
+        }
+        .lb-img-wrap img {
+            display: block;
+            max-width: 92vw; max-height: 82vh;
+            border-radius: 10px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+        }
+        .lb-caption {
+            margin-top: 16px;
+            font-size: 0.9rem;
+            color: #d4d4d8;
+            font-family: 'SF Mono', Menlo, Consolas, monospace;
+            text-align: center;
+            padding: 8px 16px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 8px;
+        }
+        .lb-close {
+            position: absolute; top: -50px; right: 0;
+            width: 40px; height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            color: #fff;
+            font-size: 1.6rem;
+            line-height: 1;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: background 0.25s;
+        }
+        .lb-close:hover { background: rgba(255, 255, 255, 0.25); }
+
+        .lb-nav {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            width: 46px; height: 46px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            color: #fff;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: background 0.25s;
+        }
+        .lb-nav:hover { background: rgba(79, 172, 254, 0.4); }
+        .lb-prev { left: -70px; }
+        .lb-next { right: -70px; }
+
+        /* ── 모바일 ── */
+        @media (max-width: 768px) {
+            .page-header { padding: 16px 20px; }
+            .page-body { padding: 40px 20px 80px 20px; }
+            .page-title { font-size: 2rem; }
+            .page-sub { font-size: 1rem; margin-bottom: 40px; }
+            .gallery { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+            .thumb-caption { padding: 10px 12px; }
+            .thumb-filename { font-size: 0.72rem; }
+            .lb-prev { left: 10px; }
+            .lb-next { right: 10px; }
+            .lb-close { top: -46px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 상단 헤더 -->
+    <header class="page-header">
+        <a href="./index.html" class="header-logo">KT SYNERGY 3</a>
+        <a href="./index.html" class="header-back">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            메인으로
+        </a>
+    </header>
+
+    <!-- 본문 -->
+    <main class="page-body">
+        <h1 class="page-title">DX상품 에셋<span class="page-ver">v1.00</span></h1>
+        <p class="page-sub">
+            하이오더·서빙로봇 등 KT DX상품 홍보용 이미지 자산을 한 곳에 모았습니다.<br>
+            썸네일을 클릭하면 고화소 원본 이미지를 확인하실 수 있습니다.
+        </p>
+
+        <div class="gallery" id="gallery">
+            <!-- JS로 동적 생성됩니다 -->
+        </div>
+    </main>
+
+    <!-- 라이트박스 -->
+    <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+        <div class="lb-backdrop"></div>
+        <button class="lb-nav lb-prev" onclick="navLightbox(-1); event.stopPropagation();" aria-label="이전">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <button class="lb-nav lb-next" onclick="navLightbox(1); event.stopPropagation();" aria-label="다음">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="lb-body" onclick="event.stopPropagation()">
+            <button class="lb-close" onclick="closeLightbox()">×</button>
+            <div class="lb-img-wrap">
+                <img id="lb-img" src="" alt="">
+            </div>
+            <div class="lb-caption" id="lb-caption"></div>
+        </div>
+    </div>
+
+    <script>
+    // 이미지 자산 목록 (스크린샷 기반)
+    // thumb: 갤러리에 노출되는 썸네일 파일명
+    // full:  라이트박스에서 여는 원본 파일명 (소형 접미어 제거)
+    const BASE = 'https://kt-synergy.com/assets/image/DX_assets/';
+    const ASSETS = [
+        { thumb: 't_ (1) (소형).jpg', full: 't_ (1).jpg',  type: 'image' },
+        { thumb: 't_ (2) (소형).png', full: 't_ (2).png',  type: 'image' },
+        { thumb: 't_ (3) (소형).png', full: 't_ (3).png',  type: 'image' },
+        { thumb: 't_ (4) (소형).png', full: 't_ (4).png',  type: 'image' },
+        { thumb: 't_ (5) (소형).png', full: 't_ (5).png',  type: 'image' },
+        { thumb: 't_ (6) (소형).png', full: 't_ (6).png',  type: 'image' },
+        { thumb: 't_ (7) (소형).png', full: 't_ (7).png',  type: 'image' },
+        { thumb: 't_ (8) (소형).png', full: 't_ (8).png',  type: 'image' },
+        { thumb: 't_ (9) (소형).png', full: 't_ (9).png',  type: 'image' },
+        { thumb: 't_ (10) (소형).png', full: 't_ (10).png', type: 'image' },
+        { thumb: 't_ (11) (소형).png', full: 't_ (11).png', type: 'image' },
+        { thumb: 's10.gif',            full: 's10.gif',      type: 'gif'  },
+    ];
+
+    // 갤러리 생성
+    const gallery = document.getElementById('gallery');
+    ASSETS.forEach((a, idx) => {
+        const el = document.createElement('div');
+        el.className = 'thumb';
+        el.onclick = () => openLightbox(idx);
+
+        const tagLabel = a.type === 'gif' ? 'GIF' : 'IMG';
+        const tagClass = a.type === 'gif' ? 'thumb-tag gif' : 'thumb-tag';
+
+        el.innerHTML = `
+            <div class="thumb-img-wrap">
+                <span class="${tagClass}">${tagLabel}</span>
+                <img src="${BASE}${encodeURI(a.thumb)}" alt="${a.thumb}"
+                     loading="lazy"
+                     onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 75%22><rect width=%22100%22 height=%2275%22 fill=%22%23222%22/><text x=%2250%22 y=%2240%22 text-anchor=%22middle%22 fill=%22%23666%22 font-size=%228%22 font-family=%22sans-serif%22>이미지 없음</text></svg>';">
+            </div>
+            <div class="thumb-caption">
+                <div class="thumb-filename">${a.thumb}</div>
+            </div>
+        `;
+        gallery.appendChild(el);
+    });
+
+    // 라이트박스 제어
+    let currentIdx = 0;
+    function openLightbox(idx) {
+        currentIdx = idx;
+        const a = ASSETS[idx];
+        const img = document.getElementById('lb-img');
+        const cap = document.getElementById('lb-caption');
+        // 원본 로드 실패 시 썸네일로 fallback
+        img.onerror = function () {
+            this.onerror = null;
+            this.src = BASE + encodeURI(a.thumb);
+        };
+        img.src = BASE + encodeURI(a.full);
+        cap.textContent = a.full;
+        document.getElementById('lightbox').classList.add('open');
+        document.body.classList.add('modal-open');
+    }
+    function closeLightbox(e) {
+        if (e && e.target && e.target.closest('.lb-body') && !e.target.classList.contains('lb-close')) return;
+        document.getElementById('lightbox').classList.remove('open');
+        document.body.classList.remove('modal-open');
+    }
+    function navLightbox(dir) {
+        currentIdx = (currentIdx + dir + ASSETS.length) % ASSETS.length;
+        openLightbox(currentIdx);
+    }
+    document.addEventListener('keydown', function (e) {
+        if (!document.getElementById('lightbox').classList.contains('open')) return;
+        if (e.key === 'Escape')     closeLightbox();
+        if (e.key === 'ArrowLeft')  navLightbox(-1);
+        if (e.key === 'ArrowRight') navLightbox(1);
+    });
+    </script>
+
+</body>
+</html>
