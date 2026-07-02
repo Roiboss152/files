@@ -17,7 +17,7 @@
 
         .timeline-space {
             position: relative;
-            height: 700vh; 
+            height: 500vh; 
             width: 100%;
             background-color: #020202;
         }
@@ -388,6 +388,185 @@
             color: #a1a1aa;
             letter-spacing: 0;
         }
+
+        /* ═══════════════════════════════════════════
+           지표 스트립 (카드 그리드 앞)
+           ═══════════════════════════════════════════ */
+        .metrics-strip {
+            display: flex;
+            gap: 40px;
+            padding: 28px 40px;
+            margin: 40px 0 60px 0;
+            background: linear-gradient(90deg, rgba(79,172,254,0.06) 0%, rgba(79,172,254,0.02) 100%);
+            border: 1px solid rgba(79,172,254,0.15);
+            border-radius: 16px;
+            flex-wrap: wrap;
+            justify-content: space-around;
+        }
+        .metric-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            min-width: 140px;
+        }
+        .metric-num {
+            font-size: 2.8rem;
+            font-weight: 900;
+            line-height: 1;
+            color: #4facfe;
+            letter-spacing: -1px;
+            font-variant-numeric: tabular-nums;
+        }
+        .metric-num .unit {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #a1a1aa;
+            margin-left: 4px;
+        }
+        .metric-label {
+            font-size: 0.9rem;
+            color: #a1a1aa;
+            letter-spacing: 0.3px;
+            line-height: 1.4;
+        }
+
+        /* ═══════════════════════════════════════════
+           워크플로 섹션 (카드 그리드 뒤)
+           ═══════════════════════════════════════════ */
+        .workflow-section {
+            margin-top: 140px;
+            padding-top: 80px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+        }
+        .workflow-section-header {
+            margin-bottom: 60px;
+        }
+        .workflow-section-eyebrow {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            color: #4facfe;
+            padding: 6px 14px;
+            border: 1px solid rgba(79,172,254,0.3);
+            border-radius: 999px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+        .workflow-section-title {
+            font-size: 2.4rem;
+            font-weight: 800;
+            margin: 0 0 12px 0;
+            letter-spacing: -1px;
+            line-height: 1.25;
+            background: linear-gradient(to right, #ffffff, #a1a1aa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .workflow-section-desc {
+            color: #71717a;
+            font-size: 1.1rem;
+            line-height: 1.65;
+            margin: 0;
+            max-width: 780px;
+        }
+
+        .workflow-card {
+            background: #0f0f11;
+            border: 1px solid #232326;
+            border-radius: 20px;
+            padding: 44px 40px;
+            margin-bottom: 32px;
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+        .workflow-side {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .workflow-num {
+            font-size: 4.5rem;
+            font-weight: 900;
+            line-height: 0.9;
+            letter-spacing: -3px;
+            background: linear-gradient(to bottom right, rgba(79,172,254,0.9) 0%, rgba(79,172,254,0.25) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .workflow-tag {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #71717a;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        .workflow-body {
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+        }
+        .workflow-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            margin: 0;
+            letter-spacing: -0.5px;
+            line-height: 1.35;
+        }
+        .workflow-caption {
+            color: #a1a1aa;
+            font-size: 1rem;
+            line-height: 1.7;
+            margin: 0;
+        }
+        .workflow-svg-wrap {
+            width: 100%;
+            overflow-x: auto;
+        }
+        .workflow-svg-wrap svg {
+            display: block;
+            width: 100%;
+            height: auto;
+            min-width: 500px;
+        }
+
+        /* SVG 내부 공통 요소 */
+        .wf-strip-before rect { fill: rgba(255,255,255,0.05); stroke: rgba(255,255,255,0.12); }
+        .wf-strip-before text { fill: #a1a1aa; font-weight: 600; }
+        .wf-strip-after rect { fill: rgba(79,172,254,0.12); stroke: rgba(79,172,254,0.4); }
+        .wf-strip-after text { fill: #4facfe; font-weight: 700; }
+        .wf-node rect { fill: rgba(79,172,254,0.08); stroke: rgba(79,172,254,0.35); }
+        .wf-node .wf-node-num { fill: #4facfe; font-weight: 700; font-size: 10px; letter-spacing: 1px; }
+        .wf-node .wf-node-title { fill: #fff; font-weight: 700; font-size: 14px; }
+        .wf-node .wf-node-sub { fill: #a1a1aa; font-weight: 500; font-size: 11px; }
+        .wf-arrow { stroke: #4facfe; stroke-width: 1.5; fill: none; }
+        .wf-arrow-head { fill: #4facfe; }
+
+        /* 모바일 대응 */
+        @media (max-width: 768px) {
+            .metrics-strip {
+                padding: 20px 24px;
+                gap: 24px;
+                margin: 30px 0 40px 0;
+            }
+            .metric-item { min-width: 100px; }
+            .metric-num { font-size: 2rem; }
+            .workflow-section { margin-top: 80px; padding-top: 50px; }
+            .workflow-section-title { font-size: 1.6rem; }
+            .workflow-section-desc { font-size: 0.95rem; }
+            .workflow-card {
+                grid-template-columns: 1fr;
+                gap: 24px;
+                padding: 32px 24px;
+            }
+            .workflow-side { flex-direction: row; align-items: baseline; gap: 16px; }
+            .workflow-num { font-size: 3rem; }
+            .workflow-title { font-size: 1.2rem; }
+        }
         </style>
 </head>
 <body class="locked">
@@ -427,8 +606,28 @@
         </div>
 
         <div class="next-content">
-            <h2>성공적인 DX 영업을 위한 현장 전략 플랫폼<span class="page-ver">v1.02</span></h2>
-            <p>채널 발굴부터 VR 컨설팅, 로봇 PoC, 견적 지원, 세일즈 에셋까지</p>
+            <h2>성공적인 DX 영업을 위한 현장 전략 플랫폼<span class="page-ver">v1.04</span></h2>
+            <p style="margin-bottom: 0;">채널 발굴부터 VR 컨설팅, 로봇 PoC, 견적 지원, 세일즈 에셋까지</p>
+            
+            <!-- 지표 스트립 -->
+            <div class="metrics-strip">
+                <div class="metric-item">
+                    <div class="metric-num">6<span class="unit">개</span></div>
+                    <div class="metric-label">자체 구축·운영 중인<br>세일즈 지원 도구</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-num">9<span class="unit">개</span></div>
+                    <div class="metric-label">MOU 프랜차이즈<br>브랜드 맞춤 대응</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-num">2026<span class="unit">상반기</span></div>
+                    <div class="metric-label">현장에서 발견한 문제를<br>도구로 만들어온 6개월</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-num">100<span class="unit">%</span></div>
+                    <div class="metric-label">시너지영업3팀 내부<br>기획·설계·개발</div>
+                </div>
+            </div>
             
             <div class="grid-container">
                 <div class="card-wrap">
@@ -493,6 +692,225 @@
                     </div>
                 </div>
             </div>
+
+            <!-- ═════ 워크플로 인포그래픽 섹션 ═════ -->
+            <section class="workflow-section">
+                <header class="workflow-section-header">
+                    <span class="workflow-section-eyebrow">How It Works</span>
+                    <h3 class="workflow-section-title">도구는 어떻게 현장에 닿는가</h3>
+                    <p class="workflow-section-desc">
+                        위 6개 도구가 실제 영업 현장에서 어떤 흐름으로 연결되고, 무엇을 바꾸었는지 세 가지 워크플로로 정리했습니다.
+                    </p>
+                </header>
+
+                <!-- Workflow 01 · WiFi QR 관계형 영업 5단계 -->
+                <article class="workflow-card">
+                    <aside class="workflow-side">
+                        <div class="workflow-num">01</div>
+                        <div class="workflow-tag">Sales Process</div>
+                    </aside>
+                    <div class="workflow-body">
+                        <h4 class="workflow-title">1회성 접촉을 3회 이상 재방문 관계로 — WiFi QR 관계형 영업 5단계 프로세스</h4>
+                        <p class="workflow-caption">
+                            "존재는 알아도 영업에 적용한 적 없던" WiFi QR을, 첫 방문에서 하이오더 제안까지 자연스럽게 이어지는 5단계 관계형 세일즈 프로세스로 체계화. 전 팀원 교육으로 확산하여 팀장 회의의 표준 화두로 정착.
+                        </p>
+                        <div class="workflow-svg-wrap">
+                            <svg viewBox="0 0 680 260" role="img" aria-labelledby="wf1-title wf1-desc">
+                                <title id="wf1-title">WiFi QR 관계형 영업 5단계 프로세스</title>
+                                <desc id="wf1-desc">1회성 접촉을 3회 이상 재방문과 관계 기반 세일즈로 전환하는 5단계 흐름</desc>
+                                <defs>
+                                    <marker id="wf1-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                                        <path d="M2 1L8 5L2 9" fill="none" stroke="#4facfe" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </marker>
+                                </defs>
+                                
+                                <!-- Before 스트립 -->
+                                <g class="wf-strip-before">
+                                    <rect x="40" y="20" width="600" height="30" rx="6" stroke-width="0.5"/>
+                                    <text x="340" y="35" text-anchor="middle" dominant-baseline="central" font-size="12">Before · 1회성 접촉 · 개인기 의존 영업</text>
+                                </g>
+                                
+                                <!-- 5단계 카드 -->
+                                <g class="wf-node">
+                                    <rect x="40" y="80" width="100" height="110" rx="8" stroke-width="0.5"/>
+                                    <text class="wf-node-num" x="90" y="100" text-anchor="middle" dominant-baseline="central">1단계</text>
+                                    <text class="wf-node-title" x="90" y="128" text-anchor="middle" dominant-baseline="central">첫 방문</text>
+                                    <text class="wf-node-sub" x="90" y="152" text-anchor="middle" dominant-baseline="central">QR 무상 제안</text>
+                                </g>
+                                <line class="wf-arrow" x1="142" y1="135" x2="151" y2="135" marker-end="url(#wf1-arrow)"/>
+                                
+                                <g class="wf-node">
+                                    <rect x="155" y="80" width="100" height="110" rx="8" stroke-width="0.5"/>
+                                    <text class="wf-node-num" x="205" y="100" text-anchor="middle" dominant-baseline="central">2단계</text>
+                                    <text class="wf-node-title" x="205" y="128" text-anchor="middle" dominant-baseline="central">2차 방문</text>
+                                    <text class="wf-node-sub" x="205" y="152" text-anchor="middle" dominant-baseline="central">샘플 전달</text>
+                                </g>
+                                <line class="wf-arrow" x1="257" y1="135" x2="266" y2="135" marker-end="url(#wf1-arrow)"/>
+                                
+                                <g class="wf-node">
+                                    <rect x="270" y="80" width="100" height="110" rx="8" stroke-width="0.5"/>
+                                    <text class="wf-node-num" x="320" y="100" text-anchor="middle" dominant-baseline="central">3단계</text>
+                                    <text class="wf-node-title" x="320" y="128" text-anchor="middle" dominant-baseline="central">3차 방문</text>
+                                    <text class="wf-node-sub" x="320" y="152" text-anchor="middle" dominant-baseline="central">설치·유대</text>
+                                </g>
+                                <line class="wf-arrow" x1="372" y1="135" x2="381" y2="135" marker-end="url(#wf1-arrow)"/>
+                                
+                                <g class="wf-node">
+                                    <rect x="385" y="80" width="100" height="110" rx="8" stroke-width="0.5"/>
+                                    <text class="wf-node-num" x="435" y="100" text-anchor="middle" dominant-baseline="central">4단계</text>
+                                    <text class="wf-node-title" x="435" y="128" text-anchor="middle" dominant-baseline="central">관계 형성</text>
+                                    <text class="wf-node-sub" x="435" y="152" text-anchor="middle" dominant-baseline="central">자연스러운 대화</text>
+                                </g>
+                                <line class="wf-arrow" x1="487" y1="135" x2="496" y2="135" marker-end="url(#wf1-arrow)"/>
+                                
+                                <g class="wf-node">
+                                    <rect x="500" y="80" width="100" height="110" rx="8" stroke-width="0.5"/>
+                                    <text class="wf-node-num" x="550" y="100" text-anchor="middle" dominant-baseline="central">5단계</text>
+                                    <text class="wf-node-title" x="550" y="128" text-anchor="middle" dominant-baseline="central">DX 제안</text>
+                                    <text class="wf-node-sub" x="550" y="152" text-anchor="middle" dominant-baseline="central">하이오더·로봇</text>
+                                </g>
+                                
+                                <!-- After 스트립 -->
+                                <g class="wf-strip-after">
+                                    <rect x="40" y="220" width="600" height="30" rx="6" stroke-width="0.5"/>
+                                    <text x="340" y="235" text-anchor="middle" dominant-baseline="central" font-size="12">After · 3회 이상 재방문 · 관계 기반 세일즈</text>
+                                </g>
+                            </svg>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Workflow 02 · kt-synergy.com 생태계 맵 -->
+                <article class="workflow-card">
+                    <aside class="workflow-side">
+                        <div class="workflow-num">02</div>
+                        <div class="workflow-tag">Platform Map</div>
+                    </aside>
+                    <div class="workflow-body">
+                        <h4 class="workflow-title">개인 자료 산발적 관리에서 통합 플랫폼으로 — kt-synergy.com 생태계</h4>
+                        <p class="workflow-caption">
+                            자체 도메인을 기반으로 견적 계산기, QR 생성기, 쇼룸 페이지, 에셋 갤러리, 창업설명회 자료 등 6개 도구를 하나의 플랫폼으로 통합. 팀 전체가 상시 활용 가능한 인프라로 정착.
+                        </p>
+                        <div class="workflow-svg-wrap">
+                            <svg viewBox="0 0 680 300" role="img" aria-labelledby="wf2-title wf2-desc">
+                                <title id="wf2-title">kt-synergy.com 도구 생태계</title>
+                                <desc id="wf2-desc">중앙 도메인을 중심으로 6개 자체 구축 도구가 방사형으로 연결됨</desc>
+
+                                <!-- 방사형 연결선 -->
+                                <g stroke="rgba(79,172,254,0.25)" stroke-width="1" fill="none">
+                                    <line x1="340" y1="150" x2="150" y2="60"/>
+                                    <line x1="340" y1="150" x2="530" y2="60"/>
+                                    <line x1="340" y1="150" x2="80" y2="150"/>
+                                    <line x1="340" y1="150" x2="600" y2="150"/>
+                                    <line x1="340" y1="150" x2="150" y2="240"/>
+                                    <line x1="340" y1="150" x2="530" y2="240"/>
+                                </g>
+
+                                <!-- 중앙 허브 -->
+                                <g>
+                                    <circle cx="340" cy="150" r="60" fill="rgba(79,172,254,0.15)" stroke="rgba(79,172,254,0.6)" stroke-width="1.5"/>
+                                    <circle cx="340" cy="150" r="45" fill="rgba(79,172,254,0.08)" stroke="rgba(79,172,254,0.3)" stroke-width="0.8"/>
+                                    <text x="340" y="145" text-anchor="middle" dominant-baseline="central" fill="#4facfe" font-size="13" font-weight="800">kt-synergy</text>
+                                    <text x="340" y="163" text-anchor="middle" dominant-baseline="central" fill="#4facfe" font-size="13" font-weight="800">.com</text>
+                                </g>
+
+                                <!-- 6개 도구 노드 -->
+                                <g class="wf-node">
+                                    <rect x="60" y="35" width="180" height="50" rx="8" stroke-width="0.5"/>
+                                    <text class="wf-node-title" x="150" y="55" text-anchor="middle" font-size="12">하이오더 VR 컨설팅</text>
+                                    <text class="wf-node-sub" x="150" y="72" text-anchor="middle" font-size="10">견적 계산기</text>
+                                </g>
+                                <g class="wf-node">
+                                    <rect x="440" y="35" width="180" height="50" rx="8" stroke-width="0.5"/>
+                                    <text class="wf-node-title" x="530" y="55" text-anchor="middle" font-size="12">서빙 로봇 현장 PoC</text>
+                                    <text class="wf-node-sub" x="530" y="72" text-anchor="middle" font-size="10">로봇 견적 계산기</text>
+                                </g>
+                                <g class="wf-node">
+                                    <rect x="0" y="125" width="160" height="50" rx="8" stroke-width="0.5"/>
+                                    <text class="wf-node-title" x="80" y="145" text-anchor="middle" font-size="12">맞춤형 QR 솔루션</text>
+                                    <text class="wf-node-sub" x="80" y="162" text-anchor="middle" font-size="10">Wi-Fi · 프랜차이즈</text>
+                                </g>
+                                <g class="wf-node">
+                                    <rect x="520" y="125" width="160" height="50" rx="8" stroke-width="0.5"/>
+                                    <text class="wf-node-title" x="600" y="145" text-anchor="middle" font-size="12">창업설명회 영상</text>
+                                    <text class="wf-node-sub" x="600" y="162" text-anchor="middle" font-size="10">대리점 모집</text>
+                                </g>
+                                <g class="wf-node">
+                                    <rect x="60" y="215" width="180" height="50" rx="8" stroke-width="0.5"/>
+                                    <text class="wf-node-title" x="150" y="235" text-anchor="middle" font-size="12">하이오더 쇼룸 페이지</text>
+                                    <text class="wf-node-sub" x="150" y="252" text-anchor="middle" font-size="10">무인 상시 홍보</text>
+                                </g>
+                                <g class="wf-node">
+                                    <rect x="440" y="215" width="180" height="50" rx="8" stroke-width="0.5"/>
+                                    <text class="wf-node-title" x="530" y="235" text-anchor="middle" font-size="12">세일즈 에셋 라이브러리</text>
+                                    <text class="wf-node-sub" x="530" y="252" text-anchor="middle" font-size="10">이미지·영상 자산</text>
+                                </g>
+                            </svg>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Workflow 03 · 프랜차이즈 QR 자동 확산 -->
+                <article class="workflow-card">
+                    <aside class="workflow-side">
+                        <div class="workflow-num">03</div>
+                        <div class="workflow-tag">Automation</div>
+                    </aside>
+                    <div class="workflow-body">
+                        <h4 class="workflow-title">브랜드별 수작업 대응을 자동 확산 시스템으로 — 프랜차이즈 QR 자동 생성 구조</h4>
+                        <p class="workflow-caption">
+                            MOU 체결 9개 프랜차이즈 브랜드 각각에 대해 누구나 즉시 맞춤형 Wi-Fi QR을 생성할 수 있는 전용 웹페이지를 자체 개발. 사람이 아닌 시스템이 확산을 지속하는 구조로 전환하여 시너지영업2팀 등 타 채널까지 배포.
+                        </p>
+                        <div class="workflow-svg-wrap">
+                            <svg viewBox="0 0 680 230" role="img" aria-labelledby="wf3-title wf3-desc">
+                                <title id="wf3-title">프랜차이즈 QR 자동 생성 및 확산</title>
+                                <desc id="wf3-desc">가맹점 정보 입력에서 시작해 자동 QR 생성을 거쳐 매장 배포로 이어지는 흐름</desc>
+                                <defs>
+                                    <marker id="wf3-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                                        <path d="M2 1L8 5L2 9" fill="none" stroke="#4facfe" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </marker>
+                                </defs>
+
+                                <!-- Before 스트립 -->
+                                <g class="wf-strip-before">
+                                    <rect x="40" y="20" width="600" height="30" rx="6" stroke-width="0.5"/>
+                                    <text x="340" y="35" text-anchor="middle" dominant-baseline="central" font-size="12">Before · 브랜드별 개별 QR 수작업 제작 · 관리자 1인 의존</text>
+                                </g>
+
+                                <!-- 3단계 -->
+                                <g class="wf-node">
+                                    <rect x="60" y="80" width="160" height="90" rx="8" stroke-width="0.5"/>
+                                    <text class="wf-node-num" x="140" y="100" text-anchor="middle" dominant-baseline="central">INPUT</text>
+                                    <text class="wf-node-title" x="140" y="125" text-anchor="middle" dominant-baseline="central">가맹점 정보 입력</text>
+                                    <text class="wf-node-sub" x="140" y="145" text-anchor="middle" dominant-baseline="central">브랜드·WiFi 정보</text>
+                                </g>
+                                <line class="wf-arrow" x1="222" y1="125" x2="258" y2="125" marker-end="url(#wf3-arrow)"/>
+
+                                <g class="wf-node">
+                                    <rect x="260" y="80" width="160" height="90" rx="8" stroke-width="0.5"/>
+                                    <text class="wf-node-num" x="340" y="100" text-anchor="middle" dominant-baseline="central">PROCESS</text>
+                                    <text class="wf-node-title" x="340" y="125" text-anchor="middle" dominant-baseline="central">브랜드 맞춤 QR 자동 생성</text>
+                                    <text class="wf-node-sub" x="340" y="145" text-anchor="middle" dominant-baseline="central">9개 브랜드 CI 자동 적용</text>
+                                </g>
+                                <line class="wf-arrow" x1="422" y1="125" x2="458" y2="125" marker-end="url(#wf3-arrow)"/>
+
+                                <g class="wf-node">
+                                    <rect x="460" y="80" width="160" height="90" rx="8" stroke-width="0.5"/>
+                                    <text class="wf-node-num" x="540" y="100" text-anchor="middle" dominant-baseline="central">OUTPUT</text>
+                                    <text class="wf-node-title" x="540" y="125" text-anchor="middle" dominant-baseline="central">매장 즉시 배포</text>
+                                    <text class="wf-node-sub" x="540" y="145" text-anchor="middle" dominant-baseline="central">현장 영업 · 타 채널 확산</text>
+                                </g>
+
+                                <!-- After 스트립 -->
+                                <g class="wf-strip-after">
+                                    <rect x="40" y="190" width="600" height="30" rx="6" stroke-width="0.5"/>
+                                    <text x="340" y="205" text-anchor="middle" dominant-baseline="central" font-size="12">After · 시스템이 확산을 지속 · 개인 노하우가 조직 자산으로 전환</text>
+                                </g>
+                            </svg>
+                        </div>
+                    </div>
+                </article>
+            </section>
         </div>
     </div>
 
@@ -545,7 +963,7 @@
             }
 
             const points = [];
-            for (let z = -15000; z <= 2000; z += 50) {
+            for (let z = -8000; z <= 2000; z += 50) {
                 points.push(new THREE.Vector3(getTrackX(z), 0, z));
             }
             const curve = new THREE.CatmullRomCurve3(points);
@@ -596,13 +1014,11 @@
             worldGroup.add(train);
             scene.add(worldGroup);
 
-            // 대괄호 제거 완료
+            // 3단계로 축소 (원본 5단계에서 4,5 제거, z값 재분배)
             const signpostsData = [
-                { id: 1, z: -9000, side: 'left',   title: "KT 인천지사 시너지영업3팀은", desc: "파트너의 DX 세일즈를 함께 완성합니다." },
-                { id: 2, z: -7000, side: 'left',   title: "현장 중심의 강력한 Co-Selling", desc: "하이오더 VR과 로봇 PoC로 현장에서 파트너와 실질적인 성공을 만듭니다." },
-                { id: 3, z: -5000, side: 'right',  title: "맞춤형 세일즈 에셋 & 콘텐츠", desc: "홍보 영상·브로슈어 등 영업력을 높일 트렌디한 마케팅 자료를 제공합니다." },
-                { id: 4, z: -3000, side: 'right',  title: "비즈니스 스케일업 가속화", desc: "새로운 DX 시장 기회를 선점하여 성장의 탄력을 더합니다." },
-                { id: 5, z: -1000, side: 'center', title: "가장 견고한 성공의 인프라", desc: "비즈니스를 안정적으로 지탱하는 가장 신뢰할 수 있는 베이스캠프가 되겠습니다." }
+                { id: 1, z: -5000, side: 'left',   title: "KT 인천지사 시너지영업3팀은", desc: "파트너의 DX 세일즈를 함께 완성합니다." },
+                { id: 2, z: -3000, side: 'right',  title: "현장 중심의 강력한 Co-Selling", desc: "하이오더 VR과 로봇 PoC로 현장에서 파트너와 실질적인 성공을 만듭니다." },
+                { id: 3, z: -1000, side: 'left',   title: "맞춤형 세일즈 에셋 & 콘텐츠", desc: "홍보 영상·브로슈어 등 영업력을 높일 트렌디한 마케팅 자료를 제공합니다." }
             ];
 
             const signpostElements = [];
@@ -626,8 +1042,8 @@
 
             let isIntroComplete = false;
             let introProgress = 0; 
-            const initialDroneZ = -10000;
-            const introStartTrainZ = -15000; 
+            const initialDroneZ = -6000;
+            const introStartTrainZ = -8000; 
             const introEndTrainZ = initialDroneZ - 450; 
 
             let scrollProgress = 0;
@@ -712,7 +1128,7 @@
                         outroProgress = (scrollProgress - 0.90) / 0.10; 
                     }
 
-                    currentDroneZ = -10000 + (timelineProgress * 11000);
+                    currentDroneZ = -6000 + (timelineProgress * 7000);
                     currentTrainZ = currentDroneZ - 450;
                     if (currentTrainZ > 0) currentTrainZ = 0; 
                     
