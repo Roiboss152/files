@@ -181,7 +181,7 @@
         }
         .next-content > p { color: #71717a; font-size: 1.25rem; margin-bottom: 80px; margin-top: 0; }
         
-        .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; grid-auto-rows: 1fr; }
         .grid-card {
             background: #141416; border: 1px solid #232326; padding: 45px; border-radius: 24px;
             transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), border-color 0.4s;
@@ -212,6 +212,8 @@
         .card-wrap {
             position: relative;
             padding-top: 110px;
+            display: flex;
+            flex-direction: column;
         }
         .card-num {
             position: absolute;
@@ -234,17 +236,26 @@
             z-index: 1;
             display: flex !important;
             flex-direction: column !important;
+            flex: 1;
         }
         .grid-card p { flex: 1; }
 
         /* ── 카드 버튼 ── */
-        .card-btns { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
+        .card-btns {
+            display: flex;
+            flex-direction: column;   /* 카드 03처럼 버튼 여러개 있을 때 세로 스택 */
+            gap: 10px;
+            margin-top: 26px;
+        }
         .card-btn {
-            display: inline-flex; align-items: center; gap: 7px;
+            display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+            width: 100%;              /* 카드 내부 폭 100% → 모든 카드 버튼 폭 동일 */
+            box-sizing: border-box;
             padding: 11px 17px;
             background: rgba(79,172,254,0.08); color: #4facfe;
             border: 1px solid rgba(79,172,254,0.28); border-radius: 12px;
             font-size: 0.82rem; font-weight: 700; text-decoration: none; white-space: nowrap;
+            overflow: hidden; text-overflow: ellipsis;
             transition: background 0.25s, border-color 0.25s, color 0.25s, transform 0.2s;
         }
         .card-btn:hover {
@@ -364,6 +375,7 @@
             justify-content: center;
         }
         .card-btn.disabled {
+            width: auto;              /* 하단 CTA 는 카드 내부가 아니므로 폭 100% 규칙 제외 */
             padding: 18px 40px;
             font-size: 1rem;
             letter-spacing: 1px;
@@ -606,7 +618,7 @@
         </div>
 
         <div class="next-content">
-            <h2>성공적인 DX 영업을 위한 현장 전략 플랫폼<span class="page-ver">v1.05</span></h2>
+            <h2>성공적인 DX 영업을 위한 현장 전략 플랫폼<span class="page-ver">v1.08</span></h2>
             <p style="margin-bottom: 0;">채널 발굴부터 VR 컨설팅, 로봇 PoC, 견적 지원, 세일즈 에셋까지</p>
             
             <!-- 지표 스트립 -->
@@ -1049,9 +1061,82 @@
             let scrollProgress = 0;
             let targetScroll = 0;
 
+            // ─────────────────────────────────────────────────────────
+            // 슬로우모션 워프 테이블 v2 (강화판)
+            // 각 signpost 활성화 지점에서 카메라 이동을 최대 ~10배 감속.
+            // 사이 구간은 상대적으로 빠르게 지나가서 대비감이 뚜렷하게 느껴짐.
+            // signpost가 3개(z: -5000/-3000/-1000)이고 camera range가 7000이므로
+            // 각 cp의 timelineProgress = (sp.z + 450 - initialDroneZ) / 7000
+            //   → 대략 0.207, 0.493, 0.779
+            // ─────────────────────────────────────────────────────────
+            const CAMERA_Z_RANGE = 7000;      // -6000 → +1000
+            const CAMERA_Z_START = initialDroneZ; // -6000
+            const WARP_SAMPLES   = 1024;
+            const warpTable      = new Float32Array(WARP_SAMPLES);
+
+            const SLOW_HALF_WIDTH = 0.13;   // 슬로우존 반경 (넓힐수록 더 오래 느림)
+            const SLOW_FACTOR     = 0.10;   // 중심 속도 배율 (낮출수록 강한 감속: 0.10 = 10배)
+
+            (function buildWarpTable() {
+                const cpCenters = signpostsData.map(sp =>
+                    (sp.z + 450 - CAMERA_Z_START) / CAMERA_Z_RANGE
+                );
+
+                const velocities = new Float32Array(WARP_SAMPLES);
+                for (let i = 0; i < WARP_SAMPLES; i++) {
+                    const t = i / (WARP_SAMPLES - 1);
+                    let v = 1.0;
+                    for (const cp of cpCenters) {
+                        const dist = Math.abs(t - cp);
+                        if (dist < SLOW_HALF_WIDTH) {
+                            // 코사인 벨: 가장자리 0, 중심 1
+                            const bell = 0.5 * (1 + Math.cos(Math.PI * dist / SLOW_HALF_WIDTH));
+                            // 벨 크기만큼 속도를 SLOW_FACTOR 쪽으로 끌어당김
+                            v *= (1 - bell * (1 - SLOW_FACTOR));
+                        }
+                    }
+                    velocities[i] = v;
+                }
+
+                // 누적합 → 정규화 (전체 0..1 유지)
+                let cum = 0;
+                for (let i = 0; i < WARP_SAMPLES; i++) {
+                    cum += velocities[i];
+                    warpTable[i] = cum;
+                }
+                const total = warpTable[WARP_SAMPLES - 1];
+                for (let i = 0; i < WARP_SAMPLES; i++) warpTable[i] /= total;
+            })();
+
+            function applyScrollWarp(rawT) {
+                if (rawT <= 0) return 0;
+                if (rawT >= 1) return 1;
+                const idx  = rawT * (WARP_SAMPLES - 1);
+                const i0   = Math.floor(idx);
+                const i1   = Math.min(i0 + 1, WARP_SAMPLES - 1);
+                const frac = idx - i0;
+                return warpTable[i0] * (1 - frac) + warpTable[i1] * frac;
+            }
+
+            // ─────────────────────────────────────────────────────────
+            // Signpost 활성화 순간 1초 완전 정지 로직
+            // 각 signpost가 처음으로 활성화되는 프레임에서 카메라와 스크롤을
+            // 완전히 얼려서 사용자가 확실히 텍스트를 읽을 수 있게 함.
+            // ─────────────────────────────────────────────────────────
+            const FREEZE_DURATION_MS = 1000;
+            let   freezeUntilTime    = 0;
+            let   freezeScrollY      = null;
+            let   freezeProgressVal  = null;
+            const activatedSet       = new Set(); // 이미 정지 트리거된 signpost id
+
             window.addEventListener("scroll", () => {
                 if(!isIntroComplete) {
                     if (!window.__skipForce) window.scrollTo(0, 0);
+                    return;
+                }
+                // Freeze 중: 사용자 스크롤 입력을 targetScroll에 반영하지 않음
+                // (실제 브라우저 스크롤 위치는 animate loop 에서 되돌림)
+                if (performance.now() < freezeUntilTime && !window.__skipForce) {
                     return;
                 }
                 const scrollerSpace = document.querySelector('.timeline-space');
@@ -1113,15 +1198,29 @@
                     }
 
                 } else {
+                    const nowMs = performance.now();
+                    const isFrozen = nowMs < freezeUntilTime;
+
                     if (window.__skipForce) {
                         scrollProgress = 1; targetScroll = 1;
+                        freezeUntilTime = 0; // skip 시 freeze 즉시 해제
+                    } else if (isFrozen && freezeProgressVal !== null) {
+                        // 1초간 완전 정지: 스크롤 진행도 홀드
+                        scrollProgress = freezeProgressVal;
+                        targetScroll   = freezeProgressVal;
+                        // 브라우저 스크롤 위치도 되돌려서 페이지가 밀리지 않게
+                        if (freezeScrollY !== null && Math.abs(window.scrollY - freezeScrollY) > 2) {
+                            window.scrollTo(0, freezeScrollY);
+                        }
                     } else {
                         scrollProgress += (targetScroll - scrollProgress) * 0.05;
                     }
                     introTextWrapper.style.opacity = scrollProgress > 0.01 ? 0 : 1;
 
                     if (scrollProgress <= 0.90) {
-                        timelineProgress = scrollProgress / 0.90; 
+                        // 선형 rawT를 워프 함수로 통과시켜 체크포인트 근처에서 느려지게 함
+                        const rawTimeline = scrollProgress / 0.90;
+                        timelineProgress = applyScrollWarp(rawTimeline);
                         outroProgress = 0;
                     } else {
                         timelineProgress = 1.0; 
@@ -1213,6 +1312,14 @@
 
                         let baseOpacity = 0.6;
                         if (currentTrainZ >= sp.z) {
+                            // 처음 활성화되는 프레임에서 1초 정지 트리거
+                            // (인트로 종료 후, skip 중이 아닐 때만)
+                            if (!activatedSet.has(sp.id) && isIntroComplete && !window.__skipForce) {
+                                activatedSet.add(sp.id);
+                                freezeUntilTime   = performance.now() + FREEZE_DURATION_MS;
+                                freezeScrollY     = window.scrollY;
+                                freezeProgressVal = scrollProgress;
+                            }
                             sp.el.classList.add('active'); 
                             baseOpacity = 1 - (dist / 8000); 
                             if (baseOpacity < 0.35) baseOpacity = 0.35; 
