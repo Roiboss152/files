@@ -3,7 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>프랜차이즈 전용 Wi-Fi QR 생성기 v1.11 | KT 인천지사 시너지영업3팀</title>
+  <!-- 안드로이드 크롬/삼성 인터넷의 강제 다크 모드가 gradient text를 반전시키는 문제 방지 -->
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#020202">
+  <title>프랜차이즈 전용 Wi-Fi QR 생성기 v1.12 | KT 인천지사 시너지영업3팀</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.1/qrcode.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,26 +14,56 @@
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,700,900&display=swap" rel="stylesheet">
   <style>
     :root {
-      --kt-red: #e30613;
-      --kt-dark: #1a1a1a;
-      --kt-gray: #f5f5f5;
-      --kt-border: rgba(0,0,0,0.08);
+      color-scheme: dark;
+      /* v1.12 다크 톤앤매너 (KT-Synergy 통일) */
+      --kt-accent: #4facfe;                    /* KT 블루 (기존 --kt-red 대체) */
+      --kt-accent-soft: rgba(79,172,254,0.12);
+      --kt-dark: #ffffff;                       /* 텍스트 (원래 짙은 색이었지만 다크 페이지에서는 흰색) */
+      --kt-bg: #020202;                         /* 페이지 배경 */
+      --kt-surface: #0f0f11;                    /* 카드 배경 */
+      --kt-surface-2: #17171a;                  /* 인풋/서브 카드 */
+      --kt-gray: #141416;                       /* 옅은 배경 대체 */
+      --kt-border: #232326;                     /* 기본 border */
+      --kt-muted: #a1a1aa;                      /* 보조 텍스트 */
+      --kt-faint: #71717a;                      /* 힌트/placeholder */
+      /* 하위 호환 - 기존 이름 유지하며 값만 KT 블루로 */
+      --kt-red: #4facfe;
       --radius: 16px;
       --transition: 220ms cubic-bezier(0.16, 1, 0.3, 1);
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+    html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; color-scheme: dark; }
     body {
       font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
-      background: #f0f0f0;
-      color: var(--kt-dark);
+      background: radial-gradient(ellipse at top, #0b0b0f 0%, #020202 55%, #020202 100%);
+      color: #fff;
       min-height: 100dvh;
+      position: relative;
+      color-scheme: dark;
+    }
+    /* 은은한 KT 블루 글로우 (Editorial Minimalism 톤) */
+    body::before {
+      content: '';
+      position: fixed;
+      top: -20%; left: 50%;
+      width: 900px; height: 900px;
+      transform: translateX(-50%);
+      background: radial-gradient(circle, rgba(79,172,254,0.06) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+      animation: bgDrift 22s ease-in-out infinite;
+    }
+    @keyframes bgDrift {
+      0%,100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+      50%     { transform: translateX(-45%) translateY(30px); opacity: 0.7; }
     }
 
     /* ── Header ── */
     header {
-      background: #fff;
-      border-bottom: 1px solid var(--kt-border);
+      background: rgba(10, 10, 12, 0.85);
+      backdrop-filter: blur(20px) saturate(140%);
+      -webkit-backdrop-filter: blur(20px) saturate(140%);
+      border-bottom: 1px solid rgba(79,172,254,0.15);
       padding: 18px 32px;
       display: flex;
       align-items: center;
@@ -38,12 +71,23 @@
       position: sticky;
       top: 0;
       z-index: 100;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.4);
     }
-    header img.kt-logo { height: 32px; }
-    header .divider { width: 1px; height: 28px; background: var(--kt-border); }
-    header .header-text h1 { font-size: 1rem; font-weight: 800; color: var(--kt-dark); }
-    header .header-text p { font-size: 0.78rem; color: #888; font-weight: 500; margin-top: 1px; }
+    header img.kt-logo {
+      height: 32px;
+      /* KT 원본 로고가 검정이라 다크 배경에서 안보임 → 반전 + 살짝 밝게 */
+      filter: brightness(0) invert(1);
+    }
+    header .divider { width: 1px; height: 28px; background: rgba(255,255,255,0.12); }
+    header .header-text h1 {
+      font-size: 1rem; font-weight: 800;
+      color: #ffffff; /* fallback */
+      background: linear-gradient(to right, #ffffff, #a1a1aa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    header .header-text p { font-size: 0.78rem; color: var(--kt-muted); font-weight: 500; margin-top: 1px; }
 
     /* ── Layout ── */
     .page-wrap {
@@ -54,6 +98,8 @@
       grid-template-columns: 1fr 420px;
       gap: 32px;
       align-items: start;
+      position: relative;
+      z-index: 1;
     }
     @media (max-width: 900px) {
       .page-wrap { grid-template-columns: 1fr; }
@@ -61,11 +107,15 @@
 
     /* ── Section cards ── */
     .card {
-      background: #fff;
+      background: var(--kt-surface);
       border-radius: var(--radius);
       border: 1px solid var(--kt-border);
       padding: 32px;
-      box-shadow: 0 2px 16px rgba(0,0,0,0.04);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+      transition: border-color .3s ease, box-shadow .3s ease;
+    }
+    .card:hover {
+      border-color: rgba(79,172,254,0.25);
     }
     .card + .card { margin-top: 20px; }
     .section-num {
@@ -73,13 +123,14 @@
       align-items: center;
       justify-content: center;
       width: 28px; height: 28px;
-      background: var(--kt-red);
+      background: linear-gradient(135deg, #4facfe 0%, #3a95e6 100%);
       color: #fff;
       font-size: 0.82rem;
       font-weight: 800;
       border-radius: 50%;
       margin-right: 10px;
       flex-shrink: 0;
+      box-shadow: 0 0 16px rgba(79,172,254,0.35);
     }
     .section-title {
       display: flex;
@@ -87,7 +138,7 @@
       font-size: 1.15rem;
       font-weight: 800;
       margin-bottom: 24px;
-      color: var(--kt-dark);
+      color: #ffffff;
     }
 
     /* ── Franchise Grid ── */
@@ -103,7 +154,7 @@
       border-radius: 12px;
       padding: 14px 10px;
       text-align: center;
-      background: var(--kt-gray);
+      background: var(--kt-surface-2);
       transition: var(--transition);
       position: relative;
     }
@@ -115,7 +166,7 @@
       display: block;
       background: #fff;
       padding: 4px;
-      box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+      box-shadow: 0 1px 6px rgba(0,0,0,0.3);
     }
     .franchise-card .brand-thumb-placeholder {
       width: 80px; height: 80px;
@@ -124,19 +175,22 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #e8e8e8;
+      background: #232326;
       font-size: 1.8rem;
     }
     .franchise-card .brand-name {
       font-size: 0.82rem;
       font-weight: 700;
-      color: var(--kt-dark);
+      color: #ffffff;
       line-height: 1.3;
     }
     .franchise-label input:checked ~ .franchise-card {
-      border-color: var(--kt-red);
-      background: #fff5f5;
-      box-shadow: 0 4px 16px rgba(227,6,19,0.12);
+      border-color: var(--kt-accent);
+      background: rgba(79,172,254,0.08);
+      box-shadow:
+        0 4px 20px rgba(79,172,254,0.25),
+        0 0 30px rgba(79,172,254,0.12);
+      transform: translateY(-2px);
     }
     .franchise-label input:checked ~ .franchise-card::after {
       content: '✓';
@@ -144,11 +198,18 @@
       top: 8px; right: 10px;
       font-size: 0.85rem;
       font-weight: 900;
-      color: var(--kt-red);
+      color: var(--kt-accent);
+      animation: checkPop .35s cubic-bezier(.34,1.56,.64,1);
+    }
+    @keyframes checkPop {
+      0%   { transform: scale(.4); opacity: 0; }
+      70%  { transform: scale(1.2); }
+      100% { transform: scale(1); opacity: 1; }
     }
     .franchise-card:hover {
-      border-color: rgba(227,6,19,0.4);
-      background: #fff;
+      border-color: rgba(79,172,254,0.4);
+      background: #1c1c20;
+      transform: translateY(-2px);
     }
 
     /* ── Form ── */
@@ -157,7 +218,7 @@
       display: block;
       font-size: 0.82rem;
       font-weight: 700;
-      color: var(--kt-red);
+      color: var(--kt-accent);
       margin-bottom: 8px;
       letter-spacing: 0.3px;
     }
@@ -168,23 +229,25 @@
       padding: 13px 16px;
       font-size: 1rem;
       font-family: inherit;
-      color: var(--kt-dark);
-      background: var(--kt-gray);
+      color: #ffffff;
+      background: var(--kt-surface-2);
       outline: none;
       transition: var(--transition);
     }
     .form-group input:focus, .form-group select:focus {
-      border-color: var(--kt-red);
-      background: #fff;
-      box-shadow: 0 0 0 3px rgba(227,6,19,0.08);
+      border-color: var(--kt-accent);
+      background: #1c1c20;
+      box-shadow: 0 0 0 3px rgba(79,172,254,0.12);
     }
-    .form-group input::placeholder { color: #bbb; }
+    .form-group input::placeholder { color: var(--kt-faint); }
+    /* select 옵션도 다크 톤으로 (브라우저 기본 흰 배경 방지) */
+    .form-group select option { background: #0f0f11; color: #fff; }
 
     /* ── Generate Button ── */
     .btn-generate {
       width: 100%;
       padding: 18px;
-      background: var(--kt-red);
+      background: linear-gradient(135deg, #4facfe 0%, #3a95e6 100%);
       color: #fff;
       font-size: 1.1rem;
       font-weight: 800;
@@ -192,11 +255,21 @@
       border-radius: 12px;
       cursor: pointer;
       transition: var(--transition);
-      box-shadow: 0 6px 20px rgba(227,6,19,0.25);
+      box-shadow:
+        0 6px 20px rgba(79,172,254,0.25),
+        0 0 40px rgba(79,172,254,0.1);
       margin-top: 8px;
+      font-family: inherit;
+      letter-spacing: -0.01em;
     }
-    .btn-generate:hover { background: #c0000f; box-shadow: 0 8px 24px rgba(227,6,19,0.35); }
-    .btn-generate:active { transform: scale(0.98); }
+    .btn-generate:hover {
+      background: linear-gradient(135deg, #60b8ff 0%, #4facfe 100%);
+      box-shadow:
+        0 8px 28px rgba(79,172,254,0.4),
+        0 0 50px rgba(79,172,254,0.15);
+      transform: translateY(-2px);
+    }
+    .btn-generate:active { transform: translateY(0) scale(0.98); }
 
     /* ── Preview Panel ── */
     .preview-panel {
@@ -204,17 +277,17 @@
       top: 88px;
     }
     .preview-inner {
-      background: #fff;
+      background: var(--kt-surface);
       border-radius: var(--radius);
       border: 1px solid var(--kt-border);
       padding: 24px;
-      box-shadow: 0 2px 16px rgba(0,0,0,0.04);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.3);
     }
     .preview-title {
       font-size: 1rem;
       font-weight: 800;
       margin-bottom: 16px;
-      color: var(--kt-dark);
+      color: #ffffff;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -222,8 +295,9 @@
     .preview-title::before {
       content: '';
       width: 4px; height: 18px;
-      background: var(--kt-red);
+      background: var(--kt-accent);
       border-radius: 2px;
+      box-shadow: 0 0 12px rgba(79,172,254,0.5);
     }
     #previewCanvas {
       width: 100%;
@@ -231,17 +305,18 @@
       border-radius: 10px;
       border: 1px solid var(--kt-border);
       display: block;
+      background: #fff; /* QR 이미지 자체는 흰색 유지 (인쇄용) */
     }
     .preview-placeholder {
       aspect-ratio: 1240/1754;
-      background: var(--kt-gray);
+      background: var(--kt-surface-2);
       border-radius: 10px;
-      border: 2px dashed #ddd;
+      border: 2px dashed var(--kt-border);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      color: #bbb;
+      color: var(--kt-faint);
       font-size: 0.9rem;
       font-weight: 600;
       gap: 10px;
@@ -254,19 +329,28 @@
       width: 100%;
       margin-top: 16px;
       padding: 16px;
-      background: var(--kt-dark);
+      background: var(--kt-surface-2);
       color: #fff;
       font-size: 1rem;
       font-weight: 800;
-      border: none;
+      border: 1px solid var(--kt-border);
       border-radius: 12px;
       cursor: pointer;
       transition: var(--transition);
       text-align: center;
+      font-family: inherit;
     }
-    .btn-download:hover { background: #333; }
+    .btn-download:hover:not(:disabled) {
+      background: rgba(79,172,254,0.12);
+      border-color: rgba(79,172,254,0.5);
+      color: var(--kt-accent);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(79,172,254,0.15);
+    }
     .btn-download:disabled {
-      background: #ccc;
+      background: #17171a;
+      color: #52525b;
+      border-color: var(--kt-border);
       cursor: not-allowed;
     }
 
@@ -279,18 +363,33 @@
       font-weight: 600;
       display: none;
     }
-    .status-bar.success { display: block; background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
-    .status-bar.error { display: block; background: #fff5f5; color: #dc2626; border: 1px solid #fecaca; }
-    .status-bar.loading { display: block; background: #f0f9ff; color: #0369a1; border: 1px solid #bae6fd; }
+    .status-bar.success {
+      display: block;
+      background: rgba(74,222,128,0.08);
+      color: #4ade80;
+      border: 1px solid rgba(74,222,128,0.3);
+    }
+    .status-bar.error {
+      display: block;
+      background: rgba(248,113,113,0.08);
+      color: #f87171;
+      border: 1px solid rgba(248,113,113,0.3);
+    }
+    .status-bar.loading {
+      display: block;
+      background: rgba(79,172,254,0.08);
+      color: var(--kt-accent);
+      border: 1px solid rgba(79,172,254,0.3);
+    }
 
     /* ── Notice ── */
     .notice {
-      background: #fff9e6;
-      border: 1px solid #fde68a;
+      background: rgba(251,191,36,0.06);
+      border: 1px solid rgba(251,191,36,0.25);
       border-radius: 10px;
       padding: 14px 16px;
       font-size: 0.82rem;
-      color: #92400e;
+      color: #fbbf24;
       line-height: 1.6;
       margin-top: 20px;
     }
@@ -298,19 +397,19 @@
 
     /* ── Custom (직접 만들기) ── */
     .franchise-label.custom .franchise-card {
-      background: linear-gradient(135deg, #fff5f5 0%, #ffe8ea 100%);
-      border-color: rgba(227,6,19,0.25);
+      background: linear-gradient(135deg, rgba(79,172,254,0.08) 0%, rgba(79,172,254,0.03) 100%);
+      border-color: rgba(79,172,254,0.3);
       border-style: dashed;
     }
     .franchise-label.custom .franchise-card:hover {
-      background: #fff;
-      border-color: var(--kt-red);
+      background: rgba(79,172,254,0.1);
+      border-color: var(--kt-accent);
       border-style: solid;
     }
     .franchise-label.custom .brand-thumb-placeholder {
-      background: #fff;
-      border: 2px dashed rgba(227,6,19,0.3);
-      color: var(--kt-red);
+      background: #17171a;
+      border: 2px dashed rgba(79,172,254,0.35);
+      color: var(--kt-accent);
     }
 
     /* Custom 입력 패널 */
@@ -318,8 +417,8 @@
       display: none;
       margin-top: 20px;
       padding: 20px;
-      background: #fff5f5;
-      border: 1.5px solid rgba(227,6,19,0.2);
+      background: rgba(79,172,254,0.05);
+      border: 1.5px solid rgba(79,172,254,0.25);
       border-radius: 12px;
       animation: fadeIn 0.3s ease;
     }
@@ -331,7 +430,7 @@
     .custom-panel .panel-title {
       font-size: 0.95rem;
       font-weight: 800;
-      color: var(--kt-red);
+      color: var(--kt-accent);
       margin-bottom: 14px;
       display: flex;
       align-items: center;
@@ -342,17 +441,17 @@
     .file-upload {
       position: relative;
       width: 100%;
-      border: 2px dashed #d1d5db;
+      border: 2px dashed rgba(255,255,255,0.15);
       border-radius: 10px;
       padding: 24px;
-      background: #fff;
+      background: var(--kt-surface-2);
       cursor: pointer;
       transition: var(--transition);
       text-align: center;
     }
     .file-upload:hover {
-      border-color: var(--kt-red);
-      background: #fffafa;
+      border-color: var(--kt-accent);
+      background: rgba(79,172,254,0.05);
     }
     .file-upload input[type="file"] {
       position: absolute;
@@ -367,14 +466,18 @@
       flex-direction: column;
       align-items: center;
       gap: 8px;
-      color: #6b7280;
+      color: var(--kt-muted);
       font-size: 0.88rem;
       font-weight: 600;
       pointer-events: none;
     }
-    .file-upload-label svg { color: var(--kt-red); }
-    .file-upload.has-file { border-style: solid; border-color: #10b981; background: #f0fdf4; }
-    .file-upload.has-file .file-upload-label { color: #047857; }
+    .file-upload-label svg { color: var(--kt-accent); }
+    .file-upload.has-file {
+      border-style: solid;
+      border-color: #4ade80;
+      background: rgba(74,222,128,0.06);
+    }
+    .file-upload.has-file .file-upload-label { color: #4ade80; }
     .file-preview {
       display: none;
       margin-top: 12px;
@@ -385,13 +488,79 @@
       max-width: 100%;
       max-height: 180px;
       border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
     }
     .file-preview .file-name {
       margin-top: 8px;
       font-size: 0.78rem;
-      color: #6b7280;
+      color: var(--kt-muted);
       word-break: break-all;
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       ✨ SCROLL REVEAL & TEXT SPLIT ANIMATIONS (v1.12 신규)
+       - 메인 index.html과 동일한 애니메이션 시스템 이식
+       ═══════════════════════════════════════════════════════════ */
+    .reveal {
+      opacity: 0;
+      filter: blur(12px);
+      transform: translateY(28px);
+      transition:
+        opacity 1.0s cubic-bezier(0.22, 1, 0.36, 1),
+        filter 1.0s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 1.0s cubic-bezier(0.22, 1, 0.36, 1);
+      will-change: opacity, filter, transform;
+    }
+    .reveal.is-visible { opacity: 1; filter: blur(0); transform: translateY(0); }
+    .reveal.delay-1 { transition-delay: 0.08s; }
+    .reveal.delay-2 { transition-delay: 0.16s; }
+
+    /* 프랜차이즈 카드 stagger reveal */
+    .franchise-label.reveal-stagger {
+      opacity: 0;
+      filter: blur(8px);
+      transform: translateY(16px) scale(0.95);
+      transition:
+        opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+        filter 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+      will-change: opacity, filter, transform;
+    }
+    .franchise-label.reveal-stagger.is-visible {
+      opacity: 1;
+      filter: blur(0);
+      transform: translateY(0) scale(1);
+    }
+
+    /* Text Split */
+    .split-target { display: inline; }
+    .split-word {
+      display: inline-block;
+      opacity: 0;
+      filter: blur(10px);
+      transform: translateY(0.35em);
+      color: #ffffff;
+      -webkit-text-fill-color: #ffffff;
+      background: none;
+      transition:
+        opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+        filter 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+      will-change: opacity, filter, transform;
+    }
+    .split-target.split-visible .split-word {
+      opacity: 1; filter: blur(0); transform: translateY(0);
+    }
+
+    /* ─── 접근성: 애니메이션 최소화 사용자 배려 ─── */
+    @media (prefers-reduced-motion: reduce) {
+      .reveal, .franchise-label.reveal-stagger {
+        opacity: 1 !important; filter: none !important; transform: none !important; transition: none !important;
+      }
+      .split-word {
+        opacity: 1 !important; filter: none !important; transform: none !important; transition: none !important;
+      }
+      body::before { animation: none !important; }
     }
   </style>
 </head>
@@ -401,7 +570,7 @@
   <img src="https://kt-synergy.com/assets/image/CI_BI/KT_CI_G01.png" class="kt-logo" alt="KT" onerror="this.style.display='none'">
   <div class="divider"></div>
   <div class="header-text">
-    <h1>프랜차이즈 전용 Wi-Fi QR 생성기 <span style="font-size:0.7rem;color:#aaa;font-weight:600;">v1.11</span></h1>
+    <h1><span class="split-target">프랜차이즈 전용 Wi-Fi QR 생성기</span> <span style="font-size:0.7rem;color:#71717a;font-weight:600;-webkit-text-fill-color:#71717a;background:none;">v1.12</span></h1>
     <p>KT 인천지사 시너지영업3팀 · DX상품 영업 지원 서비스</p>
   </div>
 </header>
@@ -940,6 +1109,76 @@ function showStatus(type, msg) {
   el.className = `status-bar ${type}`;
   el.textContent = msg;
 }
+
+// ═══════════════════════════════════════════════════════════
+// ✨ v1.12 애니메이션 로직 (메인 index.html과 동일한 시스템)
+// - Scroll Reveal / Text Split / 프랜차이즈 카드 stagger
+// ═══════════════════════════════════════════════════════════
+(function initSectionAnimations() {
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduceMotion) return;
+
+  // ─── [1] Text Split - 헤더 제목 단어 단위 분할 ───
+  document.querySelectorAll('.split-target').forEach(el => {
+    if (el.querySelector('.split-word')) return;
+    const raw = el.textContent;
+    const parts = raw.split(/(\s+)/);
+    el.textContent = '';
+    let wordIndex = 0;
+    parts.forEach(part => {
+      if (/^\s+$/.test(part)) {
+        el.appendChild(document.createTextNode(part));
+      } else if (part.length > 0) {
+        const span = document.createElement('span');
+        span.className = 'split-word';
+        span.textContent = part;
+        span.style.transitionDelay = (wordIndex * 0.05) + 's';
+        el.appendChild(span);
+        wordIndex++;
+      }
+    });
+  });
+
+  // ─── [2] Reveal 대상: 카드, notice, preview 패널 ───
+  const revealSelectors = ['.card', '.notice', '.preview-inner'];
+  revealSelectors.forEach(sel => {
+    document.querySelectorAll(sel).forEach(el => el.classList.add('reveal'));
+  });
+
+  // ─── [3] 프랜차이즈 카드 stagger - 격자 순차 등장 ───
+  document.querySelectorAll('.franchise-label').forEach((el, i) => {
+    el.classList.add('reveal-stagger');
+    // 최대 10개 카드까지 40ms 간격
+    el.style.transitionDelay = Math.min(i * 0.04, 0.4) + 's';
+  });
+
+  // ─── [4] IntersectionObserver - 뷰포트 진입 시 발동 ───
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const el = entry.target;
+      if (el.classList.contains('reveal')) el.classList.add('is-visible');
+      if (el.classList.contains('reveal-stagger')) el.classList.add('is-visible');
+      if (el.classList.contains('split-target')) el.classList.add('split-visible');
+      io.unobserve(el);
+    });
+  }, {
+    threshold: 0.1,
+    rootMargin: '0px 0px -20px 0px'
+  });
+
+  document.querySelectorAll('.reveal, .reveal-stagger, .split-target').forEach(el => io.observe(el));
+
+  // ─── [5] 초기 화면에 있는 요소 즉시 활성화 ───
+  setTimeout(() => {
+    document.querySelectorAll('.split-target').forEach(el => {
+      const rect = el.getBoundingClientRect();
+      if (rect.top < window.innerHeight * 0.9 && rect.bottom > 0) {
+        el.classList.add('split-visible');
+      }
+    });
+  }, 50);
+})();
 </script>
 </body>
 </html>
