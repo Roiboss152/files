@@ -1,0 +1,1532 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>KT 서빙로봇 견적 계산기</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "맑은 고딕", sans-serif;
+    color: #1a1a1a;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    letter-spacing: -0.01em;
+    overflow-x: hidden;
+  }
+  body {
+    min-height: 100vh;
+    padding: 32px 20px 60px;
+    background: linear-gradient(135deg, #F7F6F3 0%, #F5F3EC 50%, #F8F7F4 100%);
+    background-size: 250% 250%;
+    animation: bgDrift 22s ease-in-out infinite;
+  }
+  @keyframes bgDrift {
+    0%,100% { background-position: 0% 0%; }
+    50%     { background-position: 100% 100%; }
+  }
+  .container { max-width: 1080px; margin: 0 auto; position: relative; }
+
+  /* ── Entrance animations ─────────────────────── */
+  @keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeSlideDown {
+    from { opacity: 0; transform: translateY(-14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; } to { opacity: 1; }
+  }
+  @keyframes floatY {
+    0%,100% { transform: translateY(0); }
+    50%     { transform: translateY(-8px); }
+  }
+  @keyframes pulseScale {
+    0%,100% { transform: scale(1); }
+    35%     { transform: scale(1.035); }
+  }
+  @keyframes shimmerLine {
+    0%   { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  @keyframes ringPulse {
+    0%   { box-shadow: 0 0 0 0 rgba(26,26,26,0.15); }
+    100% { box-shadow: 0 0 0 12px rgba(26,26,26,0); }
+  }
+
+  /* ── Header ─────────────────────────────────── */
+  .header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding-bottom: 24px;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    margin-bottom: 40px;
+    animation: fadeSlideDown 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .title-wrap { display: flex; align-items: baseline; gap: 10px; }
+  .title { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
+  .version { font-size: 11px; color: #aaa; font-weight: 400; }
+  .subtitle {
+    font-size: 12px; color: #888;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    position: relative; padding-left: 24px;
+  }
+  .subtitle::before {
+    content: ''; position: absolute; left: 0; top: 50%;
+    width: 16px; height: 1px; background: #888;
+    transform: translateY(-50%);
+  }
+
+  /* ── Model Cards ────────────────────────────── */
+  .models {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 28px;
+  }
+  @media (max-width: 720px) { .models { grid-template-columns: 1fr; } }
+
+  .model-card {
+    background: #fff;
+    border: 1px solid rgba(0,0,0,0.06);
+    padding: 28px 24px 24px;
+    position: relative;
+    transition: box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+                border-color 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+                transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    overflow: hidden;
+    animation: fadeSlideUp 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .model-card:nth-child(1) { animation-delay: 0.12s; }
+  .model-card:nth-child(2) { animation-delay: 0.22s; }
+
+  .model-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.06);
+    border-color: rgba(0,0,0,0.1);
+  }
+  .model-card.active {
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+    border-color: rgba(0,0,0,0.14);
+  }
+  .model-card::before {
+    content: ''; position: absolute;
+    left: 0; top: 0; bottom: 0; width: 3px;
+    background: #1a1a1a;
+    transform: scaleY(0);
+    transform-origin: top;
+    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .model-card.active::before { transform: scaleY(1); }
+  .model-card.promo::after {
+    content: "출시기념 프로모션";
+    position: absolute;
+    top: 20px; right: 24px;
+    font-size: 10px;
+    color: #E71321;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+    padding: 4px 8px;
+    border: 1px solid rgba(231,19,33,0.25);
+    animation: fadeIn 0.8s ease 0.6s both;
+  }
+
+  .model-name {
+    font-size: 44px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    margin-bottom: 4px;
+    display: inline-block;
+    background: linear-gradient(90deg, #1a1a1a 0%, #1a1a1a 40%, #444 55%, #1a1a1a 70%, #1a1a1a 100%);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmerLine 6s linear infinite;
+  }
+  .model-type {
+    font-size: 11px; color: #888;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .robot-image {
+    width: 100%;
+    height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+    background: linear-gradient(180deg, #FAFAF8 0%, #F5F3EC 100%);
+    border: 1px solid rgba(0,0,0,0.04);
+    position: relative;
+    overflow: hidden;
+  }
+  .robot-image::before {
+    content: '';
+    position: absolute;
+    bottom: 18px; left: 50%;
+    width: 60%; height: 14px;
+    background: radial-gradient(ellipse at center, rgba(0,0,0,0.14) 0%, transparent 70%);
+    transform: translateX(-50%);
+    filter: blur(2px);
+    animation: shadowPulse 3.5s ease-in-out infinite;
+  }
+  @keyframes shadowPulse {
+    0%,100% { opacity: 0.6; transform: translateX(-50%) scaleX(1); }
+    50%     { opacity: 0.4; transform: translateX(-50%) scaleX(0.85); }
+  }
+  .robot-image img {
+    max-height: 88%;
+    max-width: 82%;
+    object-fit: contain;
+    position: relative;
+    z-index: 1;
+    animation: floatY 3.8s ease-in-out infinite;
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .model-card:hover .robot-image img { transform: scale(1.06); }
+
+  .specs {
+    border-top: 1px solid rgba(0,0,0,0.06);
+    padding-top: 16px;
+    margin-bottom: 20px;
+  }
+  .spec-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    font-size: 12px;
+    opacity: 0;
+    animation: fadeIn 0.5s ease forwards;
+  }
+  .spec-row:nth-child(1) { animation-delay: 0.35s; }
+  .spec-row:nth-child(2) { animation-delay: 0.4s; }
+  .spec-row:nth-child(3) { animation-delay: 0.45s; }
+  .spec-row:nth-child(4) { animation-delay: 0.5s; }
+  .spec-row:nth-child(5) { animation-delay: 0.55s; }
+  .spec-label { color: #888; }
+  .spec-value { color: #333; font-weight: 500; font-variant-numeric: tabular-nums; }
+
+  /* ── Qty Stepper ────────────────────────────── */
+  .qty-section { margin-bottom: 16px; }
+  .qty-label {
+    font-size: 11px; color: #888;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .qty-stepper {
+    display: flex; align-items: center;
+    border: 1px solid rgba(0,0,0,0.12);
+    background: #fff; height: 46px;
+    transition: border-color 0.25s;
+  }
+  .qty-stepper:hover { border-color: rgba(0,0,0,0.28); }
+  .qty-btn {
+    flex: 0 0 46px; height: 46px;
+    background: transparent; border: none;
+    font-size: 20px; font-weight: 400; color: #1a1a1a;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    font-family: inherit;
+  }
+  .qty-btn:hover { background: rgba(0,0,0,0.04); }
+  .qty-btn:active { transform: scale(0.92); }
+  .qty-btn:disabled { color: #ccc; cursor: not-allowed; }
+  .qty-btn:disabled:hover { background: transparent; }
+  .qty-display {
+    flex: 1; text-align: center;
+    font-size: 18px; font-weight: 600;
+    letter-spacing: -0.01em;
+    font-variant-numeric: tabular-nums;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.55, 1);
+  }
+  .qty-display.bump { animation: pulseScale 0.35s ease; }
+  .qty-display .unit { font-size: 12px; color: #888; margin-left: 3px; font-weight: 400; }
+
+  /* ── Payment Toggle ─────────────────────────── */
+  .payment-toggle {
+    display: flex;
+    background: #F0EEE7;
+    padding: 3px;
+    position: relative;
+    height: 44px;
+  }
+  .payment-toggle::before {
+    content: "";
+    position: absolute;
+    top: 3px; left: 3px;
+    width: calc(50% - 3px);
+    height: calc(100% - 6px);
+    background: #fff;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.55, 1);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .payment-toggle[data-idx="1"]::before { transform: translateX(100%); }
+  .payment-btn {
+    flex: 1; background: transparent; border: none;
+    font-size: 12px; font-weight: 500; color: #999;
+    cursor: pointer; position: relative; z-index: 1;
+    transition: color 0.25s; letter-spacing: -0.01em;
+    font-family: inherit;
+  }
+  .payment-btn.active { color: #1a1a1a; font-weight: 600; }
+
+  /* ── Common Options ─────────────────────────── */
+  .options {
+    background: #fff;
+    border: 1px solid rgba(0,0,0,0.06);
+    padding: 22px 24px;
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    animation: fadeSlideUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.32s both;
+    transition: box-shadow 0.3s, border-color 0.3s;
+  }
+  .options.on {
+    border-color: rgba(0,0,0,0.15);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+  }
+  .option-info { flex: 1; }
+  .option-title {
+    font-size: 13px; font-weight: 600; margin-bottom: 3px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .badge-coin {
+    display: inline-block;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #E4B658 0%, #C79837 100%);
+    box-shadow: inset 0 -1px 2px rgba(0,0,0,0.15);
+    animation: floatY 2.8s ease-in-out infinite;
+  }
+  .option-desc { font-size: 11px; color: #888; }
+  .switch {
+    position: relative;
+    width: 46px; height: 27px;
+    background: #E5E3DC;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 0.35s;
+    flex-shrink: 0;
+  }
+  .switch::after {
+    content: "";
+    position: absolute;
+    top: 3px; left: 3px;
+    width: 21px; height: 21px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.55, 1);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+  }
+  .switch.on { background: #1a1a1a; animation: ringPulse 0.7s ease-out; }
+  .switch.on::after { transform: translateX(19px); }
+
+  /* ── Quote Summary ──────────────────────────── */
+  .summary {
+    background: #1a1a1a;
+    color: #fff;
+    padding: 34px 30px;
+    position: relative;
+    overflow: hidden;
+    animation: fadeSlideUp 0.85s cubic-bezier(0.22, 1, 0.36, 1) 0.42s both;
+  }
+  .summary::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+    background-size: 200% 100%;
+    animation: shimmerLine 3.5s linear infinite;
+  }
+  .summary-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 26px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+  }
+  .summary-title {
+    font-size: 13px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.65);
+  }
+  .summary-vat {
+    font-size: 10px;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 0.05em;
+  }
+
+  .summary-model {
+    margin-bottom: 22px;
+    padding-bottom: 22px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    animation: fadeSlideUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .summary-model:last-of-type { border-bottom: none; }
+  .summary-model.hidden { display: none; }
+
+  .summary-model-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 12px;
+  }
+  .summary-model-name {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .summary-model-name .qty {
+    font-size: 12px;
+    font-weight: 400;
+    color: rgba(255,255,255,0.5);
+    margin-left: 8px;
+  }
+  .summary-model-type {
+    font-size: 10px;
+    color: rgba(255,255,255,0.45);
+    letter-spacing: 0.08em;
+  }
+
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+    font-size: 12px;
+    color: rgba(255,255,255,0.75);
+    animation: fadeIn 0.35s ease both;
+  }
+  .summary-row .val { color: #fff; font-variant-numeric: tabular-nums; }
+  .summary-row.discount { color: #F5A5AB; }
+  .summary-row.discount .val { color: #F5A5AB; }
+  .summary-row.strikethrough .val { text-decoration: line-through; opacity: 0.45; }
+
+  .summary-subtotal {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding-top: 14px;
+    margin-top: 10px;
+    border-top: 1px solid rgba(255,255,255,0.12);
+  }
+  .summary-subtotal-label {
+    font-size: 11px;
+    color: rgba(255,255,255,0.6);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .summary-subtotal-value {
+    font-size: 20px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.55, 1);
+  }
+  .summary-subtotal-value.bump { animation: pulseScale 0.5s ease; }
+  .summary-subtotal-value .unit {
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    margin-left: 4px;
+    font-weight: 400;
+  }
+
+  .summary-lump {
+    background: rgba(255,255,255,0.05);
+    padding: 10px 14px;
+    margin: 12px 0 0;
+    font-size: 11px;
+    color: rgba(255,255,255,0.8);
+    display: flex;
+    justify-content: space-between;
+    animation: fadeSlideUp 0.4s ease both;
+  }
+  .summary-lump.hidden { display: none; }
+  .summary-lump .lump-val {
+    font-weight: 700; color: #fff;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── Total ──────────────────────────────────── */
+  .total {
+    margin-top: 26px;
+    padding-top: 26px;
+    border-top: 2px solid rgba(255,255,255,0.2);
+  }
+  .total.hidden { display: none; }
+  .total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 12px;
+  }
+  .total-label {
+    font-size: 13px;
+    color: rgba(255,255,255,0.7);
+    letter-spacing: 0.02em;
+  }
+  .total-value {
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.55, 1);
+  }
+  .total-value.bump { animation: pulseScale 0.55s ease; }
+  .total-value .unit {
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+    margin-left: 4px;
+    font-weight: 400;
+  }
+  .total-row.sub .total-value {
+    font-size: 16px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.85);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 44px 20px;
+    color: rgba(255,255,255,0.4);
+    font-size: 13px;
+    letter-spacing: 0.02em;
+  }
+  .empty-state.hidden { display: none; }
+  .empty-state .dot {
+    display: inline-block;
+    width: 4px; height: 4px;
+    background: rgba(255,255,255,0.3);
+    border-radius: 50%;
+    margin: 0 4px;
+    animation: dotBlink 1.4s ease-in-out infinite;
+  }
+  .empty-state .dot:nth-child(2) { animation-delay: 0.2s; }
+  .empty-state .dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes dotBlink {
+    0%,100% { opacity: 0.3; transform: scale(1); }
+    50%     { opacity: 1; transform: scale(1.4); }
+  }
+
+  /* ── Actions ────────────────────────────────── */
+  .actions {
+    margin-top: 24px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    animation: fadeSlideUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.55s both;
+  }
+  .btn {
+    background: #fff;
+    border: 1px solid rgba(0,0,0,0.12);
+    padding: 12px 22px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #1a1a1a;
+    cursor: pointer;
+    letter-spacing: -0.01em;
+    transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+    font-family: inherit;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn:hover {
+    background: #1a1a1a; color: #fff;
+    border-color: #1a1a1a;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  }
+  .btn:active { transform: translateY(0); }
+  .btn.primary { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+  .btn.primary:hover { background: #000; box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+  .btn.primary:disabled { background: #ccc; border-color: #ccc; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  /* ── Notes ──────────────────────────────────── */
+  .notes {
+    margin-top: 44px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(0,0,0,0.08);
+    font-size: 11px;
+    color: #999;
+    line-height: 1.8;
+    letter-spacing: -0.005em;
+    animation: fadeIn 1s ease 0.7s both;
+  }
+  .notes .note-title {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #666;
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+  .notes ul { list-style: none; }
+  .notes li::before { content: "· "; color: #ccc; margin-right: 4px; }
+
+  /* ── Modal (Quote Preview) ──────────────────── */
+  .modal-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(20,20,20,0.55);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    padding: 24px;
+  }
+  .modal-backdrop.show { opacity: 1; pointer-events: auto; }
+  .modal {
+    background: #fff;
+    max-width: 620px; width: 100%;
+    max-height: 90vh;
+    overflow: auto;
+    transform: translateY(20px) scale(0.98);
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  }
+  .modal-backdrop.show .modal { transform: translateY(0) scale(1); }
+
+  .modal-header {
+    padding: 20px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+  }
+  .modal-header-title {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .modal-close {
+    background: none; border: none;
+    font-size: 22px; cursor: pointer;
+    color: #999;
+    width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    transition: color 0.2s;
+    font-family: inherit;
+  }
+  .modal-close:hover { color: #1a1a1a; }
+
+  .modal-actions {
+    padding: 16px 28px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    border-top: 1px solid rgba(0,0,0,0.08);
+    background: #FAFAF8;
+  }
+
+  /* ── Printable Quote Document ───────────────── */
+  .quote-doc {
+    background: #fff;
+    padding: 40px 42px;
+    color: #1a1a1a;
+    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    line-height: 1.55;
+  }
+  .quote-doc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #1a1a1a;
+    margin-bottom: 28px;
+  }
+  .quote-doc-title-wrap { display: flex; flex-direction: column; gap: 4px; }
+  .quote-doc-eyebrow {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #E71321;
+    font-weight: 600;
+  }
+  .quote-doc-title {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+  .quote-doc-meta {
+    text-align: right;
+    font-size: 10px;
+    color: #666;
+    line-height: 1.6;
+    font-variant-numeric: tabular-nums;
+  }
+  .quote-doc-meta .date { font-size: 12px; color: #1a1a1a; font-weight: 600; }
+
+  .quote-doc-section-title {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #888;
+    font-weight: 600;
+    margin-bottom: 12px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+  }
+
+  .quote-doc-model {
+    margin-bottom: 20px;
+    padding: 14px 16px;
+    background: #FAFAF8;
+    border-left: 3px solid #1a1a1a;
+  }
+  .quote-doc-model-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 8px;
+  }
+  .quote-doc-model-name {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .quote-doc-model-name .qty {
+    font-size: 11px;
+    font-weight: 400;
+    color: #666;
+    margin-left: 6px;
+  }
+  .quote-doc-model-type {
+    font-size: 10px;
+    color: #666;
+    letter-spacing: 0.08em;
+  }
+  .quote-doc-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    padding: 3px 0;
+    color: #444;
+  }
+  .quote-doc-row.discount { color: #E71321; }
+  .quote-doc-row.strike { color: #999; }
+  .quote-doc-row.strike .qval { text-decoration: line-through; }
+  .quote-doc-row .qval {
+    font-variant-numeric: tabular-nums;
+    font-weight: 500;
+  }
+  .quote-doc-sub {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed rgba(0,0,0,0.15);
+  }
+  .quote-doc-sub-label {
+    font-size: 10px;
+    color: #666;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .quote-doc-sub-val {
+    font-size: 15px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+  .quote-doc-lump {
+    font-size: 10px;
+    color: #666;
+    margin-top: 6px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .quote-doc-lump .lval { font-weight: 700; color: #1a1a1a; }
+
+  .quote-doc-total {
+    background: #1a1a1a;
+    color: #fff;
+    padding: 20px 22px;
+    margin-top: 8px;
+  }
+  .quote-doc-total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 8px;
+  }
+  .quote-doc-total-row:last-child { margin-bottom: 0; }
+  .quote-doc-total-label {
+    font-size: 11px;
+    color: rgba(255,255,255,0.7);
+    letter-spacing: 0.05em;
+  }
+  .quote-doc-total-val {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+  .quote-doc-total-row.sub .quote-doc-total-val {
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.85);
+  }
+  .quote-doc-total-vat {
+    font-size: 9px;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 0.1em;
+    margin-top: 10px;
+    text-align: right;
+  }
+
+  .quote-doc-notes {
+    margin-top: 24px;
+    font-size: 9px;
+    color: #888;
+    line-height: 1.6;
+  }
+  .quote-doc-notes ul { list-style: none; }
+  .quote-doc-notes li::before { content: "· "; color: #ccc; }
+
+  .quote-doc-footer {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(0,0,0,0.12);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+  .quote-doc-contact { font-size: 10px; color: #444; line-height: 1.7; }
+  .quote-doc-contact .name {
+    font-size: 13px;
+    color: #1a1a1a;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .quote-doc-brand {
+    text-align: right;
+    font-size: 9px;
+    color: #999;
+    letter-spacing: 0.08em;
+    line-height: 1.6;
+  }
+  .quote-doc-brand .kt {
+    color: #E71321;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  /* Off-screen render target */
+  .render-target {
+    position: fixed;
+    top: -9999px; left: -9999px;
+    width: 620px;
+    z-index: -1;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 28px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #1a1a1a; color: #fff;
+    padding: 12px 20px;
+    font-size: 12px;
+    letter-spacing: 0.02em;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    z-index: 2000;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="title-wrap">
+      <div class="title">KT 서빙로봇 견적 계산기</div>
+      <div class="version">v1.10</div>
+    </div>
+    <div class="subtitle">B2 vs T9</div>
+  </div>
+
+  <!-- Model Cards -->
+  <div class="models">
+
+    <!-- B2 Card -->
+    <div class="model-card" id="card-b2">
+      <div class="model-name">B2</div>
+      <div class="model-type">판매형 · 36개월 약정</div>
+
+      <div class="robot-image">
+        <img src="https://kt-synergy.com/assets/image/robot/%EB%B2%A0%EC%96%B4.png"
+             alt="B2 (베어)" crossorigin="anonymous"
+             onerror="this.style.display='none'">
+      </div>
+
+      <div class="specs">
+        <div class="spec-row"><span class="spec-label">사이즈</span><span class="spec-value">535 × 590 × 1230 mm</span></div>
+        <div class="spec-row"><span class="spec-label">적재</span><span class="spec-value">40kg (10kg × 4)</span></div>
+        <div class="spec-row"><span class="spec-label">통과너비</span><span class="spec-value">최소 80cm</span></div>
+        <div class="spec-row"><span class="spec-label">스크린</span><span class="spec-value">10.4 inch</span></div>
+        <div class="spec-row"><span class="spec-label">완충/작동</span><span class="spec-value">5시간 / 8~12시간</span></div>
+      </div>
+
+      <div class="qty-section">
+        <div class="qty-label">대수</div>
+        <div class="qty-stepper">
+          <button class="qty-btn" data-model="b2" data-delta="-1">−</button>
+          <div class="qty-display" id="qty-b2-wrap"><span id="qty-b2">0</span><span class="unit">대</span></div>
+          <button class="qty-btn" data-model="b2" data-delta="1">+</button>
+        </div>
+      </div>
+
+      <div class="payment-toggle" data-idx="0" data-model="b2">
+        <button class="payment-btn active" data-payment="installment">36개월 할부</button>
+        <button class="payment-btn" data-payment="lump">일시불</button>
+      </div>
+    </div>
+
+    <!-- T9 Card -->
+    <div class="model-card promo" id="card-t9">
+      <div class="model-name">T9</div>
+      <div class="model-type">판매형 · 36개월 약정</div>
+
+      <div class="robot-image">
+        <img src="https://kt-synergy.com/assets/image/robot/%ED%82%A4%EB%85%BC.png"
+             alt="T9 (키논)" crossorigin="anonymous"
+             onerror="this.style.display='none'">
+      </div>
+
+      <div class="specs">
+        <div class="spec-row"><span class="spec-label">사이즈</span><span class="spec-value">500 × 527 × 1266 mm</span></div>
+        <div class="spec-row"><span class="spec-label">적재</span><span class="spec-value">40kg (10kg × 4)</span></div>
+        <div class="spec-row"><span class="spec-label">통과너비</span><span class="spec-value">최소 70cm</span></div>
+        <div class="spec-row"><span class="spec-label">스크린</span><span class="spec-value">11.6 inch</span></div>
+        <div class="spec-row"><span class="spec-label">완충/작동</span><span class="spec-value">4~5시간 / 13~18시간</span></div>
+      </div>
+
+      <div class="qty-section">
+        <div class="qty-label">대수</div>
+        <div class="qty-stepper">
+          <button class="qty-btn" data-model="t9" data-delta="-1">−</button>
+          <div class="qty-display" id="qty-t9-wrap"><span id="qty-t9">0</span><span class="unit">대</span></div>
+          <button class="qty-btn" data-model="t9" data-delta="1">+</button>
+        </div>
+      </div>
+
+      <div class="payment-toggle" data-idx="0" data-model="t9">
+        <button class="payment-btn active" data-payment="installment">36개월 할부</button>
+        <button class="payment-btn" data-payment="lump">일시불</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Common Options -->
+  <div class="options" id="options-wrap">
+    <div class="option-info">
+      <div class="option-title">
+        <span class="badge-coin"></span>
+        으랏차차 패키지 결합 할인
+      </div>
+      <div class="option-desc">로봇 대당 월 30,000원 서비스 이용료 할인</div>
+    </div>
+    <div class="switch" id="urachacha"></div>
+  </div>
+
+  <!-- Quote Summary -->
+  <div class="summary" id="summary">
+    <div class="summary-header">
+      <div class="summary-title">견적 요약</div>
+      <div class="summary-vat">모든 금액 VAT 별도</div>
+    </div>
+
+    <!-- B2 Block -->
+    <div class="summary-model hidden" id="sm-b2">
+      <div class="summary-model-header">
+        <div class="summary-model-name">B2<span class="qty" id="sm-b2-qty">× 0대</span></div>
+        <div class="summary-model-type" id="sm-b2-type">36개월 할부</div>
+      </div>
+      <div id="sm-b2-rows"></div>
+      <div class="summary-subtotal">
+        <div class="summary-subtotal-label">B2 월 납부액</div>
+        <div class="summary-subtotal-value" id="sm-b2-sub-wrap"><span id="sm-b2-sub">0</span><span class="unit">원</span></div>
+      </div>
+      <div class="summary-lump hidden" id="sm-b2-lump">
+        <span>단말 일시불 (초기 지불)</span>
+        <span class="lump-val"><span id="sm-b2-lump-val">0</span>원</span>
+      </div>
+    </div>
+
+    <!-- T9 Block -->
+    <div class="summary-model hidden" id="sm-t9">
+      <div class="summary-model-header">
+        <div class="summary-model-name">T9<span class="qty" id="sm-t9-qty">× 0대</span></div>
+        <div class="summary-model-type" id="sm-t9-type">36개월 할부 · 프로모션</div>
+      </div>
+      <div id="sm-t9-rows"></div>
+      <div class="summary-subtotal">
+        <div class="summary-subtotal-label">T9 월 납부액</div>
+        <div class="summary-subtotal-value" id="sm-t9-sub-wrap"><span id="sm-t9-sub">0</span><span class="unit">원</span></div>
+      </div>
+      <div class="summary-lump hidden" id="sm-t9-lump">
+        <span>단말 일시불 (초기 지불)</span>
+        <span class="lump-val"><span id="sm-t9-lump-val">0</span>원</span>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" id="empty-state">
+      로봇 대수를 선택하면 견적이 표시됩니다<span class="dot"></span><span class="dot"></span><span class="dot"></span>
+    </div>
+
+    <!-- Total -->
+    <div class="total hidden" id="total-block">
+      <div class="total-row">
+        <div class="total-label">총 월 납부액</div>
+        <div class="total-value" id="total-monthly-wrap"><span id="total-monthly">0</span><span class="unit">원</span></div>
+      </div>
+      <div class="total-row sub" id="total-lump-row">
+        <div class="total-label">단말 일시불 총액 (초기 지불)</div>
+        <div class="total-value" id="total-lump-wrap"><span id="total-lump">0</span><span class="unit">원</span></div>
+      </div>
+      <div class="total-row sub">
+        <div class="total-label">36개월 총 소유비용</div>
+        <div class="total-value" id="total-tco-wrap"><span id="total-tco">0</span><span class="unit">원</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn" id="btn-reset">초기화</button>
+    <button class="btn" id="btn-copy">견적 복사</button>
+    <button class="btn primary" id="btn-download" disabled>견적서 PNG 다운로드</button>
+  </div>
+
+  <!-- Notes -->
+  <div class="notes">
+    <div class="note-title">유의사항</div>
+    <ul>
+      <li>개인사업자 및 법인사업자만 가입 가능합니다.</li>
+      <li>판매형 상품으로, 로봇 소유권은 고객에게 있습니다.</li>
+      <li>단말 할부시, 할부보증보험 가입 필수 입니다.</li>
+      <li>무상 A/S 3년, 배터리 A/S 1년입니다. (고객 사유 제외)</li>
+      <li>T9 프로모션 요금은 출시기념 한시 적용, 종료 시점 정책에 따라 변동될 수 있습니다.</li>
+      <li>으랏차차 패키지 결합 할인은 KT 인터넷 등 결합 조건 충족 시 적용됩니다.</li>
+      <li>모든 금액은 VAT 별도이며, 실제 청약 시 최종 요금은 청약서 기준입니다.</li>
+    </ul>
+  </div>
+
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">복사되었습니다</div>
+
+<!-- Modal: Quote Preview -->
+<div class="modal-backdrop" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-header-title">견적서 미리보기</div>
+      <button class="modal-close" id="modal-close">×</button>
+    </div>
+    <div id="modal-body"></div>
+    <div class="modal-actions">
+      <button class="btn" id="modal-cancel">닫기</button>
+      <button class="btn primary" id="modal-download">PNG로 다운로드</button>
+    </div>
+  </div>
+</div>
+
+<!-- Off-screen render target -->
+<div class="render-target" id="render-target"></div>
+
+<script>
+// ── State ──────────────────────────────────────
+const state = {
+  b2: { qty: 0, payment: 'installment' },
+  t9: { qty: 0, payment: 'installment' },
+  urachacha: false
+};
+
+// ── Pricing Data ───────────────────────────────
+const PRICE = {
+  b2: {
+    installment_device: 290000,
+    installment_service: 350000,
+    lump_device: 10440000,
+    lump_service: 350000
+  },
+  t9: {
+    installment_device: 190000,
+    installment_service: 309000,
+    lump_device: 6840000,
+    lump_service: 309000,
+    service_original: 350000
+  },
+  urachacha_discount: 30000
+};
+
+// ── Utils ──────────────────────────────────────
+const $ = (id) => document.getElementById(id);
+const fmt = (n) => n.toLocaleString('ko-KR');
+
+// Number counter animation
+const numAnimState = new WeakMap();
+function animateNumber(el, to, duration = 450) {
+  const from = numAnimState.get(el) || 0;
+  if (from === to) { el.textContent = fmt(to); return; }
+  const start = performance.now();
+  const raf = numAnimState.get(el.__raf__) || null;
+  if (raf) cancelAnimationFrame(raf);
+  function tick(now) {
+    const t = Math.min(1, (now - start) / duration);
+    const eased = 1 - Math.pow(1 - t, 3);
+    const val = Math.round(from + (to - from) * eased);
+    el.textContent = fmt(val);
+    if (t < 1) {
+      const id = requestAnimationFrame(tick);
+      numAnimState.set(el.__raf__, id);
+    } else {
+      numAnimState.set(el, to);
+    }
+  }
+  requestAnimationFrame(tick);
+  numAnimState.set(el, to);
+}
+
+function bump(el) {
+  el.classList.remove('bump');
+  void el.offsetWidth;
+  el.classList.add('bump');
+}
+
+// ── Compute ────────────────────────────────────
+function computeModel(model) {
+  const s = state[model];
+  const p = PRICE[model];
+  if (s.qty <= 0) return null;
+  const discount = state.urachacha ? PRICE.urachacha_discount : 0;
+
+  if (s.payment === 'installment') {
+    const device_per = p.installment_device;
+    const service_per = p.installment_service - discount;
+    const monthly_per = device_per + service_per;
+    return {
+      payment: 'installment', qty: s.qty,
+      device_per, service_per, discount,
+      monthly_per,
+      monthly_total: monthly_per * s.qty,
+      lump_total: 0,
+      tco_36: monthly_per * s.qty * 36,
+      service_original: model === 't9' ? p.service_original : null
+    };
+  } else {
+    const device_lump = p.lump_device;
+    const service_per = p.lump_service - discount;
+    return {
+      payment: 'lump', qty: s.qty,
+      device_lump, service_per, discount,
+      monthly_per: service_per,
+      monthly_total: service_per * s.qty,
+      lump_total: device_lump * s.qty,
+      tco_36: (device_lump * s.qty) + (service_per * s.qty * 36),
+      service_original: model === 't9' ? p.service_original : null
+    };
+  }
+}
+
+// ── Render ─────────────────────────────────────
+function renderModel(model) {
+  const q = state[model].qty;
+  const qtyEl = $(`qty-${model}`);
+  const prevQty = parseInt(qtyEl.textContent) || 0;
+  qtyEl.textContent = q;
+  if (prevQty !== q) bump($(`qty-${model}-wrap`));
+
+  $(`qty-${model}`).parentElement.parentElement.querySelector('[data-delta="-1"]').disabled = q <= 0;
+  $(`card-${model}`).classList.toggle('active', q > 0);
+
+  const r = computeModel(model);
+  const block = $(`sm-${model}`);
+  if (!r) { block.classList.add('hidden'); return; }
+  const wasHidden = block.classList.contains('hidden');
+  block.classList.remove('hidden');
+  if (wasHidden) {
+    block.style.animation = 'none';
+    void block.offsetWidth;
+    block.style.animation = '';
+  }
+
+  $(`sm-${model}-qty`).textContent = `× ${r.qty}대`;
+  $(`sm-${model}-type`).textContent = r.payment === 'installment'
+    ? (model === 't9' ? '36개월 할부 · 프로모션' : '36개월 할부')
+    : (model === 't9' ? '일시불 · 프로모션' : '일시불');
+
+  const rowsEl = $(`sm-${model}-rows`);
+  rowsEl.innerHTML = '';
+  const addRow = (label, val, cls = '') => {
+    const row = document.createElement('div');
+    row.className = 'summary-row ' + cls;
+    row.innerHTML = `<span>${label}</span><span class="val">${val}</span>`;
+    rowsEl.appendChild(row);
+  };
+
+  if (r.payment === 'installment') {
+    addRow('단말 할부금 (월, 대당)', `${fmt(r.device_per)}원`);
+    if (model === 't9' && r.service_original) {
+      addRow('서비스 이용료 (정가, 월, 대당)', `${fmt(r.service_original)}원`, 'strikethrough');
+    }
+    const svcLabel = model === 't9' ? '서비스 이용료 (프로모션, 월, 대당)' : '서비스 이용료 (월, 대당)';
+    addRow(svcLabel, `${fmt(r.service_per + r.discount)}원`);
+    if (r.discount > 0) addRow('으랏차차 결합할인 (대당)', `−${fmt(r.discount)}원`, 'discount');
+    if (r.qty > 1) addRow(`합계 (× ${r.qty}대)`, `월 ${fmt(r.monthly_total)}원`);
+  } else {
+    addRow('단말 금액 (일시불, 대당)', `${fmt(PRICE[model].lump_device)}원`);
+    if (model === 't9' && r.service_original) {
+      addRow('서비스 이용료 (정가, 월, 대당)', `${fmt(r.service_original)}원`, 'strikethrough');
+    }
+    const svcLabel = model === 't9' ? '서비스 이용료 (프로모션, 월, 대당)' : '서비스 이용료 (월, 대당)';
+    addRow(svcLabel, `${fmt(r.service_per + r.discount)}원`);
+    if (r.discount > 0) addRow('으랏차차 결합할인 (대당)', `−${fmt(r.discount)}원`, 'discount');
+  }
+
+  const subEl = $(`sm-${model}-sub`);
+  const prevSub = parseInt(subEl.textContent.replace(/,/g,'')) || 0;
+  animateNumber(subEl, r.monthly_total);
+  if (prevSub !== r.monthly_total) bump($(`sm-${model}-sub-wrap`));
+
+  const lumpEl = $(`sm-${model}-lump`);
+  if (r.payment === 'lump' && r.lump_total > 0) {
+    lumpEl.classList.remove('hidden');
+    animateNumber($(`sm-${model}-lump-val`), r.lump_total);
+  } else {
+    lumpEl.classList.add('hidden');
+  }
+}
+
+function renderAll() {
+  renderModel('b2');
+  renderModel('t9');
+
+  const b2 = computeModel('b2');
+  const t9 = computeModel('t9');
+  const hasAny = !!(b2 || t9);
+
+  $('empty-state').classList.toggle('hidden', hasAny);
+  $('total-block').classList.toggle('hidden', !hasAny);
+  $('btn-download').disabled = !hasAny;
+
+  const totalMonthly = (b2?.monthly_total || 0) + (t9?.monthly_total || 0);
+  const totalLump = (b2?.lump_total || 0) + (t9?.lump_total || 0);
+  const totalTco = (b2?.tco_36 || 0) + (t9?.tco_36 || 0);
+
+  const mEl = $('total-monthly');
+  const prevM = parseInt(mEl.textContent.replace(/,/g,'')) || 0;
+  animateNumber(mEl, totalMonthly);
+  if (prevM !== totalMonthly && hasAny) bump($('total-monthly-wrap'));
+
+  animateNumber($('total-lump'), totalLump);
+  animateNumber($('total-tco'), totalTco);
+
+  $('total-lump-row').style.display = totalLump > 0 ? '' : 'none';
+}
+
+// ── Events ─────────────────────────────────────
+document.querySelectorAll('.qty-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const m = btn.dataset.model;
+    const d = parseInt(btn.dataset.delta);
+    state[m].qty = Math.max(0, Math.min(50, state[m].qty + d));
+    renderAll();
+  });
+});
+
+document.querySelectorAll('.payment-toggle').forEach(tog => {
+  const m = tog.dataset.model;
+  tog.querySelectorAll('.payment-btn').forEach((btn, idx) => {
+    btn.addEventListener('click', () => {
+      state[m].payment = btn.dataset.payment;
+      tog.dataset.idx = idx;
+      tog.querySelectorAll('.payment-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderAll();
+    });
+  });
+});
+
+$('urachacha').addEventListener('click', () => {
+  state.urachacha = !state.urachacha;
+  $('urachacha').classList.toggle('on', state.urachacha);
+  $('options-wrap').classList.toggle('on', state.urachacha);
+  renderAll();
+});
+
+$('btn-reset').addEventListener('click', () => {
+  state.b2 = { qty: 0, payment: 'installment' };
+  state.t9 = { qty: 0, payment: 'installment' };
+  state.urachacha = false;
+  $('urachacha').classList.remove('on');
+  $('options-wrap').classList.remove('on');
+  document.querySelectorAll('.payment-toggle').forEach(tog => {
+    tog.dataset.idx = 0;
+    tog.querySelectorAll('.payment-btn').forEach((b, i) => b.classList.toggle('active', i === 0));
+  });
+  renderAll();
+});
+
+// ── Toast ──────────────────────────────────────
+function showToast(msg) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+// ── Copy Button ────────────────────────────────
+$('btn-copy').addEventListener('click', () => {
+  const b2 = computeModel('b2');
+  const t9 = computeModel('t9');
+  if (!b2 && !t9) { showToast('로봇 대수를 먼저 선택해주세요'); return; }
+  const lines = ['[KT 서빙로봇 견적]', ''];
+  if (b2) {
+    lines.push(`▪ B2 × ${b2.qty}대 (${b2.payment === 'installment' ? '36개월 할부' : '일시불'})`);
+    if (b2.payment === 'installment') {
+      lines.push(`  월 납부액: ${fmt(b2.monthly_total)}원`);
+    } else {
+      lines.push(`  단말 일시불: ${fmt(b2.lump_total)}원`);
+      lines.push(`  월 서비스료: ${fmt(b2.monthly_total)}원`);
+    }
+    lines.push('');
+  }
+  if (t9) {
+    lines.push(`▪ T9 × ${t9.qty}대 (${t9.payment === 'installment' ? '36개월 할부' : '일시불'}, 프로모션)`);
+    if (t9.payment === 'installment') {
+      lines.push(`  월 납부액: ${fmt(t9.monthly_total)}원`);
+    } else {
+      lines.push(`  단말 일시불: ${fmt(t9.lump_total)}원`);
+      lines.push(`  월 서비스료: ${fmt(t9.monthly_total)}원`);
+    }
+    lines.push('');
+  }
+  if (state.urachacha) lines.push('※ 으랏차차 결합할인 적용 (로봇 대당 월 30,000원)');
+  const totalMonthly = (b2?.monthly_total || 0) + (t9?.monthly_total || 0);
+  const totalLump = (b2?.lump_total || 0) + (t9?.lump_total || 0);
+  const totalTco = (b2?.tco_36 || 0) + (t9?.tco_36 || 0);
+  lines.push('─────────────────');
+  lines.push(`총 월 납부액: ${fmt(totalMonthly)}원`);
+  if (totalLump > 0) lines.push(`단말 일시불 총액: ${fmt(totalLump)}원`);
+  lines.push(`36개월 총 소유비용: ${fmt(totalTco)}원`);
+  lines.push('(모든 금액 VAT 별도)');
+  const text = lines.join('\n');
+  navigator.clipboard.writeText(text).then(() => showToast('견적이 클립보드에 복사되었습니다'))
+    .catch(() => prompt('복사하려면 Ctrl+C 를 눌러주세요:', text));
+});
+
+// ── Quote Document Builder ─────────────────────
+function buildQuoteDoc() {
+  const b2 = computeModel('b2');
+  const t9 = computeModel('t9');
+  const now = new Date();
+  const yyyy = now.getFullYear();
+  const mm = String(now.getMonth()+1).padStart(2,'0');
+  const dd = String(now.getDate()).padStart(2,'0');
+  const dateStr = `${yyyy}.${mm}.${dd}`;
+  const refId = `KT-SR-${yyyy}${mm}${dd}-${String(Math.floor(Math.random()*900+100))}`;
+
+  const modelBlock = (m, r) => {
+    if (!r) return '';
+    const typeStr = r.payment === 'installment'
+      ? (m === 't9' ? '36개월 할부 · 프로모션' : '36개월 할부')
+      : (m === 't9' ? '일시불 · 프로모션' : '일시불');
+    let rows = '';
+    if (r.payment === 'installment') {
+      rows += `<div class="quote-doc-row"><span>단말 할부금 (월, 대당)</span><span class="qval">${fmt(r.device_per)}원</span></div>`;
+      if (m === 't9' && r.service_original) {
+        rows += `<div class="quote-doc-row strike"><span>서비스 이용료 (정가, 월, 대당)</span><span class="qval">${fmt(r.service_original)}원</span></div>`;
+      }
+      const svcLabel = m === 't9' ? '서비스 이용료 (프로모션, 월, 대당)' : '서비스 이용료 (월, 대당)';
+      rows += `<div class="quote-doc-row"><span>${svcLabel}</span><span class="qval">${fmt(r.service_per + r.discount)}원</span></div>`;
+      if (r.discount > 0) rows += `<div class="quote-doc-row discount"><span>으랏차차 결합할인 (대당)</span><span class="qval">−${fmt(r.discount)}원</span></div>`;
+    } else {
+      rows += `<div class="quote-doc-row"><span>단말 금액 (일시불, 대당)</span><span class="qval">${fmt(PRICE[m].lump_device)}원</span></div>`;
+      if (m === 't9' && r.service_original) {
+        rows += `<div class="quote-doc-row strike"><span>서비스 이용료 (정가, 월, 대당)</span><span class="qval">${fmt(r.service_original)}원</span></div>`;
+      }
+      const svcLabel = m === 't9' ? '서비스 이용료 (프로모션, 월, 대당)' : '서비스 이용료 (월, 대당)';
+      rows += `<div class="quote-doc-row"><span>${svcLabel}</span><span class="qval">${fmt(r.service_per + r.discount)}원</span></div>`;
+      if (r.discount > 0) rows += `<div class="quote-doc-row discount"><span>으랏차차 결합할인 (대당)</span><span class="qval">−${fmt(r.discount)}원</span></div>`;
+    }
+    const lumpStr = r.payment === 'lump'
+      ? `<div class="quote-doc-lump"><span>단말 일시불 총액 (${r.qty}대)</span><span class="lval">${fmt(r.lump_total)}원</span></div>`
+      : '';
+    return `
+      <div class="quote-doc-model">
+        <div class="quote-doc-model-head">
+          <div class="quote-doc-model-name">${m.toUpperCase()}<span class="qty">× ${r.qty}대</span></div>
+          <div class="quote-doc-model-type">${typeStr}</div>
+        </div>
+        ${rows}
+        <div class="quote-doc-sub">
+          <div class="quote-doc-sub-label">월 납부액 (${r.qty}대 합계)</div>
+          <div class="quote-doc-sub-val">${fmt(r.monthly_total)}원</div>
+        </div>
+        ${lumpStr}
+      </div>`;
+  };
+
+  const totalMonthly = (b2?.monthly_total || 0) + (t9?.monthly_total || 0);
+  const totalLump = (b2?.lump_total || 0) + (t9?.lump_total || 0);
+  const totalTco = (b2?.tco_36 || 0) + (t9?.tco_36 || 0);
+
+  return `
+    <div class="quote-doc">
+      <div class="quote-doc-header">
+        <div class="quote-doc-title-wrap">
+          <div class="quote-doc-eyebrow">KT SERVING ROBOT</div>
+          <div class="quote-doc-title">서빙로봇 견적서</div>
+        </div>
+        <div class="quote-doc-meta">
+          <div class="date">${dateStr}</div>
+          <div>Ref. ${refId}</div>
+          <div>유효기간: 발행일 +30일</div>
+        </div>
+      </div>
+
+      <div class="quote-doc-section-title">모델별 요금</div>
+      ${modelBlock('b2', b2)}
+      ${modelBlock('t9', t9)}
+
+      <div class="quote-doc-total">
+        <div class="quote-doc-total-row">
+          <div class="quote-doc-total-label">총 월 납부액</div>
+          <div class="quote-doc-total-val">${fmt(totalMonthly)}원</div>
+        </div>
+        ${totalLump > 0 ? `
+        <div class="quote-doc-total-row sub">
+          <div class="quote-doc-total-label">단말 일시불 총액 (초기 지불)</div>
+          <div class="quote-doc-total-val">${fmt(totalLump)}원</div>
+        </div>` : ''}
+        <div class="quote-doc-total-row sub">
+          <div class="quote-doc-total-label">36개월 총 소유비용</div>
+          <div class="quote-doc-total-val">${fmt(totalTco)}원</div>
+        </div>
+        <div class="quote-doc-total-vat">모든 금액 VAT 별도</div>
+      </div>
+
+      <div class="quote-doc-notes">
+        <ul>
+          <li>개인/법인사업자만 가입 가능, 판매형 상품(소유권 고객).</li>
+          <li>단말 할부시 할부보증보험 가입 필수. 무상 A/S 3년, 배터리 A/S 1년.</li>
+          <li>T9 프로모션 요금은 출시기념 한시 적용, 종료 시점 정책에 따라 변동 가능.</li>
+          ${state.urachacha ? '<li>으랏차차 결합할인은 KT 인터넷 등 결합 조건 충족 시 적용됩니다.</li>' : ''}
+          <li>실제 청약 시 최종 요금은 청약서 기준입니다.</li>
+        </ul>
+      </div>
+
+      <div class="quote-doc-footer">
+        <div class="quote-doc-contact">
+          <div class="name">이대희 과장</div>
+          <div>KT 인천지사 시너지영업3팀</div>
+          <div>Tel. 010-7300-2632</div>
+          <div>Email. daehee.lee@kt.com</div>
+          <div>인천광역시 남동구 경인로 508</div>
+        </div>
+        <div class="quote-doc-brand">
+          <div class="kt">kt</div>
+          <div>© ${yyyy} KT</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ── Modal + PNG Download ───────────────────────
+function openModal() {
+  const b2 = computeModel('b2');
+  const t9 = computeModel('t9');
+  if (!b2 && !t9) { showToast('로봇 대수를 먼저 선택해주세요'); return; }
+  const html = buildQuoteDoc();
+  $('modal-body').innerHTML = html;
+  $('modal').classList.add('show');
+}
+function closeModal() { $('modal').classList.remove('show'); }
+
+$('btn-download').addEventListener('click', openModal);
+$('modal-close').addEventListener('click', closeModal);
+$('modal-cancel').addEventListener('click', closeModal);
+$('modal').addEventListener('click', (e) => { if (e.target === $('modal')) closeModal(); });
+
+$('modal-download').addEventListener('click', async () => {
+  const btn = $('modal-download');
+  const orig = btn.textContent;
+  btn.textContent = '생성 중…';
+  btn.disabled = true;
+
+  // Render to off-screen target for cleaner capture
+  const target = $('render-target');
+  target.innerHTML = buildQuoteDoc();
+  const node = target.querySelector('.quote-doc');
+
+  try {
+    // Wait a tick for layout
+    await new Promise(r => setTimeout(r, 100));
+    const canvas = await html2canvas(node, {
+      scale: 2,
+      backgroundColor: '#ffffff',
+      useCORS: true,
+      allowTaint: false,
+      logging: false
+    });
+    const dataUrl = canvas.toDataURL('image/png');
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth()+1).padStart(2,'0');
+    const dd = String(now.getDate()).padStart(2,'0');
+    const a = document.createElement('a');
+    a.href = dataUrl;
+    a.download = `KT_서빙로봇_견적서_${yyyy}${mm}${dd}.png`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    showToast('견적서 PNG가 다운로드되었습니다');
+    closeModal();
+  } catch (err) {
+    console.error(err);
+    showToast('PNG 생성에 실패했습니다');
+  } finally {
+    target.innerHTML = '';
+    btn.textContent = orig;
+    btn.disabled = false;
+  }
+});
+
+// Escape key
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && $('modal').classList.contains('show')) closeModal();
+});
+
+// Initial render
+renderAll();
+</script>
+</body>
+</html>
