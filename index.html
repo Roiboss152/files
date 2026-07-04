@@ -1733,5 +1733,212 @@
     })();
     </script>
 
+
+<!-- ============================================================
+     [카드 클릭 물결 왜곡 효과]
+     대상: 01~06 소개 카드(.grid-card) + "도구는 어떻게 현장에 닿는가"
+           워크플로우 01~03 카드(.workflow-card)
+     버튼(.card-btn) 클릭 시에는 물결이 발동하지 않고 바로 이동합니다.
+     ============================================================ -->
+<style>
+  .grid-card.ripple-ready,
+  .workflow-card.ripple-ready {
+    position: relative;
+    -webkit-tap-highlight-color: transparent;
+  }
+</style>
+
+<script>
+(function () {
+  // 카드 크기(약 300~600px)에 맞춘 파라미터
+  const DISPLACEMENT_SCALE = 30;
+  const NUM_RINGS = 5;
+  const RING_WIDTH = 8;
+  const WAVELENGTH_GROWTH = 14;
+  const BASE_WAVELENGTH = 18;
+  const DURATION = 2200;
+  const DECAY_PER_RING = 0.53;
+  const RING_BLUR = 4;
+  const NOISE_BLUR = 0.5;
+  const MAX_RADIUS_RATIO = 0.85;
+
+  let filterSvg = null;
+  let filterCounter = 0;
+
+  function ensureFilterHost() {
+    if (filterSvg) return filterSvg;
+    filterSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    filterSvg.setAttribute('width', '0');
+    filterSvg.setAttribute('height', '0');
+    filterSvg.style.position = 'absolute';
+    document.body.appendChild(filterSvg);
+    return filterSvg;
+  }
+
+  function createRippleFilter() {
+    const id = 'cardRippleFilter-' + (filterCounter++);
+    const ns = 'http://www.w3.org/2000/svg';
+    const filter = document.createElementNS(ns, 'filter');
+    filter.setAttribute('id', id);
+    filter.setAttribute('x', '-20%');
+    filter.setAttribute('y', '-20%');
+    filter.setAttribute('width', '140%');
+    filter.setAttribute('height', '140%');
+    filter.setAttribute('filterUnits', 'objectBoundingBox');
+    filter.setAttribute('primitiveUnits', 'userSpaceOnUse');
+    filter.setAttribute('color-interpolation-filters', 'sRGB');
+
+    const turb = document.createElementNS(ns, 'feTurbulence');
+    turb.setAttribute('type', 'fractalNoise');
+    turb.setAttribute('baseFrequency', '0.02');
+    turb.setAttribute('numOctaves', '2');
+    turb.setAttribute('seed', String(Math.floor(Math.random() * 100)));
+    turb.setAttribute('result', 'noise');
+
+    const colorMatrix = document.createElementNS(ns, 'feColorMatrix');
+    colorMatrix.setAttribute('in', 'noise');
+    colorMatrix.setAttribute('type', 'matrix');
+    colorMatrix.setAttribute('values', '1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 0 1');
+    colorMatrix.setAttribute('result', 'noiseOpaque');
+
+    const ringMaskImg = document.createElementNS(ns, 'feImage');
+    ringMaskImg.setAttribute('x', '0');
+    ringMaskImg.setAttribute('y', '0');
+    ringMaskImg.setAttribute('result', 'ringMaskRaw');
+
+    const ringBlur = document.createElementNS(ns, 'feGaussianBlur');
+    ringBlur.setAttribute('in', 'ringMaskRaw');
+    ringBlur.setAttribute('stdDeviation', String(RING_BLUR));
+    ringBlur.setAttribute('result', 'ringMask');
+
+    const composite = document.createElementNS(ns, 'feComposite');
+    composite.setAttribute('in', 'noiseOpaque');
+    composite.setAttribute('in2', 'ringMask');
+    composite.setAttribute('operator', 'arithmetic');
+    composite.setAttribute('k1', '1');
+    composite.setAttribute('k2', '0');
+    composite.setAttribute('k3', '0');
+    composite.setAttribute('k4', '0');
+    composite.setAttribute('result', 'maskedNoise');
+
+    const noiseBlur = document.createElementNS(ns, 'feGaussianBlur');
+    noiseBlur.setAttribute('in', 'maskedNoise');
+    noiseBlur.setAttribute('stdDeviation', String(NOISE_BLUR));
+    noiseBlur.setAttribute('result', 'maskedNoiseSoft');
+
+    const disp = document.createElementNS(ns, 'feDisplacementMap');
+    disp.setAttribute('in', 'SourceGraphic');
+    disp.setAttribute('in2', 'maskedNoiseSoft');
+    disp.setAttribute('scale', '0');
+    disp.setAttribute('xChannelSelector', 'R');
+    disp.setAttribute('yChannelSelector', 'G');
+
+    filter.appendChild(turb);
+    filter.appendChild(colorMatrix);
+    filter.appendChild(ringMaskImg);
+    filter.appendChild(ringBlur);
+    filter.appendChild(composite);
+    filter.appendChild(noiseBlur);
+    filter.appendChild(disp);
+
+    ensureFilterHost().appendChild(filter);
+
+    return { id, ringMaskImg, disp };
+  }
+
+  function easeOutQuad(t) { return 1 - (1 - t) * (1 - t); }
+
+  function buildRingMaskDataURI(cx, cy, rings, w, h) {
+    let circles = '';
+    for (const r of rings) {
+      circles += `<circle cx="${cx}" cy="${cy}" r="${r.radius.toFixed(1)}" fill="none" stroke="white" stroke-width="${RING_WIDTH}" stroke-opacity="${r.strength.toFixed(3)}" />`;
+    }
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><rect width="100%" height="100%" fill="black"/>${circles}</svg>`;
+    return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  }
+
+  function attachRipple(el) {
+    if (el.dataset.rippleAttached) return;
+    el.dataset.rippleAttached = '1';
+    el.classList.add('ripple-ready');
+
+    const { id, ringMaskImg, disp } = createRippleFilter();
+    el.style.filter = `url(#${id})`;
+
+    let animId = null;
+
+    function animate(cx, cy) {
+      cancelAnimationFrame(animId);
+      const rect = el.getBoundingClientRect();
+      const w = rect.width, h = rect.height;
+      const diag = Math.hypot(w, h);
+      const maxRadius = diag * MAX_RADIUS_RATIO;
+
+      ringMaskImg.setAttribute('width', w);
+      ringMaskImg.setAttribute('height', h);
+      disp.setAttribute('scale', DISPLACEMENT_SCALE);
+
+      const startTime = performance.now();
+
+      function frame(now) {
+        const elapsed = now - startTime;
+        const t = Math.min(elapsed / DURATION, 1);
+        const eased = easeOutQuad(t);
+
+        const frontRadius = eased * maxRadius;
+        const globalEnvelope = 1 - Math.pow(t, 2);
+
+        let rings = [];
+        let cumulativeOffset = 0;
+        for (let i = 0; i < NUM_RINGS; i++) {
+          const wavelength = BASE_WAVELENGTH + i * WAVELENGTH_GROWTH;
+          cumulativeOffset += (i === 0 ? 0 : wavelength);
+          const ringRadius = frontRadius - cumulativeOffset;
+          if (ringRadius <= 0) break;
+          const ringStrength = Math.pow(DECAY_PER_RING, i) * globalEnvelope;
+          if (ringStrength < 0.04) continue;
+          rings.push({ radius: ringRadius, strength: ringStrength });
+        }
+
+        const href = buildRingMaskDataURI(cx, cy, rings, w, h);
+        ringMaskImg.setAttribute('href', href);
+        ringMaskImg.setAttributeNS('http://www.w3.org/1999/xlink', 'href', href);
+
+        if (t < 1) {
+          animId = requestAnimationFrame(frame);
+        } else {
+          disp.setAttribute('scale', 0);
+        }
+      }
+      animId = requestAnimationFrame(frame);
+    }
+
+    // 버튼(.card-btn) 클릭 시에는 물결을 발동시키지 않고 바로 링크 이동되도록 제외
+    // preventDefault는 호출하지 않음 (모바일 터치 스크롤/바운스를 막아
+    // 카드가 튕기듯 이동하는 부작용을 유발하므로 제거)
+    el.addEventListener('pointerdown', (e) => {
+      if (e.target.closest('.card-btn')) return;
+      const rect = el.getBoundingClientRect();
+      const cx = e.clientX - rect.left;
+      const cy = e.clientY - rect.top;
+      animate(cx, cy);
+    });
+  }
+
+  function initCardRipple() {
+    // 01~06 소개 카드
+    document.querySelectorAll('.grid-card').forEach(attachRipple);
+    // "도구는 어떻게 현장에 닿는가" 워크플로우 01~03 카드
+    document.querySelectorAll('.workflow-card').forEach(attachRipple);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCardRipple);
+  } else {
+    initCardRipple();
+  }
+})();
+</script>
+
 </body>
 </html>
