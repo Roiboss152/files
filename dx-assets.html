@@ -3,15 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 안드로이드 크롬/삼성 인터넷의 강제 다크 모드가 gradient text를 반전시키는 문제 방지 -->
+    <meta name="color-scheme" content="dark">
+    <meta name="theme-color" content="#09090b">
     <title>DX상품 에셋 · KT Synergy 3</title>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css">
     <style>
+        :root { color-scheme: dark; }
         body, html {
             margin: 0; padding: 0;
             background-color: #09090b; color: #fff;
-            font-family: 'Pretendard', -apple-system, sans-serif;
+            font-family: 'Pretendard Variable', 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
             overflow-x: hidden; scroll-behavior: smooth;
+            color-scheme: dark;
+        }
+        body {
+            background: radial-gradient(ellipse at top, #101014 0%, #09090b 55%, #09090b 100%);
+            position: relative;
         }
         body.modal-open { overflow: hidden; }
+
+        /* 은은한 KT 블루 글로우 (Editorial Minimalism 톤) */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -20%; left: 50%;
+            width: 900px; height: 900px;
+            transform: translateX(-50%);
+            background: radial-gradient(circle, rgba(79,172,254,0.05) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+            animation: bgDrift 22s ease-in-out infinite;
+        }
+        @keyframes bgDrift {
+            0%,100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            50%     { transform: translateX(-45%) translateY(30px); opacity: 0.7; }
+        }
+
+        /* ── 상단 스크롤 진행 인디케이터 ── */
+        .scroll-progress {
+            position: fixed;
+            top: 0; left: 0;
+            height: 2px;
+            width: 0%;
+            background: linear-gradient(to right, #4facfe, #60b8ff);
+            box-shadow: 0 0 10px rgba(79,172,254,0.6);
+            z-index: 999;
+            transition: width 0.05s linear;
+            will-change: width;
+        }
 
         /* ── 상단 헤더 (index.html과 통일) ── */
         .page-header {
@@ -26,42 +67,71 @@
         .header-logo {
             font-size: 1.2rem; font-weight: 800; letter-spacing: 1px;
             color: #fff; text-decoration: none;
+            transition: text-shadow 0.3s ease, color 0.3s ease;
+        }
+        .header-logo:hover {
+            color: #4facfe;
+            text-shadow: 0 0 20px rgba(79,172,254,0.4);
         }
         .header-back {
             color: #a1a1aa; text-decoration: none; font-size: 0.95rem; font-weight: 500;
             display: inline-flex; align-items: center; gap: 8px;
-            transition: color 0.3s, text-shadow 0.3s;
+            transition: color 0.3s, text-shadow 0.3s, gap 0.3s;
         }
         .header-back:hover {
             color: #4facfe; text-shadow: 0 0 12px rgba(79, 172, 254, 0.6);
+            gap: 12px;
         }
+        .header-back svg {
+            transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .header-back:hover svg { transform: translateX(-3px); }
 
         /* ── 페이지 본문 ── */
         .page-body {
             max-width: 1400px; margin: 0 auto;
             padding: 90px 40px 120px 40px;
             box-sizing: border-box;
+            position: relative;
+            z-index: 1;
         }
         .page-title {
             font-size: 3.2rem; font-weight: 800; margin: 0 0 20px 0;
             letter-spacing: -1px;
+            color: #ffffff; /* fallback */
             background: linear-gradient(to right, #ffffff, #a1a1aa);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         .page-ver {
             display: inline-block;
             margin-left: 12px;
             font-size: 11px;
-            color: #aaa;
+            color: #71717a;
             font-weight: 400;
             letter-spacing: 0;
             vertical-align: middle;
-            -webkit-text-fill-color: #aaa;
+            -webkit-text-fill-color: #71717a;
             background: none;
         }
         .page-sub {
             color: #71717a; font-size: 1.15rem; margin: 0 0 60px 0;
             line-height: 1.7;
+        }
+        /* 자산 카운트 배지 */
+        .page-sub .count-badge {
+            display: inline-block;
+            margin-left: 6px;
+            padding: 2px 10px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #4facfe;
+            background: rgba(79,172,254,0.08);
+            border: 1px solid rgba(79,172,254,0.28);
+            border-radius: 999px;
+            vertical-align: middle;
+            letter-spacing: 0.02em;
+            font-variant-numeric: tabular-nums;
         }
 
         /* ── 갤러리 그리드 ── */
@@ -77,13 +147,57 @@
             border-radius: 16px;
             overflow: hidden;
             cursor: pointer;
-            transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1), border-color 0.35s, box-shadow 0.35s;
+            transition:
+                transform 0.4s cubic-bezier(0.25, 1, 0.5, 1),
+                border-color 0.4s ease,
+                box-shadow 0.4s ease;
             display: flex; flex-direction: column;
         }
+
+        /* Card stagger reveal 초기 상태 */
+        .thumb {
+            opacity: 0;
+            filter: blur(10px);
+            transform: translateY(24px) scale(0.96);
+            transition:
+                opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+                filter 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+                transform 0.4s cubic-bezier(0.25, 1, 0.5, 1),
+                border-color 0.4s ease,
+                box-shadow 0.4s ease;
+            will-change: opacity, filter, transform;
+        }
+        .thumb.is-visible {
+            opacity: 1;
+            filter: blur(0);
+            transform: translateY(0) scale(1);
+        }
+
+        /* Shimmer 라인 - hover 시 상단에서 오른쪽으로 스윕 */
+        .thumb::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 2px;
+            background: linear-gradient(90deg,
+                transparent 0%,
+                rgba(79,172,254,0.6) 30%,
+                #4facfe 50%,
+                rgba(79,172,254,0.6) 70%,
+                transparent 100%);
+            z-index: 2;
+            transition: left 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+            pointer-events: none;
+            box-shadow: 0 0 12px rgba(79,172,254,0.6);
+        }
+        .thumb:hover::before { left: 100%; }
+
         .thumb:hover {
-            transform: translateY(-6px);
-            border-color: rgba(79, 172, 254, 0.5);
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4), 0 0 40px rgba(79, 172, 254, 0.08);
+            transform: translateY(-8px);
+            border-color: rgba(79, 172, 254, 0.55);
+            box-shadow:
+                0 16px 40px rgba(0, 0, 0, 0.5),
+                0 0 50px rgba(79, 172, 254, 0.12);
         }
         .thumb-img-wrap {
             position: relative;
@@ -96,36 +210,127 @@
             width: 100%; height: 100%;
             object-fit: cover;
             display: block;
-            transition: transform 0.5s ease;
+            transform-origin: center center;
+            transition:
+                transform 3s cubic-bezier(0.22, 1, 0.36, 1),
+                filter 0.4s ease;
+            filter: brightness(0.92) saturate(0.95);
         }
-        .thumb:hover .thumb-img-wrap img { transform: scale(1.05); }
+        /* Ken Burns 효과: 카드가 뷰포트 안에 있는 동안 미묘한 pan/zoom */
+        .thumb.is-visible .thumb-img-wrap img {
+            animation: kenBurns 22s ease-in-out infinite alternate;
+        }
+        @keyframes kenBurns {
+            0%   { transform: scale(1) translate(0, 0); }
+            50%  { transform: scale(1.05) translate(-1%, 1%); }
+            100% { transform: scale(1.03) translate(1%, -0.5%); }
+        }
+        /* 각 카드별 애니메이션 딜레이로 자연스러운 개별 리듬 */
+        .thumb:nth-child(3n+1) .thumb-img-wrap img { animation-delay: 0s; }
+        .thumb:nth-child(3n+2) .thumb-img-wrap img { animation-delay: -7s; }
+        .thumb:nth-child(3n+3) .thumb-img-wrap img { animation-delay: -14s; }
+
+        /* Hover 시 Ken Burns 정지 + 명확한 확대 */
+        .thumb:hover .thumb-img-wrap img {
+            animation-play-state: paused;
+            transform: scale(1.08);
+            filter: brightness(1.05) saturate(1.1);
+            transition:
+                transform 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+                filter 0.4s ease;
+        }
+
+        /* 이미지 위 그라데이션 (하단이 어두워져서 파일명 영역과 연결감) */
+        .thumb-img-wrap::after {
+            content: '';
+            position: absolute;
+            left: 0; right: 0; bottom: 0;
+            height: 40%;
+            background: linear-gradient(to top, rgba(15,15,17,0.7) 0%, transparent 100%);
+            pointer-events: none;
+            opacity: 0.7;
+            transition: opacity 0.4s ease;
+        }
+        .thumb:hover .thumb-img-wrap::after { opacity: 0.9; }
 
         .thumb-tag {
-            position: absolute; top: 10px; left: 10px;
-            font-size: 0.7rem; font-weight: 700; letter-spacing: 1px;
-            padding: 4px 10px;
+            position: absolute; top: 12px; left: 12px;
+            font-size: 0.7rem; font-weight: 800; letter-spacing: 1.2px;
+            padding: 4px 11px;
             border-radius: 999px;
-            background: rgba(79, 172, 254, 0.85);
+            background: rgba(79, 172, 254, 0.9);
             color: #0b0b0d;
             text-transform: uppercase;
+            z-index: 3;
+            box-shadow: 0 4px 12px rgba(79, 172, 254, 0.35);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
+        .thumb:hover .thumb-tag {
+            transform: scale(1.08);
+        }
+        /* GIF 태그 - 계속 은은한 펄스 (움직임 암시) */
         .thumb-tag.gif {
-            background: rgba(255, 200, 87, 0.9);
+            background: rgba(255, 200, 87, 0.95);
+            box-shadow: 0 4px 12px rgba(255, 200, 87, 0.4);
+            animation: gifPulse 2.2s ease-in-out infinite;
+        }
+        @keyframes gifPulse {
+            0%,100% {
+                box-shadow: 0 4px 12px rgba(255, 200, 87, 0.4), 0 0 0 0 rgba(255, 200, 87, 0);
+            }
+            50% {
+                box-shadow: 0 4px 16px rgba(255, 200, 87, 0.55), 0 0 0 8px rgba(255, 200, 87, 0);
+            }
+        }
+        /* GIF 태그 옆 미묘한 점 - "재생 중" 신호 */
+        .thumb-tag.gif::before {
+            content: '';
+            display: inline-block;
+            width: 5px; height: 5px;
+            background: #0b0b0d;
+            border-radius: 50%;
+            margin-right: 4px;
+            vertical-align: middle;
+            animation: gifDot 1s ease-in-out infinite;
+        }
+        @keyframes gifDot {
+            0%,100% { opacity: 0.3; }
+            50%     { opacity: 1; }
         }
 
         .thumb-caption {
             padding: 14px 16px;
             border-top: 1px solid #232326;
             background: #0f0f11;
+            position: relative;
+            overflow: hidden;
         }
+        /* 파일명 왼쪽에 KT 블루 인디케이터 라인 (hover 시 나타남) */
+        .thumb-caption::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 50%;
+            width: 3px; height: 0;
+            background: #4facfe;
+            border-radius: 0 2px 2px 0;
+            box-shadow: 0 0 12px rgba(79,172,254,0.6);
+            transition: height 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+            transform: translateY(-50%);
+        }
+        .thumb:hover .thumb-caption::before { height: 70%; }
+
         .thumb-filename {
             font-size: 0.82rem;
             color: #a1a1aa;
             font-family: 'SF Mono', Menlo, Consolas, monospace;
             word-break: break-all;
             line-height: 1.5;
+            transition: color 0.3s ease, padding-left 0.35s cubic-bezier(0.22, 1, 0.36, 1);
         }
-        .thumb:hover .thumb-filename { color: #e4e4e7; }
+        .thumb:hover .thumb-filename {
+            color: #e4e4e7;
+            padding-left: 8px;
+        }
 
         /* ── 라이트박스 (index.html img-modal과 동일 컨셉) ── */
         .lightbox {
@@ -135,14 +340,14 @@
             z-index: 9999;
             justify-content: center; align-items: center;
         }
-        .lightbox.open { display: flex; animation: lbFade 0.25s ease; }
+        .lightbox.open { display: flex; animation: lbFade 0.3s ease; }
         @keyframes lbFade { from { opacity: 0; } to { opacity: 1; } }
 
         .lb-backdrop {
             position: absolute; top: 0; left: 0;
             width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.92);
-            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
         }
         .lb-body {
             position: relative; z-index: 1;
@@ -152,12 +357,28 @@
         .lb-img-wrap {
             max-width: 92vw; max-height: 82vh;
             display: inline-block;
+            animation: lbImgIn 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        @keyframes lbImgIn {
+            from {
+                opacity: 0;
+                transform: scale(0.92);
+                filter: blur(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+                filter: blur(0);
+            }
         }
         .lb-img-wrap img {
             display: block;
             max-width: 92vw; max-height: 82vh;
             border-radius: 10px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+            box-shadow:
+                0 30px 80px rgba(0, 0, 0, 0.7),
+                0 0 60px rgba(79, 172, 254, 0.12);
+            border: 1px solid rgba(79, 172, 254, 0.15);
         }
         .lb-caption {
             margin-top: 16px;
@@ -167,7 +388,13 @@
             text-align: center;
             padding: 8px 16px;
             background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(79, 172, 254, 0.15);
             border-radius: 8px;
+            animation: lbCapIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
+        }
+        @keyframes lbCapIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
         .lb-close {
             position: absolute; top: -50px; right: 0;
@@ -180,9 +407,15 @@
             line-height: 1;
             cursor: pointer;
             display: flex; align-items: center; justify-content: center;
-            transition: background 0.25s;
+            transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+            font-family: inherit;
         }
-        .lb-close:hover { background: rgba(255, 255, 255, 0.25); }
+        .lb-close:hover {
+            background: rgba(79, 172, 254, 0.35);
+            border-color: rgba(79, 172, 254, 0.7);
+            transform: rotate(90deg);
+            box-shadow: 0 0 20px rgba(79, 172, 254, 0.4);
+        }
 
         .lb-nav {
             position: absolute; top: 50%; transform: translateY(-50%);
@@ -193,11 +426,82 @@
             color: #fff;
             cursor: pointer;
             display: flex; align-items: center; justify-content: center;
-            transition: background 0.25s;
+            transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+            font-family: inherit;
         }
-        .lb-nav:hover { background: rgba(79, 172, 254, 0.4); }
+        .lb-nav:hover {
+            background: rgba(79, 172, 254, 0.4);
+            border-color: rgba(79, 172, 254, 0.6);
+            box-shadow: 0 0 24px rgba(79, 172, 254, 0.4);
+        }
         .lb-prev { left: -70px; }
         .lb-next { right: -70px; }
+        .lb-prev:hover { transform: translateY(-50%) translateX(-3px) scale(1.1); }
+        .lb-next:hover { transform: translateY(-50%) translateX(3px) scale(1.1); }
+
+        /* ═══════════════════════════════════════════════════════════
+           ✨ SCROLL REVEAL & TEXT SPLIT (v1.01 신규)
+           ═══════════════════════════════════════════════════════════ */
+        .reveal {
+            opacity: 0;
+            filter: blur(10px);
+            transform: translateY(24px);
+            transition:
+                opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+                filter 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+                transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+            will-change: opacity, filter, transform;
+        }
+        .reveal.is-visible {
+            opacity: 1; filter: blur(0); transform: translateY(0);
+        }
+        .reveal.delay-1 { transition-delay: 0.1s; }
+        .reveal.delay-2 { transition-delay: 0.2s; }
+
+        .split-target { display: inline; }
+        .split-word {
+            display: inline-block;
+            opacity: 0;
+            filter: blur(10px);
+            transform: translateY(0.35em);
+            color: #ffffff;
+            -webkit-text-fill-color: #ffffff;
+            background: none;
+            transition:
+                opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+                filter 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+                transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+            will-change: opacity, filter, transform;
+        }
+        .split-target.split-visible .split-word {
+            opacity: 1; filter: blur(0); transform: translateY(0);
+        }
+
+        /* ─── 접근성: 애니메이션 최소화 사용자 배려 ─── */
+        @media (prefers-reduced-motion: reduce) {
+            body::before, .thumb-tag.gif, .thumb-tag.gif::before {
+                animation: none !important;
+            }
+            .thumb.is-visible .thumb-img-wrap img {
+                animation: none !important;
+            }
+            .reveal, .thumb {
+                opacity: 1 !important;
+                filter: none !important;
+                transform: none !important;
+                transition: none !important;
+            }
+            .split-word {
+                opacity: 1 !important;
+                filter: none !important;
+                transform: none !important;
+                transition: none !important;
+            }
+            .lb-img-wrap, .lb-caption {
+                animation: none !important;
+            }
+            .scroll-progress { display: none; }
+        }
 
         /* ── 모바일 ── */
         @media (max-width: 768px) {
@@ -216,6 +520,9 @@
 </head>
 <body>
 
+    <!-- 상단 스크롤 진행 인디케이터 -->
+    <div class="scroll-progress" id="scrollProgress"></div>
+
     <!-- 상단 헤더 -->
     <header class="page-header">
         <a href="./index.html" class="header-logo">KT SYNERGY 3</a>
@@ -227,9 +534,10 @@
 
     <!-- 본문 -->
     <main class="page-body">
-        <h1 class="page-title">DX상품 에셋<span class="page-ver">v1.00</span></h1>
-        <p class="page-sub">
-            하이오더·서빙로봇 등 KT DX상품 홍보용 이미지 자산을 한 곳에 모았습니다.<br>
+        <h1 class="page-title"><span class="split-target">DX상품 에셋</span><span class="page-ver">v1.01</span></h1>
+        <p class="page-sub reveal delay-1">
+            하이오더·서빙로봇 등 KT DX상품 홍보용 이미지 자산을 한 곳에 모았습니다.
+            <span class="count-badge" id="assetCount">총 0점</span><br>
             썸네일을 클릭하면 고화소 원본 이미지를 확인하실 수 있습니다.
         </p>
 
@@ -276,12 +584,33 @@
         { thumb: 's10.gif',            full: 's10.gif',      type: 'gif'  },
     ];
 
+    // 자산 카운트 배지 업데이트 (0 → 총 N점 count-up)
+    (function animateCount() {
+        const badge = document.getElementById('assetCount');
+        if (!badge) return;
+        const target = ASSETS.length;
+        const duration = 1200;
+        const startTime = performance.now();
+        function tick(now) {
+            const t = Math.min((now - startTime) / duration, 1);
+            const eased = 1 - Math.pow(1 - t, 3);
+            const val = Math.round(target * eased);
+            badge.textContent = `총 ${val}점`;
+            if (t < 1) requestAnimationFrame(tick);
+        }
+        // reveal 애니메이션이 완료된 뒤 시작 (delay 1)
+        setTimeout(() => requestAnimationFrame(tick), 400);
+    })();
+
     // 갤러리 생성
     const gallery = document.getElementById('gallery');
     ASSETS.forEach((a, idx) => {
         const el = document.createElement('div');
         el.className = 'thumb';
         el.onclick = () => openLightbox(idx);
+
+        // stagger delay - 각 카드에 순차 딜레이 (0~ 최대 500ms)
+        el.style.transitionDelay = Math.min(idx * 0.05, 0.5) + 's';
 
         const tagLabel = a.type === 'gif' ? 'GIF' : 'IMG';
         const tagClass = a.type === 'gif' ? 'thumb-tag gif' : 'thumb-tag';
@@ -316,6 +645,12 @@
         cap.textContent = a.full;
         document.getElementById('lightbox').classList.add('open');
         document.body.classList.add('modal-open');
+
+        // 매번 열릴 때마다 등장 애니메이션 재생 (nav 시에도)
+        const wrap = document.querySelector('.lb-img-wrap');
+        const capEl = document.querySelector('.lb-caption');
+        if (wrap) { wrap.style.animation = 'none'; void wrap.offsetWidth; wrap.style.animation = ''; }
+        if (capEl) { capEl.style.animation = 'none'; void capEl.offsetWidth; capEl.style.animation = ''; }
     }
     function closeLightbox(e) {
         if (e && e.target && e.target.closest('.lb-body') && !e.target.classList.contains('lb-close')) return;
@@ -332,6 +667,81 @@
         if (e.key === 'ArrowLeft')  navLightbox(-1);
         if (e.key === 'ArrowRight') navLightbox(1);
     });
+
+    // ═══════════════════════════════════════════════════════════
+    // ✨ v1.01 애니메이션 로직
+    // - Scroll Progress / Text Split / Scroll Reveal / Card Stagger
+    // ═══════════════════════════════════════════════════════════
+    (function initSectionAnimations() {
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (reduceMotion) return;
+
+        // ─── [1] 스크롤 진행 인디케이터 (throttled) ───
+        const progressBar = document.getElementById('scrollProgress');
+        let progressTicking = false;
+        function updateProgress() {
+            const scrollTop = window.scrollY || document.documentElement.scrollTop;
+            const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const pct = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
+            if (progressBar) progressBar.style.width = pct.toFixed(2) + '%';
+            progressTicking = false;
+        }
+        window.addEventListener('scroll', () => {
+            if (!progressTicking) {
+                requestAnimationFrame(updateProgress);
+                progressTicking = true;
+            }
+        }, { passive: true });
+        updateProgress();
+
+        // ─── [2] Text Split - 제목 단어 단위 분할 ───
+        document.querySelectorAll('.split-target').forEach(el => {
+            if (el.querySelector('.split-word')) return;
+            const raw = el.textContent;
+            const parts = raw.split(/(\s+)/);
+            el.textContent = '';
+            let wordIndex = 0;
+            parts.forEach(part => {
+                if (/^\s+$/.test(part)) {
+                    el.appendChild(document.createTextNode(part));
+                } else if (part.length > 0) {
+                    const span = document.createElement('span');
+                    span.className = 'split-word';
+                    span.textContent = part;
+                    span.style.transitionDelay = (wordIndex * 0.05) + 's';
+                    el.appendChild(span);
+                    wordIndex++;
+                }
+            });
+        });
+
+        // ─── [3] IntersectionObserver - reveal & card stagger ───
+        const io = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (!entry.isIntersecting) return;
+                const el = entry.target;
+                if (el.classList.contains('reveal')) el.classList.add('is-visible');
+                if (el.classList.contains('split-target')) el.classList.add('split-visible');
+                if (el.classList.contains('thumb')) el.classList.add('is-visible');
+                io.unobserve(el);
+            });
+        }, {
+            threshold: 0.05,
+            rootMargin: '0px 0px -40px 0px'
+        });
+
+        document.querySelectorAll('.reveal, .split-target, .thumb').forEach(el => io.observe(el));
+
+        // ─── [4] 초기 헤더 요소 즉시 활성화 (뷰포트 안이면 바로 등장) ───
+        setTimeout(() => {
+            document.querySelectorAll('.split-target').forEach(el => {
+                const rect = el.getBoundingClientRect();
+                if (rect.top < window.innerHeight * 0.9 && rect.bottom > 0) {
+                    el.classList.add('split-visible');
+                }
+            });
+        }, 50);
+    })();
     </script>
 
 </body>
