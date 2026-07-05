@@ -149,7 +149,7 @@
             transition: color 0.3s, text-shadow 0.3s;
         }
         
-        .header-nav a:hover, .dropdown:hover .dropbtn {
+        .header-nav a:hover, .dropdown:hover .dropbtn, .dropdown.open .dropbtn {
             color: #4facfe; text-shadow: 0 0 12px rgba(79, 172, 254, 0.6);
         }
 
@@ -174,7 +174,12 @@
             text-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
         }
         
-        .dropdown:hover .dropdown-content { display: block; animation: dropFade 0.3s ease; }
+        /* hover 지원 기기(데스크톱)에서만 hover로 열림 */
+        @media (hover: hover) {
+            .dropdown:hover .dropdown-content { display: block; animation: dropFade 0.3s ease; }
+        }
+        /* 터치 기기(아이폰 등)는 탭 토글(.open)로 열림 — iOS는 hover가 없어 JS로 제어 */
+        .dropdown.open .dropdown-content { display: block; animation: dropFade 0.3s ease; }
 
         @keyframes dropFade {
             from { opacity: 0; transform: translate(-50%, -10px); }
@@ -850,7 +855,7 @@
         </div>
 
         <div class="next-content">
-            <h2><span class="orbit-stage" id="orbit-stage"><span class="orbit-scene" id="orbit-scene" aria-hidden="true"></span><span class="orbit-title-core split-target">성공적인 DX 영업을 위한 현장 전략 플랫폼</span></span><span class="page-ver">v1.18</span></h2>
+            <h2><span class="orbit-stage" id="orbit-stage"><span class="orbit-scene" id="orbit-scene" aria-hidden="true"></span><span class="orbit-title-core split-target">성공적인 DX 영업을 위한 현장 전략 플랫폼</span></span><span class="page-ver">v1.19</span></h2>
             <p style="margin-bottom: 0;">채널 발굴부터 VR 컨설팅, 로봇 PoC, 견적 지원, 세일즈 에셋까지</p>
             
             <!-- 지표 스트립 -->
@@ -2172,6 +2177,44 @@
     document.addEventListener('DOMContentLoaded', initOrbitTitle);
   } else {
     initOrbitTitle();
+  }
+})();
+</script>
+
+<script>
+/* ── [v1.19] GNB 드롭다운 터치(탭) 토글 ──
+   iOS Safari는 href 없는 <a>를 '클릭 가능한 요소'로 인식하지 않아
+   탭 시 hover 시뮬레이션이 발동하지 않음 → CSS :hover 전용 드롭다운이
+   아이폰에서 열리지 않는 원인. click 핸들러를 부착하면 iOS가 클릭 가능
+   요소로 인식하며, .open 클래스로 열고 닫음. 데스크톱 hover는 기존 유지. */
+(function () {
+  function initDropdownToggle() {
+    document.querySelectorAll('.dropdown').forEach(function (dd) {
+      var btn = dd.querySelector('.dropbtn');
+      if (!btn) return;
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        // 다른 드롭다운이 열려 있으면 닫기
+        document.querySelectorAll('.dropdown.open').forEach(function (other) {
+          if (other !== dd) other.classList.remove('open');
+        });
+        dd.classList.toggle('open');
+      });
+    });
+    // 메뉴 바깥을 탭/클릭하면 닫기
+    document.addEventListener('click', function (e) {
+      if (!e.target.closest('.dropdown')) {
+        document.querySelectorAll('.dropdown.open').forEach(function (dd) {
+          dd.classList.remove('open');
+        });
+      }
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initDropdownToggle);
+  } else {
+    initDropdownToggle();
   }
 })();
 </script>
