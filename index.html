@@ -282,6 +282,169 @@
         }
         .card-btn svg { flex-shrink: 0; }
 
+        /* ═══ [v1.25] 물빛 출렁임(liquid glossy) 버튼 ═══
+           glossy_button_10s_pattern 프로토타입 이식 (KT Blue 톤앤매너 적용).
+           구조: JS(initLiquidButtons)가 대상 버튼에 .liquid-btn 클래스와
+           .liquid-fx(그라데이션+블롭 6개+상단 광택) 레이어를 주입.
+           .liquid-fx는 z-index:-1 + isolation으로 버튼 텍스트 아래에 깔림.
+           성능: 블롭 애니메이션은 뷰포트에 보일 때(.fx-live)만 구동,
+           터치 기기는 blur 축소·블롭 4개로 경량화(갤럭시 GPU 보호). */
+        .liquid-btn.liquid-btn {
+            position: relative;
+            isolation: isolate;
+            background: transparent;
+            color: #ffffff;
+            border-color: rgba(255,255,255,0.30);
+            backdrop-filter: none; -webkit-backdrop-filter: none;
+            box-shadow: 0 8px 20px rgba(31, 102, 229, 0.35);
+        }
+        .liquid-btn.liquid-btn:hover {
+            background: transparent;
+            color: #ffffff;
+            border-color: rgba(255,255,255,0.55);
+            transform: translateY(-2px);
+        }
+        .liquid-fx {
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            border-radius: inherit;
+            overflow: hidden;
+            pointer-events: none;
+            background: linear-gradient(135deg, #4facfe 0%, #2668d8 45%, #123e93 100%); /* [v1.26] 심부 어둡게 → 블롭 대비↑ */
+            box-shadow:
+                inset 0 1px 1px rgba(255,255,255,0.45),
+                inset 0 -6px 12px rgba(0,0,0,0.30);
+        }
+        .liquid-fx .flow-blob {
+            position: absolute;
+            aspect-ratio: 1;
+            border-radius: 50%;
+            filter: blur(16px);
+            mix-blend-mode: screen;
+            will-change: transform, opacity;
+            animation-play-state: paused; /* 기본 정지 → 뷰포트 진입 시 구동 */
+        }
+        /* 프로토타입(320×70px 기준) px 좌표를 %로 변환해 버튼 크기에 무관하게 동작 */
+        .liquid-fx .b1 { width: 47%; top: -43%; left: -6%;  background: radial-gradient(circle, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0) 70%); animation: flow1 6s ease-in-out -0.8s infinite; }
+        .liquid-fx .b2 { width: 38%; top: 21%;  left: 47%;  background: radial-gradient(circle, rgba(102,224,255,0.90) 0%, rgba(102,224,255,0) 70%); animation: flow2 7s ease-in-out -2.4s infinite; }
+        .liquid-fx .b3 { width: 31%; top: 50%;  left: 13%;  background: radial-gradient(circle, rgba(190,230,255,0.80) 0%, rgba(190,230,255,0) 70%); animation: flow3 5.5s ease-in-out -1.5s infinite; }
+        .liquid-fx .b4 { width: 28%; top: -21%; left: 72%;  background: radial-gradient(circle, rgba(124,107,255,0.72) 0%, rgba(124,107,255,0) 70%); animation: flow4 6.5s ease-in-out -3.1s infinite; }
+        .liquid-fx .b5 { width: 22%; top: 36%;  left: 31%;  background: radial-gradient(circle, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0) 70%); animation: flow5 5s ease-in-out -0.4s infinite; }
+        .liquid-fx .b6 { width: 19%; top: -7%;  left: 19%;  background: radial-gradient(circle, rgba(90,160,255,0.65) 0%, rgba(90,160,255,0) 70%); animation: flow6 7.5s ease-in-out -2s infinite; }
+        .liquid-btn.fx-live .flow-blob,
+        .liquid-btn.fx-live .sheen-sweep { animation-play-state: running; }
+        /* [v1.26] 주기적 광택 스윕: 5.2초마다 빛줄기가 버튼을 가로지름 (블러 없음 = 저부하) */
+        .liquid-fx .sheen-sweep {
+            position: absolute;
+            top: -30%; left: 0;
+            width: 45%; height: 160%;
+            background: linear-gradient(105deg,
+                rgba(255,255,255,0) 0%,
+                rgba(255,255,255,0.26) 45%,
+                rgba(255,255,255,0.40) 50%,
+                rgba(255,255,255,0.26) 55%,
+                rgba(255,255,255,0) 100%);
+            transform: translateX(-220%) skewX(-18deg);
+            animation: sheenSweep 5.2s ease-in-out infinite;
+            animation-play-state: paused;
+        }
+        @keyframes sheenSweep {
+            0%, 58%   { transform: translateX(-220%) skewX(-18deg); }
+            78%, 100% { transform: translateX(320%) skewX(-18deg); }
+        }
+        /* [v1.26] 호버 발광 증폭 */
+        .liquid-fx { transition: filter 0.25s ease; }
+        .liquid-btn.liquid-btn:hover .liquid-fx { filter: brightness(1.13) saturate(1.15); }
+        /* [v1.26] 클릭 지점 물결 리플 */
+        .liquid-fx .btn-ripple {
+            position: absolute;
+            border-radius: 50%;
+            mix-blend-mode: screen;
+            background: radial-gradient(circle,
+                rgba(255,255,255,0.70) 0%,
+                rgba(160,215,255,0.30) 40%,
+                rgba(255,255,255,0) 70%);
+            transform: translate(-50%, -50%) scale(0);
+            animation: btnRipple 0.65s ease-out forwards;
+        }
+        @keyframes btnRipple {
+            0%   { transform: translate(-50%,-50%) scale(0); opacity: 0.9; }
+            100% { transform: translate(-50%,-50%) scale(1); opacity: 0; }
+        }
+        .liquid-fx .top-sheen {
+            position: absolute;
+            top: -40%; left: -20%;
+            width: 140%; height: 100%;
+            background: linear-gradient(120deg,
+                rgba(255,255,255,0.22) 0%,
+                rgba(255,255,255,0.05) 35%,
+                rgba(255,255,255,0) 60%);
+            transform: rotate(-8deg);
+        }
+        /* 터치 기기 경량화: blur 축소 + 소형 블롭 2개 제거 (레이어 수 6→4) */
+        @media (hover: none) and (pointer: coarse) {
+            .liquid-fx .flow-blob { filter: blur(10px); }
+            .liquid-fx .b5, .liquid-fx .b6 { display: none; }
+        }
+        @keyframes flow1 {
+            0%   { transform: translate(0,0) scale(1); opacity: 0.59; }
+            10%  { transform: translate(47px,34px) scale(1.29); opacity: 0.93; }
+            22%  { transform: translate(-27px,14px) scale(0.83); opacity: 0.42; }
+            35%  { transform: translate(38px,-30px) scale(1.17); opacity: 0.84; }
+            48%  { transform: translate(-40px,-11px) scale(0.89); opacity: 0.5; }
+            60%  { transform: translate(20px,27px) scale(1.34); opacity: 0.76; }
+            75%  { transform: translate(-24px,24px) scale(0.94); opacity: 0.42; }
+            88%  { transform: translate(30px,-14px) scale(1.11); opacity: 0.67; }
+            100% { transform: translate(0,0) scale(1); opacity: 0.59; }
+        }
+        @keyframes flow2 {
+            0%   { transform: translate(0,0) scale(1); opacity: 0.5; }
+            12%  { transform: translate(-40px,24px) scale(0.77); opacity: 0.84; }
+            26%  { transform: translate(30px,-20px) scale(1.23); opacity: 0.33; }
+            40%  { transform: translate(-20px,-27px) scale(1.06); opacity: 0.76; }
+            55%  { transform: translate(40px,14px) scale(0.83); opacity: 0.5; }
+            70%  { transform: translate(-30px,27px) scale(1.17); opacity: 0.67; }
+            85%  { transform: translate(24px,-24px) scale(0.89); opacity: 0.42; }
+            100% { transform: translate(0,0) scale(1); opacity: 0.5; }
+        }
+        @keyframes flow3 {
+            0%   { transform: translate(0,0) scale(1); opacity: 0.42; }
+            15%  { transform: translate(34px,-27px) scale(1.34); opacity: 0.76; }
+            30%  { transform: translate(-27px,20px) scale(0.89); opacity: 0.33; }
+            45%  { transform: translate(24px,30px) scale(1.23); opacity: 0.67; }
+            60%  { transform: translate(-38px,-16px) scale(0.83); opacity: 0.5; }
+            78%  { transform: translate(27px,-11px) scale(1.11); opacity: 0.59; }
+            100% { transform: translate(0,0) scale(1); opacity: 0.42; }
+        }
+        @keyframes flow4 {
+            0%   { transform: translate(0,0) scale(1); opacity: 0.33; }
+            18%  { transform: translate(-30px,-22px) scale(1.34); opacity: 0.67; }
+            33%  { transform: translate(34px,16px) scale(0.89); opacity: 0.42; }
+            50%  { transform: translate(-20px,27px) scale(1.17); opacity: 0.59; }
+            68%  { transform: translate(38px,-24px) scale(0.94); opacity: 0.5; }
+            85%  { transform: translate(-24px,14px) scale(1.11); opacity: 0.42; }
+            100% { transform: translate(0,0) scale(1); opacity: 0.33; }
+        }
+        @keyframes flow5 {
+            0%   { transform: translate(0,0) scale(1); opacity: 0.24; }
+            20%  { transform: translate(24px,19px) scale(1.46); opacity: 0.67; }
+            38%  { transform: translate(-30px,-24px) scale(0.83); opacity: 0.33; }
+            55%  { transform: translate(20px,-27px) scale(1.29); opacity: 0.59; }
+            72%  { transform: translate(-24px,22px) scale(0.89); opacity: 0.42; }
+            88%  { transform: translate(27px,14px) scale(1.17); opacity: 0.5; }
+            100% { transform: translate(0,0) scale(1); opacity: 0.24; }
+        }
+        @keyframes flow6 {
+            0%   { transform: translate(0,0) scale(1); opacity: 0.33; }
+            16%  { transform: translate(-22px,16px) scale(1.29); opacity: 0.59; }
+            32%  { transform: translate(27px,-20px) scale(0.89); opacity: 0.33; }
+            50%  { transform: translate(-34px,-14px) scale(1.23); opacity: 0.5; }
+            66%  { transform: translate(24px,24px) scale(0.83); opacity: 0.42; }
+            82%  { transform: translate(-19px,-22px) scale(1.11); opacity: 0.5; }
+            100% { transform: translate(0,0) scale(1); opacity: 0.33; }
+        }
+
         /* ── Skip 버튼 ── */
         @keyframes floatUpDown {
             0%, 100% { transform: translateY(0); }
@@ -875,7 +1038,7 @@
         </div>
 
         <div class="next-content">
-            <h2><span class="orbit-stage" id="orbit-stage"><span class="orbit-scene" id="orbit-scene" aria-hidden="true"></span><span class="orbit-title-core split-target">성공적인 DX 영업을 위한 현장 전략 플랫폼</span></span><span class="page-ver">v1.24</span></h2>
+            <h2><span class="orbit-stage" id="orbit-stage"><span class="orbit-scene" id="orbit-scene" aria-hidden="true"></span><span class="orbit-title-core split-target">성공적인 DX 영업을 위한 현장 전략 플랫폼</span></span><span class="page-ver">v1.26</span></h2>
             <!-- [v1.20] 부제목 삭제: 궤도 텍스트로 이동하여 중복 제거 -->
             
             <!-- 지표 스트립 -->
@@ -2252,6 +2415,62 @@
     document.addEventListener('DOMContentLoaded', initDropdownToggle);
   } else {
     initDropdownToggle();
+  }
+})();
+</script>
+
+<script>
+/* ── [v1.25] 물빛 출렁임 버튼 초기화 ──
+   대상(.skip-btn, .card-btn)에 .liquid-btn 클래스와 .liquid-fx 레이어
+   (블롭 6개 + 상단 광택)를 주입. 블롭 애니메이션은 IntersectionObserver로
+   뷰포트에 보이는 버튼에만 구동(.fx-live)해 GPU 부하를 최소화.
+   모션 최소화 설정 사용자에게는 정적 그라데이션만 적용. */
+(function () {
+  function initLiquidButtons() {
+    var targets = document.querySelectorAll('.skip-btn, .card-btn');
+    if (!targets.length) return;
+    var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var fxHTML =
+      '<span class="flow-blob b1"></span><span class="flow-blob b2"></span>' +
+      '<span class="flow-blob b3"></span><span class="flow-blob b4"></span>' +
+      '<span class="flow-blob b5"></span><span class="flow-blob b6"></span>' +
+      '<span class="top-sheen"></span><span class="sheen-sweep"></span>';
+    targets.forEach(function (btn) {
+      btn.classList.add('liquid-btn');
+      var fx = document.createElement('span');
+      fx.className = 'liquid-fx';
+      fx.setAttribute('aria-hidden', 'true');
+      if (!reduceMotion) fx.innerHTML = fxHTML; // 모션 최소화 시 블롭 없이 그라데이션만
+      btn.insertBefore(fx, btn.firstChild);
+    });
+    if (reduceMotion) return;
+    /* [v1.26] 클릭 지점에서 퍼지는 물결 리플 */
+    targets.forEach(function (btn) {
+      btn.addEventListener('pointerdown', function (e) {
+        var fx = btn.querySelector('.liquid-fx');
+        if (!fx) return;
+        var rect = btn.getBoundingClientRect();
+        var d = Math.max(rect.width, rect.height) * 2.2;
+        var r = document.createElement('span');
+        r.className = 'btn-ripple';
+        r.style.width = r.style.height = d + 'px';
+        r.style.left = (e.clientX - rect.left) + 'px';
+        r.style.top  = (e.clientY - rect.top) + 'px';
+        fx.appendChild(r);
+        r.addEventListener('animationend', function () { r.remove(); });
+      });
+    });
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        e.target.classList.toggle('fx-live', e.isIntersecting);
+      });
+    }, { rootMargin: '80px' });
+    targets.forEach(function (btn) { io.observe(btn); });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initLiquidButtons);
+  } else {
+    initLiquidButtons();
   }
 })();
 </script>
