@@ -141,7 +141,15 @@
         .header-logo {
             font-size: 1.2rem; font-weight: 800; letter-spacing: 1px;
             color: #fff; text-decoration: none;
+            display: inline-flex; align-items: center;
         }
+        /* [v1.30] 텍스트 로고 → KT CI 이미지 교체
+           (위 폰트 스타일은 이미지 로드 실패 시 alt 텍스트 폴백용으로 유지) */
+        .header-logo-img {
+            height: 30px; width: auto; display: block;
+            transition: opacity 0.3s;
+        }
+        .header-logo:hover .header-logo-img { opacity: 0.8; }
         
         .header-nav { display: flex; gap: 40px; align-items: center; }
         
@@ -332,27 +340,10 @@
         .liquid-fx .b4 { width: 28%; top: -21%; left: 72%;  background: radial-gradient(circle, rgba(124,107,255,0.72) 0%, rgba(124,107,255,0) 70%); animation: flow4 6.5s ease-in-out -3.1s infinite; }
         .liquid-fx .b5 { width: 22%; top: 36%;  left: 31%;  background: radial-gradient(circle, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0) 70%); animation: flow5 5s ease-in-out -0.4s infinite; }
         .liquid-fx .b6 { width: 19%; top: -7%;  left: 19%;  background: radial-gradient(circle, rgba(90,160,255,0.65) 0%, rgba(90,160,255,0) 70%); animation: flow6 7.5s ease-in-out -2s infinite; }
-        .liquid-btn.fx-live .flow-blob,
-        .liquid-btn.fx-live .sheen-sweep { animation-play-state: running; }
-        /* [v1.26] 주기적 광택 스윕: 5.2초마다 빛줄기가 버튼을 가로지름 (블러 없음 = 저부하) */
-        .liquid-fx .sheen-sweep {
-            position: absolute;
-            top: -30%; left: 0;
-            width: 45%; height: 160%;
-            background: linear-gradient(105deg,
-                rgba(255,255,255,0) 0%,
-                rgba(255,255,255,0.26) 45%,
-                rgba(255,255,255,0.40) 50%,
-                rgba(255,255,255,0.26) 55%,
-                rgba(255,255,255,0) 100%);
-            transform: translateX(-220%) skewX(-18deg);
-            animation: sheenSweep 5.2s ease-in-out infinite;
-            animation-play-state: paused;
-        }
-        @keyframes sheenSweep {
-            0%, 58%   { transform: translateX(-220%) skewX(-18deg); }
-            78%, 100% { transform: translateX(320%) skewX(-18deg); }
-        }
+        .liquid-btn.fx-live .flow-blob { animation-play-state: running; }
+        /* [v1.29] 주기적 광택 스윕(sheen-sweep) 제거 — 5.2초마다 좌→우로
+           버튼을 가로지르던 빛 반사 효과 삭제. 정적 상단 광택(top-sheen)·
+           블롭 출렁임·호버 발광·클릭 리플은 그대로 유지. */
         /* [v1.26] 호버 발광 증폭 */
         .liquid-fx { transition: filter 0.25s ease; }
         .liquid-btn.liquid-btn:hover .liquid-fx { filter: brightness(1.13) saturate(1.15); }
@@ -954,15 +945,46 @@
         /* SVG 요소 순차 등장 딜레이는 JS에서 직접 부여 (SVG 태그 구조 특성상
            :nth-of-type이 클래스 기준이 아닌 태그 기준이라 정확하지 않기 때문) */
 
-        /* [5] Chapter Number Parallax — 스크롤 시 대형 숫자가 살짝 반대 방향 이동 */
-        .parallax-num {
-            will-change: transform;
+        /* [5] Card Number Float — 01~06 대형 숫자 부유 모션
+           [v1.28] 기존 Chapter Number Parallax(workflow-num 대상) 대체.
+           패럴랙스가 번호를 태그와 어긋나게 밀어내던 문제로 제거하고,
+           그리드 카드 번호(01~06)에 과하지 않은 상하 부유 모션 부여.
+           transform이 아닌 개별 속성 translate를 애니메이션하여
+           기존 hover transform(이동·확대)과 충돌 없이 자연스럽게 합성됨. */
+        @keyframes cardNumFloat {
+            0%, 100% { translate: 0 0; }
+            50%      { translate: 0 -7px; }
         }
+        .card-num {
+            animation: cardNumFloat 6s ease-in-out infinite;
+        }
+        /* 카드마다 위상차(음수 delay = 대기 없이 서로 다른 위상에서 시작)
+           — 여섯 숫자가 파도처럼 일렬로 움직이지 않도록 불규칙 배치 */
+        .card-wrap:nth-child(1) .card-num { animation-delay:  0s; }
+        .card-wrap:nth-child(2) .card-num { animation-delay: -2.1s; }
+        .card-wrap:nth-child(3) .card-num { animation-delay: -4.3s; }
+        .card-wrap:nth-child(4) .card-num { animation-delay: -1.2s; }
+        .card-wrap:nth-child(5) .card-num { animation-delay: -3.4s; }
+        .card-wrap:nth-child(6) .card-num { animation-delay: -5.2s; }
 
         /* [6] Metric Count-up — 숫자 부분 tabular-nums로 폭 안정화 */
         .num-target {
             display: inline-block;
             font-variant-numeric: tabular-nums;
+        }
+
+        /* [7] Workflow Tag Kinetic Typography ([v1.29])
+           Sales Process / Platform Map / Automation 태그를 글자 단위로
+           분해(JS)하고 글자별 지연을 부여 — 파도가 단어를 좌→우로 훑고
+           지나가며 글자가 살짝 떠오르고 푸른빛으로 밝아지는 연속 모션. */
+        .workflow-tag .wt-char {
+            display: inline-block;
+            animation: wtWave 2.8s ease-in-out infinite;
+            will-change: transform;
+        }
+        @keyframes wtWave {
+            0%, 100% { transform: translateY(0);    color: #71717a; }
+            50%      { transform: translateY(-3px); color: #a9cdf2; }
         }
 
         /* ─── 접근성: 애니메이션 최소화 사용자 배려 ─── */
@@ -992,11 +1014,18 @@
                 transform: none !important;
                 transition: none !important;
             }
-            .parallax-num {
-                transform: none !important;
-            }
             .card-num, .grid-card {
                 transition: none !important;
+            }
+            /* [v1.28] 부유 모션도 비활성 */
+            .card-num {
+                animation: none !important;
+                translate: none !important;
+            }
+            /* [v1.29] 태그 키네틱 타이포그래피 비활성 */
+            .workflow-tag .wt-char {
+                animation: none !important;
+                transform: none !important;
             }
         }
         </style>
@@ -1021,7 +1050,7 @@
     <div class="next-page-section">
         
         <div class="next-page-header">
-            <a href="#" class="header-logo">KT SYNERGY 3</a>
+            <a href="https://kt-synergy.com/" class="header-logo" aria-label="처음 화면(히어로)으로 돌아가기" onclick="return goHero(event)"><img src="https://kt-synergy.com/assets/image/CI_BI/kt_ci_g02.png" alt="KT" class="header-logo-img"></a>
             <nav class="header-nav">
                 <a href="https://www.kt-synergy.com/document/questionnaire/parking_consent.html" target="_blank">주차 & 설문</a>
                 
@@ -1038,7 +1067,7 @@
         </div>
 
         <div class="next-content">
-            <h2><span class="orbit-stage" id="orbit-stage"><span class="orbit-scene" id="orbit-scene" aria-hidden="true"></span><span class="orbit-title-core split-target">성공적인 DX 영업을 위한 현장 전략 플랫폼</span></span><span class="page-ver">v1.26</span></h2>
+            <h2><span class="orbit-stage" id="orbit-stage"><span class="orbit-scene" id="orbit-scene" aria-hidden="true"></span><span class="orbit-title-core split-target">성공적인 DX 영업을 위한 현장 전략 플랫폼</span></span><span class="page-ver">v1.31</span></h2>
             <!-- [v1.20] 부제목 삭제: 궤도 텍스트로 이동하여 중복 제거 -->
             
             <!-- 지표 스트립 -->
@@ -1549,10 +1578,61 @@
             let   freezeProgressVal  = null;
             const activatedSet       = new Set(); // 이미 정지 트리거된 signpost id
 
+            /* ─────────────────────────────────────────────────────────
+               ✦ [v1.27] 편도(one-way) 스크롤 잠금
+               하단 콘텐츠 섹션 상단에 도달하는 순간 시네마틱 구간
+               (.timeline-space)을 통째로 접어(display:none) 위로 되돌아갈
+               스크롤 공간 자체를 제거한다.
+               - scrollTo 클램프 방식과 달리 스크롤바 드래그·모바일 관성
+                 스크롤에도 떨림 없이 완전 차단됨
+               - WebGL animate 루프도 함께 종료되어 GPU/배터리 부하 절감
+               - 접힌 만큼 scrollY를 보정해 화면이 튀지 않음
+               (새로고침 시에는 기존처럼 인트로부터 다시 시작)
+            ───────────────────────────────────────────────────────── */
+            const nextSection = document.querySelector('.next-page-section');
+            window.__journeyLocked = false;
+            window.__lockJourney = function () {
+                if (window.__journeyLocked) return;
+                window.__journeyLocked = true;
+                const tl = document.querySelector('.timeline-space');
+                if (!tl || !nextSection) return;
+                const beforeTop = nextSection.offsetTop;      // 접기 전 콘텐츠 상단 위치
+                tl.style.display = 'none';                    // 캔버스·UI레이어·인트로 포함 제거
+                const delta = beforeTop - nextSection.offsetTop; // 사라진 스크롤 높이
+                window.scrollTo(0, Math.max(0, window.scrollY - delta)); // 시각적 위치 유지
+            };
+
+            /* ─── [v1.30] 여정 리셋: 헤더 로고 클릭 → 히어로 복귀 ───
+               편도 잠금으로 접힌 시네마틱 구간을 복원하고 인트로부터
+               재시작. 잠금 전(여정 도중) 클릭 시에도 처음으로 되감음.
+               모든 상태 변수가 이 클로저 안에 있어 여기서만 초기화 가능. */
+            window.__resetJourney = function () {
+                const tl = document.querySelector('.timeline-space');
+                if (tl) tl.style.display = '';          // 접힌 구간 복원
+                const wasLocked = window.__journeyLocked;
+                window.__journeyLocked = false;
+                window.__skipForce = false;             // 진행 중이던 skip도 중단
+                window.__skipDone  = false;
+                activatedSet.clear();                   // 서명판 freeze 재발동 허용
+                freezeUntilTime = 0; freezeScrollY = null; freezeProgressVal = null;
+                targetScroll = 0; scrollProgress = 0;
+                introProgress = 0; isIntroComplete = false;
+                introTextWrapper.style.opacity = '1';   // 여정 중 0으로 눌린 값 복원
+                body.classList.add('locked');           // 인트로 동안 스크롤 잠금(초기 상태)
+                window.scrollTo(0, 0);
+                if (wasLocked) requestAnimationFrame(animate); // 종료됐던 루프 재가동
+            };
+
             window.addEventListener("scroll", () => {
+                if (window.__journeyLocked) return; // [v1.27] 잠금 후 시네마틱 로직 전체 비활성
                 if(!isIntroComplete) {
                     // [v1.23] skip 이후에는 인트로 잠금용 상단 고정을 하지 않음
                     if (!window.__skipForce && !window.__skipDone) window.scrollTo(0, 0);
+                    return;
+                }
+                /* [v1.27] 하단 섹션 상단 도달 → 편도 잠금 발동 */
+                if (nextSection && window.scrollY >= nextSection.offsetTop - 1) {
+                    window.__lockJourney();
                     return;
                 }
                 // Freeze 중: 사용자 스크롤 입력을 targetScroll에 반영하지 않음
@@ -1572,6 +1652,7 @@
             function easeOutCubic(x) { return 1 - Math.pow(1 - x, 3); }
 
             function animate() {
+                if (window.__journeyLocked) return; // [v1.27] 잠금 후 WebGL 루프 완전 종료(부하 절감)
                 requestAnimationFrame(animate);
                 
                 let currentDroneZ = initialDroneZ;
@@ -1803,6 +1884,7 @@
         var dur = 1100, t0 = null;
         function ease(t) { return t<0.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2; }
         function step(ts) {
+            if (!window.__skipForce) return; // [v1.30] 리셋(__resetJourney) 시 skip 즉시 중단
             if (!t0) t0 = ts;
             var p = Math.min((ts - t0) / dur, 1);
             window.scrollTo(0, Math.round(startY + (endY - startY) * ease(p)));
@@ -1810,10 +1892,26 @@
                 requestAnimationFrame(step);
             } else {
                 // 도착 프레임 이후에 잠금 해제
-                requestAnimationFrame(function () { window.__skipForce = false; });
+                requestAnimationFrame(function () {
+                    window.__skipForce = false;
+                    // [v1.27] skip으로 하단 도달 시에도 편도 잠금 확실히 발동
+                    if (window.__lockJourney) window.__lockJourney();
+                });
             }
         }
         requestAnimationFrame(step);
+    }
+
+    /* ── [v1.30] 헤더 로고(KT CI) 클릭 → 첫 페이지(히어로) 복귀 ──
+       [v1.31] 하이브리드: 평소 클릭은 깜빡임 없는 __resetJourney,
+       href는 실제 주소(kt-synergy.com)라 JS 실패 시에도 홈 링크로 동작,
+       Cmd/Ctrl/Shift+클릭(새 탭 열기)은 브라우저 기본 동작을 존중. */
+    function goHero(e) {
+        if (e && (e.metaKey || e.ctrlKey || e.shiftKey)) return true; // 새 탭 열기 허용
+        if (e) e.preventDefault();
+        if (window.__resetJourney) { window.__resetJourney(); }
+        else { window.location.href = 'https://kt-synergy.com/'; }
+        return false;
     }
     </script>
 
@@ -1961,35 +2059,32 @@
         document.querySelectorAll('.reveal, .split-target, .workflow-svg-wrap')
             .forEach(el => io.observe(el));
 
-        // ─── [5] Chapter Number Parallax ───
-        // card-num은 hover 시 자체 transform이 걸리므로 parallax 제외.
-        // workflow-num(정적 요소)에만 부드러운 반대 방향 이동 적용.
-        const parallaxEls = document.querySelectorAll('.workflow-num');
-        parallaxEls.forEach(el => el.classList.add('parallax-num'));
+        /* ─── [5] Chapter Number Parallax — [v1.28] 제거 ───
+           workflow-num에 스크롤 위치 기반 translateY를 걸던 효과.
+           번호만 밀려나 태그(SALES PROCESS 등)와의 간격이 카드마다·
+           스크롤 위치마다 제각각으로 보이는 문제(웹/모바일 공통)로 삭제.
+           번호·태그 정렬은 이제 CSS 레이아웃 값으로 항상 고정됨. */
 
-        let parallaxTicking = false;
-        function updateParallax() {
-            const viewportH = window.innerHeight;
-            parallaxEls.forEach(el => {
-                const rect = el.getBoundingClientRect();
-                // 뷰포트 바깥이면 스킵 (성능)
-                if (rect.bottom < -100 || rect.top > viewportH + 100) return;
-                const centerY  = rect.top + rect.height / 2;
-                const distance = centerY - viewportH / 2;
-                // 아주 살짝 반대 방향 이동
-                const offset = distance * -0.05;
-                el.style.transform = 'translateY(' + offset.toFixed(1) + 'px)';
+        /* ─── [7] Workflow Tag Kinetic Typography ([v1.29]) ───
+           태그 텍스트를 글자 span(.wt-char)으로 분해하고 글자별·태그별
+           지연을 부여해 파도가 단어를 순차적으로 훑는 모션을 구동.
+           모션 최소화 설정 사용자는 분해 자체를 생략(정적 텍스트 유지). */
+        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            document.querySelectorAll('.workflow-tag').forEach((tag, ti) => {
+                const text = tag.textContent.trim();
+                tag.setAttribute('aria-label', text); // 보조기술에는 원문 그대로 노출
+                tag.textContent = '';
+                [...text].forEach((ch, i) => {
+                    const s = document.createElement('span');
+                    s.className = 'wt-char';
+                    s.setAttribute('aria-hidden', 'true');
+                    s.textContent = ch === ' ' ? '\u00A0' : ch;
+                    // 태그별 0.45s + 글자별 0.09s 위상차 → 좌→우 파도
+                    s.style.animationDelay = (ti * 0.45 + i * 0.09).toFixed(2) + 's';
+                    tag.appendChild(s);
+                });
             });
-            parallaxTicking = false;
         }
-        window.addEventListener('scroll', () => {
-            if (!parallaxTicking) {
-                requestAnimationFrame(updateParallax);
-                parallaxTicking = true;
-            }
-        }, { passive: true });
-        // 초기 1회 호출
-        updateParallax();
     })();
     </script>
 
@@ -2434,7 +2529,7 @@
       '<span class="flow-blob b1"></span><span class="flow-blob b2"></span>' +
       '<span class="flow-blob b3"></span><span class="flow-blob b4"></span>' +
       '<span class="flow-blob b5"></span><span class="flow-blob b6"></span>' +
-      '<span class="top-sheen"></span><span class="sheen-sweep"></span>';
+      '<span class="top-sheen"></span>'; /* [v1.29] sheen-sweep 스윕 제거 */
     targets.forEach(function (btn) {
       btn.classList.add('liquid-btn');
       var fx = document.createElement('span');
