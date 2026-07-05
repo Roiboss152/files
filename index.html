@@ -124,6 +124,7 @@
         /* 하단 페이지 및 네비게이션 헤더 */
         .next-page-section {
             position: relative; z-index: 20; background-color: #09090b;
+            overflow-x: clip; /* [v1.21] 궤도 글자의 좌우 화면 이탈(가로 스크롤 유발) 방지 */
             padding: 160px 40px 140px 40px; min-height: 100vh; box-sizing: border-box;
             display: flex; justify-content: center; align-items: center;
             border-top: 1px solid rgba(79, 172, 254, 0.2);
@@ -197,7 +198,7 @@
         }
         .next-content > p { color: #71717a; font-size: 1.25rem; margin-bottom: 80px; margin-top: 0; }
         
-        .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; grid-auto-rows: 1fr; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 48px; grid-auto-rows: 1fr; } /* [v1.20] PC 카드 간격 30→48 */
         .grid-card {
             background: #141416; border: 1px solid #232326; padding: 45px; border-radius: 24px;
             transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), border-color 0.4s;
@@ -222,6 +223,7 @@
             .next-content h2 { font-size: 2.5rem; }
             .next-content > p { font-size: 1.1rem; margin-bottom: 50px; }
             .grid-card { padding: 30px; }
+            .grid-container { gap: 30px; } /* [v1.20] 모바일은 기존 간격 유지 */
         }
     
         /* ── 카드 래퍼 & 배경 숫자 ── */
@@ -319,9 +321,10 @@
             background: none;
         }
 
-        /* ── [궤도 타이틀] 제목 주위를 도는 3D 텍스트 링 (v1.15) ──
-           원리: 제목을 감싸는 inline-block 스테이지의 중앙(1px 씬)을 기준으로
-           문자들을 기울어진 타원 궤도(tiltX 62° / tiltZ -30°) 위에 JS로 배치.
+        /* ── [궤도 타이틀] 제목 주위를 도는 3D 텍스트 링 (v1.20) ──
+           orbit_title_final 프로토타입 파라미터 이식:
+           tiltX 10° / tiltZ -30°, 깊이별 가변 반경(0.48~1.25배)·크기(0.55~1.32배)·
+           투명도(0.5~1.0) + perspective 1000px 원근 투영.
            깊이(z)에 따라 z-index를 1↔3으로 전환해 제목(z-index 2) 뒤/앞을
            통과하는 3D 효과를 구현. preserve-3d 대신 2D 수식 배치를 사용해
            h2의 gradient text·split-word blur 필터와의 충돌을 원천 차단. */
@@ -345,7 +348,7 @@
             position: absolute;
             top: 0;
             left: 0;
-            font-size: 1.5rem;
+            font-size: 1em; /* [v1.20] 씬 폰트 크기(JS가 반경 비례로 설정)를 상속 */
             font-weight: 800;
             letter-spacing: 0;
             line-height: 1;
@@ -354,12 +357,15 @@
             color: #4facfe;
             -webkit-text-fill-color: #4facfe; /* h2 gradient text 상속 차단 */
             background: none;
-            text-shadow: 0 0 12px rgba(79, 172, 254, 0.55);
+            /* [v1.23] 네온 발광 강화: 코어(6px)/미드(14px)/아우터(28px) 3중 + 원거리 번짐(48px) */
+            text-shadow:
+                0 0 6px rgba(79, 172, 254, 0.95),
+                0 0 14px rgba(79, 172, 254, 0.75),
+                0 0 28px rgba(79, 172, 254, 0.50),
+                0 0 48px rgba(79, 172, 254, 0.28);
             will-change: transform;
         }
-        @media (max-width: 768px) {
-            .orbit-char { font-size: 1.05rem; }
-        }
+        /* [v1.20] 모바일 고정 크기 제거: 반경 비례 자동 축소로 대체 */
 
         /* ── 이미지 모달 (팝업) ── */
         .img-modal {
@@ -466,7 +472,7 @@
             display: flex;
             gap: 40px;
             padding: 28px 40px;
-            margin: 40px 0 60px 0;
+            margin: 120px 0 120px 0; /* [v1.20] 상단: 궤도 글자 겹침 방지 확장(40→120), 하단: 다음 카드 간격 2배(60→120) */
             background: linear-gradient(90deg, rgba(79,172,254,0.06) 0%, rgba(79,172,254,0.02) 100%);
             border: 1px solid rgba(79,172,254,0.15);
             border-radius: 16px;
@@ -855,8 +861,8 @@
         </div>
 
         <div class="next-content">
-            <h2><span class="orbit-stage" id="orbit-stage"><span class="orbit-scene" id="orbit-scene" aria-hidden="true"></span><span class="orbit-title-core split-target">성공적인 DX 영업을 위한 현장 전략 플랫폼</span></span><span class="page-ver">v1.19</span></h2>
-            <p style="margin-bottom: 0;">채널 발굴부터 VR 컨설팅, 로봇 PoC, 견적 지원, 세일즈 에셋까지</p>
+            <h2><span class="orbit-stage" id="orbit-stage"><span class="orbit-scene" id="orbit-scene" aria-hidden="true"></span><span class="orbit-title-core split-target">성공적인 DX 영업을 위한 현장 전략 플랫폼</span></span><span class="page-ver">v1.22</span></h2>
+            <!-- [v1.20] 부제목 삭제: 궤도 텍스트로 이동하여 중복 제거 -->
             
             <!-- 지표 스트립 -->
             <div class="metrics-strip">
@@ -1368,7 +1374,8 @@
 
             window.addEventListener("scroll", () => {
                 if(!isIntroComplete) {
-                    if (!window.__skipForce) window.scrollTo(0, 0);
+                    // [v1.23] skip 이후에는 인트로 잠금용 상단 고정을 하지 않음
+                    if (!window.__skipForce && !window.__skipDone) window.scrollTo(0, 0);
                     return;
                 }
                 // Freeze 중: 사용자 스크롤 입력을 targetScroll에 반영하지 않음
@@ -1396,13 +1403,20 @@
                 let outroProgress = 0;
 
                 if (!isIntroComplete) {
-                    introProgress += 0.0045; 
+                    /* [v1.23] skip이 눌리면 인트로를 즉시 완료 처리 */
+                    if (window.__skipDone) { introProgress = 1; } else { introProgress += 0.0045; } 
                     if (introProgress >= 1) {
                         introProgress = 1;
                         isIntroComplete = true;
-                        window.scrollTo(0, 0);
-                        targetScroll = 0;
-                        scrollProgress = 0;
+                        if (window.__skipDone) {
+                            /* [v1.23] skip 이후에는 최상단 리셋 대신 최종 상태로 정렬 */
+                            targetScroll = 1;
+                            scrollProgress = 1;
+                        } else {
+                            window.scrollTo(0, 0);
+                            targetScroll = 0;
+                            scrollProgress = 0;
+                        }
                         body.classList.remove('locked');
                     }
                     const easedProgress = easeOutCubic(introProgress);
@@ -1551,11 +1565,17 @@
                         if (currentTrainZ >= sp.z) {
                             // 처음 활성화되는 프레임에서 1초 정지 트리거
                             // (인트로 종료 후, skip 중이 아닐 때만)
-                            if (!activatedSet.has(sp.id) && isIntroComplete && !window.__skipForce) {
+                            if (!activatedSet.has(sp.id) && isIntroComplete) {
                                 activatedSet.add(sp.id);
-                                freezeUntilTime   = performance.now() + FREEZE_DURATION_MS;
-                                freezeScrollY     = window.scrollY;
-                                freezeProgressVal = scrollProgress;
+                                /* [v1.23] skip 중에는 '활성화 완료'로만 기록하고 정지는 미발동.
+                                   기존에는 기록 자체를 건너뛰어, skip 잠금 해제 직후 freeze가
+                                   뒤늦게 발동 → 매 프레임 scrollTo로 스크롤을 붙잡아
+                                   아웃트로 검은 구간에 멈추던 버그의 원인이었음 */
+                                if (!window.__skipForce) {
+                                    freezeUntilTime   = performance.now() + FREEZE_DURATION_MS;
+                                    freezeScrollY     = window.scrollY;
+                                    freezeProgressVal = scrollProgress;
+                                }
                             }
                             sp.el.classList.add('active'); 
                             baseOpacity = 1 - (dist / 8000); 
@@ -1689,7 +1709,7 @@
             el.dataset.counted = '1';
             const target = parseInt(el.dataset.target, 10);
             const start  = parseInt(el.dataset.start || '0', 10);
-            const duration = 1600; // ms
+            const duration = 3200; // ms [v1.20] 카운트업 속도 50% 감속(1600→3200): 스크롤 통과 시에도 효과 인지 가능하도록
             const startTime = performance.now();
 
             function tick(now) {
@@ -2034,12 +2054,21 @@
 
 <script>
 /* ═══════════════════════════════════════════════════════
-   [궤도 타이틀] 제목 주위 3D 회전 텍스트 링 (v1.15)
-   - orbit_3d_title 데모의 tiltX 62° / tiltZ -30° 타원 궤도를
-     2D 수식(x,y,z 직접 계산)으로 동일 재현
-   - 반응형: 제목 렌더 폭에 비례해 반경 자동 조정 (88~185px)
+   [궤도 타이틀] 제목 주위 3D 회전 텍스트 링 (v1.20)
+   - orbit_title_final 프로토타입의 파라미터를 2D 수식으로 동일 재현
+     · tiltX 10° / tiltZ -30°, 회전 30°/s(=0.5°/frame@60fps)
+     · 깊이별 가변 반경 0.48~1.25배 → 원근 과장 효과
+     · 깊이별 크기 0.55~1.32배(전면 +10%, v1.23), 투명도 0.5~1.0
+     · perspective 1000px 원근 투영(화면 좌표·크기에 반영)
+     · 프로토타입 체인의 rotateZ(-30°) 잔여 화면 기울기(≈-29.5°)를
+       각 글자에 상수 rotate로 재현 → 리본을 따라 흐르는 조판
+   - 문장 전체를 360°에 배분하되 공백은 글자 폭의 50%만 차지시켜
+     어절 간격 과대를 방지. 공백 DOM은 생성하지 않음(글리프만 생성)
+   - 반응형(v1.21): 데스크톱 = 프로토타입 반경 164px, 제목이 여러 줄로
+     감기는 화면에서는 블록 높이에 맞춰 반경 확대(뷰포트 상한 적용),
+     글자 크기는 0.8~1rem 범위에서 반경 비례
    - z(깊이) 부호로 z-index 1↔3 전환 → 제목 뒤/앞 통과
-   - 시간 기반 회전(프레임레이트 무관 15°/s), 화면 밖 일시정지
+   - 시간 기반 회전(프레임레이트 무관), 화면 밖 일시정지
    ═══════════════════════════════════════════════════════ */
 (function () {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -2049,78 +2078,60 @@
     const scene = document.getElementById('orbit-scene');
     if (!stage || !scene || scene.childElementCount > 0) return;
 
-    const PHRASE = 'KT INCHEON BRANCH SYNERGY TEAM 3 \u2022 ';
-    const SPEED = 15; // 초당 회전 각도(도) = 원본 데모 0.25/frame@60fps
-    const A = 62 * Math.PI / 180;   // tiltX
+    /* ── orbit_title_final 프로토타입 config 이식 ── */
+    const PHRASE = 'KT인천지사 시너지영업3팀은 채널 발굴부터 VR컨설팅,로봇PoC,상품 견적 지원,세일즈 에셋까지 현장DX영업을 지원합니다. ';
+    const SPEED = 30;               // 초당 회전 각도(도) = -0.5°/frame @60fps [v1.22 감속: 기존 -0.69]
+    const A = 10 * Math.PI / 180;   // tiltX
     const C = -30 * Math.PI / 180;  // tiltZ
     const sinA = Math.sin(A), cosA = Math.cos(A);
     const sinC = Math.sin(C), cosC = Math.cos(C);
-    /* [v1.16] 깊이 기반 스케일 파라미터 */
-    const zAmp = Math.sqrt(sinC * sinC * sinA * sinA + cosA * cosA); // z 진폭(정규화용)
-    const SCALE_MIN = 0.5;  // 최후방 크기 50%
-    const SCALE_MAX = 2.0;  // 최전방 크기 200%
+    const BASE_RADIUS = 164;                                      // 프로토타입 radius
+    const S_MID = (1.32 + 0.55) / 2, S_HALF = (1.32 - 0.55) / 2;  // frontScale 1.32(=1.20×1.1, v1.23 전면 +10%) / backScale
+    const R_MID = (1.25 + 0.48) / 2, R_HALF = (1.25 - 0.48) / 2;  // frontRadiusScale/backRadiusScale
+    const O_MID = (1 + 0.50) / 2,  O_HALF = (1 - 0.50) / 2;       // opacityMin 0.50
+    const PERSP = 1000;                                           // 프로토타입 .stage perspective
+    /* rotateX(A)·rotateZ(C)·rotateY(θ)·translateZ(r)·rotateY(-θ)·rotateX(-A) 체인에서
+       rotateZ(C)는 되돌리지 않으므로 모든 글자에 상수 화면 회전 ≈ -29.5°가 남음 */
+    const GLYPH_TILT = ' rotate(-29.5deg)';
 
-    /* [v1.17] 간격 워프: 화면에 투영된 글자 간격이 글자 크기에 비례하도록
-       균일 파라미터 u → 실제 각도 φ 매핑 테이블을 수치 적분으로 생성.
-       du ∝ |P'(φ)| / s(φ)  (|P'| = 투영 타원의 접선 속도, s = 깊이 스케일)
-       → 앞쪽 큰 글자는 넓게, 뒤쪽 작은 글자는 좁게 배치되고,
-       기울어진 타원 측면의 투영 압축(글자 뭉침)까지 자동 보정됨.
-       반경 r은 양변에서 소거되므로 LUT는 반경과 무관 — 초기 1회만 생성. */
-    const LUT_N = 1440;
-    const warpLUT = new Float64Array(LUT_N + 1);
-    (function buildWarpLUT() {
-      const cum = new Float64Array(LUT_N + 1);
-      for (let i = 0; i < LUT_N; i++) {
-        const phi = (i + 0.5) / LUT_N * 2 * Math.PI;
-        const sP = Math.sin(phi), cP = Math.cos(phi);
-        const dx = cP * cosC;                          // d(x)/dφ ÷ r
-        const dy = cP * sinC * cosA + sP * sinA;       // d(y)/dφ ÷ r
-        const speed = Math.sqrt(dx * dx + dy * dy);
-        const zn = (sP * sinC * sinA + cP * cosA) / zAmp;
-        const s = SCALE_MIN + (zn + 1) / 2 * (SCALE_MAX - SCALE_MIN);
-        cum[i + 1] = cum[i] + speed / s;
-      }
-      const total = cum[LUT_N];
-      let j = 0;
-      for (let k = 0; k <= LUT_N; k++) {           // 역함수: 균일 u → φ
-        const target = k / LUT_N * total;
-        while (j < LUT_N && cum[j + 1] < target) j++;
-        const seg = (cum[j + 1] - cum[j]) || 1;
-        const frac = (target - cum[j]) / seg;
-        warpLUT[k] = Math.min((j + frac) / LUT_N, 1) * 2 * Math.PI;
-      }
-      warpLUT[LUT_N] = 2 * Math.PI;
-    })();
-    function warpAngle(uRad) {
-      let u = uRad % (2 * Math.PI);
-      if (u < 0) u += 2 * Math.PI;
-      const pos = u / (2 * Math.PI) * LUT_N;
-      const i = Math.floor(pos);
-      const frac = pos - i;
-      const a0 = warpLUT[i];
-      const a1 = warpLUT[Math.min(i + 1, LUT_N)];
-      return a0 + (a1 - a0) * frac;
-    }
-
-    /* 문자 배치: 원본 데모는 문자당 스페이서 13개를 실제 DOM으로 생성(490개)했지만,
-       공백은 각도 슬롯만 차지시키고 DOM은 만들지 않는 방식으로 동일 간격을 재현(27개). */
-    const slots = PHRASE.split('');
-    const step = 360 / slots.length;
+    /* [v1.22] 문자 배치: 공백은 각도 슬롯만 차지(DOM 미생성)하되,
+       글자 폭의 50%(SPACE_W)만 차지시킴. 기존에는 공백도 글자 1자와
+       동일한 슬롯을 차지해 어절 사이가 글자 간격의 2배로 벌어졌음 */
+    const SPACE_W = 0.5; // 공백 폭 = 글자 폭 대비 비율 (1.0이면 기존과 동일)
+    const chars = PHRASE.split('');
+    let acc = 0;
+    const pos = chars.map(ch => { const p = acc; acc += (ch === ' ') ? SPACE_W : 1; return p; });
+    const unit = 360 / acc; // 전체 문장을 360°에 배분했을 때 글자 1자당 각도
     const items = [];
-    slots.forEach((ch, i) => {
+    chars.forEach((ch, i) => {
       if (ch === ' ') return;
       const span = document.createElement('span');
       span.className = 'orbit-char';
       span.textContent = ch;
       scene.appendChild(span);
-      items.push({ el: span, base: i * step });
+      items.push({ el: span, base: pos[i] * unit });
     });
 
-    // 반응형 반경: 제목 렌더 폭의 17%, 88~185px 범위
-    let radius = 150;
+    /* [v1.21] 반응형 반경 — 제목 블록의 '높이'까지 반영
+       모바일에서 제목이 2줄로 감기면 블록이 세로 ~96px로 커지는데, 기존
+       폭 기반 축소(최소 90px)로는 링의 아래 돌출(≈0.44r)이 제목 절반
+       높이도 못 넘어 글자가 제목 안에 파묻힘 →
+       ① 폭 기반(데스크톱 164px 유지)과 ② 높이 기반(아래 궤도가 제목
+       아래로 ≥20px 빠져나오는 반경) 중 큰 값을 취하고
+       ③ 좌우가 뷰포트를 넘지 않는 상한으로 자름.
+       화면 돌출 상수(원근 포함): 위 ≈0.59r / 아래 ≈0.44r / 좌우 ≈0.87r */
+    let radius = BASE_RADIUS;
     function updateRadius() {
       const w = stage.offsetWidth || 600;
-      radius = Math.max(88, Math.min(185, w * 0.17));
+      const h = stage.offsetHeight || 60;
+      const vw = document.documentElement.clientWidth || window.innerWidth || 1200;
+      const widthBased  = Math.min(BASE_RADIUS, w * 0.19);   // 데스크톱: 164 고정
+      const heightBased = (h / 2 + 20) / 0.44;               // 여러 줄 제목 감싸기
+      const viewportCap = (vw / 2 - 12) / 0.89;              // 좌우 화면 이탈 방지
+      radius = Math.max(90, Math.min(viewportCap, Math.max(widthBased, heightBased)));
+      /* 글자 크기: 반경 비례하되 0.8~1rem 범위로 제한
+         (모바일에서 과도하게 작아지던 문제 해결, 데스크톱은 1rem 유지) */
+      scene.style.fontSize = Math.min(1, Math.max(0.8, radius / BASE_RADIUS)).toFixed(3) + 'rem';
     }
     updateRadius();
     if (window.ResizeObserver) {
@@ -2131,7 +2142,7 @@
 
     let rafId = null;
     let lastTs = null;
-    let t = 0; // 누적 회전각(도), 감소 방향 = 원본과 동일
+    let t = 0; // 누적 회전각(도), 감소 방향 = 프로토타입(speed 음수)과 동일
 
     function frame(ts) {
       if (lastTs !== null) t -= (ts - lastTs) * SPEED / 1000;
@@ -2139,21 +2150,20 @@
       for (let k = 0; k < items.length; k++) {
         const item = items[k];
         const span = item.el;
-        /* [v1.17] 균일 각도를 간격 워프 통과시켜 실제 배치 각도로 변환 */
-        const ang = warpAngle((item.base + t) * Math.PI / 180);
+        const ang = (item.base + t) * Math.PI / 180;
         const sinT = Math.sin(ang), cosT = Math.cos(ang);
-        /* rotateX(62°)·rotateZ(-30°)·rotateY(θ)·translateZ(r) 체인의 원점 좌표 전개 */
-        const x = radius * sinT * cosC;
-        const y = radius * (sinT * sinC * cosA - cosT * sinA);
-        const z = radius * (sinT * sinC * sinA + cosT * cosA);
-        /* [v1.16] 깊이 기반 스케일: 뒤 50% ~ 앞 200%.
-           원본의 cosθ 기반 공식은 실제 깊이(z)와 약 43° 위상차가 있어
-           배율 폭이 커지면 '큰 글자가 제목 뒤로 들어가는' 모순이 보임
-           → 정규화된 z(-1~+1)로 구동해 z-index 전환(z=0)과 크기 변화를 일치 */
-        const d = z / (radius * zAmp);
-        const s = SCALE_MIN + (d + 1) / 2 * (SCALE_MAX - SCALE_MIN);
+        /* 깊이 드라이버 = cosθ (tiltX 10°에서는 실제 z와 위상차 ≈5°로 사실상 일치) */
+        const effR = radius * (R_MID + cosT * R_HALF);   // 앞쪽은 멀리, 뒤쪽은 가깝게 → 원근 과장
+        /* rotateX(10°)·rotateZ(-30°)·rotateY(θ)·translateZ(effR) 원점 좌표 전개 */
+        const x = effR * sinT * cosC;
+        const y = effR * (sinT * sinC * cosA - cosT * sinA);
+        const z = effR * (sinT * sinC * sinA + cosT * cosA);
+        const p = PERSP / (PERSP - z);                   // 원근 투영 배율
+        const s = (S_MID + cosT * S_HALF) * p;
+        span.style.opacity = (O_MID + cosT * O_HALF).toFixed(3);
         span.style.transform =
-          'translate(-50%, -50%) translate(' + x.toFixed(1) + 'px, ' + y.toFixed(1) + 'px) scale(' + s.toFixed(3) + ')';
+          'translate(-50%, -50%) translate(' + (x * p).toFixed(1) + 'px, ' + (y * p).toFixed(1) + 'px)' +
+          GLYPH_TILT + ' scale(' + s.toFixed(3) + ')';
         span.style.zIndex = z >= 0 ? 3 : 1; // 제목(z-index 2) 앞/뒤 전환
       }
       rafId = requestAnimationFrame(frame);
