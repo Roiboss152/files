@@ -363,7 +363,21 @@
                 0 0 14px rgba(79, 172, 254, 0.75),
                 0 0 28px rgba(79, 172, 254, 0.50),
                 0 0 48px rgba(79, 172, 254, 0.28);
-            will-change: transform;
+            will-change: transform, opacity; /* [v1.24] opacity도 컴포지터 처리 명시 */
+        }
+        /* [v1.24] 터치 기기(갤럭시 등) 글로우 경량화
+           글리프 59개가 각각 GPU 레이어인데, 48px 외곽 번짐이 레이어 텍스처를
+           사방 48px씩 부풀림(고DPR 기기에서 글자당 ~400×400px). 일부 안드로이드
+           GPU가 이 래스터를 드롭하면 해당 글자만 비어 보이는 '이 빠짐' 발생
+           (화면 껐다 켜면 전체 재래스터로 복구되는 증상과 일치).
+           외곽 번짐을 24px로 줄여 텍스처 면적을 약 1/3로 낮춤. 데스크톱은 유지. */
+        @media (hover: none) and (pointer: coarse) {
+            .orbit-char {
+                text-shadow:
+                    0 0 5px rgba(79, 172, 254, 0.95),
+                    0 0 12px rgba(79, 172, 254, 0.80),
+                    0 0 24px rgba(79, 172, 254, 0.45);
+            }
         }
         /* [v1.20] 모바일 고정 크기 제거: 반경 비례 자동 축소로 대체 */
 
@@ -861,7 +875,7 @@
         </div>
 
         <div class="next-content">
-            <h2><span class="orbit-stage" id="orbit-stage"><span class="orbit-scene" id="orbit-scene" aria-hidden="true"></span><span class="orbit-title-core split-target">성공적인 DX 영업을 위한 현장 전략 플랫폼</span></span><span class="page-ver">v1.22</span></h2>
+            <h2><span class="orbit-stage" id="orbit-stage"><span class="orbit-scene" id="orbit-scene" aria-hidden="true"></span><span class="orbit-title-core split-target">성공적인 DX 영업을 위한 현장 전략 플랫폼</span></span><span class="page-ver">v1.24</span></h2>
             <!-- [v1.20] 부제목 삭제: 궤도 텍스트로 이동하여 중복 제거 -->
             
             <!-- 지표 스트립 -->
@@ -1604,27 +1618,36 @@
 
     <script>
     window.__skipForce = false;
+    window.__skipDone  = false;
+    /* [v1.23] skip 재작성 — '검은 화면 멈춤' 버그 수정
+       기존: ① 자체 스크롤로 timeline 끝까지 → ② scrollIntoView(smooth)로 하단
+       섹션 이동 → ③ 600ms 후 잠금 해제. 느린 기기에서 ②가 ③보다 늦게 끝나면
+       해제 직후 서명판 freeze가 뒤늦게 발동, 매 프레임 스크롤을 되돌려
+       아웃트로 검은 구간에 고정되는 경합이 있었음.
+       개선: 목적지(하단 섹션 상단)까지 자체 rAF로 '한 번에' 이동하고,
+       도착을 확인한 다음 프레임에 잠금 해제 → 해제 시점 경합 원천 차단. */
     function skipToBottom() {
+        if (window.__skipForce) return; // 연타 가드
         window.__skipForce = true;
+        window.__skipDone  = true;
         document.body.classList.remove('locked');
         var introEl = document.getElementById('intro-text');
         if (introEl) introEl.style.opacity = '0';
-        var space = document.querySelector('.timeline-space');
-        if (!space) { window.scrollTo({ top: document.body.scrollHeight }); window.__skipForce = false; return; }
-        var endY = space.offsetHeight - window.innerHeight;
-        var dur = 950, t0 = null;
+        var next = document.querySelector('.next-page-section');
+        if (!next) { window.scrollTo(0, document.body.scrollHeight); window.__skipForce = false; return; }
+        var startY = window.scrollY;
+        var endY = next.offsetTop; // 목적지: 하단 섹션 상단
+        var dur = 1100, t0 = null;
         function ease(t) { return t<0.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2; }
         function step(ts) {
             if (!t0) t0 = ts;
-            var p = Math.min((ts-t0)/dur, 1);
-            window.scrollTo(0, Math.round(endY * ease(p)));
-            if (p < 1) { requestAnimationFrame(step); }
-            else {
-                setTimeout(function() {
-                    var next = document.querySelector('.next-page-section');
-                    if (next) next.scrollIntoView({ behavior:'smooth', block:'start' });
-                    setTimeout(function() { window.__skipForce = false; }, 600);
-                }, 100);
+            var p = Math.min((ts - t0) / dur, 1);
+            window.scrollTo(0, Math.round(startY + (endY - startY) * ease(p)));
+            if (p < 1) {
+                requestAnimationFrame(step);
+            } else {
+                // 도착 프레임 이후에 잠금 해제
+                requestAnimationFrame(function () { window.__skipForce = false; });
             }
         }
         requestAnimationFrame(step);
@@ -2160,11 +2183,15 @@
         const z = effR * (sinT * sinC * sinA + cosT * cosA);
         const p = PERSP / (PERSP - z);                   // 원근 투영 배율
         const s = (S_MID + cosT * S_HALF) * p;
-        span.style.opacity = (O_MID + cosT * O_HALF).toFixed(3);
+        /* [v1.24] 스타일 변경 최소화: opacity·z-index는 실제 값이 바뀐
+           프레임에만 세팅 → 저사양·안드로이드 기기의 스타일 무효화 부하 감소 */
+        const op = (O_MID + cosT * O_HALF).toFixed(2);
+        if (item.op !== op) { item.op = op; span.style.opacity = op; }
         span.style.transform =
           'translate(-50%, -50%) translate(' + (x * p).toFixed(1) + 'px, ' + (y * p).toFixed(1) + 'px)' +
           GLYPH_TILT + ' scale(' + s.toFixed(3) + ')';
-        span.style.zIndex = z >= 0 ? 3 : 1; // 제목(z-index 2) 앞/뒤 전환
+        const zi = z >= 0 ? 3 : 1; // 제목(z-index 2) 앞/뒤 전환
+        if (item.zi !== zi) { item.zi = zi; span.style.zIndex = zi; }
       }
       rafId = requestAnimationFrame(frame);
     }
