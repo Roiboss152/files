@@ -21,8 +21,17 @@
         }
 
         body.locked { overflow: hidden; }
-        /* [v1.32] 도착 프리즈: 마지막 페이지 도달 시 1초간 스크롤 차단 */
-        body.arrival-freeze { overflow: hidden; }
+        /* [v1.33] 도착 프리즈: 마지막 페이지 도달 시 1초간 완전 고정.
+           v1.32의 overflow:hidden은 html에 overflow-x:hidden이 있으면
+           body의 overflow가 뷰포트로 전파되지 않아(CSS 명세) 무력했음.
+           body를 position:fixed로 문서 흐름에서 떼어내면 스크롤 범위
+           자체가 0이 되어 휠·터치·진행 중인 관성까지 물리적으로 차단됨.
+           착지점이 항상 문서 최상단이라 top 오프셋 보정도 불필요. */
+        body.arrival-freeze {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            overflow: hidden;
+        }
         /* [v1.32] overflow 토글로 스크롤바가 사라질 때 가로 폭이 들썩이지
            않도록 스크롤바 자리를 상시 확보 (오버레이 스크롤바 환경은 무영향) */
         html { scrollbar-gutter: stable; }
@@ -1072,7 +1081,7 @@
         </div>
 
         <div class="next-content">
-            <h2><span class="orbit-stage" id="orbit-stage"><span class="orbit-scene" id="orbit-scene" aria-hidden="true"></span><span class="orbit-title-core split-target">성공적인 DX 영업을 위한 현장 전략 플랫폼</span></span><span class="page-ver">v1.32</span></h2>
+            <h2><span class="orbit-stage" id="orbit-stage"><span class="orbit-scene" id="orbit-scene" aria-hidden="true"></span><span class="orbit-title-core split-target">성공적인 DX 영업을 위한 현장 전략 플랫폼</span></span><span class="page-ver">v1.33</span></h2>
             <!-- [v1.20] 부제목 삭제: 궤도 텍스트로 이동하여 중복 제거 -->
             
             <!-- 지표 스트립 -->
@@ -1606,28 +1615,33 @@
                 /* [v1.32] 빠른 스크롤은 한 프레임 사이 착지점을 수십~수백 px
                    지나친 채 잠금이 걸리므로, 보정식 대신 섹션 최상단에 고정 착지 */
                 const landY = nextSection.offsetTop;  // 접힌 후 = 0
-                window.scrollTo(0, landY);
-                arrivalFreeze(landY, 1000);           // [v1.32] 도착 후 1초 스크롤 정지
+                /* [v1.33] html의 scroll-behavior:smooth를 우회해 즉시 착지
+                   (기본 scrollTo는 애니메이션되어 관성과 줄다리기 발생) */
+                window.scrollTo({ top: landY, left: 0, behavior: 'instant' });
+                arrivalFreeze(1000);                  // [v1.33] 도착 후 1초 완전 고정
             };
 
-            /* ─── [v1.32] 도착 프리즈 ───
-               빠른 휠 스크롤·모바일 플릭 관성이 마지막 페이지 도달 후에도
-               살아 있어 콘텐츠 안쪽까지 밀려 내려가는 문제 해결.
-               ① overflow:hidden — 진행 중인 관성 스크롤까지 즉시 차단
-                  (인트로 잠금과 동일한 검증된 메커니즘, body.locked와는
-                   별도 클래스라 프리즈 중 로고 리셋과도 충돌 없음)
-               ② scroll clamp — 차단 적용 전 슬립되는 잔여 스크롤을
-                  착지점으로 되돌리는 안전망 */
-            function arrivalFreeze(holdY, ms) {
+            /* ─── [v1.33] 도착 프리즈 (완전 고정으로 재작성) ───
+               v1.32의 두 축이 모두 문제였음:
+               ① body{overflow:hidden} — html의 overflow-x:hidden 때문에
+                  뷰포트로 전파되지 않아 스크롤 차단이 걸리지 않았음
+               ② scroll clamp — scroll-behavior:smooth 탓에 보정 scrollTo가
+                  매번 애니메이션되며 살아있는 관성과 줄다리기
+                  → 화면이 위/아래로 탁탁 튀는 스프링 증상의 직접 원인
+               해결: clamp를 완전히 제거하고 body를 position:fixed로 고정.
+               스크롤 범위가 0이 되므로 되돌릴 것도, 튈 것도 없음. */
+            let arrivalTimer = null;
+            function arrivalFreeze(ms) {
                 document.body.classList.add('arrival-freeze');
-                const clamp = () => {
-                    if (Math.abs(window.scrollY - holdY) > 1) window.scrollTo(0, holdY);
-                };
-                window.addEventListener('scroll', clamp);
-                setTimeout(() => {
-                    window.removeEventListener('scroll', clamp);
-                    document.body.classList.remove('arrival-freeze');
-                }, ms);
+                clearTimeout(arrivalTimer);
+                arrivalTimer = setTimeout(releaseArrivalFreeze, ms);
+            }
+            function releaseArrivalFreeze() {
+                clearTimeout(arrivalTimer);
+                arrivalTimer = null;
+                document.body.classList.remove('arrival-freeze');
+                // 해제 직후 착지점 확정 (instant = smooth 우회)
+                window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
             }
 
             /* ─── [v1.30] 여정 리셋: 헤더 로고 클릭 → 히어로 복귀 ───
@@ -1635,6 +1649,7 @@
                재시작. 잠금 전(여정 도중) 클릭 시에도 처음으로 되감음.
                모든 상태 변수가 이 클로저 안에 있어 여기서만 초기화 가능. */
             window.__resetJourney = function () {
+                releaseArrivalFreeze();                 // [v1.33] 프리즈 중 로고 클릭 대응
                 const tl = document.querySelector('.timeline-space');
                 if (tl) tl.style.display = '';          // 접힌 구간 복원
                 const wasLocked = window.__journeyLocked;
@@ -1647,7 +1662,7 @@
                 introProgress = 0; isIntroComplete = false;
                 introTextWrapper.style.opacity = '1';   // 여정 중 0으로 눌린 값 복원
                 body.classList.add('locked');           // 인트로 동안 스크롤 잠금(초기 상태)
-                window.scrollTo(0, 0);
+                window.scrollTo({ top: 0, left: 0, behavior: 'instant' }); // [v1.33] smooth 우회
                 if (wasLocked) requestAnimationFrame(animate); // 종료됐던 루프 재가동
             };
 
@@ -1655,7 +1670,8 @@
                 if (window.__journeyLocked) return; // [v1.27] 잠금 후 시네마틱 로직 전체 비활성
                 if(!isIntroComplete) {
                     // [v1.23] skip 이후에는 인트로 잠금용 상단 고정을 하지 않음
-                    if (!window.__skipForce && !window.__skipDone) window.scrollTo(0, 0);
+                    // [v1.33] instant로 smooth 우회 — 보정이 애니메이션되면 관성과 줄다리기 발생
+                    if (!window.__skipForce && !window.__skipDone) window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
                     return;
                 }
                 /* [v1.27] 하단 섹션 상단 도달 → 편도 잠금 발동 */
@@ -1699,7 +1715,7 @@
                             targetScroll = 1;
                             scrollProgress = 1;
                         } else {
-                            window.scrollTo(0, 0);
+                            window.scrollTo({ top: 0, left: 0, behavior: 'instant' }); // [v1.33] smooth 우회
                             targetScroll = 0;
                             scrollProgress = 0;
                         }
@@ -1746,8 +1762,9 @@
                         scrollProgress = freezeProgressVal;
                         targetScroll   = freezeProgressVal;
                         // 브라우저 스크롤 위치도 되돌려서 페이지가 밀리지 않게
+                        // [v1.33] instant 필수 — smooth로 애니메이션되면 관성과 줄다리기(스프링 증상)
                         if (freezeScrollY !== null && Math.abs(window.scrollY - freezeScrollY) > 2) {
-                            window.scrollTo(0, freezeScrollY);
+                            window.scrollTo({ top: freezeScrollY, left: 0, behavior: 'instant' });
                         }
                     } else {
                         scrollProgress += (targetScroll - scrollProgress) * 0.05;
