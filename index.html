@@ -1081,7 +1081,7 @@
         </div>
 
         <div class="next-content">
-            <h2><span class="orbit-stage" id="orbit-stage"><span class="orbit-scene" id="orbit-scene" aria-hidden="true"></span><span class="orbit-title-core split-target">성공적인 DX 영업을 위한 현장 전략 플랫폼</span></span><span class="page-ver">v1.33</span></h2>
+            <h2><span class="orbit-stage" id="orbit-stage"><span class="orbit-scene" id="orbit-scene" aria-hidden="true"></span><span class="orbit-title-core split-target">성공적인 DX 영업을 위한 현장 전략 플랫폼</span></span><span class="page-ver">v1.34</span></h2>
             <!-- [v1.20] 부제목 삭제: 궤도 텍스트로 이동하여 중복 제거 -->
             
             <!-- 지표 스트립 -->
@@ -2135,10 +2135,14 @@
 
 
 <!-- ============================================================
-     [카드 클릭 물결 왜곡 효과]
+     [카드 물결 왜곡 효과: 클릭 + 자동 발동(v1.34)]
      대상: 01~06 소개 카드(.grid-card) + "도구는 어떻게 현장에 닿는가"
            워크플로우 01~03 카드(.workflow-card)
-     버튼(.card-btn) 클릭 시에는 물결이 발동하지 않고 바로 이동합니다.
+     · 클릭(터치) 지점에서 물결 발동 — 단, 버튼(.card-btn) 클릭 시에는
+       물결이 발동하지 않고 바로 이동합니다.
+     · [v1.34] 클릭하지 않아도 카드마다 2~6초 랜덤 간격으로 카드 내부
+       랜덤 지점을 클릭한 것처럼 물결이 자동 발동합니다.
+       (화면에 보이는 카드만 · 탭 비활성 시 중지 · 동시 진행 상한 있음)
      ============================================================ -->
 <style>
   .grid-card.ripple-ready,
@@ -2163,6 +2167,15 @@
   const RING_BLUR = 4;
   const NOISE_BLUR = 0.5;
   const MAX_RADIUS_RATIO = 0.85;
+
+  /* [v1.34] 자동 물결 파라미터
+     클릭 없이도 카드마다 아래 범위의 랜덤 간격으로, 카드 내부의
+     랜덤 지점에서 클릭과 동일한 물결을 자동 발동한다. */
+  const AUTO_MIN_DELAY = 5000;    // 자동 물결 최소 간격(ms)
+  const AUTO_MAX_DELAY = 25000;    // 자동 물결 최대 간격(ms)
+  const AUTO_POS_MARGIN = 0.15;   // 발동 지점을 카드 안쪽 15~85% 영역으로 제한(모서리 잘림 방지)
+  const AUTO_MAX_CONCURRENT = 3;  // 동시 진행 물결 상한(성능 보호 · 클릭 물결 포함 집계)
+  const autoRippleTargets = [];   // { el, animate, visible, activeUntil } 등록부
 
   let filterSvg = null;
   let filterCounter = 0;
@@ -2298,6 +2311,8 @@
     el.style.filter = `url(#${id})`;
 
     let animId = null;
+    /* [v1.34] 자동 물결 등록 정보 — animate 정의 후 하단에서 연결·등록 */
+    const reg = { el, animate: null, visible: false, activeUntil: 0 };
 
     function animate(cx, cy) {
       cancelAnimationFrame(animId);
@@ -2316,6 +2331,7 @@
       disp.setAttribute('scale', DISPLACEMENT_SCALE);
 
       const startTime = performance.now();
+      reg.activeUntil = startTime + DURATION; // [v1.34] 물결 진행 중 표시(자동 발동 겹침 방지)
 
       function frame(now) {
         const elapsed = now - startTime;
@@ -2360,11 +2376,68 @@
       const cy = e.clientY - rect.top;
       animate(cx, cy);
     });
+
+    // [v1.34] 자동 물결 대상으로 등록
+    reg.animate = animate;
+    autoRippleTargets.push(reg);
+  }
+
+  /* ── [v1.34] 자동 물결 스케줄러 ──
+     카드마다 독립 타이머로 2~6초 사이 랜덤 간격마다 카드 내부
+     랜덤 좌표에서 클릭과 동일한 물결을 발동한다.
+     · IntersectionObserver: 화면에 35% 이상 보이는 카드만 발동
+       (오프스크린 카드의 프레임별 마스크 재생성 비용 차단)
+     · document.hidden(탭 비활성) 시 이번 회차 건너뜀
+     · 해당 카드에 물결(클릭 포함)이 진행 중이면 건너뛰어 끊김 방지
+     · 전체 동시 진행 물결이 AUTO_MAX_CONCURRENT 이상이면 건너뜀
+       (데스크톱에서 6장 동시 발동으로 인한 프레임 드랍 예방)
+     · 건너뛴 회차도 다음 랜덤 간격으로 항상 재예약되므로 멈추지 않음
+     · prefers-reduced-motion 환경에서는 자동 발동만 비활성(클릭 물결은 유지) */
+  function initAutoRipple() {
+    if (!autoRippleTargets.length) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        const t = autoRippleTargets.find((r) => r.el === entry.target);
+        if (t) t.visible = entry.isIntersecting;
+      });
+    }, { threshold: 0.35 });
+
+    const randDelay = () =>
+      AUTO_MIN_DELAY + Math.random() * (AUTO_MAX_DELAY - AUTO_MIN_DELAY);
+
+    const activeCount = () => {
+      const now = performance.now();
+      return autoRippleTargets.reduce((n, r) => n + (r.activeUntil > now ? 1 : 0), 0);
+    };
+
+    function fire(t) {
+      if (
+        !document.hidden &&
+        t.visible &&
+        performance.now() >= t.activeUntil &&
+        activeCount() < AUTO_MAX_CONCURRENT
+      ) {
+        const rect = t.el.getBoundingClientRect();
+        const m = AUTO_POS_MARGIN;
+        const cx = rect.width  * (m + Math.random() * (1 - 2 * m));
+        const cy = rect.height * (m + Math.random() * (1 - 2 * m));
+        t.animate(cx, cy);
+      }
+      setTimeout(() => fire(t), randDelay()); // 다음 회차 재예약(간격도 매번 새로 랜덤)
+    }
+
+    autoRippleTargets.forEach((t) => {
+      io.observe(t.el);
+      setTimeout(() => fire(t), randDelay()); // 최초 발동도 2~6초 랜덤 → 카드끼리 자연 분산
+    });
   }
 
   function initCardRipple() {
     // 01~06 소개 카드
     document.querySelectorAll('.grid-card').forEach(attachRipple);
+    initAutoRipple(); // [v1.34] 자동 물결 시작
     /* [v1.18] 워크플로우 01~03 카드는 물결 효과 제거.
        카드 면적이 커서 SVG 필터 영역이 과대해지고 매 프레임 마스크 재생성
        비용이 급증 → 모바일에서 프레임 드랍(렉) 유발하여 비활성화. */
