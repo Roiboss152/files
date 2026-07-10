@@ -88,11 +88,15 @@
   .title-wrap { display: flex; align-items: baseline; gap: 10px; }
   .title {
     font-size: 22px; font-weight: 700; letter-spacing: -0.02em;
-    color: #ffffff; /* fallback */
-    background: linear-gradient(to right, #ffffff, #a1a1aa);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    /* [v1.12] gradient text(background-clip:text) 제거 — Edge 타이틀 겹침/깨짐 수정.
+       (index.html v1.35 / cal.html v1.03과 동일 원인·동일 처방)
+       클립 마스크 컨텍스트 안의 split-word blur 필터 레이어가 무효화될 때
+       Edge가 이전 프레임 글리프 위에 새 글리프를 겹쳐 그림. split-word가
+       #fff, .version이 #aaa를 강제하므로 이 그라데이션은 표시된 적 없음
+       → 제거해도 시각 변화 없음.
+       ※ B2/T9 모델명의 shimmer clip은 실제로 보이는 효과이고 필터 자식이
+       없어 Edge에서도 정상이므로 그대로 유지. */
+    color: #ffffff;
   }
   .version { font-size: 11px; color: #aaa; font-weight: 400; -webkit-text-fill-color: #aaa; background: none; }
   .subtitle {
@@ -1031,7 +1035,7 @@
   <div class="header">
     <div class="title-wrap">
       <div class="title"><span class="split-target">KT 서빙로봇 견적 계산기</span></div>
-      <div class="version">v1.11</div>
+      <div class="version">v1.12</div>
     </div>
     <div class="subtitle">B2 vs T9</div>
   </div>
@@ -1704,6 +1708,20 @@ renderAll();
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (reduceMotion) return;
 
+  /* [v1.12] 등장 전환 종료 후 blur 필터·will-change 레이어 해제.
+     Edge에서 잔류 필터 레이어가 이전 프레임 글리프를 남겨 타이틀이
+     겹쳐 보이는 고스팅 방지(index.html v1.35와 동일). 이 페이지의
+     등장 애니는 전부 1회성(io.unobserve, 재발동 없음)이라 리스너를
+     1회 후 제거하는 방식으로 충분함. */
+  function releaseAfterTransition(el) {
+    el.addEventListener('transitionend', function onEnd(e) {
+      if (e.target !== el || e.propertyName !== 'filter') return;
+      el.style.filter = 'none';
+      el.style.willChange = 'auto';
+      el.removeEventListener('transitionend', onEnd);
+    });
+  }
+
   // ─── [1] Reveal 대상 자동 클래스 부여 ───
   // 기존 fadeSlideUp 진입 애니가 있는 요소는 제외 (중복 방지)
   const revealSelectors = [
@@ -1717,6 +1735,7 @@ renderAll();
       // 이미 CSS 애니메이션이 걸린 경우 대체
       el.style.animation = 'none';
       el.classList.add('reveal');
+      releaseAfterTransition(el); // [v1.12]
     });
   });
 
@@ -1735,6 +1754,7 @@ renderAll();
         span.className = 'split-word';
         span.textContent = part;
         span.style.transitionDelay = (wordIndex * 0.05) + 's';
+        releaseAfterTransition(span); // [v1.12]
         el.appendChild(span);
         wordIndex++;
       }
