@@ -213,10 +213,18 @@
         .next-content { max-width: 1200px; width: 100%; }
         .next-content h2 { 
             font-size: 3.5rem; margin-bottom: 24px; letter-spacing: -1px;
-            color: #ffffff; /* 강제 다크모드/그라데이션 미지원 브라우저용 fallback */
-            background: linear-gradient(to right, #ffffff, #a1a1aa);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            background-clip: text;
+            /* [v1.35] gradient text(background-clip:text) 제거 — Edge 글리프 겹침/깨짐 수정.
+               background-clip:text는 h2 서브트리 '전체 글리프'를 마스크로 래스터하는
+               특수 페인트 컨텍스트를 만드는데, 그 안에서 ① orbit-char 50여 개의
+               매 프레임 transform + z-index(1↔3) 전환, ② .reveal(h2 자신)과
+               .split-word의 blur 필터 전환 레이어가 계속 무효화되면 Edge가
+               이전 프레임 글리프 위에 새 글리프를 겹쳐 그리는 문제 발생
+               (같은 Chromium이라도 Edge는 컴포지팅/텍스트 파이프라인 설정이 달라
+               Chrome에서는 통과하는 조합이 Edge에서만 깨질 수 있음).
+               가시 글리프는 전부 자체 색을 강제하므로(split-word #fff /
+               orbit-char #4facfe / page-ver #aaa) 이 그라데이션은 실제로
+               어디에도 표시되지 않던 컨텍스트였음 → 제거해도 시각 변화 없음. */
+            color: #ffffff;
         }
         .next-content > p { color: #71717a; font-size: 1.25rem; margin-bottom: 80px; margin-top: 0; }
         
@@ -499,6 +507,11 @@
         .orbit-stage {
             position: relative;
             display: inline-block;
+            /* [v1.35] 궤도 글자의 z-index 1↔3 전환을 스테이지 자체 스태킹
+               컨텍스트 안으로 격리 — 매 프레임 레이어 재정렬이 h2/히어로
+               전체로 번지지 않게 차단(Edge 렌더링 안정화). 제목 코어(z-index 2)도
+               스테이지 내부에 있으므로 앞/뒤 통과 3D 효과는 그대로 동작. */
+            isolation: isolate;
         }
         .orbit-scene {
             position: absolute;
@@ -1081,7 +1094,7 @@
         </div>
 
         <div class="next-content">
-            <h2><span class="orbit-stage" id="orbit-stage"><span class="orbit-scene" id="orbit-scene" aria-hidden="true"></span><span class="orbit-title-core split-target">성공적인 DX 영업을 위한 현장 전략 플랫폼</span></span><span class="page-ver">v1.34</span></h2>
+            <h2><span class="orbit-stage" id="orbit-stage"><span class="orbit-scene" id="orbit-scene" aria-hidden="true"></span><span class="orbit-title-core split-target">성공적인 DX 영업을 위한 현장 전략 플랫폼</span></span><span class="page-ver">v1.35</span></h2>
             <!-- [v1.20] 부제목 삭제: 궤도 텍스트로 이동하여 중복 제거 -->
             
             <!-- 지표 스트립 -->
@@ -1993,6 +2006,23 @@
         const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         if (reduceMotion) return;
 
+        /* [v1.35] 등장 전환 종료 후 blur 필터·will-change 레이어 해제 헬퍼.
+           filter:blur()와 will-change는 전환이 끝나도 요소를 GPU 레이어로
+           계속 승격시켜 두는데, Edge에서는 이 잔류 필터 레이어가 이전 프레임
+           글리프를 남겨 새 글리프와 겹쳐 보이는 고스팅(제목 겹침)의 원인이 됨.
+           모든 등장 애니는 1회성(io.unobserve)이므로 종료 즉시 해제해도 무방하며,
+           페이지 전체의 상시 GPU 레이어 수도 크게 줄어듦(저사양 기기 이득). */
+        function releaseAfterTransition(el) {
+            el.addEventListener('transitionend', function onEnd(e) {
+                /* 자식(split-word)의 transitionend가 버블링되어 부모(h2) 필터를
+                   전환 도중 강제 해제하지 않도록 target·속성을 정확히 가드 */
+                if (e.target !== el || e.propertyName !== 'filter') return;
+                el.style.filter = 'none';
+                el.style.willChange = 'auto';
+                el.removeEventListener('transitionend', onEnd);
+            });
+        }
+
         // ─── [1] Reveal 대상 자동 클래스 부여 ───
         const revealSelectors = [
             '.next-content h2',
@@ -2002,12 +2032,16 @@
             '.workflow-card'
         ];
         revealSelectors.forEach(sel => {
-            document.querySelectorAll(sel).forEach(el => el.classList.add('reveal'));
+            document.querySelectorAll(sel).forEach(el => {
+                el.classList.add('reveal');
+                releaseAfterTransition(el); // [v1.35]
+            });
         });
         // 6개 카드는 그리드 안에서 순차 딜레이 (delay-1 ~ delay-6)
         document.querySelectorAll('.card-wrap').forEach((el, i) => {
             el.classList.add('reveal');
             el.classList.add('delay-' + (((i) % 6) + 1));
+            releaseAfterTransition(el); // [v1.35]
         });
 
         // ─── [2] Text Split — 단어 단위 span 분할 ───
@@ -2026,6 +2060,7 @@
                     span.className = 'split-word';
                     span.textContent = part;
                     span.style.transitionDelay = (wordIndex * 0.05) + 's';
+                    releaseAfterTransition(span); // [v1.35] 등장 후 blur 레이어 해제
                     el.appendChild(span);
                     wordIndex++;
                 }
