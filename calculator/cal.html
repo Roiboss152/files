@@ -83,11 +83,16 @@
 
   header h1{
     font-size:var(--fs-h1); margin:0 0 4px; letter-spacing:-0.3px;
-    color:#ffffff; /* fallback */
-    background: linear-gradient(to right, #ffffff, #a1a1aa);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    /* [v1.03] gradient text(background-clip:text) 제거 — Edge 타이틀 겹침/깨짐 수정.
+       (index.html v1.35와 동일 원인·동일 처방)
+       background-clip:text는 h1 서브트리 전체 글리프를 마스크로 래스터하는
+       특수 페인트 컨텍스트를 만드는데, 그 안의 split-word blur 필터 전환
+       레이어가 무효화될 때 Edge가 이전 프레임 글리프 위에 새 글리프를
+       겹쳐 그림. 특히 이 페이지는 스텝 전환 때마다 MutationObserver가
+       split 애니를 재발동하므로 겹침 기회가 반복됨.
+       가시 글리프는 전부 자체 색을 강제하므로(split-word #fff /
+       page-ver #aaa) 그라데이션은 실제로 표시된 적이 없음 → 시각 변화 없음. */
+    color:#ffffff;
   }
   header p{margin:0; color:var(--muted); font-size:var(--fs-sub);}
   header.hidden{display:none;}
@@ -773,7 +778,7 @@
 <div class="page-shell">
 
   <header id="pageHeader" class="hidden">
-    <h1><span class="split-target">하이오더 통합 계산기</span><span class="page-ver">v1.02</span></h1>
+    <h1><span class="split-target">하이오더 통합 계산기</span><span class="page-ver">v1.03</span></h1>
     <p>견적 산출 · 납부방식 비교 · 위약금 계산 (내부 검토용)</p>
   </header>
 
@@ -2375,6 +2380,24 @@ document.addEventListener('DOMContentLoaded', ()=>{
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (reduceMotion) return;
 
+  /* [v1.03] 등장 전환 종료 후 blur 필터·will-change 레이어 해제.
+     Edge에서 잔류 필터 레이어가 이전 프레임 글리프를 남겨 타이틀이 겹쳐
+     보이는 고스팅 방지(index.html v1.35와 동일). 단, 이 페이지는 스텝
+     전환 시 MutationObserver가 split 애니를 '재발동'하므로 리스너를
+     제거하지 않고 유지하며, 재발동 직전 rearmTransition으로 인라인
+     해제값을 원복해 blur-in 효과가 매번 정상 동작하게 함. */
+  function releaseAfterTransition(el) {
+    el.addEventListener('transitionend', (e) => {
+      if (e.target !== el || e.propertyName !== 'filter') return;
+      el.style.filter = 'none';
+      el.style.willChange = 'auto';
+    });
+  }
+  function rearmTransition(el) {
+    el.style.filter = '';
+    el.style.willChange = '';
+  }
+
   // ─── Text Split - 단어 단위 span 분할 ───
   function applyTextSplit() {
     document.querySelectorAll('.split-target').forEach(el => {
@@ -2391,6 +2414,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
           span.className = 'split-word';
           span.textContent = part;
           span.style.transitionDelay = (wordIndex * 0.05) + 's';
+          releaseAfterTransition(span); // [v1.03]
           el.appendChild(span);
           wordIndex++;
         }
@@ -2403,7 +2427,10 @@ document.addEventListener('DOMContentLoaded', ()=>{
   // 스텝 3-5 견적 폼 진입 시 카드가 부드럽게 등장
   const revealSelectors = ['.card', '.summary-bar', '.downloadRow', '.pillbox', '.infobox'];
   revealSelectors.forEach(sel => {
-    document.querySelectorAll(sel).forEach(el => el.classList.add('reveal'));
+    document.querySelectorAll(sel).forEach(el => {
+      el.classList.add('reveal');
+      releaseAfterTransition(el); // [v1.03]
+    });
   });
 
   // ─── IntersectionObserver - 뷰포트 진입 시 발동 ───
@@ -2432,6 +2459,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
         setTimeout(() => {
           pageHeader.querySelectorAll('.split-target').forEach(el => {
             el.classList.remove('split-visible');
+            el.querySelectorAll('.split-word').forEach(rearmTransition); // [v1.03] 해제값 원복
             void el.offsetWidth; // reflow
             el.classList.add('split-visible');
           });
