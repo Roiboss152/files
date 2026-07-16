@@ -1,0 +1,2486 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- 안드로이드 크롬/삼성 인터넷의 강제 다크 모드가 gradient text를 반전시키는 문제 방지 -->
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#020202">
+<title>하이오더 통합 계산기</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css">
+<style>
+  :root{
+    color-scheme: dark;
+    /* 다크 톤앤매너 (v1.01: KT-Synergy 통일) */
+    --ink:#ffffff; --muted:#a1a1aa; --faint:#71717a; --line:#232326;
+    --surface:#020202; --paper:#0f0f11;
+    --accent:#4facfe;                       /* KT 블루 */
+    --accent-soft:rgba(79,172,254,0.12);
+    --good:#4ade80; --good-soft:rgba(74,222,128,0.12);
+    --info:#4facfe; --info-soft:rgba(79,172,254,0.1);
+    font-variant-numeric: tabular-nums;
+    --fs-h1:21px; --fs-sub:13px; --fs-h2:14px;
+    --fs-base:13.5px; --fs-label:12px; --fs-input:14px;
+    --fs-summary:18px; --fs-grand:19px; --fs-hint:11.5px;
+    --field-min:190px; --pad-card:18px 20px; --pad-input:9px 10px;
+  }
+  @media (min-width:768px){
+    :root{
+      --fs-h1:27px; --fs-sub:14.5px; --fs-h2:18px;
+      --fs-base:16px; --fs-label:14px; --fs-input:16px;
+      --fs-summary:22px; --fs-grand:24px; --fs-hint:13px;
+      --field-min:230px; --pad-card:24px 28px; --pad-input:12px 14px;
+    }
+  }
+  @media (min-width:1180px){
+    :root{
+      --fs-h1:30px; --fs-sub:15.5px; --fs-h2:19px;
+      --fs-base:17px; --fs-label:14.5px; --fs-input:17px;
+      --fs-summary:24px; --fs-grand:26px; --fs-hint:13.5px;
+      --field-min:250px; --pad-card:28px 32px; --pad-input:13px 15px;
+    }
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  button, .mp-btn, .step-dot, .sum-del, .mp-dial-confirm{
+    -webkit-touch-callout:none;
+    -webkit-user-select:none; user-select:none;
+  }
+  .device-screen, .device-screen *{
+    -webkit-touch-callout:none;
+    -webkit-user-select:none; user-select:none;
+  }
+  .device-screen input, .device-screen textarea{
+    -webkit-user-select:text; user-select:text;
+  }
+  html,body{height:100%;}
+  body{
+    margin:0;
+    font-family:'Pretendard Variable','Pretendard',-apple-system,"Segoe UI","Noto Sans KR",sans-serif;
+    color:#fff;
+    background: radial-gradient(ellipse at top, #0b0b0f 0%, #020202 55%, #020202 100%);
+    line-height:1.55; font-size:var(--fs-base);
+    color-scheme: dark;
+    position: relative;
+  }
+  /* 은은한 KT 블루 글로우 (Editorial Minimalism 톤) */
+  body::before{
+    content:'';
+    position:fixed;
+    top:-20%; left:50%;
+    width:900px; height:900px;
+    transform:translateX(-50%);
+    background: radial-gradient(circle, rgba(79,172,254,0.06) 0%, transparent 60%);
+    pointer-events:none;
+    z-index:0;
+    animation: bgDrift 22s ease-in-out infinite;
+  }
+  @keyframes bgDrift{
+    0%,100% { transform:translateX(-50%) translateY(0); opacity:1; }
+    50%     { transform:translateX(-45%) translateY(30px); opacity:0.7; }
+  }
+  .page-shell{max-width:1100px; margin:0 auto; padding:18px 16px 60px; position:relative; z-index:1;}
+
+  header h1{
+    font-size:var(--fs-h1); margin:0 0 4px; letter-spacing:-0.3px;
+    /* [v1.03] gradient text(background-clip:text) 제거 — Edge 타이틀 겹침/깨짐 수정.
+       (index.html v1.35와 동일 원인·동일 처방)
+       background-clip:text는 h1 서브트리 전체 글리프를 마스크로 래스터하는
+       특수 페인트 컨텍스트를 만드는데, 그 안의 split-word blur 필터 전환
+       레이어가 무효화될 때 Edge가 이전 프레임 글리프 위에 새 글리프를
+       겹쳐 그림. 특히 이 페이지는 스텝 전환 때마다 MutationObserver가
+       split 애니를 재발동하므로 겹침 기회가 반복됨.
+       가시 글리프는 전부 자체 색을 강제하므로(split-word #fff /
+       page-ver #aaa) 그라데이션은 실제로 표시된 적이 없음 → 시각 변화 없음. */
+    color:#ffffff;
+  }
+  header p{margin:0; color:var(--muted); font-size:var(--fs-sub);}
+  header.hidden{display:none;}
+
+  /* ---- square/bar step indicator ---- */
+  .step-indicator{display:flex; align-items:center; justify-content:center; gap:10px; margin:18px 0;}
+  .step-dot{
+    width:10px; height:10px; border-radius:3px; background:#3f3f46; border:none; cursor:pointer; padding:0;
+    transition: all .25s cubic-bezier(.3,1.4,.5,1);
+  }
+  .step-dot:hover{ background:#52525b; }
+  .step-dot.active{
+    width:10px; height:26px; background:var(--accent); border-radius:4px;
+    box-shadow: 0 0 12px rgba(79,172,254,0.5);
+  }
+
+  /* ---- device frame (실제 하이오더 단말 이미지) ---- */
+  .device-frame{
+    position:relative; width:100%; max-width:380px; margin:0 auto;
+    aspect-ratio:1841/2652;
+    background-image: url(https://kt-synergy.com/assets/image/calculator/hiorder01.png);
+    background-size:100% 100%; background-repeat:no-repeat; background-position:center;
+    filter: drop-shadow(0 20px 40px rgba(0,0,0,0.5));
+  }
+@media (min-width:768px){ .device-frame{max-width:440px;} }
+  .device-frame.hidden{display:none;}
+  .device-screen{
+    position:absolute; left:6.84%; top:11.73%; width:85.99%; height:37.67%;
+    overflow-y:auto; overflow-x:hidden; border-radius:5%/9%;
+    padding:3% 5%;
+    transition: background .4s ease, color .4s ease;
+    background:#fff; color:#1a1a1a;
+    display:flex; flex-direction:column; justify-content:safe center;
+    scrollbar-width:none; -ms-overflow-style:none;
+  }
+  .device-screen::-webkit-scrollbar{ display:none; width:0; height:0; }
+  .device-screen.theme-dark{ background:#15151a; color:#fff; }
+  /* device-screen 내부는 하이오더 실제 단말 UI 시뮬레이션 → 원래의 라이트 팔레트 유지 */
+  .device-screen:not(.theme-dark){
+    --ink:#1a1a1a;
+    --muted:#6b6b6b;
+    --faint:#9a9a9a;
+    --line:#e2e2e2;
+    --surface:#f7f7f7;
+    --paper:#ffffff;
+  }
+  .device-screen.theme-dark{
+    --ink:#ffffff;
+    --muted:#a1a1aa;
+    --faint:#71717a;
+    --line:rgba(255,255,255,0.15);
+    --surface:#1a1a1f;
+    --paper:#2a2a30;
+  }
+  .device-screen .df-step{ display:none; flex-direction:column; justify-content:center; padding:0; width:100%; height:100%; }
+  .device-screen .df-step.active{ display:flex; }
+
+  .glass-summary{
+    max-width:520px; margin:14px auto 0; padding:14px 18px; border-radius:16px;
+    background:rgba(15,15,17,0.72); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+    border:1px solid rgba(79,172,254,0.2); box-shadow:0 10px 28px rgba(0,0,0,0.4), 0 0 24px rgba(79,172,254,0.08);
+    display:flex; justify-content:space-around; gap:10px; text-align:center; color:#fff;
+  }
+  @media (min-width:768px){ .glass-summary{max-width:640px;} }
+  .glass-summary.hidden{display:none;}
+  .glass-summary .gitem .glabel{font-size:var(--fs-hint); color:rgba(255,255,255,0.72);}
+  .glass-summary .gitem .gval{font-size:var(--fs-summary); font-weight:800; color:#fff;}
+  .glass-summary .gitem .gval small{font-size:var(--fs-hint); font-weight:400; color:rgba(255,255,255,0.6); margin-left:3px;}
+
+  /* step1/step2: 디바이스 프레임 밖, 일반 카드 영역 */
+  .card-step{
+    width:100%; max-width:520px; margin:0 auto 18px auto;
+    background:var(--paper); border:1px solid var(--line); border-radius:18px;
+    padding:22px 20px; box-sizing:border-box;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+  }
+  @media (min-width:768px){ .card-step{max-width:640px;} }
+  .card-step.hidden{display:none;}
+
+  /* ---- toggle group (binary/ternary pill buttons) ---- */
+  .tg-label{font-size:var(--fs-label); color:var(--muted); font-weight:700; margin-bottom:8px;}
+  .tg-group{
+    display:flex; background:rgba(255,255,255,0.06); padding:6px; 
+    border-radius:999px; margin-bottom:14px;
+    position:relative; --n:2; --idx:0;
+    border:1px solid rgba(255,255,255,0.05);
+  }
+  .tg-group::before{
+    content:''; 
+    position:absolute; top:6px; bottom:6px; left:6px;
+    width:calc((100% - 12px) / var(--n));
+    background: linear-gradient(135deg, #4facfe 0%, #3a95e6 100%);
+    border-radius:999px;
+    box-shadow:0 4px 12px rgba(79,172,254,.3), 0 0 20px rgba(79,172,254,.15);
+    transform: translateX(calc(var(--idx) * 100%));
+    transition: transform .42s cubic-bezier(.34, 1.56, .55, 1);
+    z-index:0;
+    pointer-events:none;
+  }
+  /* device-screen 안에서는 원래 라이트 상태로 (하이오더 UI 시뮬레이션) */
+  .device-screen:not(.theme-dark) .tg-group{background:rgba(0,0,0,0.05); border:none;}
+  .device-screen:not(.theme-dark) .tg-group::before{ background:#1a1a1a; box-shadow:0 4px 10px rgba(0,0,0,.28), 0 1px 2px rgba(0,0,0,.15); }
+  .device-screen.theme-dark .tg-group{background:rgba(255,255,255,0.12); border:none;}
+  .device-screen.theme-dark .tg-group::before{ background:#fff; box-shadow:0 4px 14px rgba(0,0,0,.4); }
+  .tg-btn{
+    position:relative; z-index:1;
+    flex:1; border:none; background:transparent; padding:13px 8px; border-radius:999px;
+    font-weight:700; font-size:var(--fs-base); color:#71717a; cursor:pointer;
+    transition: color .3s ease; white-space:nowrap;
+    font-family: inherit;
+  }
+  .device-screen:not(.theme-dark) .tg-btn{ color:#999; }
+  .device-screen.theme-dark .tg-btn{ color:#aaa; }
+  .tg-btn.active{ color:#fff; }
+  .device-screen:not(.theme-dark) .tg-btn.active{ color:#fff; }
+  .device-screen.theme-dark .tg-btn.active{ color:#15151a; }
+
+  .chip-row{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;}
+  .chip{
+    display:inline-flex; align-items:center; gap:6px; padding:8px 14px; border-radius:999px;
+    background:rgba(79,172,254,0.12); color:#4facfe; border:1px solid rgba(79,172,254,0.35);
+    font-size:var(--fs-label); font-weight:700; cursor:pointer;
+  }
+  .device-screen:not(.theme-dark) .chip{ background:#1a1a1a; color:#fff; border-color:transparent; }
+  .device-screen.theme-dark .chip{ background:#fff; color:#15151a; border-color:transparent; }
+  .chip .x{opacity:.6; font-size:11px;}
+
+  /* ---- spinner (device-screen 내부에서만 사용, 하이오더 UI 시뮬레이션) ---- */
+  .spinner-wrap{margin-top:auto; padding-top:6px;}
+  .spinner-section-label{text-align:center; font-size:var(--fs-label); font-weight:700; color:#6b6b6b; margin-bottom:4px;}
+  .device-screen.theme-dark .spinner-section-label{ color:#aaa; }
+  .spinner{
+    height:144px; overflow-y:auto; scroll-snap-type:y mandatory; -webkit-overflow-scrolling:touch;
+    border-radius:14px; background:rgba(0,0,0,0.04); position:relative;
+  }
+  .device-screen.theme-dark .spinner{ background:rgba(255,255,255,0.08); }
+  .spinner::-webkit-scrollbar{display:none;}
+  .spinner-track{padding:56px 0;}
+  .spinner-cell{
+    height:32px; line-height:32px; text-align:center; scroll-snap-align:center;
+    font-size:18px; color:#bbb; cursor:pointer; transition:all .15s ease;
+  }
+  .spinner-cell.active{font-size:30px; font-weight:800; color:#1a1a1a;}
+  .device-screen.theme-dark .spinner-cell.active{ color:#fff; }
+  .spinner-center-line{
+    position:absolute; left:8%; right:8%; top:50%; height:36px; margin-top:-18px;
+    border-top:1px solid rgba(0,0,0,0.12); border-bottom:1px solid rgba(0,0,0,0.12);
+    pointer-events:none;
+  }
+  .device-screen.theme-dark .spinner-center-line{ border-color:rgba(255,255,255,0.25); }
+  .spinner-pair{display:flex; gap:10px;}
+  .spinner-pair > div{flex:1;}
+
+  .df-title{font-size:var(--fs-h2); font-weight:800; margin-bottom:14px; text-align:center;}
+  .df-device-row{display:flex; flex-direction:column; gap:14px; flex:1; justify-content:center;}
+  .df-device-btn{
+    width:100%; padding:18px 16px; border-radius:18px; border:none; cursor:pointer;
+    background:rgba(0,0,0,0.05); font-size:var(--fs-h2); font-weight:800; color:#1a1a1a;
+    transition:all .2s ease; text-align:left; display:flex; justify-content:space-between; align-items:center;
+    font-family: inherit;
+  }
+  .device-screen.theme-dark .df-device-btn{ background:rgba(255,255,255,0.1); color:#fff; }
+  .df-device-btn .arrow{font-weight:400; color:#6b6b6b;}
+  .device-screen.theme-dark .df-device-btn .arrow{ color:#aaa; }
+  .df-device-btn.expanded{background:transparent; padding:0;}
+
+  /* ---- regular page (steps 3-6) ---- */
+  .wrap{max-width:1100px; margin:0 auto;}
+  .wrap.hidden{display:none;}
+  .summary-bar{
+    position:sticky; top:0; z-index:20; display:flex; gap:18px; flex-wrap:wrap; align-items:center;
+    background: linear-gradient(135deg, #0f0f11 0%, #141416 100%);
+    border: 1px solid rgba(79,172,254,0.35);
+    color:#fff; border-radius:14px; padding:14px 18px; margin:0 0 18px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5), 0 0 20px rgba(79,172,254,0.08);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  .summary-bar .item{display:flex; flex-direction:column; gap:2px;}
+  .summary-bar .label{font-size:var(--fs-hint); color:#a1a1aa;}
+  .summary-bar .value{font-size:var(--fs-summary); font-weight:700; color:#fff;}
+  .summary-bar .value small{font-size:var(--fs-hint); font-weight:400; color:#a1a1aa; margin-left:4px;}
+  .odometer-roll{ animation: odometerRoll .38s cubic-bezier(.2,.85,.3,1); display:inline-block; }
+  @keyframes odometerRoll{ 0%{transform:translateY(-14px); opacity:0;} 100%{transform:translateY(0); opacity:1;} }
+
+  .card{
+    background:var(--paper); border:1px solid var(--line); border-radius:14px;
+    padding:var(--pad-card); margin-bottom:16px;
+    transition: border-color .3s ease, box-shadow .3s ease;
+  }
+  .card:hover{ border-color: rgba(79,172,254,0.25); }
+  .card h2{
+    font-size:var(--fs-h2); margin:0 0 14px; padding-bottom:10px;
+    border-bottom:1px solid var(--line);
+    color:#fff;
+  }
+  .card h2 .sub{font-weight:400; color:var(--muted); font-size:var(--fs-hint); margin-left:6px; display:block; margin-top:4px;}
+  @media (min-width:600px){ .card h2 .sub{display:inline; margin-top:0;} }
+
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(var(--field-min),1fr)); gap:14px 18px;}
+  .field label{display:block; font-size:var(--fs-label); color:var(--muted); margin-bottom:5px; font-weight:600;}
+  .field input[type=number], .field input[type=text]{
+    width:100%; padding:var(--pad-input); border:1px solid var(--line); border-radius:8px;
+    font-size:var(--fs-input); background:#17171a; color:#fff;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,.3);
+    transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+    font-family: inherit;
+  }
+  .field input[type=number]:focus, .field input[type=text]:focus{
+    outline: none;
+    border-color: rgba(79,172,254,0.5);
+    background: #1c1c20;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,.3), 0 0 0 3px rgba(79,172,254,0.12);
+  }
+  .field.wide{grid-column:1 / -1;}
+  .note{font-size:var(--fs-hint); color:var(--muted); margin-top:8px;}
+  .note.warn{color:#fbbf24;}
+
+  /* custom reward checkbox */
+  .reward-check{display:flex; align-items:flex-start; gap:12px; padding:14px 0; border-top:1px dashed var(--line); cursor:pointer;}
+  .reward-check:first-of-type{border-top:none;}
+  .reward-check input{position:absolute; opacity:0; width:0; height:0;}
+  .reward-check .box{
+    flex-shrink:0; width:30px; height:30px; border-radius:10px; background:#232326;
+    display:flex; align-items:center; justify-content:center; transition:all .2s ease;
+  }
+  .reward-check .box svg{width:16px; height:16px; opacity:.2; transition:all .2s ease;}
+  .reward-check input:checked + .box{
+    background: linear-gradient(135deg, #4facfe 0%, #3a95e6 100%);
+    box-shadow: 0 4px 12px rgba(79,172,254,.4), 0 0 20px rgba(79,172,254,.2);
+  }
+  .reward-check input:checked + .box svg{ opacity:1; stroke:#fff; }
+  .reward-check .ctext{font-size:var(--fs-base); font-weight:700; color:#fff;}
+  .reward-check .ctext .hint{display:block; font-size:var(--fs-hint); color:var(--muted); margin-top:3px; font-weight:400;}
+  .reward-pill{
+    display:none; margin-left:8px; padding:3px 10px; background:var(--good); color:#052e1a; border-radius:999px;
+    font-size:var(--fs-hint); font-weight:700; vertical-align:middle;
+  }
+  .reward-check input:checked ~ .ctext .reward-pill{ display:inline-block; animation: rewardPop .4s cubic-bezier(.34,1.56,.64,1); }
+  @keyframes rewardPop{ 0%{transform:scale(.4); opacity:0;} 70%{transform:scale(1.12);} 100%{transform:scale(1); opacity:1;} }
+
+  .step-nav{display:flex; justify-content:space-between; gap:10px; margin:18px auto; max-width:520px;}
+  @media (min-width:768px){ .step-nav{max-width:640px;} }
+  .step-nav.wide{max-width:1100px;}
+  .step-nav button{
+    appearance:none; border:1px solid var(--line); background:#17171a; color:#fff;
+    font-size:var(--fs-base); font-weight:700; padding:13px 22px; border-radius:10px; cursor:pointer;
+    transition: all .25s cubic-bezier(0.22, 1, 0.36, 1);
+    font-family: inherit;
+  }
+  .step-nav button:hover{
+    background: rgba(79,172,254,0.12);
+    border-color: rgba(79,172,254,0.5);
+    color: #4facfe;
+    transform: translateY(-2px);
+  }
+  .step-nav button:disabled{opacity:0; visibility:hidden; pointer-events:none;}
+  .step-nav button.primary{
+    background: linear-gradient(135deg, #4facfe 0%, #3a95e6 100%);
+    color:#fff; border-color:transparent;
+    box-shadow: 0 4px 16px rgba(79,172,254,.25);
+  }
+  .step-nav button.primary:hover{
+    background: linear-gradient(135deg, #60b8ff 0%, #4facfe 100%);
+    color:#fff;
+    box-shadow: 0 6px 24px rgba(79,172,254,.4);
+  }
+  /* step0: device-frame 바로 아래에 자연스럽게 배치, 글래스 요약 위에 위치 */
+  body.step0-active .step-nav{ margin-top:14px; }
+
+  .table-scroll{overflow-x:auto; -webkit-overflow-scrolling:touch; border-radius:8px;}
+  .table-scroll-hint{font-size:var(--fs-hint); color:var(--muted); margin-bottom:6px; display:block;}
+  @media (min-width:768px){ .table-scroll-hint{display:none;} }
+  table{width:100%; min-width:560px; border-collapse:collapse; font-size:var(--fs-base); color:#fff;}
+  table th, table td{padding:10px 9px; border-bottom:1px solid var(--line); text-align:left;}
+  table th{font-size:var(--fs-hint); color:var(--muted); font-weight:700;}
+  table td.num, table th.num{text-align:right;}
+  table tr.best{background:rgba(74,222,128,0.08);}
+  table tr.best td:first-child{font-weight:700; color:var(--good);}
+  .badge{display:inline-block; font-size:var(--fs-hint); padding:2px 8px; border-radius:99px; background:var(--good); color:#052e1a; margin-left:6px;}
+
+  .linerow{display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px dashed var(--line); font-size:var(--fs-base); gap:10px; color:#e4e4e7;}
+  .linerow:last-child{border-bottom:none;}
+  .linerow .r{text-align:right; flex-shrink:0;}
+  .linerow .r b{font-size:calc(var(--fs-base) + 1px); color:#fff;}
+  .linerow .r small{display:block; color:var(--muted); font-size:var(--fs-hint);}
+  .linerow.minus .r b{color:#fbbf24;}   /* 차감 금액은 앰버 톤 (다크에서 잘 보임) */
+  .linerow.grand{
+    margin-top:6px; padding-top:14px;
+    border-top: 2px solid rgba(79,172,254,0.4);
+    border-bottom:none;
+  }
+  .linerow.grand .r b{font-size:var(--fs-grand); color:#4facfe;}
+  .twocol{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  @media (max-width:640px){.twocol{grid-template-columns:1fr;}}
+  .pillbox{
+    background:rgba(251,191,36,0.08);
+    border:1px solid rgba(251,191,36,0.28);
+    border-radius:10px;
+    padding:14px 16px; font-size:var(--fs-hint);
+    color:#fbbf24;
+    margin-top:10px;
+  }
+  .infobox{
+    background:var(--info-soft);
+    border:1px solid rgba(79,172,254,0.28);
+    border-radius:10px;
+    padding:14px 16px; font-size:var(--fs-hint);
+    color:#7ec8ff;
+    margin-top:10px; white-space:pre-line;
+  }
+  .infobox .copybtn{
+    margin-top:8px; appearance:none;
+    border:1px solid rgba(79,172,254,0.5);
+    background:rgba(79,172,254,0.08); color:#4facfe;
+    font-size:var(--fs-hint); padding:6px 12px; border-radius:8px; cursor:pointer; font-weight:700;
+    transition: all .2s;
+    font-family: inherit;
+  }
+  .infobox .copybtn:hover{ background:rgba(79,172,254,0.15); color:#fff; }
+  /* [v1.05] 고객 안내 멘트(문자 미리보기) 박스 가독성 수정:
+     기존 inline color:var(--ink)가 다크 테마에서 #fff로 풀려 흰 배경 위 글자가 안 보였음.
+     라이트 박스는 테마 변수와 무관하게 고정 색상 사용 */
+  .infobox.infobox-light{
+    background:#fff;
+    border-color:#e2e2e2;
+    color:#1a1a1a;
+  }
+  .infobox.infobox-light .copybtn{ background:rgba(79,172,254,0.10); }
+  .infobox.infobox-light .copybtn:hover{ background:rgba(79,172,254,0.18); color:#1d7fd4; }
+  .downloadRow{display:flex; gap:10px; flex-wrap:wrap; margin-top:14px;}
+  .downloadRow button{
+    appearance:none;
+    border:1px solid var(--line);
+    background:#17171a; color:#fff;
+    font-size:var(--fs-base); font-weight:700;
+    padding:11px 18px; border-radius:10px; cursor:pointer;
+    transition: all .25s cubic-bezier(0.22, 1, 0.36, 1);
+    font-family: inherit;
+  }
+  .downloadRow button:hover{
+    background: rgba(79,172,254,0.12);
+    border-color: rgba(79,172,254,0.5);
+    color: #4facfe;
+    transform: translateY(-2px);
+  }
+  .downloadRow button.primary{
+    background: linear-gradient(135deg, #4facfe 0%, #3a95e6 100%);
+    border-color:transparent; color:#fff;
+    box-shadow: 0 4px 16px rgba(79,172,254,.25);
+  }
+  .downloadRow button.primary:hover{
+    background: linear-gradient(135deg, #60b8ff 0%, #4facfe 100%);
+    color:#fff;
+    box-shadow: 0 6px 24px rgba(79,172,254,.4);
+  }
+  .downloadRow .dlnote{font-size:var(--fs-hint); color:var(--muted); width:100%;}
+  .emptyState{font-size:var(--fs-base); color:var(--muted); padding:8px 0;}
+  .selectSummaryItem{padding:10px 0; border-bottom:1px dashed var(--line);}
+  .selectSummaryItem:last-child{border-bottom:none;}
+  .selectSummaryItem .t{font-weight:700; font-size:var(--fs-base); color:#fff;}
+  .selectSummaryItem .d{font-size:var(--fs-hint); color:var(--muted); margin-top:3px;}
+  footer{margin-top:22px; font-size:var(--fs-hint); color:var(--faint); border-top:1px solid var(--line); padding-top:12px; max-width:1100px; margin-left:auto; margin-right:auto;}
+
+  /* =========================================================
+     MORPHIC TOGGLE BUTTON (제미나이 버튼 UI 디자인 이식)
+     ========================================================= */
+  .mp-wrap{ 
+    display:flex; 
+    flex-direction:column; 
+    gap:14px; 
+    width:100%; 
+    height:auto;
+    justify-content:center;
+    padding:0 10px;
+    box-sizing:border-box;
+  }
+  .mp-toggle{
+    width:100%; max-width:380px; height:48px; background:var(--paper); border-radius:50px;
+    border:1px solid var(--line); position:relative; display:flex; box-sizing:border-box;
+    --tx:4px; --w:120px; --bg:#000000; margin:0 auto;
+    transition: height .3s ease, border-radius .3s ease, opacity .3s ease, transform .3s ease;
+  }
+  .mp-toggle.dial-mode{ overflow:visible !important; height:128px; border-radius:32px; }
+  .mp-toggle:not(.dial-mode){ overflow:hidden; }
+  /* tap-again 힌트가 활성된 토글은 풍선이 외부로 나올 수 있게 overflow 해제 */
+  .mp-toggle:has(.mp-btn.tap-again){ overflow:visible !important; }
+  /* 다이얼 모드일 때 같은 줄의 다른 토글은 페이드아웃 + 축소 */
+  .mp-wrap:has(.mp-toggle.dial-mode) .mp-toggle:not(.dial-mode){
+    opacity:0; transform:scale(.85); pointer-events:none; height:0; margin:-7px auto; border-width:0;
+  }
+  .mp-slider{
+    position:absolute; top:4px; bottom:4px; border-radius:40px; z-index:1;
+    width:var(--w); transform:translateX(var(--tx)); background-color:var(--bg);
+    transition: transform .38s cubic-bezier(.25,1,.4,1), width .38s cubic-bezier(.25,1,.4,1), background-color .38s ease;
+  }
+  .mp-content{ position:relative; z-index:10; display:flex; width:100%; height:100%; padding:4px; box-sizing:border-box; }
+  .mp-right{ flex:1; position:relative; }
+  .mp-layer{ position:absolute; inset:0; display:flex; transition: all .4s cubic-bezier(.25,1,.4,1); opacity:0; pointer-events:none; }
+  .mp-layer.active{ opacity:1; transform:translateY(0) scale(1) !important; pointer-events:auto !important; }
+  .mp-layer.prev{ opacity:0; transform:translateY(-100%); pointer-events:none; }
+  .mp-layer.next{ opacity:0; transform:translateY(100%); pointer-events:none; }
+  .mp-btn{
+    background:transparent; border:none; font-size:13px; font-weight:600; cursor:pointer;
+    display:flex; justify-content:center; align-items:center; flex:1; color:#9ca3af;
+    transition: color .25s ease, transform .25s cubic-bezier(.25,1,.4,1); transform:scale(1);
+  }
+  .mp-btn.active{ transform:scale(1.06); font-weight:700; }
+  .mp-btn.active.light{ color:#ffffff !important; }
+  .mp-btn.active.dark{ color:#111827 !important; }
+  .mp-btn-main{ flex:none; width:120px; transition:all .3s ease; font-weight:700; }
+  .mp-dial-row{ display:flex; align-items:center; justify-content:center; width:100%; height:100%; gap:14px; }
+  .mp-dial-window{
+    width:84px; height:120px; background:var(--paper); border-radius:14px; overflow:hidden;
+    position:relative; cursor:ns-resize; border:1px solid var(--line); box-shadow:0 3px 10px rgba(0,0,0,.06);
+    touch-action:none;
+  }
+  .mp-dial-window::before, .mp-dial-window::after{ content:''; position:absolute; left:0; right:0; height:36px; z-index:5; pointer-events:none; }
+  .mp-dial-window::before{ top:0; background:linear-gradient(to bottom, rgba(255,255,255,.95), transparent); }
+  .mp-dial-window::after{ bottom:0; background:linear-gradient(to top, rgba(255,255,255,.95), transparent); }
+  .mp-dial-indicator{ position:absolute; top:36px; left:4px; right:4px; height:40px; border-top:1px dashed var(--line); border-bottom:1px dashed var(--line); pointer-events:none; z-index:3; }
+  .mp-dial-track{ display:flex; flex-direction:column; transition: transform .25s cubic-bezier(.25,1,.4,1); }
+  .mp-dial-num{ height:40px; display:flex; align-items:center; justify-content:center; font-size:18px; color:#94a3b8; transition: all .2s; }
+  .mp-dial-num.active{ font-size:24px; font-weight:700; color:var(--ink); }
+  .mp-dial-confirm{ width:40px; height:40px; background:var(--ink); border:none; border-radius:50%; color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:16px; flex:none; }
+  .mp-dial-confirm:hover{ background:#000; transform:scale(1.1); }
+
+  /* 미니 카트(메뉴판/알림판 다중 추가 리스트) */
+  .mp-cart{ display:flex; flex-direction:column; gap:6px; max-width:380px; margin:0 auto; width:100%; }
+  .mp-cart-item{
+    display:flex; justify-content:space-between; align-items:center; gap:8px;
+    background:var(--surface); border:1px solid var(--line); border-radius:10px;
+    padding:7px 12px; font-size:12.5px; color:var(--ink);
+  }
+  .mp-cart-item .mp-cart-text{ font-weight:600; }
+  .mp-cart-item .mp-cart-del{ background:transparent; border:none; color:var(--faint); font-size:15px; cursor:pointer; line-height:1; padding:2px 4px; }
+  .mp-cart-item .mp-cart-del:hover{ color:var(--accent); }
+
+  /* step0 선택 요약 - device-frame 안 받침대 영역에 띄우는 글라스 카드 */
+  .step1-summary{
+    position:absolute; left:5%; right:5%; top:62%;
+    display:flex; 
+    flex-direction:column; 
+    gap:6px;
+    background:linear-gradient(135deg, rgba(20,20,30,0.05), rgba(20,20,30,0.05));
+    backdrop-filter:blur(22px) saturate(160%);
+    -webkit-backdrop-filter:blur(10px) saturate(160%);
+    border:1px solid rgba(255,255,255,0.35);
+    border-radius:18px;
+    padding:10px 14px;
+    box-shadow:
+      0 14px 36px rgba(0,0,0,0.22),
+      inset 0 1px 0 rgba(255,255,255,0.35);
+    max-height:24%;
+    overflow-y:auto;
+  }
+  .step1-summary.hidden{display:none;}
+  .sum-row{
+    display:flex; 
+    justify-content:space-between; 
+    align-items:center; 
+    gap:8px;
+    /* [v1.02] 다크 전환 누락 수정: 글라스 카드가 어두운 키오스크 받침대 위에
+       뜨는데 행 배경·테두리·글자가 라이트용 검정 계열로 남아 있어 안 보이던
+       문제 → 화이트 틴트 + 흰 글자로 반전
+       [v1.04] 흰 글자 가독성 저하 → 톤앤매너 KT 블루(--accent)로 변경 */
+    background:rgba(255,255,255,0.08);
+    border:1px solid rgba(255,255,255,0.14);
+    border-radius:10px;
+    padding:7px 11px; 
+    font-size:11.5px; 
+    color:var(--accent);
+  }
+  .sum-row .sum-text{ font-weight:600; }
+  .sum-row .sum-del{ background:transparent; border:none; color:var(--accent); opacity:0.55; font-size:15px; cursor:pointer; line-height:1; padding:2px 4px; transition:opacity .2s; }
+  .sum-row .sum-del:hover{ opacity:1; }
+  .sum-empty{ text-align:center; color:var(--accent); opacity:0.7; font-size:11.5px; padding:6px 0; }
+  /* MOU 등급 슬라이드 토글 (체크박스 활성 시에만 노출) */
+  .mou-tier-wrap{
+    margin-top:10px; max-height:80px; opacity:1;
+    transition: max-height .4s cubic-bezier(.4,1.2,.5,1), opacity .3s ease, margin-top .3s ease;
+    overflow:hidden;
+  }
+  .mou-tier-wrap.inactive{ max-height:0; opacity:0; margin-top:0; pointer-events:none; }
+  .mou-tier-toggle{ margin-bottom:0 !important; font-size:13px; }
+  .mou-tier-toggle .tg-btn{ padding:9px 8px; font-size:12.5px; font-weight:600; }
+
+  /* "한 번 더 탭" 힌트 - active 상태에서 1초간 머뭇거리면 부드럽게 펄스 + 안내 텍스트 */
+  .mp-btn.tap-again{
+    animation: tapAgainPulse 1.6s ease-in-out infinite;
+    position:relative;
+    overflow:visible;
+  }
+  @keyframes tapAgainPulse{
+    0%, 100%{ transform:scale(1); }
+    50%    { transform:scale(1.05); }
+  }
+  /* 버튼 아래쪽에 떠 있는 floating tooltip - 알약 모양으로 active 버튼과 시각적 일관성 */
+  .mp-btn.tap-again::after{
+    content:'한 번 더 ↻';
+    position:absolute;
+    top:calc(100% + 8px); left:50%;
+    transform:translateX(-50%);
+    background:#1a1a1a; color:#fff;
+    font-size:10px; font-weight:700;
+    padding:4px 11px;
+    border-radius:999px;
+    white-space:nowrap;
+    letter-spacing:-0.2px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.28);
+    pointer-events:none;
+    z-index:30;
+    opacity:0;
+    animation: tapHintFloat .4s ease-out forwards, tapHintBob 1.6s ease-in-out infinite .4s;
+  }
+  /* 말풍선 꼬리 (위쪽 작은 삼각형) */
+  .mp-btn.tap-again::before{
+    content:'';
+    position:absolute;
+    top:calc(100% + 1px); left:50%;
+    transform:translateX(-50%);
+    width:0; height:0;
+    border-left:5px solid transparent;
+    border-right:5px solid transparent;
+    border-bottom:6px solid #1a1a1a;
+    pointer-events:none;
+    z-index:30;
+    opacity:0;
+    animation: tapHintFloat .4s ease-out forwards;
+  }
+  @keyframes tapHintFloat{
+    from{ opacity:0; transform:translateX(-50%) translateY(4px); }
+    to  { opacity:1; transform:translateX(-50%) translateY(0); }
+  }
+  @keyframes tapHintBob{
+    0%, 100%{ transform:translateX(-50%) translateY(0); }
+    50%    { transform:translateX(-50%) translateY(-2px); }
+  }
+
+  /* ---- 사용방법(?) 헤더 버튼 ---- */
+  .step-indicator{ position:relative; }
+  .page-ver{
+    font-size:10px; color:#aaa; font-weight:400;
+    letter-spacing:0; margin-left:8px; vertical-align:middle;
+    -webkit-text-fill-color:#aaa; background:none;
+  }
+  .help-btn{
+    position:absolute; right:0; top:50%; transform:translateY(-50%);
+    width:26px; height:26px; border-radius:50%;
+    background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.1);
+    color:#fff;
+    font-size:14px; font-weight:800; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    transition:all .2s;
+    font-family: inherit;
+  }
+  .help-btn:hover{
+    background:rgba(79,172,254,0.15);
+    border-color: rgba(79,172,254,0.4);
+    color: #4facfe;
+    transform:translateY(-50%) scale(1.1);
+    box-shadow: 0 0 12px rgba(79,172,254,0.25);
+  }
+
+  /* ---- 튜토리얼 모달 (사용방법 영상) ---- */
+  .tutorial-card{
+    max-width:720px;
+    width:min(92vw, 720px);
+  }
+  .tut-video{
+    display:block;
+    width:100%;
+    height:auto;
+    max-height:70vh;
+    background:#000;
+    border-radius:12px;
+    outline:none;
+  }
+  .tut-video-wrap{
+    position:relative;
+    line-height:0;
+    border-radius:12px;
+    overflow:hidden;
+    background:#000;
+  }
+  .tut-video-fallback{
+    color:var(--muted); font-size:13px; text-align:center; padding:40px 20px;
+  }
+
+  /* ---- 카드리더기 설정 모달 ---- */
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(2,2,2,0.75);
+    display:flex; align-items:center; justify-content:center;
+    z-index:9999; padding:20px;
+    backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+    animation:modalFadeIn .2s ease;
+  }
+  .modal-overlay.hidden{ display:none; }
+  @keyframes modalFadeIn{ from{opacity:0;} to{opacity:1;} }
+  .modal-card{
+    background:#0f0f11;
+    border:1px solid var(--line);
+    border-radius:18px; width:100%; max-width:420px;
+    box-shadow:0 30px 80px rgba(0,0,0,0.6);
+    overflow:hidden; animation:modalSlideUp .25s cubic-bezier(.2,.9,.3,1);
+  }
+  @keyframes modalSlideUp{ from{transform:translateY(20px); opacity:0;} to{transform:translateY(0); opacity:1;} }
+  .modal-header{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:18px 22px 12px; border-bottom:1px solid var(--line);
+  }
+  .modal-header h3{ margin:0; font-size:17px; font-weight:800; color:#fff; }
+  .modal-close{
+    background:transparent; border:none; font-size:26px; line-height:1;
+    color:var(--muted); cursor:pointer; padding:0 4px;
+    transition: color .2s;
+    font-family: inherit;
+  }
+  .modal-close:hover{ color:#4facfe; }
+  .modal-body{ padding:22px 22px 8px; }
+  .modal-body .tg-label{ margin-bottom:10px; }
+  .modal-footer{
+    display:flex; gap:8px; padding:14px 22px 22px;
+    background: #0a0a0c;
+  }
+  .modal-btn-secondary, .modal-btn-primary{
+    flex:1; padding:13px 18px; border-radius:11px; font-size:15px; font-weight:700;
+    border:1px solid var(--line); cursor:pointer;
+    transition:all .25s cubic-bezier(0.22, 1, 0.36, 1);
+    font-family: inherit;
+  }
+  .modal-btn-secondary{ background:#17171a; color:#fff; }
+  .modal-btn-secondary:hover{
+    background:rgba(79,172,254,0.1);
+    border-color: rgba(79,172,254,0.4);
+    color:#4facfe;
+  }
+  .modal-btn-primary{
+    background: linear-gradient(135deg, #4facfe 0%, #3a95e6 100%);
+    color:#fff; border-color:transparent;
+    box-shadow: 0 4px 16px rgba(79,172,254,.25);
+  }
+  .modal-btn-primary:hover{
+    background: linear-gradient(135deg, #60b8ff 0%, #4facfe 100%);
+    box-shadow: 0 6px 24px rgba(79,172,254,.4);
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     ✨ SCROLL REVEAL & TEXT SPLIT ANIMATIONS (v1.01 신규)
+     - 메인 index.html과 동일한 애니메이션 시스템 이식
+     ═══════════════════════════════════════════════════════════ */
+  .reveal{
+    opacity:0;
+    filter: blur(12px);
+    transform: translateY(28px);
+    transition:
+      opacity 1.0s cubic-bezier(0.22, 1, 0.36, 1),
+      filter 1.0s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 1.0s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity, filter, transform;
+  }
+  .reveal.is-visible{ opacity:1; filter:blur(0); transform:translateY(0); }
+
+  .split-target{ display:inline; }
+  .split-word{
+    display: inline-block;
+    opacity: 0;
+    filter: blur(10px);
+    transform: translateY(0.35em);
+    color: #ffffff;
+    -webkit-text-fill-color: #ffffff;
+    background: none;
+    transition:
+      opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+      filter 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity, filter, transform;
+  }
+  .split-target.split-visible .split-word{
+    opacity:1; filter:blur(0); transform:translateY(0);
+  }
+
+  /* ─── 접근성: 애니메이션 최소화 사용자 배려 ─── */
+  @media (prefers-reduced-motion: reduce) {
+    .reveal{ opacity:1 !important; filter:none !important; transform:none !important; transition:none !important; }
+    .split-word{ opacity:1 !important; filter:none !important; transform:none !important; transition:none !important; }
+    body::before{ animation:none !important; }
+  }
+
+</style>
+</head>
+<body>
+<div class="page-shell">
+
+  <header id="pageHeader" class="hidden">
+    <h1><span class="split-target">하이오더 통합 계산기</span><span class="page-ver">v1.05</span></h1>
+    <p>견적 산출 · 납부방식 비교 · 위약금 계산 (내부 검토용)</p>
+  </header>
+
+  <nav class="step-indicator" id="stepIndicator">
+    <button class="step-dot active" data-step="0"></button>
+    <button class="step-dot" data-step="1"></button>
+    <button class="step-dot" data-step="2"></button>
+    <button class="step-dot" data-step="3"></button>
+    <button class="step-dot" data-step="4"></button>
+    <button class="step-dot" data-step="5"></button>
+    <button class="help-btn" id="helpBtn" type="button" aria-label="사용방법" title="사용방법 보기">?</button>
+  </nav>
+
+  <!-- DEVICE FRAME: steps 0,1,2 -->
+  <div class="device-frame" id="deviceFrame">
+    <div class="device-screen" id="deviceScreen">
+
+      <!-- df-step 0: 메뉴판 / 알림판 / 약정형태 / 결제형태 -->
+      <div class="df-step active" id="dfStep0">
+        <div class="df-device-row mp-wrap">
+          <div class="mp-toggle" id="mp-menu">
+            <div class="mp-slider"></div>
+            <div class="mp-content">
+              <button type="button" class="mp-btn mp-btn-main" id="mp-main-menu">메뉴판</button>
+              <div class="mp-right">
+                <div class="mp-layer" id="mp-menu-layer-0"><button type="button" class="mp-btn">색상</button></div>
+                <div class="mp-layer" id="mp-menu-layer-1">
+                  <button type="button" class="mp-btn" data-pos="left" data-val="블랙">블랙</button>
+                  <button type="button" class="mp-btn" data-pos="right" data-val="화이트">화이트</button>
+                </div>
+                <div class="mp-layer" id="mp-menu-layer-2">
+                  <button type="button" class="mp-btn" data-pos="left" data-val="스탠드">스탠드</button>
+                  <button type="button" class="mp-btn" data-pos="right" data-val="아일랜드">아일랜드</button>
+                </div>
+                <div class="mp-layer" id="mp-menu-layer-3">
+                  <button type="button" class="mp-btn" data-pos="left" data-val="후불형">후불형</button>
+                  <button type="button" class="mp-btn" data-pos="right" data-val="선불형">선불형</button>
+                </div>
+                <div class="mp-layer" id="mp-menu-layer-4">
+                  <div class="mp-dial-row">
+                    <div class="mp-dial-window" data-comp="menu"><div class="mp-dial-indicator"></div><div class="mp-dial-track"></div></div>
+                    <span style="font-size:11px;font-weight:600;color:var(--muted);">대</span>
+                    <button type="button" class="mp-dial-confirm" id="mp-confirm-menu">✓</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mp-toggle" id="mp-notice">
+            <div class="mp-slider"></div>
+            <div class="mp-content">
+              <button type="button" class="mp-btn mp-btn-main" id="mp-main-notice">알림판</button>
+              <div class="mp-right">
+                <div class="mp-layer" id="mp-notice-layer-0"><button type="button" class="mp-btn">크기</button></div>
+                <div class="mp-layer" id="mp-notice-layer-1">
+                  <button type="button" class="mp-btn" data-pos="left" data-val="10인치">10인치</button>
+                  <button type="button" class="mp-btn" data-pos="right" data-val="15인치">15인치</button>
+                </div>
+                <div class="mp-layer" id="mp-notice-layer-2">
+                  <button type="button" class="mp-btn" data-pos="left" data-val="스탠드">스탠드</button>
+                  <button type="button" class="mp-btn" data-pos="right" data-val="벽걸이">벽걸이</button>
+                </div>
+                <div class="mp-layer" id="mp-notice-layer-3">
+                  <div class="mp-dial-row">
+                    <div class="mp-dial-window" data-comp="notice"><div class="mp-dial-indicator"></div><div class="mp-dial-track"></div></div>
+                    <span style="font-size:11px;font-weight:600;color:var(--muted);">대</span>
+                    <button type="button" class="mp-dial-confirm" id="mp-confirm-notice">✓</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mp-toggle" id="mp-contract">
+            <div class="mp-slider"></div>
+            <div class="mp-content">
+              <button type="button" class="mp-btn mp-btn-main" id="mp-main-contract">약정형태</button>
+              <div class="mp-right">
+                <div class="mp-layer" id="mp-contract-layer-0"><button type="button" class="mp-btn">선택</button></div>
+                <div class="mp-layer" id="mp-contract-layer-1">
+                  <button type="button" class="mp-btn" data-pos="left" data-val="contract">3년약정</button>
+                  <button type="button" class="mp-btn" data-pos="right" data-val="free">무약정</button>
+                </div>
+                <div class="mp-layer" id="mp-contract-layer-2">
+                  <button type="button" class="mp-btn" data-pos="left" data-val="monthly">월납</button>
+                  <button type="button" class="mp-btn" data-pos="right" data-val="lump">일시납</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- step0 카트/약정 요약: 키오스크 받침대 위에 떠 있는 글라스 카드 -->
+    <div class="step1-summary hidden" id="step1Summary"></div>
+  </div>
+
+  <div class="glass-summary hidden" id="glassSummary">
+    <div class="gitem"><div class="glabel">총 단말 대수</div><div class="gval" id="gDevices">0대</div></div>
+    <div class="gitem"><div class="glabel">월 합계</div><div class="gval" id="gMonthly">0원<small>VAT포함</small></div></div>
+  </div>
+
+  <!-- step 1: 상호명 + 정책지원금 + 할인옵션 -->
+  <div class="card-step hidden" id="cardStep1">
+    <div class="tg-label">상호명</div>
+    <input type="text" id="storeName" placeholder="예: 용현동 김밥천국" style="width:100%; padding:12px 14px; border:1px solid var(--line); border-radius:12px; font-size:var(--fs-base); font-weight:600; background:var(--paper); margin-bottom:18px; box-sizing:border-box;">
+    <div class="tg-label">정책지원금 (대당, VAT포함)</div>
+    <input type="text" inputmode="numeric" id="subsidyPerDevice" placeholder="0" style="width:100%; padding:12px 14px; border:none; border-radius:12px; font-size:var(--fs-h2); font-weight:800; background:rgba(0,0,0,0.05); margin-bottom:16px; box-sizing:border-box;">
+    <div class="tg-label">할인 및 부가서비스</div>
+    <div id="rewardChecks"></div>
+  </div>
+
+  <!-- REGULAR PAGE: steps 3,4,5,6 -->
+  <div class="wrap hidden" id="regularWrap">
+    <div class="summary-bar">
+      <div class="item"><span class="label">총 단말 대수</span><span class="value" id="sumDevices">0대</span></div>
+      <div class="item"><span class="label">현재 설정 월 합계</span><span class="value" id="sumMonthly">0원<small>VAT포함</small></span></div>
+      <div class="item"><span class="label">초기 일시불 비용</span><span class="value" id="sumLump">0원<small>VAT포함</small></span></div>
+    </div>
+
+    <section id="pageStep3">
+      <div class="card">
+        <h2>월 청구 내역</h2>
+        <div id="quoteLines"></div>
+      </div>
+      <div class="card" id="lumpCard">
+        <h2>초기 일시불 비용</h2>
+        <div id="lumpLines"></div>
+      </div>
+      <div class="card">
+        <h2>선택 내역 요약 <span class="sub">체크하신 옵션들의 상세 조건입니다</span></h2>
+        <div id="selectSummary"></div>
+      </div>
+      <div class="card">
+        <label style="display:block; font-size:var(--fs-label); color:var(--muted); margin-bottom:5px; font-weight:600;">상호명</label>
+        <div id="storeNameDisplay" style="font-size:var(--fs-input); font-weight:700;">매장명 미입력</div>
+      </div>
+    </section>
+
+    <section id="pageStep4" style="display:none;">
+      <div class="card" id="subsidyResultCard" style="display:none;">
+        <h2>추가지원금 적용 결과 <span class="sub">잔여 월요금이 최소가 되는 조합으로 선납 배정</span></h2>
+        <span class="table-scroll-hint">← 표가 넓으면 좌우로 스크롤하세요</span>
+        <div class="table-scroll" id="subsidyCompareTable"></div>
+        <div class="infobox" id="subsidyStaffNote"></div>
+        <div class="infobox infobox-light" id="subsidyCustomerNote">
+          <button class="copybtn" id="copyCustomerNote">고객 안내 멘트 복사</button>
+          <div id="subsidyCustomerText" style="margin-top:8px;"></div>
+        </div>
+      </div>
+      <div class="card" id="subsidyEmptyCard">
+        <h2>추가지원금 적용 결과</h2>
+        <p class="emptyState">정책지원금을 입력하지 않으셨거나(0원), 단말 일시불을 선택하신 경우 별도 배정 결과 없이 견적에 바로 반영됩니다.</p>
+      </div>
+      <div class="card">
+        <h2>견적서 다운로드 <span class="sub">PNG 이미지로 저장 — 문자/카톡으로 바로 전송 가능</span></h2>
+        <div class="downloadRow">
+          <button class="primary" id="downloadCustomerBtn">고객용 견적서 다운로드</button>
+          <button id="downloadStaffBtn">실무자용 견적서 다운로드</button>
+          <span class="dlnote" id="downloadStatus"></span>
+        </div>
+      </div>
+    </section>
+
+    <section id="pageStep5" style="display:none;">
+      <div class="card">
+        <h2>36개월 총비용 비교 <span class="sub">3년 약정 기준 · 리더기·광고할인·MOU·으랏차차 할인 포함</span></h2>
+        <span class="table-scroll-hint">← 표가 넓으면 좌우로 스크롤하세요</span>
+        <div class="table-scroll">
+          <table><thead><tr><th>조합</th><th class="num">36개월 총비용 (VAT별도)</th><th class="num">VAT포함</th></tr></thead><tbody id="compareRows"></tbody></table>
+        </div>
+        <p class="note" id="compareFreeNote" style="display:none;">현재 무약정이 선택되어 있어 비교는 3년 약정을 가정해 계산합니다. MOU 할인도 3년약정 가정 하에 적용됩니다.</p>
+      </div>
+      <div class="card">
+        <h2>보조금/프로모션 적용 비교 <span class="sub">일반 시뮬레이션</span></h2>
+        <div class="twocol">
+          <div>
+            <div class="linerow"><span class="l">Case A: 서비스이용료 선납에 충당</span><span class="r"></span></div>
+            <div class="linerow"><span class="l">선납조합 36개월 총비용</span><span class="r" id="caseABase"></span></div>
+            <div class="linerow grand"><span class="l">보조금 적용 후</span><span class="r" id="caseAResult"></span></div>
+          </div>
+          <div>
+            <div class="linerow"><span class="l">Case B: 단말대금 일시불에 충당</span><span class="r"></span></div>
+            <div class="linerow"><span class="l">일시불조합 36개월 총비용</span><span class="r" id="caseBBase"></span></div>
+            <div class="linerow grand"><span class="l">보조금 적용 후</span><span class="r" id="caseBResult"></span></div>
+          </div>
+        </div>
+        <div class="pillbox" id="caseCompareNote"></div>
+      </div>
+    </section>
+
+    <section id="pageStep6" style="display:none;">
+      <div class="card">
+        <h2>위약금 계산 <span class="sub">하이오더 본 서비스 중도해지 기준</span></h2>
+        <div class="grid">
+          <div class="field"><label>약정 유형</label>
+            <select id="penContractMonths"><option value="36">신규 약정 (36개월)</option><option value="24">재약정 (24개월)</option></select>
+          </div>
+          <div class="field"><label>단말 대수</label><input type="number" id="penDevices" min="0" value="9"></div>
+          <div class="field"><label>현재까지 사용 개월수</label><input type="number" id="penUsed" min="0" value="6"></div>
+          <div class="field"><label>약정 서비스이용료 (월/대, VAT별도)</label><input type="number" id="penRateContract" min="0" value="15000"></div>
+          <div class="field"><label>무약정 서비스이용료 (월/대, VAT별도)</label><input type="number" id="penRateFree" min="0" value="21000"></div>
+          <div class="field"><label>프로모션 할인반환금 (원, 직접 입력)</label><input type="number" id="penPromo" min="0" value="0"></div>
+        </div>
+        <div class="reward-check" style="border-top:none;">
+          <input type="checkbox" id="penInstallment">
+          <span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M4 12l5 5L20 6"/></svg></span>
+          <div class="ctext">단말대금을 월납(할부)로 구매했습니다<span class="hint">잔여 단말 할부금을 별도로 함께 안내합니다</span></div>
+        </div>
+        <p class="note">산식: (서비스이용료 × 잔여약정개월수 × 10%) + 약정할인반환금 + 프로모션할인반환금.</p>
+      </div>
+      <div class="card"><h2>위약금 산출 결과</h2><div id="penaltyLines"></div></div>
+    </section>
+  </div>
+
+  <div class="step-nav" id="stepNav">
+    <button id="prevStepBtn">← 이전</button>
+    <button id="nextStepBtn" class="primary">다음 →</button>
+  </div>
+
+</div>
+
+<!-- hidden state inputs (single source of truth for calculation engine) -->
+<div style="display:none;">
+  <input type="number" id="menuCount" value="8">
+  <input type="number" id="notice10Count" value="0">
+  <input type="number" id="notice15Count" value="1">
+  <select id="contractType"><option value="contract" selected>contract</option><option value="free">free</option></select>
+  <select id="saleType"><option value="postpaid" selected>postpaid</option><option value="prepaid">prepaid</option></select>
+  <input type="number" id="readerCount" value="8">
+  <select id="devicePay"><option value="monthly" selected>monthly</option><option value="lump">lump</option></select>
+  <select id="servicePay"><option value="monthly" selected>monthly</option><option value="prepay">prepay</option></select>
+  <input type="checkbox" id="adConsent">
+  <input type="checkbox" id="ansim">
+  <input type="checkbox" id="mouFranchise">
+  <select id="mouTier"><option value="tier10" selected>tier10</option><option value="tier30">tier30</option></select>
+  <input type="checkbox" id="bundleDiscount">
+  <select id="deviceColor"><option value="화이트" selected>화이트</option><option value="블랙">블랙</option></select>
+  <select id="menuMount"><option value="스탠드" selected>스탠드</option><option value="아일랜드">아일랜드</option></select>
+  <select id="notice10Mount"><option value="스탠드" selected>스탠드</option><option value="벽걸이">벽걸이</option></select>
+  <select id="notice15Mount"><option value="스탠드" selected>스탠드</option><option value="벽걸이">벽걸이</option></select>
+</div>
+
+<!-- 사용방법 튜토리얼 모달 (첫 진입 시 자동 / 헤더의 ? 버튼으로 재오픈) -->
+<div class="modal-overlay hidden" id="tutorialModal" aria-hidden="true">
+  <div class="modal-card tutorial-card" role="dialog" aria-labelledby="tutorialTitle">
+    <div class="modal-header">
+      <h3 id="tutorialTitle">사용방법</h3>
+      <button type="button" class="modal-close" id="tutorialClose" aria-label="닫기">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="tut-video-wrap">
+        <video id="tutorialVideo" class="tut-video"
+               src="https://kt-synergy.com/calculator/tutorial.mp4"
+               controls playsinline preload="metadata" muted>
+          <div class="tut-video-fallback">브라우저가 비디오 재생을 지원하지 않습니다.</div>
+        </video>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 카드리더기 설정 모달 (선불형 카트 추가 시 자동 오픈) -->
+<div class="modal-overlay hidden" id="readerModal" aria-hidden="true">
+  <div class="modal-card" role="dialog" aria-labelledby="readerModalTitle">
+    <div class="modal-header">
+      <h3 id="readerModalTitle">카드리더기 설정</h3>
+      <button type="button" class="modal-close" id="readerModalClose" aria-label="닫기">×</button>
+    </div>
+    <div class="modal-body">
+      <!-- [v1.05] 기본/나이스 종류 토글 제거 — 임대료 2,000원 단일가 통일로 수량만 설정 -->
+      <div class="spinner-wrap">
+        <div class="spinner-section-label">리더기 수량</div>
+        <div class="spinner" id="modalReaderQty"></div>
+      </div>
+      <p style="margin:14px 0 0; font-size:12px; color:var(--muted); text-align:center;">임대료 대당 월 2,000원 (VAT별도)</p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="modal-btn-secondary" id="readerModalCancel">취소</button>
+      <button type="button" class="modal-btn-primary" id="readerModalConfirm">확정</button>
+    </div>
+  </div>
+</div>
+
+<div id="renderCustomer" style="position:fixed; left:-99999px; top:0; width:680px; background:#fff;"></div>
+<div id="renderStaff" style="position:fixed; left:-99999px; top:0; width:680px; background:#fff;"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+const PRICE = {
+  device10: { monthlyEx: 5000, lumpEx: 170000 },
+  device15: { monthlyEx: 7000, lumpEx: 237000 },
+  serviceRate: { contract: 15000, free: 21000 },
+  prepayDiscount: 0.10,
+  reader: 2000,  /* [v1.05] 기본/나이스 가격 통일 → 단일가 2,000원 (종류 선택 제거) */
+  adMonthly: 556,
+  ansim: { monthly: 1650, minDevices: 5 },
+  mouPerDevice: { tier10: 1000, tier30: 2000 },
+  bundleFlat: 5000,  // VAT별도 (VAT포함 5,500원 → /1.1 = 5,000원)
+  vat: 0.10,
+};
+PRICE.device10.lumpIncl = Math.round(PRICE.device10.lumpEx * (1+PRICE.vat));
+PRICE.device15.lumpIncl = Math.round(PRICE.device15.lumpEx * (1+PRICE.vat));
+
+const $ = id => document.getElementById(id);
+function won(n){ return Math.round(n).toLocaleString('ko-KR') + '원'; }
+function todayStr(){ const d=new Date(); return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`; }
+function setHidden(id, val){ const el=$(id); el.value = val; el.dispatchEvent(new Event('input', {bubbles:true})); }
+function setHiddenChecked(id, val){ const el=$(id); el.checked = val; el.dispatchEvent(new Event('change', {bubbles:true})); }
+
+/* =========================================================
+   CALCULATION ENGINE (unchanged logic from prior tested build)
+   ========================================================= */
+function getConfig(){
+  return {
+    storeName: ($('storeName').value || '').trim(),
+    menu: Math.max(0, +$('menuCount').value || 0),
+    notice10: Math.max(0, +$('notice10Count').value || 0),
+    notice15: Math.max(0, +$('notice15Count').value || 0),
+    contractType: $('contractType').value,
+    saleType: $('saleType').value,
+    readerCount: Math.max(0, +$('readerCount').value || 0),
+    devicePay: $('devicePay').value,
+    servicePay: $('servicePay').value,
+    subsidyPerDevice: Math.max(0, +String($('subsidyPerDevice').value || '0').replace(/,/g,'') || 0),
+    adConsent: $('adConsent').checked,
+    ansim: $('ansim').checked,
+    mou: $('mouFranchise').checked,
+    mouTier: $('mouTier').value, // tier10 (10점포~) | tier30 (30점포~)
+    bundle: $('bundleDiscount').checked,
+    color: $('deviceColor').value,
+    menuMount: $('menuMount').value,
+    notice10Mount: $('notice10Mount').value,
+    notice15Mount: $('notice15Mount').value,
+  };
+}
+
+function applyConstraints(){
+  const free = $('contractType').value === 'free';
+  if(free){ $('devicePay').value = 'lump'; $('servicePay').value = 'monthly'; }
+  // readerChainWrap 표시 여부는 syncMenuHidden()에서 saleType 변경 시 처리됨
+}
+
+function findOptimalAllocation(countA, countB, budgetIncl){
+  let best = { a:0, b:0, remainingFee: countA*PRICE.device10.monthlyEx + countB*PRICE.device15.monthlyEx, used:0 };
+  for(let b=0; b<=countB; b++){
+    const costB = b * PRICE.device15.lumpIncl;
+    if(costB > budgetIncl) break;
+    const remBudget = budgetIncl - costB;
+    const a = Math.min(countA, Math.floor(remBudget / PRICE.device10.lumpIncl));
+    const remainingFee = (countA-a)*PRICE.device10.monthlyEx + (countB-b)*PRICE.device15.monthlyEx;
+    const used = a*PRICE.device10.lumpIncl + b*PRICE.device15.lumpIncl;
+    if(remainingFee < best.remainingFee || (remainingFee === best.remainingFee && used > best.used)){
+      best = { a, b, remainingFee, used };
+    }
+  }
+  return best;
+}
+function findGreedyAllocation(countA, countB, budgetIncl){
+  const a = Math.min(countA, Math.floor(budgetIncl / PRICE.device10.lumpIncl));
+  const remBudget = budgetIncl - a*PRICE.device10.lumpIncl;
+  const b = Math.min(countB, Math.floor(remBudget / PRICE.device15.lumpIncl));
+  const used = a*PRICE.device10.lumpIncl + b*PRICE.device15.lumpIncl;
+  const remainingFee = (countA-a)*PRICE.device10.monthlyEx + (countB-b)*PRICE.device15.monthlyEx;
+  return { a, b, remainingFee, used };
+}
+
+function computeCore(cfg, forceContract){
+  const countA = cfg.menu + cfg.notice10;
+  const countB = cfg.notice15;
+  const totalDevices = countA + countB;
+  const deviceMonthlyExFull = countA*PRICE.device10.monthlyEx + countB*PRICE.device15.monthlyEx;
+  const deviceLumpExFull = countA*PRICE.device10.lumpEx + countB*PRICE.device15.lumpEx;
+  const deviceLumpInclFull = countA*PRICE.device10.lumpIncl + countB*PRICE.device15.lumpIncl;
+  const isContract = forceContract ? true : cfg.contractType === 'contract';
+  const serviceRate = isContract ? PRICE.serviceRate.contract : PRICE.serviceRate.free;
+  const serviceMonthly = totalDevices * serviceRate;
+  const servicePrepayTotal = serviceMonthly * 36 * (1 - PRICE.prepayDiscount);
+  const readerMonthly = cfg.saleType === 'prepaid' ? cfg.readerCount * PRICE.reader : 0; /* [v1.05] 단일가 */
+  const adDiscountMonthly = cfg.adConsent ? totalDevices * PRICE.adMonthly : 0;
+  const ansimMonthlyIncl = cfg.ansim ? totalDevices * PRICE.ansim.monthly : 0;
+  const mouUnit = PRICE.mouPerDevice[cfg.mouTier] || PRICE.mouPerDevice.tier10;
+  const mouDiscountMonthly = (cfg.mou && isContract) ? totalDevices * mouUnit : 0;
+  const bundleDiscountMonthly = cfg.bundle ? PRICE.bundleFlat : 0;
+  const totalSubsidyIncl = cfg.subsidyPerDevice * totalDevices;
+  return { countA, countB, totalDevices, deviceMonthlyExFull, deviceLumpExFull, deviceLumpInclFull,
+    serviceMonthly, servicePrepayTotal, readerMonthly, adDiscountMonthly, ansimMonthlyIncl,
+    mouDiscountMonthly, bundleDiscountMonthly, totalSubsidyIncl };
+}
+
+function renderQuote(cfg){
+  const c = computeCore(cfg, false);
+  let monthlyEx=0, lumpInclTotal=0, lumpExTotal=0, html='';
+  const quoteLineItems = [];
+  let allocation=null, deviceMonthlyExEffective=c.deviceMonthlyExFull;
+
+  if(cfg.devicePay === 'monthly'){
+    if(c.totalSubsidyIncl > 0){
+      allocation = findOptimalAllocation(c.countA, c.countB, c.totalSubsidyIncl);
+      deviceMonthlyExEffective = allocation.remainingFee;
+      const prepaidCount = allocation.a + allocation.b;
+      const label = `단말대금 (월납, 잔여 ${c.totalDevices - prepaidCount}대 · 지원금으로 ${prepaidCount}대 선납 처리)`;
+      html += `<div class="linerow"><span class="l">${label}</span><span class="r"><b>${won(deviceMonthlyExEffective)}</b><small>VAT포함 ${won(deviceMonthlyExEffective*1.1)}</small></span></div>`;
+      quoteLineItems.push({l:label, ex:deviceMonthlyExEffective});
+    } else {
+      html += `<div class="linerow"><span class="l">단말대금 (월납)</span><span class="r"><b>${won(c.deviceMonthlyExFull)}</b><small>VAT포함 ${won(c.deviceMonthlyExFull*1.1)}</small></span></div>`;
+      quoteLineItems.push({l:'단말대금 (월납)', ex:c.deviceMonthlyExFull});
+    }
+    monthlyEx += deviceMonthlyExEffective;
+  } else {
+    const adjustedLumpIncl = Math.max(c.deviceLumpInclFull - c.totalSubsidyIncl, 0);
+    lumpInclTotal += adjustedLumpIncl; lumpExTotal += adjustedLumpIncl/1.1;
+  }
+
+  if(cfg.servicePay === 'monthly'){
+    html += `<div class="linerow"><span class="l">서비스이용료 (월납)</span><span class="r"><b>${won(c.serviceMonthly)}</b><small>VAT포함 ${won(c.serviceMonthly*1.1)}</small></span></div>`;
+    quoteLineItems.push({l:'서비스이용료 (월납)', ex:c.serviceMonthly});
+    monthlyEx += c.serviceMonthly;
+  } else {
+    lumpInclTotal += c.servicePrepayTotal*1.1; lumpExTotal += c.servicePrepayTotal;
+  }
+
+  if(c.readerMonthly > 0){
+    const label = `카드리더기 임대료 (${cfg.readerCount}대)`; /* [v1.05] 종류 표기 제거 */
+    html += `<div class="linerow"><span class="l">${label}</span><span class="r"><b>${won(c.readerMonthly)}</b><small>VAT포함 ${won(c.readerMonthly*1.1)}</small></span></div>`;
+    quoteLineItems.push({l:label, ex:c.readerMonthly}); monthlyEx += c.readerMonthly;
+  }
+  if(c.adDiscountMonthly > 0){
+    html += `<div class="linerow minus"><span class="l">광고 수신동의 할인</span><span class="r"><b>−${won(c.adDiscountMonthly)}</b><small>VAT포함 −${won(c.adDiscountMonthly*1.1)}</small></span></div>`;
+    quoteLineItems.push({l:'광고 수신동의 할인', ex:-c.adDiscountMonthly}); monthlyEx -= c.adDiscountMonthly;
+  }
+  if(c.mouDiscountMonthly > 0){
+    const cfg = getConfig();
+    const mouUnit = PRICE.mouPerDevice[cfg.mouTier] || PRICE.mouPerDevice.tier10;
+    const tierLabel = cfg.mouTier==='tier30' ? '30가맹점 이상' : '10가맹점 이상';
+    const label = `MOU 프랜차이즈 할인 (${tierLabel} · ${c.totalDevices}대 × ${won(mouUnit)})`;
+    html += `<div class="linerow minus"><span class="l">${label}</span><span class="r"><b>−${won(c.mouDiscountMonthly)}</b><small>VAT포함 −${won(c.mouDiscountMonthly*1.1)}</small></span></div>`;
+    quoteLineItems.push({l:`MOU 프랜차이즈 할인 (${tierLabel})`, ex:-c.mouDiscountMonthly}); monthlyEx -= c.mouDiscountMonthly;
+  }
+  if(c.bundleDiscountMonthly > 0){
+    html += `<div class="linerow minus"><span class="l">으랏차차 결합할인 (고정)</span><span class="r"><b>−${won(c.bundleDiscountMonthly)}</b><small>VAT포함 −${won(c.bundleDiscountMonthly*1.1)}</small></span></div>`;
+    quoteLineItems.push({l:'으랏차차 결합할인', ex:-c.bundleDiscountMonthly}); monthlyEx -= c.bundleDiscountMonthly;
+  }
+
+  const monthlyIncl = monthlyEx*1.1 + c.ansimMonthlyIncl;
+  const monthlyExTrue = monthlyEx + c.ansimMonthlyIncl/1.1;
+  if(cfg.ansim){
+    html += `<div class="linerow"><span class="l">안심매입 (${c.totalDevices}대)</span><span class="r"><b>${won(c.ansimMonthlyIncl/1.1)}</b><small>VAT포함 ${won(c.ansimMonthlyIncl)}</small></span></div>`;
+    quoteLineItems.push({l:'안심매입', ex:c.ansimMonthlyIncl/1.1});
+    if(c.totalDevices < PRICE.ansim.minDevices){
+      html += `<div class="note warn">⚠ 안심매입은 최소 ${PRICE.ansim.minDevices}대 이상 구매 시 가입 가능합니다.</div>`;
+    }
+  }
+  html += `<div class="linerow grand"><span class="l">월 합계</span><span class="r"><b>${won(monthlyExTrue)}</b><small>VAT포함 ${won(monthlyIncl)}</small></span></div>`;
+  $('quoteLines').innerHTML = html;
+
+  let lumpHtml='', lumpItems=[];
+  if(cfg.devicePay === 'lump'){
+    const adjustedLumpIncl = Math.max(c.deviceLumpInclFull - c.totalSubsidyIncl, 0);
+    lumpHtml += `<div class="linerow"><span class="l">단말대금 일시불 (${c.totalDevices}대)</span><span class="r"><b>${won(adjustedLumpIncl/1.1)}</b><small>VAT포함 ${won(adjustedLumpIncl)}</small></span></div>`;
+    lumpItems.push({l:`단말대금 일시불 (${c.totalDevices}대)`, ex:adjustedLumpIncl/1.1});
+    if(c.totalSubsidyIncl > 0){
+      lumpHtml += `<div class="linerow minus"><span class="l">└ 정책지원금 적용 (대당 ${won(cfg.subsidyPerDevice)} × ${c.totalDevices}대)</span><span class="r"><b>−${won(c.totalSubsidyIncl/1.1)}</b><small>VAT포함 −${won(c.totalSubsidyIncl)}</small></span></div>`;
+    }
+  }
+  if(cfg.servicePay === 'prepay'){
+    lumpHtml += `<div class="linerow"><span class="l">서비스이용료 선납 (36개월, 10%할인)</span><span class="r"><b>${won(c.servicePrepayTotal)}</b><small>VAT포함 ${won(c.servicePrepayTotal*1.1)}</small></span></div>`;
+    lumpItems.push({l:'서비스이용료 선납 (36개월)', ex:c.servicePrepayTotal});
+  }
+  if(lumpInclTotal === 0){ lumpHtml = '<p class="note">현재 설정에는 일시불로 납부하는 항목이 없습니다.</p>'; }
+  else { lumpHtml += `<div class="linerow grand"><span class="l">일시불 합계</span><span class="r"><b>${won(lumpExTotal)}</b><small>VAT포함 ${won(lumpInclTotal)}</small></span></div>`; }
+  $('lumpLines').innerHTML = lumpHtml;
+
+  let subsidyInfo=null;
+  if(cfg.devicePay === 'monthly' && c.totalSubsidyIncl > 0 && allocation){
+    $('subsidyResultCard').style.display='block'; $('subsidyEmptyCard').style.display='none';
+    const greedy = findGreedyAllocation(c.countA, c.countB, c.totalSubsidyIncl);
+    function rowHtml(label, alloc, isBest){
+      const prepaid = alloc.a+alloc.b, remain=c.totalDevices-prepaid;
+      const parts=[]; if(alloc.a>0) parts.push(`10인치 ${alloc.a}대`); if(alloc.b>0) parts.push(`15인치 ${alloc.b}대`);
+      const comboText = parts.length?parts.join(' + '):'없음';
+      const leftover = c.totalSubsidyIncl - alloc.used;
+      const monthlyTotalIncl = (alloc.remainingFee + c.serviceMonthly + c.readerMonthly - c.adDiscountMonthly - c.mouDiscountMonthly - c.bundleDiscountMonthly) * 1.1;
+      return `<tr class="${isBest?'best':''}"><td>${label}${isBest?'<span class="badge">채택</span>':''}</td><td>${comboText}</td><td class="num">${won(alloc.used)}</td><td class="num">${won(leftover)}</td><td class="num">${remain}대</td><td class="num">${won(monthlyTotalIncl)}</td></tr>`;
+    }
+    let tableHtml = `<table><thead><tr><th>방식</th><th>선납 조합</th><th class="num">사용 지원금</th><th class="num">잔여 지원금</th><th class="num">남는 할부 단말</th><th class="num">월 합계(VAT포함)</th></tr></thead><tbody>`;
+    const greedyIsSame = greedy.a===allocation.a && greedy.b===allocation.b;
+    tableHtml += rowHtml('대수 우선(그리디)', greedy, greedyIsSame);
+    if(!greedyIsSame) tableHtml += rowHtml('금액 최적화', allocation, true);
+    tableHtml += `</tbody></table>`;
+    const greedyMonthlyIncl = (greedy.remainingFee + c.serviceMonthly + c.readerMonthly - c.adDiscountMonthly - c.mouDiscountMonthly - c.bundleDiscountMonthly) * 1.1;
+    const optMonthlyIncl = (allocation.remainingFee + c.serviceMonthly + c.readerMonthly - c.adDiscountMonthly - c.mouDiscountMonthly - c.bundleDiscountMonthly) * 1.1;
+    const diff = greedyMonthlyIncl - optMonthlyIncl;
+    let extraNote='';
+    if(!greedyIsSame && diff>0){ extraNote = `<p class="note">대수는 같아도 어떤 단말을 선납했는지에 따라 월 ${won(diff)} 차이가 발생합니다.</p>`; }
+    else if(greedyIsSame){ extraNote = `<p class="note">이번 조건에서는 그리디(대수 우선) 방식이 곧 최적 조합과 동일합니다.</p>`; }
+    $('subsidyCompareTable').innerHTML = tableHtml + extraNote;
+
+    const staffParts=[]; if(allocation.a>0) staffParts.push(`10인치 단말 ${allocation.a}대`); if(allocation.b>0) staffParts.push(`15인치 알림판 ${allocation.b}대`);
+    const remainCount = c.totalDevices-(allocation.a+allocation.b);
+    const staffNoteText = `실무자 처리 안내\n전산 선납(일시불) 처리: ${staffParts.length?staffParts.join(' + '):'없음'}\n정상 할부 유지: ${remainCount}대\n잔여 미사용 지원금: ${won(c.totalSubsidyIncl-allocation.used)}`;
+    $('subsidyStaffNote').textContent = staffNoteText;
+
+    const prepaidCount = allocation.a+allocation.b;
+    const custParts=[]; if(allocation.a>0) custParts.push(`10인치 ${allocation.a}대`); if(allocation.b>0) custParts.push(`15인치 ${allocation.b}대`);
+    const customerText = prepaidCount>0
+      ? `총 ${c.totalDevices}대 중 ${prepaidCount}대(${custParts.join(', ')})는 지원금으로 선납 처리되어 초기 비용 없이 진행됩니다. 나머지 ${remainCount}대는 정상 할부로 진행되며, 월 청구액은 ${won(optMonthlyIncl)}(VAT포함)입니다.`
+      : `현재 지원금으로는 1대도 전액 선납 처리할 수 없어, 전체 ${c.totalDevices}대 모두 정상 할부로 진행되며 월 청구액은 ${won(optMonthlyIncl)}(VAT포함)입니다.`;
+    $('subsidyCustomerText').textContent = customerText;
+    subsidyInfo = { allocation, greedy, staffNoteText, customerText };
+  } else {
+    $('subsidyResultCard').style.display='none'; $('subsidyEmptyCard').style.display='block';
+  }
+
+  // odometer-style update for summary numbers
+  odometerSet($('sumDevices'), `${c.totalDevices}대`);
+  odometerSet($('sumMonthly'), won(monthlyIncl), 'VAT포함');
+  odometerSet($('sumLump'), won(lumpInclTotal), 'VAT포함');
+  odometerSet($('gDevices'), `${c.totalDevices}대`);
+  odometerSet($('gMonthly'), won(monthlyIncl), 'VAT포함');
+
+  // selection summary (full explanations, only for checked/active options)
+  renderSelectSummary(cfg, c);
+
+  window.lastQuote = { cfg, c, monthlyEx, monthlyIncl, monthlyExTrue, lumpExTotal, lumpInclTotal, lumpItems, quoteLineItems, subsidyInfo };
+  return c;
+}
+
+function renderSelectSummary(cfg, c){
+  const items = [];
+  if(cfg.adConsent) items.push({t:'테이블 광고 수신 동의', d:'단말 1대당 월 556원 할인 (36개월간, 총 2만원 상당)'});
+  if(cfg.ansim) items.push({t:'하이오더 안심매입 가입', d:'대당 월 1,650원(VAT포함) · 36개월 · 폐업 시 단말 최대 15만원/대, 가구세트 최대 25만원/세트 매입 보장 · 최소 5대 이상 구매 사업소 한정'});
+  if(cfg.mou){
+    const mouUnit = PRICE.mouPerDevice[cfg.mouTier] || PRICE.mouPerDevice.tier10;
+    const tierLabel = cfg.mouTier==='tier30' ? '30가맹점 이상' : '10가맹점 이상';
+    items.push({t:`MOU체결 프랜차이즈 가맹점 (${tierLabel})`, d:`3년 약정 한정 · 단말 1대당 월 ${won(mouUnit)} 정액 할인`});
+  }
+  if(cfg.bundle) items.push({t:'으랏차차 결합 (2종 이상 상품 가입)', d:'하이오더 결합할인 월 5,500원 고정 · VAT포함 기준 (대수·조합 상품과 무관, 계약당 1회)'});
+  if(cfg.contractType==='free') items.push({t:'무약정 선택', d:'단말은 일시불만 가능하고, 서비스이용료는 월 21,000원/대로 청구되며 선납 할인과 MOU 할인이 적용되지 않습니다.'});
+  $('selectSummary').innerHTML = items.length
+    ? items.map(i=>`<div class="selectSummaryItem"><div class="t">✓ ${i.t}</div><div class="d">${i.d}</div></div>`).join('')
+    : '<p class="emptyState">선택된 할인옵션이 없습니다.</p>';
+}
+
+function renderCompare(cfg){
+  const c = computeCore(cfg, true);
+  $('compareFreeNote').style.display = cfg.contractType==='free' ? 'block' : 'none';
+  const combos = [
+    { name:'단말 월납 + 서비스 월납', device:'monthly', service:'monthly' },
+    { name:'단말 월납 + 서비스 선납(10%할인)', device:'monthly', service:'prepay' },
+    { name:'단말 일시불 + 서비스 월납', device:'lump', service:'monthly' },
+    { name:'단말 일시불 + 서비스 선납(10%할인)', device:'lump', service:'prepay' },
+  ];
+  const fixedMonthlyDiscount = c.adDiscountMonthly + c.mouDiscountMonthly + c.bundleDiscountMonthly;
+  const totals = combos.map(combo=>{
+    let total=0;
+    total += combo.device==='monthly' ? c.deviceMonthlyExFull*36 : c.deviceLumpExFull;
+    total += combo.service==='monthly' ? c.serviceMonthly*36 : c.servicePrepayTotal;
+    total += c.readerMonthly*36; total -= fixedMonthlyDiscount*36;
+    return { ...combo, total: Math.max(total,0) };
+  });
+  const minTotal = Math.min(...totals.map(t=>t.total));
+  let rows='';
+  totals.forEach(t=>{
+    const isBest = t.total===minTotal;
+    rows += `<tr class="${isBest?'best':''}"><td>${t.name}${isBest?'<span class="badge">최저</span>':''}</td><td class="num">${won(t.total)}</td><td class="num">${won(t.total*1.1)}</td></tr>`;
+  });
+  $('compareRows').innerHTML = rows;
+
+  const totalSubsidyIncl = c.totalSubsidyIncl;
+  const caseABaseTotal = totals[1].total, caseBBaseTotal = totals[2].total;
+  const caseAResult = Math.max(caseABaseTotal*1.1 - totalSubsidyIncl, 0);
+  const caseBResult = Math.max(caseBBaseTotal*1.1 - totalSubsidyIncl, 0);
+  $('caseABase').innerHTML = `${won(caseABaseTotal)} <small>VAT포함 ${won(caseABaseTotal*1.1)}</small>`;
+  $('caseBBase').innerHTML = `${won(caseBBaseTotal)} <small>VAT포함 ${won(caseBBaseTotal*1.1)}</small>`;
+  $('caseAResult').innerHTML = `<b>${won(caseAResult)}</b>`;
+  $('caseBResult').innerHTML = `<b>${won(caseBResult)}</b>`;
+  const diff = Math.abs(caseAResult-caseBResult);
+  const cheaper = caseAResult<caseBResult ? 'Case A (서비스이용료 선납)' : caseAResult>caseBResult ? 'Case B (단말대금 일시불)' : '두 방식 동일';
+  $('caseCompareNote').innerHTML = `현재 조건에서는 <b>${cheaper}</b>${caseAResult!==caseBResult?`이 ${won(diff)} 더 저렴합니다.`:'입니다.'} 실제 프로모션은 적용 조건을 별도로 확인하세요.`;
+  return c;
+}
+
+function renderPenalty(cfg){
+  const contractMonths = +$('penContractMonths').value;
+  const half = contractMonths/2;
+  const used = Math.max(0, +$('penUsed').value || 0);
+  const devices = Math.max(0, +$('penDevices').value || 0);
+  const rateContract = Math.max(0, +$('penRateContract').value || 0);
+  const rateFree = Math.max(0, +$('penRateFree').value || 0);
+  const promo = Math.max(0, +$('penPromo').value || 0);
+  const remain = Math.max(contractMonths-used, 0);
+  const converted = used<=half ? used : Math.max(contractMonths-used, 0);
+  const serviceFeeTotal = devices*rateContract;
+  const termPenalty = serviceFeeTotal*remain*0.10;
+  const discountReturn = converted*(rateFree-rateContract)*devices;
+  const totalPenalty = termPenalty+discountReturn+promo;
+  let html='';
+  html += `<div class="linerow"><span class="l">잔여 약정개월수</span><span class="r"><b>${remain}개월</b></span></div>`;
+  html += `<div class="linerow"><span class="l">환산 사용개월수</span><span class="r"><b>${converted}개월</b></span></div>`;
+  html += `<div class="linerow"><span class="l">위약금 본금</span><span class="r"><b>${won(termPenalty)}</b><small>VAT포함 ${won(termPenalty*1.1)}</small></span></div>`;
+  html += `<div class="linerow"><span class="l">약정할인반환금</span><span class="r"><b>${won(discountReturn)}</b><small>VAT포함 ${won(discountReturn*1.1)}</small></span></div>`;
+  html += `<div class="linerow"><span class="l">프로모션 할인반환금</span><span class="r"><b>${won(promo)}</b></span></div>`;
+  let installmentInfo=null;
+  if($('penInstallment').checked){
+    const c = computeCore(cfg, false);
+    const paidSoFar = c.deviceMonthlyExFull*used;
+    const remainInstallment = Math.max(c.deviceLumpExFull-paidSoFar, 0);
+    html += `<div class="linerow"><span class="l">단말 할부 잔여금</span><span class="r"><b>${won(remainInstallment)}</b><small>VAT포함 ${won(remainInstallment*1.1)}</small></span></div>`;
+    installmentInfo = remainInstallment;
+  }
+  html += `<div class="linerow grand"><span class="l">위약금 합계</span><span class="r"><b>${won(totalPenalty)}</b><small>VAT포함 ${won(totalPenalty*1.1)}</small></span></div>`;
+  $('penaltyLines').innerHTML = html;
+  window.lastPenalty = { contractMonths, used, devices, remain, converted, termPenalty, discountReturn, promo, totalPenalty, installmentInfo, entered:true };
+}
+
+function renderAll(){
+  applyConstraints();
+  const cfg = getConfig();
+  renderQuote(cfg);
+  renderCompare(cfg);
+  renderPenalty(cfg);
+}
+
+/* =========================================================
+   ODOMETER
+   ========================================================= */
+function odometerSet(el, mainText, smallText){
+  if(!el) return;
+  const prev = el.dataset.prevMain;
+  el.dataset.prevMain = mainText;
+  el.innerHTML = smallText ? `${mainText}<small>${smallText}</small>` : mainText;
+  if(prev !== undefined && prev !== mainText){
+    el.classList.remove('odometer-roll'); void el.offsetWidth; el.classList.add('odometer-roll');
+  }
+}
+
+/* =========================================================
+   TOGGLE GROUP HELPER
+   ========================================================= */
+function renderToggleGroup(containerId, options, currentValue, onSelect, disabled){
+  const el = $(containerId);
+  if(!el) return;
+  el.className = 'tg-group';
+  el.style.setProperty('--n', options.length);
+  const activeIdx = Math.max(0, options.findIndex(o=> o.value===currentValue));
+  el.style.setProperty('--idx', activeIdx);
+  el.innerHTML = options.map(o=>`<button type="button" class="tg-btn ${o.value===currentValue?'active':''}" data-val="${o.value}" ${disabled?'disabled':''}>${o.label}</button>`).join('');
+  if(!disabled){
+    el.querySelectorAll('.tg-btn').forEach((btn, idx)=>{
+      btn.addEventListener('click', ()=>{
+        // 클릭 즉시 active 클래스 갱신 + 슬라이더 transform 이동
+        el.querySelectorAll('.tg-btn').forEach(b=> b.classList.remove('active'));
+        btn.classList.add('active');
+        el.style.setProperty('--idx', idx);
+        onSelect(btn.dataset.val);
+      });
+    });
+  }
+}
+
+/* =========================================================
+   VERTICAL SPINNER
+   ========================================================= */
+function buildSpinner(container, {min, max, value, onChange}){
+  container.classList.add('spinner');
+  container.innerHTML = '<div class="spinner-track"></div><div class="spinner-center-line"></div>';
+  const track = container.querySelector('.spinner-track');
+  for(let i=min;i<=max;i++){
+    const cell = document.createElement('div');
+    cell.className = 'spinner-cell'; cell.textContent = i; cell.dataset.val = i;
+    track.appendChild(cell);
+  }
+  const cellH = 32;
+  function setActive(v){
+    track.querySelectorAll('.spinner-cell').forEach(c=> c.classList.toggle('active', +c.dataset.val===v));
+  }
+  function selectValue(v, fromUser){
+    v = Math.min(max, Math.max(min, v));
+    setActive(v);
+    if(fromUser) onChange(v);
+  }
+  track.querySelectorAll('.spinner-cell').forEach(cell=>{
+    cell.addEventListener('click', ()=> selectValue(+cell.dataset.val, true));
+  });
+  let scrollTimer;
+  container.addEventListener('scroll', ()=>{
+    clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(()=>{
+      const idx = Math.round(container.scrollTop / cellH);
+      selectValue(min+idx, true);
+    }, 90);
+  });
+  selectValue(value, false);
+  // 활성 셀이 가운데 오도록 스크롤 위치 셋팅 (휠 형태이므로)
+  requestAnimationFrame(()=>{
+    container.scrollTop = (value - min) * cellH;
+  });
+  container._spinnerSelect = (v)=> selectValue(v, false);
+}
+
+/* =========================================================
+   MORPHIC TOGGLE COMPONENT (제미나이 버튼 UI 작동방식 이식)
+   - 메뉴판/알림판: 단계별 모핑 버튼으로 설정 후 ✓ 확정 시
+     카트(여러 줄)에 추가. 동일 조합도 중복 추가 허용.
+   - 카트 합계만 기존 hidden input(menuCount/notice10Count 등)에
+     반영하여 계산 엔진(getConfig/renderAll)은 그대로 사용.
+   ========================================================= */
+const GLOBAL_COLORS = ['#000000', '#000000', '#6AA6DA', '#F95C4B', '#2E7D32'];
+const GLOBAL_TEXT_MODES = ['light', 'light', 'light', 'light', 'light'];
+
+function applyScreenTheme(color){
+  const screen = $('deviceScreen');
+  screen.classList.toggle('theme-dark', color==='블랙');
+}
+
+let menuCart = [];   // { color, mount, qty }
+let noticeCart = []; // { size:'10'|'15', mount, qty }
+
+function initDialTrack(windowEl){
+  const track = windowEl.querySelector('.mp-dial-track');
+  let html = '<div class="mp-dial-num">&nbsp;</div>';
+  for(let i=1;i<=30;i++) html += `<div class="mp-dial-num" data-n="${i}">${i}</div>`;
+  html += '<div class="mp-dial-num">&nbsp;</div>';
+  track.innerHTML = html;
+}
+
+class MorphicComponent {
+  constructor(id, route, onCommit){
+    this.id = id;
+    this.route = route; // 가장 많이 선택하는 기본값 순서
+    this.onCommit = onCommit;
+    this.container = $(`mp-${id}`);
+    this.mainBtn = $(`mp-main-${id}`);
+    this.originalTitle = this.mainBtn.innerText;
+    this.layers = this.container.querySelectorAll('.mp-layer');
+    this.currentStep = 0;
+    this.selections = [];
+    this.dialValue = 1;
+    this.initEvents();
+    this.reset();
+  }
+  initEvents(){
+    this.mainBtn.addEventListener('click', ()=> this.reset());
+    this.layers[0].querySelector('button').addEventListener('click', ()=>{
+      this.currentStep = 1;
+      this.applyStepData(this.route[0]);
+    });
+    for(let i=1;i<this.layers.length;i++){
+      const btns = this.layers[i].querySelectorAll('.mp-btn');
+      if(btns.length===0) continue;
+      btns.forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          const val = btn.getAttribute('data-val');
+          const pos = btn.getAttribute('data-pos');
+          // 메뉴판의 색상 단계(layer 1)에서 클릭 시 즉시 화면 테마 미리보기
+          if(this.id==='menu' && i===1){
+            applyScreenTheme(val);
+          }
+          if(this.selections[i-1]===val){
+            if(i===this.layers.length-2){
+              this.currentStep = this.layers.length-1;
+              this.openDialMode();
+            } else {
+              this.currentStep = i+1;
+              this.applyStepData(this.route[this.currentStep-1]);
+            }
+          } else {
+            this.selections[i-1] = val;
+            this.updateFocusUI(pos, btn);
+          }
+        });
+      });
+    }
+    const windowEl = this.container.querySelector('.mp-dial-window');
+    initDialTrack(windowEl);
+    windowEl.addEventListener('click', (e)=>{
+      const rect = windowEl.getBoundingClientRect();
+      const y = e.clientY - rect.top;
+      // 상단 1/3 클릭 → +1(위로 올라가기), 하단 1/3 클릭 → -1
+      this.changeDialValue(y < 40 ? 1 : (y > 80 ? -1 : 0));
+    });
+    windowEl.addEventListener('wheel', (e)=>{
+      e.preventDefault();
+      this.changeDialValue(e.deltaY > 0 ? 1 : -1);
+    }, { passive:false });
+
+    // 모바일 터치 드래그로 다이얼 조작 — 캐리어 손잡이 방향:
+    // 손가락을 위로 올리면 카운트 +, 아래로 내리면 카운트 -
+    let touchStartY = 0, touchAccum = 0, dragged = false;
+    windowEl.addEventListener('touchstart', (e)=>{
+      touchStartY = e.touches[0].clientY;
+      touchAccum = 0; dragged = false;
+    }, { passive:true });
+    windowEl.addEventListener('touchmove', (e)=>{
+      e.preventDefault();
+      const y = e.touches[0].clientY;
+      const delta = y - touchStartY; // 아래로 드래그면 양수
+      touchStartY = y;
+      touchAccum += delta;
+      const step = 24; // px당 한 칸 (다이얼이 커졌으니 step도 확대)
+      // 위로 드래그(touchAccum 음수 누적) → +1, 아래로 드래그(양수 누적) → -1
+      while(touchAccum <= -step){ this.changeDialValue(1); touchAccum += step; dragged = true; }
+      while(touchAccum >= step){ this.changeDialValue(-1); touchAccum -= step; dragged = true; }
+      if(Math.abs(delta) > 2) dragged = true;
+    }, { passive:false });
+    windowEl.addEventListener('touchend', (e)=>{
+      if(dragged) e.preventDefault();
+    }, { passive:false });
+
+    $(`mp-confirm-${this.id}`).addEventListener('click', ()=> this.commitDialData());
+  }
+  reset(){
+    this.currentStep = 0;
+    this.selections = [];
+    this.dialValue = 1;
+    this.container.classList.remove('dial-mode');
+    this.mainBtn.innerText = this.originalTitle;
+    this.updateFocusUI('menu', this.mainBtn, GLOBAL_COLORS[0], GLOBAL_TEXT_MODES[0]);
+  }
+  applyStepData(targetVal){
+    const layer = this.layers[this.currentStep];
+    let foundBtn = null;
+    layer.querySelectorAll('.mp-btn').forEach(b=>{
+      if(b.getAttribute('data-val')===targetVal) foundBtn = b;
+    });
+    if(!foundBtn) foundBtn = layer.querySelectorAll('.mp-btn')[0];
+    this.selections[this.currentStep-1] = foundBtn.getAttribute('data-val');
+    const bg = GLOBAL_COLORS[this.currentStep] || GLOBAL_COLORS[GLOBAL_COLORS.length-1];
+    const txtMode = GLOBAL_TEXT_MODES[this.currentStep] || GLOBAL_TEXT_MODES[GLOBAL_TEXT_MODES.length-1];
+    this.updateFocusUI(foundBtn.getAttribute('data-pos'), foundBtn, bg, txtMode);
+    // 메뉴판 색상 단계(currentStep===1)에서는 즉시 화면 테마 프리뷰
+    if(this.id==='menu' && this.currentStep===1){
+      applyScreenTheme(foundBtn.getAttribute('data-val'));
+    }
+  }
+  updateFocusUI(pos, activeBtn, customBg, customTxtMode){
+    const contW = this.container.clientWidth;
+    const pad = 4; // .mp-content padding
+    const mainW = this.mainBtn.offsetWidth || 120;
+    const rightW = contW - mainW - pad*2;
+    let tx = pad, w = mainW;
+    if(pos==='left'){ tx = pad + mainW; w = rightW/2; }
+    else if(pos==='right'){ tx = pad + mainW + rightW/2; w = rightW/2; }
+    this.container.style.setProperty('--tx', `${tx}px`);
+    this.container.style.setProperty('--w', `${w}px`);
+    if(customBg) this.container.style.setProperty('--bg', customBg);
+    this.layers.forEach((layer, idx)=>{
+      layer.className = 'mp-layer';
+      if(idx===this.currentStep) layer.classList.add('active');
+      else if(idx<this.currentStep) layer.classList.add('prev');
+      else layer.classList.add('next');
+    });
+    this.container.querySelectorAll('.mp-btn').forEach(b=> b.classList.remove('active','light','dark','tap-again'));
+    if(activeBtn){
+      activeBtn.classList.add('active');
+      activeBtn.classList.add(customTxtMode || 'light');
+    }
+    // "한 번 더 탭" 힌트 - 사용자가 1초간 머뭇거리면 펄스 + 안내 텍스트 표시
+    // layer 0(메뉴판 큰 버튼 자체)에선 표시 안 함 - 한 번 탭으로 즉시 다음 단계로 가니까
+    if(this._tapAgainTimer){ clearTimeout(this._tapAgainTimer); this._tapAgainTimer = null; }
+    if(activeBtn && this.currentStep > 0){
+      this._tapAgainTimer = setTimeout(()=>{
+        // 타이머 발동 시점에 여전히 같은 active이면 힌트 부여
+        if(activeBtn.classList.contains('active')){
+          activeBtn.classList.add('tap-again');
+        }
+      }, 900);
+    }
+  }
+  openDialMode(){
+    this.container.classList.add('dial-mode');
+    const contW = this.container.clientWidth;
+    const pad = 4;
+    const mainW = this.mainBtn.offsetWidth || 120;
+    const rightW = contW - mainW - pad*2;
+    this.container.style.setProperty('--tx', `${pad+mainW}px`);
+    this.container.style.setProperty('--w', `${rightW}px`);
+    this.container.style.setProperty('--bg', GLOBAL_COLORS[this.currentStep] || '#000000');
+    this.layers.forEach((layer, idx)=>{
+      layer.className = 'mp-layer';
+      if(idx===this.currentStep) layer.classList.add('active');
+      else if(idx<this.currentStep) layer.classList.add('prev');
+      else layer.classList.add('next');
+    });
+    this.mainBtn.classList.remove('active','light','dark');
+    this.syncDialUI();
+  }
+  changeDialValue(diff){
+    const t = this.dialValue + diff;
+    if(t>=1 && t<=30){ this.dialValue = t; this.syncDialUI(); }
+  }
+  syncDialUI(){
+    const track = this.container.querySelector('.mp-dial-track');
+    track.style.transform = `translateY(${(1-this.dialValue)*40}px)`;
+    this.container.querySelectorAll('.mp-dial-num').forEach(n=> n.classList.remove('active'));
+    const c = this.container.querySelector(`.mp-dial-num[data-n="${this.dialValue}"]`);
+    if(c) c.classList.add('active');
+  }
+  commitDialData(){
+    this.onCommit([...this.selections], this.dialValue);
+    this.reset();
+  }
+}
+
+/* =========================================================
+   SETTLE COMPONENT (약정형태→납부방식, 다이얼 없이 단일확정)
+   "약정형태"[선택] → [3년약정|무약정] → 버튼명이 "단말대금"으로 바뀌며
+   [월납|일시납] → 선택 즉시 확정 (다이얼 없음, 카트 누적 없음, 항상 1건)
+   ========================================================= */
+class SettleComponent {
+  constructor(id, steps, onCommit){
+    // steps: [{ key, label, options:[{value,label}] }, ...]
+    this.id = id;
+    this.steps = steps;
+    this.onCommit = onCommit;
+    this.container = $(`mp-${id}`);
+    this.mainBtn = $(`mp-main-${id}`);
+    this.originalTitle = this.mainBtn.innerText;
+    this.layers = this.container.querySelectorAll('.mp-layer');
+    this.currentStep = 0;
+    this.selections = [];
+    this.initEvents();
+    this.reset();
+  }
+  initEvents(){
+    this.mainBtn.addEventListener('click', ()=>{
+      if(this.currentStep===0) return; // 이미 처음 상태면 무시
+      this.reset();
+    });
+    this.layers[0].querySelector('button').addEventListener('click', ()=>{
+      this.goToStep(1);
+    });
+    for(let i=1;i<this.layers.length;i++){
+      const btns = this.layers[i].querySelectorAll('.mp-btn');
+      btns.forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          const val = btn.getAttribute('data-val');
+          const pos = btn.getAttribute('data-pos');
+          const isLast = (i === this.layers.length-1);
+          if(this.selections[i-1] === val){
+            // 같은 값 재클릭: 마지막 단계면 확정, 아니면 다음 단계로
+            if(isLast){
+              this.onCommit([...this.selections]);
+            } else {
+              this.goToStep(i+1, this.steps[i].label);
+            }
+          } else {
+            this.selections[i-1] = val;
+            this.updateFocusUI(pos, btn, GLOBAL_COLORS[i] || '#000000', 'light');
+            if(isLast){
+              // 마지막 단계는 첫 클릭으로 바로 확정 (포커스만 보여줄 필요 없음)
+              this.onCommit([...this.selections]);
+            }
+          }
+        });
+      });
+    }
+  }
+  goToStep(stepIdx, mainLabel){
+    this.currentStep = stepIdx;
+    if(mainLabel) this.mainBtn.innerText = mainLabel;
+    this.layers.forEach((layer, idx)=>{
+      layer.className = 'mp-layer';
+      if(idx===stepIdx) layer.classList.add('active');
+      else if(idx<stepIdx) layer.classList.add('prev');
+      else layer.classList.add('next');
+    });
+    const contW = this.container.clientWidth;
+    const pad = 4;
+    const mainW = this.mainBtn.offsetWidth || 120;
+    const rightW = contW - mainW - pad*2;
+    this.container.style.setProperty('--tx', `${pad}px`);
+    this.container.style.setProperty('--w', `${mainW}px`);
+    this.container.style.setProperty('--bg', '#000000');
+    this.container.querySelectorAll('.mp-btn').forEach(b=> b.classList.remove('active','light','dark'));
+  }
+  updateFocusUI(pos, activeBtn, customBg, customTxtMode){
+    const contW = this.container.clientWidth;
+    const pad = 4;
+    const mainW = this.mainBtn.offsetWidth || 120;
+    const rightW = contW - mainW - pad*2;
+    let tx = pad, w = mainW;
+    if(pos==='left'){ tx = pad + mainW; w = rightW/2; }
+    else if(pos==='right'){ tx = pad + mainW + rightW/2; w = rightW/2; }
+    this.container.style.setProperty('--tx', `${tx}px`);
+    this.container.style.setProperty('--w', `${w}px`);
+    if(customBg) this.container.style.setProperty('--bg', customBg);
+    this.container.querySelectorAll('.mp-btn').forEach(b=> b.classList.remove('active','light','dark','tap-again'));
+    if(activeBtn){
+      activeBtn.classList.add('active');
+      activeBtn.classList.add(customTxtMode || 'light');
+    }
+    // 약정형태 단계 진행 중에도 동일하게 "한 번 더 탭" 힌트 (단, 마지막 단계는 첫 클릭으로 바로 확정되므로 제외)
+    if(this._tapAgainTimer){ clearTimeout(this._tapAgainTimer); this._tapAgainTimer = null; }
+    const isLastStep = this.currentStep === this.steps.length - 1;
+    if(activeBtn && this.currentStep > 0 && !isLastStep){
+      this._tapAgainTimer = setTimeout(()=>{
+        if(activeBtn.classList.contains('active')){
+          activeBtn.classList.add('tap-again');
+        }
+      }, 900);
+    }
+  }
+  reset(){
+    this.currentStep = 0;
+    this.selections = [];
+    this.mainBtn.innerText = this.originalTitle;
+    this.updateFocusUI('menu', this.mainBtn, '#000000', 'light');
+    this.layers.forEach((layer, idx)=>{
+      layer.className = 'mp-layer';
+      if(idx===0) layer.classList.add('active');
+      else layer.classList.add('next');
+    });
+  }
+  setExternal(values){
+    // 외부에서 약정형태가 이미 확정된 값으로 시작 표시 (재진입시)
+    this.selections = [...values];
+  }
+}
+
+function syncMenuHidden(){
+  const totalQty = menuCart.reduce((s,it)=> s+it.qty, 0);
+  setHidden('menuCount', totalQty);
+  if(menuCart.length>0){
+    const last = menuCart[menuCart.length-1];
+    setHidden('deviceColor', last.color);
+    setHidden('menuMount', last.mount);
+    applyScreenTheme(last.color);
+    const saleVal = last.saleType==='선불형' ? 'prepaid' : 'postpaid';
+    setHidden('saleType', saleVal);
+    const isPrepaid = saleVal==='prepaid';
+    // 선불형이 처음 카트에 들어왔고 아직 카드리더기 설정이 안 됐으면 모달 자동 오픈
+    if(isPrepaid && !window.readerModalShown){
+      window.readerModalShown = true;
+      setTimeout(()=> openReaderModal(), 300);
+    }
+    // 선불형이 아니면 카드리더기 값 초기화 (재가입 시 다시 묻기 위함)
+    if(!isPrepaid){
+      setHidden('readerCount', 0);
+      window.readerModalShown = false;
+    }
+  }
+}
+function renderMenuCart(){
+  // 카트 상세 내용은 버튼 바로 아래가 아닌 화면 하단 요약(step1Summary)에 표시
+  renderStep1Summary();
+}
+
+function syncNoticeHidden(){
+  const sum10 = noticeCart.filter(it=>it.size==='10').reduce((s,it)=> s+it.qty, 0);
+  const sum15 = noticeCart.filter(it=>it.size==='15').reduce((s,it)=> s+it.qty, 0);
+  setHidden('notice10Count', sum10);
+  setHidden('notice15Count', sum15);
+  const last10 = [...noticeCart].reverse().find(it=>it.size==='10');
+  const last15 = [...noticeCart].reverse().find(it=>it.size==='15');
+  if(last10) setHidden('notice10Mount', last10.mount);
+  if(last15) setHidden('notice15Mount', last15.mount);
+}
+function renderNoticeCart(){
+  // 카트 상세 내용은 버튼 바로 아래가 아닌 화면 하단 요약(step1Summary)에 표시
+  renderStep1Summary();
+}
+
+function removeMenuCartItem(idx){
+  menuCart.splice(idx, 1);
+  syncMenuHidden(); fullRender(); renderStep1Summary();
+}
+function removeNoticeCartItem(idx){
+  noticeCart.splice(idx, 1);
+  syncNoticeHidden(); fullRender(); renderStep1Summary();
+}
+
+/* =========================================================
+   STEP1 하단 선택 요약 (메뉴판/알림판 카트 + 약정형태 + 결제형태)
+   ========================================================= */
+function renderStep1Summary(){
+  const wrap = $('step1Summary');
+  if(!wrap) return;
+  let rows = [];
+
+  menuCart.forEach((it, idx)=>{
+    rows.push(`<div class="sum-row">
+      <span class="sum-text">메뉴판 · ${it.color} · ${it.mount} · ${it.saleType||'후불형'} · <b>${it.qty}대</b></span>
+      <button type="button" class="sum-del" data-kind="menu" data-idx="${idx}">&times;</button>
+    </div>`);
+  });
+  noticeCart.forEach((it, idx)=>{
+    rows.push(`<div class="sum-row">
+      <span class="sum-text">알림판 · ${it.size}인치 · ${it.mount} · <b>${it.qty}대</b></span>
+      <button type="button" class="sum-del" data-kind="notice" data-idx="${idx}">&times;</button>
+    </div>`);
+  });
+
+  const contractType = $('contractType').value;
+  const devicePay = $('devicePay').value;
+  if(contractType && window.settleCommitted){
+    const ctLabel = contractType==='free' ? '무약정' : '3년약정';
+    const dpLabel = devicePay==='lump' ? '일시납' : '월납';
+    rows.push(`<div class="sum-row">
+      <span class="sum-text">가입조건 · ${ctLabel} · 단말대금 ${dpLabel}</span>
+    </div>`);
+  }
+
+  // 카드리더기 (선불형이 카트에 있을 때만)
+  const hasPrepaid = menuCart.some(it=> it.saleType==='선불형');
+  if(hasPrepaid){
+    const rCount = +$('readerCount').value || 0;
+    const isSet = rCount > 0;
+    const text = isSet
+      ? `카드리더기 · <b>${rCount}대</b>` /* [v1.05] 종류(기본/나이스) 표기 제거 */
+      : `카드리더기 · <span style="color:#ff6b6b;">설정 필요</span>`; /* [v1.02] #c0392b는 다크에서 안 보임 */
+    rows.push(`<div class="sum-row" data-action="open-reader" style="cursor:pointer;">
+      <span class="sum-text">${text}</span>
+      <span style="color:#fff; opacity:0.55; font-size:12px;">설정 ↗</span>
+    </div>`);
+  }
+
+  wrap.innerHTML = rows.length
+    ? rows.join('')
+    : `<div class="sum-empty">선택한 항목이 여기에 표시됩니다</div>`;
+
+  wrap.querySelectorAll('.sum-del').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      const idx = +btn.dataset.idx;
+      if(btn.dataset.kind==='menu') removeMenuCartItem(idx);
+      else removeNoticeCartItem(idx);
+    });
+  });
+  // 카드리더기 행 탭 시 모달 재오픈
+  wrap.querySelectorAll('[data-action="open-reader"]').forEach(row=>{
+    row.addEventListener('click', ()=> openReaderModal());
+  });
+}
+
+function initMorphicComponents(){
+  new MorphicComponent('menu', ['블랙','스탠드','후불형'], (sel, qty)=>{
+    menuCart.push({ color:sel[0], mount:sel[1], saleType:sel[2], qty });
+    renderMenuCart(); syncMenuHidden(); fullRender();
+  });
+  new MorphicComponent('notice', ['10인치','스탠드'], (sel, qty)=>{
+    const size = sel[0]==='15인치' ? '15' : '10';
+    noticeCart.push({ size, mount:sel[1], qty });
+    renderNoticeCart(); syncNoticeHidden(); fullRender();
+  });
+  window.settleComponent = new SettleComponent('contract',
+    [
+      { key:'contractType', label:'약정형태', options:[] },
+      { key:'devicePay', label:'단말대금', options:[] },
+    ],
+    (sel)=>{
+      const contractType = sel[0]==='무약정' || sel[0]==='free' ? 'free' : 'contract';
+      const devicePay = sel[1]==='일시납' || sel[1]==='lump' ? 'lump' : 'monthly';
+      setHidden('contractType', contractType);
+      setHidden('devicePay', devicePay);
+      setHidden('servicePay', 'monthly'); // 서비스이용료는 항상 월납 고정
+      window.settleCommitted = true;
+      fullRender();
+      window.settleComponent.reset();
+      renderStep1Summary();
+    }
+  );
+}
+
+/* =========================================================
+   READER CHAIN (spinner only — [v1.05] 종류 토글 제거, 수량만 설정)
+   ========================================================= */
+function openReaderModal(){
+  const modal = $('readerModal');
+  // 첫 오픈이면 메뉴판 단말 수에 맞춰 기본값 매칭
+  if(!window.readerCountAdjusted){
+    const menuCount = +$('menuCount').value || 1;
+    $('readerCount').value = menuCount;
+  }
+  const defaultQty = +$('readerCount').value || 1;
+  buildSpinner($('modalReaderQty'), {
+    min:0, max:30, value:defaultQty,
+    onChange:v=>{
+      $('readerCount').value = v;
+      window.readerCountAdjusted = true;
+    }
+  });
+  modal.classList.remove('hidden');
+  modal.setAttribute('aria-hidden','false');
+}
+
+function closeReaderModal(commit){
+  const modal = $('readerModal');
+  if(commit){
+    // 확정: hidden input 값 fullRender로 반영
+    fullRender();
+    renderStep1Summary();
+  } else {
+    // 취소: 기존 값 복구는 별도 안 함 (모달 안에서 임시 변경한 readerCount가 그대로 남음)
+    // 사용자가 다시 열어서 조정 가능
+    fullRender();
+    renderStep1Summary();
+  }
+  modal.classList.add('hidden');
+  modal.setAttribute('aria-hidden','true');
+}
+
+// 모달 닫기 이벤트 바인딩
+document.addEventListener('DOMContentLoaded', ()=>{
+  const closeBtn = $('readerModalClose');
+  const cancelBtn = $('readerModalCancel');
+  const confirmBtn = $('readerModalConfirm');
+  const overlay = $('readerModal');
+  if(closeBtn) closeBtn.addEventListener('click', ()=> closeReaderModal(false));
+  if(cancelBtn) cancelBtn.addEventListener('click', ()=> closeReaderModal(false));
+  if(confirmBtn) confirmBtn.addEventListener('click', ()=> closeReaderModal(true));
+  // 오버레이 클릭(카드 밖) 시 닫기
+  if(overlay) overlay.addEventListener('click', (e)=>{
+    if(e.target === overlay) closeReaderModal(false);
+  });
+  // ESC 키로 닫기
+  document.addEventListener('keydown', (e)=>{
+    if(e.key === 'Escape' && !overlay.classList.contains('hidden')) closeReaderModal(false);
+  });
+});
+
+/* =========================================================
+   REWARD CHECKS (할인옵션)
+   ========================================================= */
+function renderRewardChecks(){
+  const defs = [
+    { id:'adConsent', t:'테이블 광고 수신 동의', hint:'단말 1대당 월 556원 할인', rewardFn:c=> c.adDiscountMonthly },
+    { id:'ansim', t:'하이오더 안심매입 가입', hint:'대당 월 1,650원(VAT포함) · 최소 5대 이상', rewardFn:c=> c.ansimMonthlyIncl, isCost:true },
+    { id:'mouFranchise', t:'MOU체결 프랜차이즈', hint:'3년 약정 한정 · 가맹점 등급 선택', rewardFn:c=> c.mouDiscountMonthly, hasTier:true },
+    { id:'bundleDiscount', t:'으랏차차 결합 (2종 이상)', hint:'고정 월 5,500원 할인 (VAT포함)', rewardFn:c=> c.bundleDiscountMonthly },
+  ];
+  const html = defs.map(d=>{
+    const tierUI = d.hasTier ? `
+      <div class="mou-tier-wrap" id="mouTierWrap">
+        <div class="tg-group mou-tier-toggle" id="mouTierToggle"></div>
+      </div>` : '';
+    return `
+    <label class="reward-check">
+      <input type="checkbox" id="rc_${d.id}">
+      <span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M4 12l5 5L20 6"/></svg></span>
+      <div class="ctext">${d.t}<span class="reward-pill" id="rcPill_${d.id}"></span><span class="hint" id="rcHint_${d.id}">${d.hint}</span>${tierUI}</div>
+    </label>`;
+  }).join('');
+  $('rewardChecks').innerHTML = html;
+
+  defs.forEach(d=>{
+    const cb = $('rc_'+d.id);
+    cb.checked = $(d.id).checked;
+    cb.addEventListener('change', ()=>{
+      setHiddenChecked(d.id, cb.checked);
+      if(d.id==='mouFranchise') updateMouTierVisibility();
+      updateRewardPills();
+      updateMouHint();
+    });
+  });
+
+  // MOU 등급 슬라이드 토글 렌더
+  renderToggleGroup('mouTierToggle',
+    [{value:'tier10', label:'10가맹점 이상 · 월 1,000원'},
+     {value:'tier30', label:'30가맹점 이상 · 월 2,000원'}],
+    $('mouTier').value,
+    v=>{ setHidden('mouTier', v); updateRewardPills(); updateMouHint(); }
+  );
+  updateMouTierVisibility();
+  updateMouHint();
+  updateRewardPills();
+
+  function updateMouTierVisibility(){
+    const wrap = $('mouTierWrap');
+    if(!wrap) return;
+    wrap.classList.toggle('inactive', !$('mouFranchise').checked);
+  }
+  function updateMouHint(){
+    const hint = $('rcHint_mouFranchise');
+    if(!hint) return;
+    if($('mouFranchise').checked){
+      const unit = PRICE.mouPerDevice[$('mouTier').value] || PRICE.mouPerDevice.tier10;
+      const tierLbl = $('mouTier').value==='tier30' ? '30가맹점 이상' : '10가맹점 이상';
+      hint.textContent = `3년 약정 한정 · ${tierLbl} · 대당 월 ${won(unit)} 할인`;
+    } else {
+      hint.textContent = '3년 약정 한정 · 가맹점 등급 선택';
+    }
+  }
+  function updateRewardPills(){
+    const cfg = getConfig(); const c = computeCore(cfg, false);
+    defs.forEach(d=>{
+      const amt = d.rewardFn(c);
+      const pill = $('rcPill_'+d.id);
+      if($(d.id).checked && amt>0){ pill.textContent = (d.isCost? '월 +':'월 -') + won(amt) + ' 적용됨'; }
+      else { pill.textContent=''; }
+    });
+  }
+  $('rewardChecks')._refresh = updateRewardPills;
+  $('rewardChecks')._refreshMou = ()=>{ updateMouTierVisibility(); updateMouHint(); };
+}
+
+/* =========================================================
+   STEP NAVIGATION
+   ========================================================= */
+let currentStep = 0;
+const totalSteps = 6; // 0..5
+function showStep(n){
+  currentStep = Math.max(0, Math.min(totalSteps-1, n));
+  document.querySelectorAll('.step-dot').forEach((d,i)=> d.classList.toggle('active', i===currentStep));
+
+  const inDeviceFrame = currentStep === 0;
+  const inCardStep = currentStep === 1;
+  $('deviceFrame').classList.toggle('hidden', !inDeviceFrame);
+  $('step1Summary').classList.toggle('hidden', !inDeviceFrame);
+  $('glassSummary').classList.toggle('hidden', !inCardStep);
+  $('cardStep1').classList.toggle('hidden', currentStep !== 1);
+  $('pageHeader').classList.toggle('hidden', inDeviceFrame || inCardStep);
+  $('regularWrap').classList.toggle('hidden', inDeviceFrame || inCardStep);
+  document.body.classList.toggle('step0-active', inDeviceFrame);
+
+  if(inDeviceFrame){
+    document.querySelectorAll('.df-step').forEach((p,i)=> p.classList.toggle('active', i===0));
+    renderStep1Summary();
+  } else if(!inCardStep){
+    const pageIdx = currentStep - 2; // 0..3 -> pageStep3..6
+    ['pageStep3','pageStep4','pageStep5','pageStep6'].forEach((id,i)=>{
+      $(id).style.display = (i===pageIdx) ? 'block' : 'none';
+    });
+  }
+
+  $('prevStepBtn').disabled = currentStep===0;
+  $('nextStepBtn').textContent = currentStep===totalSteps-1 ? '처음으로' : '다음 →';
+  if(window.scrollTo) window.scrollTo({top:0});
+}
+$('stepIndicator').querySelectorAll('.step-dot').forEach(btn=>{
+  btn.addEventListener('click', ()=> showStep(+btn.dataset.step));
+});
+$('prevStepBtn').addEventListener('click', ()=> showStep(currentStep-1));
+$('nextStepBtn').addEventListener('click', ()=>{
+  if(currentStep===totalSteps-1){ showStep(0); } else { showStep(currentStep+1); }
+});
+
+/* =========================================================
+   PNG EXPORT (customer / staff)
+   ========================================================= */
+function deviceConfigText(c, cfg){
+  const lines=[];
+  if(cfg.menu>0) lines.push(`메뉴판(10인치) ${cfg.menu}대 · ${cfg.menuMount}`);
+  if(cfg.notice10>0) lines.push(`알림판(10인치) ${cfg.notice10}대 · ${cfg.notice10Mount}`);
+  if(cfg.notice15>0) lines.push(`알림판(15인치) ${cfg.notice15}대 · ${cfg.notice15Mount}`);
+  return lines;
+}
+function benefitTags(cfg, c){
+  const tags=[];
+  if(c.totalSubsidyIncl>0) tags.push('정책지원금 적용');
+  if(cfg.mou) tags.push('MOU 프랜차이즈 할인 적용');
+  if(cfg.bundle) tags.push('으랏차차 결합할인 적용');
+  if(cfg.adConsent) tags.push('테이블 광고 수신동의 할인 적용');
+  if(cfg.ansim) tags.push('하이오더 안심매입 가입');
+  return tags;
+}
+function quoteHeaderHtml(q, title){
+  const store = q.cfg.storeName || '매장명 미입력';
+  return `<div style="padding:28px 30px 18px; border-bottom:2px solid #1a1a1a;">
+    <div style="font-size:12px; color:#d3001f; font-weight:700; letter-spacing:1px;">KT 하이오더</div>
+    <div style="font-size:22px; font-weight:800; margin-top:4px;">${title}</div>
+    <div style="display:flex; justify-content:space-between; margin-top:10px; font-size:13px; color:#444;">
+      <span>${store}</span><span>견적일 ${todayStr()}</span></div></div>`;
+}
+function buildCustomerQuoteHtml(){
+  const q = window.lastQuote; if(!q) return '';
+  const { cfg, c, monthlyExTrue, monthlyIncl, lumpInclTotal } = q;
+  const cfgLines = deviceConfigText(c, cfg); const tags = benefitTags(cfg, c);
+  let html = quoteHeaderHtml(q, '하이오더 견적서');
+  html += `<div style="padding:22px 30px; font-size:13.5px; color:#1a1a1a;">`;
+  html += `<div style="font-weight:700; font-size:13px; color:#6b6b6b; margin-bottom:8px;">단말 구성</div>`;
+  html += `<div style="border:1px solid #e2e2e2; border-radius:8px; padding:12px 16px; margin-bottom:18px;">`;
+  html += `<div style="display:flex; justify-content:space-between; padding:4px 0;"><span>색상</span><span>${cfg.color}</span></div>`;
+  cfgLines.forEach(l=>{ html += `<div style="display:flex; justify-content:space-between; padding:4px 0;"><span>${l}</span></div>`; });
+  html += `<div style="display:flex; justify-content:space-between; padding:4px 0;"><span>약정형태</span><span>${cfg.contractType==='contract'?'3년 약정':'무약정'}</span></div>`;
+  html += `<div style="display:flex; justify-content:space-between; padding:4px 0;"><span>판매형태</span><span>${cfg.saleType==='postpaid'?'후불형':'선불형'}</span></div></div>`;
+  if(tags.length){
+    html += `<div style="font-weight:700; font-size:13px; color:#6b6b6b; margin-bottom:8px;">적용 혜택</div><div style="margin-bottom:18px;">`;
+    tags.forEach(t=>{ html += `<div style="padding:3px 0;">✓ ${t}</div>`; }); html += `</div>`;
+  }
+  html += `<div style="background:#1a1a1a; color:#fff; border-radius:10px; padding:18px 20px; margin-bottom:6px;">
+    <div style="font-size:12px; color:#c9c9c9;">월 청구액</div>
+    <div style="font-size:28px; font-weight:800; margin-top:4px;">${won(monthlyIncl)} <span style="font-size:13px; font-weight:400; color:#d9d9d9;">VAT포함</span></div>
+    <div style="font-size:12px; color:#c9c9c9; margin-top:2px;">VAT별도 ${won(monthlyExTrue)} 기준</div></div>`;
+  if(lumpInclTotal>0){
+    html += `<div style="border:1px solid #e2e2e2; border-radius:8px; padding:12px 16px; margin-top:12px;">
+      <div style="display:flex; justify-content:space-between;"><span>초기 일시불 비용</span><b>${won(lumpInclTotal)} (VAT포함)</b></div></div>`;
+  }
+  html += `<div style="margin-top:20px; font-size:11px; color:#9a9a9a; line-height:1.6;">* 본 견적은 참고용이며 실제 계약 조건에 따라 변동될 수 있습니다.</div></div>`;
+  return html;
+}
+function buildStaffQuoteHtml(){
+  const q = window.lastQuote; if(!q) return '';
+  const { cfg, quoteLineItems, lumpItems, subsidyInfo, monthlyExTrue, monthlyIncl } = q;
+  const p = window.lastPenalty;
+  let html = buildCustomerQuoteHtml();
+  html += `<div style="padding:0 30px 22px; font-size:13px; color:#1a1a1a;">`;
+  html += `<div style="font-weight:700; font-size:13px; color:#6b6b6b; margin:14px 0 8px;">설정값 원본</div>
+    <div style="border:1px solid #e2e2e2; border-radius:8px; padding:12px 16px; font-size:12.5px;">
+    <div>리더기: ${cfg.saleType==='prepaid' ? cfg.readerCount + '대 (대당 월 2,000원 VAT별도)' : '해당없음(후불형)'}</div>
+    <div>단말대금 납부방식: ${cfg.devicePay==='monthly'?'월납':'일시불'}</div>
+    <div>서비스이용료 납부방식: ${cfg.servicePay==='monthly'?'월납':'선납(10%할인)'}</div>
+    <div>정책지원금: 대당 ${won(cfg.subsidyPerDevice)} (VAT포함)</div></div>`;
+  html += `<div style="font-weight:700; font-size:13px; color:#6b6b6b; margin:14px 0 8px;">월 청구 상세 내역</div>
+    <div style="border:1px solid #e2e2e2; border-radius:8px; padding:12px 16px;">`;
+  quoteLineItems.forEach(item=>{
+    html += `<div style="display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px dashed #e2e2e2;"><span>${item.l}</span><b>${won(item.ex)} <span style="font-weight:400; color:#6b6b6b;">(VAT포함 ${won(item.ex*1.1)})</span></b></div>`;
+  });
+  html += `<div style="display:flex; justify-content:space-between; padding:8px 0 0; font-weight:700;"><span>월 합계</span><span>${won(monthlyExTrue)} (VAT포함 ${won(monthlyIncl)})</span></div></div>`;
+  if(lumpItems && lumpItems.length){
+    html += `<div style="font-weight:700; font-size:13px; color:#6b6b6b; margin:14px 0 8px;">일시불 항목</div><div style="border:1px solid #e2e2e2; border-radius:8px; padding:12px 16px;">`;
+    lumpItems.forEach(item=>{ html += `<div style="display:flex; justify-content:space-between; padding:4px 0;"><span>${item.l}</span><b>${won(item.ex)} (VAT포함 ${won(item.ex*1.1)})</b></div>`; });
+    html += `</div>`;
+  }
+  if(subsidyInfo){
+    html += `<div style="font-weight:700; font-size:13px; color:#6b6b6b; margin:14px 0 8px;">정책지원금 적용 — 그리디 vs 최적조합</div>
+      <div style="border:1px solid #e2e2e2; border-radius:8px; padding:12px 16px; font-size:12.5px; white-space:pre-line;">${subsidyInfo.staffNoteText}</div>`;
+  }
+  if(p && p.entered){
+    html += `<div style="font-weight:700; font-size:13px; color:#6b6b6b; margin:14px 0 8px;">위약금 계산</div>
+      <div style="border:1px solid #e2e2e2; border-radius:8px; padding:12px 16px; font-size:12.5px;">
+      <div>약정유형: ${p.contractMonths}개월 / 사용개월: ${p.used}개월 / 대수: ${p.devices}대</div>
+      <div>위약금 본금: ${won(p.termPenalty)} · 약정할인반환금: ${won(p.discountReturn)} · 프로모션반환금: ${won(p.promo)}</div>
+      <div style="font-weight:700; margin-top:6px;">위약금 합계: ${won(p.totalPenalty)} (VAT포함 ${won(p.totalPenalty*1.1)})</div></div>`;
+  }
+  html += `<div style="margin-top:16px; font-size:11px; color:#9a9a9a;">실무자 참고용 — 고객에게 내부 산식이나 그리디/최적조합 비교는 직접 노출하지 마세요.</div></div>`;
+  return html;
+}
+async function downloadAsPng(targetEl, html, filename, statusPrefix){
+  targetEl.innerHTML = html;
+  $('downloadStatus').textContent = `${statusPrefix} 이미지 생성 중…`;
+  await new Promise(r=>setTimeout(r,60));
+  try{
+    const canvas = await html2canvas(targetEl, { scale:2, backgroundColor:'#ffffff', useCORS:true });
+    const link = document.createElement('a'); link.download = filename; link.href = canvas.toDataURL('image/png'); link.click();
+    $('downloadStatus').textContent = `${statusPrefix} 다운로드 완료`;
+  }catch(err){ $('downloadStatus').textContent = `${statusPrefix} 생성 실패`; console.error(err); }
+}
+$('downloadCustomerBtn').addEventListener('click', ()=>{
+  const cfg=getConfig(); const store=cfg.storeName||'매장';
+  downloadAsPng($('renderCustomer'), buildCustomerQuoteHtml(), `하이오더견적_고객용_${store}_${todayStr()}.png`, '고객용 견적서');
+});
+$('downloadStaffBtn').addEventListener('click', ()=>{
+  const cfg=getConfig(); const store=cfg.storeName||'매장';
+  downloadAsPng($('renderStaff'), buildStaffQuoteHtml(), `하이오더견적_실무자용_${store}_${todayStr()}.png`, '실무자용 견적서');
+});
+document.addEventListener('click', (e)=>{
+  if(e.target && e.target.id==='copyCustomerNote'){
+    const text=$('subsidyCustomerText').textContent;
+    navigator.clipboard.writeText(text).then(()=>{
+      e.target.textContent='복사됨 ✓'; e.target.classList.add('copied');
+      setTimeout(()=>{ e.target.textContent='고객 안내 멘트 복사'; e.target.classList.remove('copied'); },1800);
+    }).catch(()=>{});
+  }
+});
+
+/* =========================================================
+   GLOBAL CHANGE LISTENER + INIT
+   ========================================================= */
+function fullRender(){
+  renderAll();
+  if($('rewardChecks')._refresh) $('rewardChecks')._refresh();
+  if($('rewardChecks')._refreshMou) $('rewardChecks')._refreshMou();
+  const sn = ($('storeName').value || '').trim();
+  $('storeNameDisplay').textContent = sn || '매장명 미입력';
+}
+$('storeName').addEventListener('input', fullRender);
+
+// 정책지원금: 입력값에서 숫자만 추출해 천단위 콤마로 표시
+(function(){
+  const el = $('subsidyPerDevice');
+  el.addEventListener('input', ()=>{
+    const digits = el.value.replace(/[^0-9]/g,'');
+    el.value = digits ? Number(digits).toLocaleString('ko-KR') : '';
+  });
+})();
+
+document.querySelectorAll('#regularWrap input, #regularWrap select, #subsidyPerDevice').forEach(el=>{
+  el.addEventListener('input', fullRender);
+  el.addEventListener('change', fullRender);
+});
+// hidden inputs also trigger recompute
+['menuCount','notice10Count','notice15Count','contractType','saleType','readerCount','devicePay','servicePay','adConsent','ansim','mouFranchise','mouTier','bundleDiscount','deviceColor','menuMount','notice10Mount','notice15Mount'].forEach(id=>{
+  $(id).addEventListener('input', fullRender);
+  $(id).addEventListener('change', fullRender);
+});
+
+initMorphicComponents();
+renderRewardChecks();
+applyScreenTheme($('deviceColor').value);
+
+fullRender();
+renderStep1Summary();
+showStep(0);
+
+// device-screen 안 콘텐츠 변경 시 마지막 활성 컴포넌트로 자동 스크롤
+(function setupDeviceScreenAutoScroll(){
+  const screen = $('deviceScreen');
+  if(!screen) return;
+  let timer = null;
+  const scrollToLatest = () => {
+    // 다이얼 모드가 활성화돼 있으면 그 토글을 가운데로
+    let target = screen.querySelector('.mp-toggle.dial-mode');
+    if(!target){
+      const items = Array.from(screen.querySelectorAll('.mp-toggle, #readerChainWrap > *'));
+      const visible = items.filter(el => {
+        if(el.classList.contains('hidden')) return false;
+        const cs = getComputedStyle(el);
+        return el.offsetHeight > 0 && cs.opacity !== '0' && cs.visibility !== 'hidden';
+      });
+      target = visible[visible.length - 1];
+    }
+    if(!target) return;
+    // 콘텐츠가 컨테이너 안에 다 들어가면 스크롤 안 함
+    if(screen.scrollHeight <= screen.clientHeight + 2) return;
+    const screenRect = screen.getBoundingClientRect();
+    const targetRect = target.getBoundingClientRect();
+    const desired = screen.scrollTop + (targetRect.top - screenRect.top) + targetRect.height/2 - screen.clientHeight/2;
+    const maxScroll = screen.scrollHeight - screen.clientHeight;
+    const top = Math.max(0, Math.min(maxScroll, desired));
+    screen.scrollTo({ top, behavior:'smooth' });
+  };
+  const observer = new MutationObserver(()=>{
+    clearTimeout(timer);
+    timer = setTimeout(scrollToLatest, 80);
+  });
+  observer.observe(screen, {
+    attributes:true, childList:true, subtree:true,
+    attributeFilter:['class','style']
+  });
+})();
+
+/* =========================================================
+   사용방법 튜토리얼 - 영상 재생 모달
+   heldBtn(?) 또는 첫 진입 시 자동 오픈
+   ========================================================= */
+function openTutorial(){
+  const video = $('tutorialVideo');
+  $('tutorialModal').classList.remove('hidden');
+  $('tutorialModal').setAttribute('aria-hidden','false');
+  if(video){
+    try { video.currentTime = 0; } catch(e){}
+    // 브라우저 정책상 muted 상태에서만 자동 재생 허용
+    const p = video.play();
+    if(p && p.catch) p.catch(()=>{ /* 사용자 상호작용 대기 */ });
+  }
+}
+function closeTutorial(){
+  const video = $('tutorialVideo');
+  if(video){ try { video.pause(); } catch(e){} }
+  $('tutorialModal').classList.add('hidden');
+  $('tutorialModal').setAttribute('aria-hidden','true');
+  try { sessionStorage.setItem('hiorderTutorialSeen', '1'); } catch(e){}
+}
+
+// 이벤트 바인딩
+document.addEventListener('DOMContentLoaded', ()=>{
+  const helpBtn = $('helpBtn');
+  if(helpBtn) helpBtn.addEventListener('click', openTutorial);
+  const closeBtn = $('tutorialClose');
+  if(closeBtn) closeBtn.addEventListener('click', closeTutorial);
+  const overlay = $('tutorialModal');
+  if(overlay) overlay.addEventListener('click', (e)=>{
+    if(e.target === overlay) closeTutorial();
+  });
+  document.addEventListener('keydown', (e)=>{
+    if(e.key === 'Escape' && overlay && !overlay.classList.contains('hidden')) closeTutorial();
+  });
+
+  // 첫 진입 시 자동 오픈 (sessionStorage로 본 적 있으면 안 띄움)
+  let seen = false;
+  try { seen = sessionStorage.getItem('hiorderTutorialSeen') === '1'; } catch(e){}
+  if(!seen){
+    setTimeout(()=> openTutorial(), 600);
+  }
+});
+
+// ═══════════════════════════════════════════════════════════
+// ✨ v1.01 애니메이션 로직 (메인 index.html과 동일한 시스템)
+// - Scroll Reveal / Text Split (헤더 제목)
+// ═══════════════════════════════════════════════════════════
+(function initSectionAnimations() {
+  // 접근성: 모션 최소화 사용자에게는 애니메이션 발동 안 함
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduceMotion) return;
+
+  /* [v1.03] 등장 전환 종료 후 blur 필터·will-change 레이어 해제.
+     Edge에서 잔류 필터 레이어가 이전 프레임 글리프를 남겨 타이틀이 겹쳐
+     보이는 고스팅 방지(index.html v1.35와 동일). 단, 이 페이지는 스텝
+     전환 시 MutationObserver가 split 애니를 '재발동'하므로 리스너를
+     제거하지 않고 유지하며, 재발동 직전 rearmTransition으로 인라인
+     해제값을 원복해 blur-in 효과가 매번 정상 동작하게 함. */
+  function releaseAfterTransition(el) {
+    el.addEventListener('transitionend', (e) => {
+      if (e.target !== el || e.propertyName !== 'filter') return;
+      el.style.filter = 'none';
+      el.style.willChange = 'auto';
+    });
+  }
+  function rearmTransition(el) {
+    el.style.filter = '';
+    el.style.willChange = '';
+  }
+
+  // ─── Text Split - 단어 단위 span 분할 ───
+  function applyTextSplit() {
+    document.querySelectorAll('.split-target').forEach(el => {
+      if (el.querySelector('.split-word')) return; // 이미 분할된 경우 스킵
+      const raw = el.textContent;
+      const parts = raw.split(/(\s+)/);
+      el.textContent = '';
+      let wordIndex = 0;
+      parts.forEach(part => {
+        if (/^\s+$/.test(part)) {
+          el.appendChild(document.createTextNode(part));
+        } else if (part.length > 0) {
+          const span = document.createElement('span');
+          span.className = 'split-word';
+          span.textContent = part;
+          span.style.transitionDelay = (wordIndex * 0.05) + 's';
+          releaseAfterTransition(span); // [v1.03]
+          el.appendChild(span);
+          wordIndex++;
+        }
+      });
+    });
+  }
+  applyTextSplit();
+
+  // ─── Reveal 대상: 카드, 다운로드 영역, 안내박스 ───
+  // 스텝 3-5 견적 폼 진입 시 카드가 부드럽게 등장
+  const revealSelectors = ['.card', '.summary-bar', '.downloadRow', '.pillbox', '.infobox'];
+  revealSelectors.forEach(sel => {
+    document.querySelectorAll(sel).forEach(el => {
+      el.classList.add('reveal');
+      releaseAfterTransition(el); // [v1.03]
+    });
+  });
+
+  // ─── IntersectionObserver - 뷰포트 진입 시 발동 ───
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const el = entry.target;
+      if (el.classList.contains('reveal')) el.classList.add('is-visible');
+      if (el.classList.contains('split-target')) el.classList.add('split-visible');
+      io.unobserve(el);
+    });
+  }, {
+    threshold: 0.1,
+    rootMargin: '0px 0px -20px 0px'
+  });
+
+  document.querySelectorAll('.reveal, .split-target').forEach(el => io.observe(el));
+
+  // ─── 스텝 전환 시 새로 표시되는 요소들에도 애니메이션 재적용 ───
+  // MutationObserver로 pageHeader의 hidden 클래스 토글 감지
+  const pageHeader = document.getElementById('pageHeader');
+  if (pageHeader) {
+    const mo = new MutationObserver(() => {
+      if (!pageHeader.classList.contains('hidden')) {
+        // 헤더가 보이면 split-target 다시 활성화
+        setTimeout(() => {
+          pageHeader.querySelectorAll('.split-target').forEach(el => {
+            el.classList.remove('split-visible');
+            el.querySelectorAll('.split-word').forEach(rearmTransition); // [v1.03] 해제값 원복
+            void el.offsetWidth; // reflow
+            el.classList.add('split-visible');
+          });
+        }, 30);
+      }
+    });
+    mo.observe(pageHeader, { attributes: true, attributeFilter: ['class'] });
+  }
+
+  // ─── 헤더가 화면에 있으면 즉시 활성화 ───
+  setTimeout(() => {
+    document.querySelectorAll('.split-target').forEach(el => {
+      const rect = el.getBoundingClientRect();
+      if (rect.top < window.innerHeight * 0.9 && rect.bottom > 0) {
+        el.classList.add('split-visible');
+      }
+    });
+  }, 50);
+})();
+</script>
+</body>
+</html>
