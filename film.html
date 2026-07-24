@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>필름 스튜디오 · KT 인천지사 시너지영업3팀</title>
+<meta name="description" content="기획·촬영·편집까지 시너지영업3팀이 직접 제작한 영상입니다. 협약식장, 사내 행사, 매장 단말과 옥외 전광판 — 실제로 상영된 결과물만 모았습니다.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="필름 스튜디오 · KT 인천지사 시너지영업3팀">
+<meta property="og:description" content="협약식장, 사내 행사, 매장 단말과 옥외 전광판 — 실제로 상영된 영상만 모았습니다.">
+<meta property="og:image" content="https://i.ytimg.com/vi/tHoQe0W3yE0/maxresdefault.jpg">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<style>
+:root{
+  --bg:#08080a; --bg-2:#0f0f11; --card:#141416; --line:#232326;
+  --accent:#4facfe; --accent-soft:rgba(79,172,254,0.28);
+  --text:#ffffff; --text-2:#a1a1aa; --text-3:#71717a;
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg); color:var(--text);
+  font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,sans-serif;
+  -webkit-font-smoothing:antialiased; line-height:1.6;
+}
+img{display:block;max-width:100%}
+a{color:inherit}
+
+/* ── 상단 바 ── */
+.topbar{
+  position:sticky; top:0; z-index:50;
+  display:flex; align-items:center; justify-content:space-between;
+  gap:16px; padding:16px 32px;
+  background:rgba(8,8,10,0.82); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line);
+}
+.home-link{
+  display:inline-flex; align-items:center; gap:8px;
+  color:var(--text-2); text-decoration:none;
+  font-size:.85rem; font-weight:600; letter-spacing:.2px;
+  transition:color .25s;
+}
+.home-link:hover{color:var(--accent)}
+.topbar-tag{
+  font-family:var(--mono); font-size:.7rem; letter-spacing:1.6px;
+  color:var(--text-3); text-transform:uppercase; white-space:nowrap;
+}
+
+/* ── 레이아웃 ── */
+.wrap{max-width:1120px; margin:0 auto; padding:0 32px}
+
+/* ── 히어로 ── */
+.hero{padding:96px 0 72px}
+.eyebrow{
+  display:inline-block; font-family:var(--mono);
+  font-size:.7rem; font-weight:700; letter-spacing:3px; text-transform:uppercase;
+  color:var(--accent); padding:6px 14px;
+  border:1px solid var(--accent-soft); border-radius:999px; margin-bottom:26px;
+}
+.hero h1{
+  font-size:clamp(2.1rem,5.2vw,3.4rem); font-weight:800;
+  letter-spacing:-1.5px; line-height:1.2;
+}
+.page-ver{
+  display:inline-block; margin-left:12px;
+  font-size:11px; font-weight:400; color:#aaa; letter-spacing:0; vertical-align:middle;
+}
+.hero-desc{
+  margin-top:24px; padding-left:20px;
+  border-left:1px solid var(--accent-soft);
+  color:var(--text-2); font-size:1.08rem; max-width:660px;
+}
+
+/* ── 영상 블록 공통 ── */
+.reel{
+  background:var(--card); border:1px solid var(--line);
+  border-radius:24px; overflow:hidden;
+  transition:border-color .4s ease, transform .4s cubic-bezier(.25,1,.5,1);
+}
+.reel:hover{border-color:rgba(79,172,254,0.4)}
+.reel-body{padding:36px 40px 40px}
+.reel-role{
+  font-family:var(--mono); font-size:.7rem; font-weight:700;
+  letter-spacing:2.2px; text-transform:uppercase; color:var(--accent);
+}
+.reel h2{font-size:1.75rem; font-weight:800; letter-spacing:-.6px; margin:12px 0 0; line-height:1.3}
+.reel h3{font-size:1.25rem; font-weight:700; letter-spacing:-.4px; margin:12px 0 0; line-height:1.35}
+.reel p{color:var(--text-2); font-size:1rem; margin-top:16px}
+.reel-quote{
+  margin-top:20px; padding:16px 20px;
+  background:rgba(79,172,254,0.06); border-left:2px solid var(--accent);
+  border-radius:0 10px 10px 0;
+  color:#cfe7ff; font-size:1rem; font-weight:600;
+}
+
+/* 담긴 내용 칩 */
+.chips{display:flex; flex-wrap:wrap; gap:8px; margin-top:22px; list-style:none}
+.chips li{
+  font-size:.82rem; font-weight:600; color:var(--text-2);
+  padding:7px 14px; border:1px solid var(--line); border-radius:999px;
+  background:rgba(255,255,255,0.02);
+}
+
+/* 시그니처: 상영 메타 라인 */
+.screened{
+  display:flex; flex-wrap:wrap; gap:10px 26px;
+  margin-top:26px; padding-top:20px; border-top:1px solid var(--line);
+  font-family:var(--mono); font-size:.72rem; letter-spacing:.8px; color:var(--text-3);
+}
+.screened b{color:var(--text-2); font-weight:600}
+.screened span::before{content:"▸ "; color:var(--accent)}
+
+/* ── 재생 파사드(썸네일 → iframe) ── */
+.stage{
+  position:relative; width:100%; aspect-ratio:16/9;
+  background:#000; border:0; padding:0; margin:0;
+  display:block; cursor:pointer; overflow:hidden;
+  font:inherit; color:inherit;
+}
+.stage img{width:100%; height:100%; object-fit:cover; transition:transform .6s cubic-bezier(.25,1,.5,1), opacity .4s}
+.stage:hover img{transform:scale(1.03); opacity:.72}
+.stage::after{
+  content:""; position:absolute; inset:0;
+  background:linear-gradient(to top,rgba(0,0,0,.55) 0%,rgba(0,0,0,0) 45%);
+  pointer-events:none;
+}
+.play{
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  width:76px; height:76px; border-radius:50%;
+  background:rgba(8,16,34,.62); border:1.5px solid rgba(79,172,254,.85);
+  backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 0 22px rgba(79,172,254,.35);
+  transition:transform .35s cubic-bezier(.34,1.56,.64,1), box-shadow .35s, background .35s;
+  z-index:2;
+}
+.play svg{margin-left:4px}
+.stage:hover .play,.stage:focus-visible .play{
+  transform:translate(-50%,-50%) scale(1.12);
+  background:rgba(79,172,254,.3);
+  box-shadow:0 0 34px rgba(79,172,254,.65);
+}
+.stage:focus-visible{outline:2px solid var(--accent); outline-offset:3px}
+.stage iframe{width:100%; height:100%; border:0; display:block}
+.runtime{
+  position:absolute; right:14px; bottom:12px; z-index:2;
+  font-family:var(--mono); font-size:.68rem; letter-spacing:1px;
+  color:#cfe7ff; background:rgba(8,16,34,.7);
+  border:1px solid rgba(79,172,254,.35); border-radius:6px; padding:4px 9px;
+}
+
+/* ── 하위 2편 그리드 ── */
+.sub-grid{
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(340px,1fr));
+  gap:32px; margin-top:32px;
+}
+.sub-grid .reel-body{padding:28px 30px 32px}
+
+/* ── 푸터 ── */
+.foot{
+  margin-top:110px; padding:40px 0 64px;
+  border-top:1px solid var(--line);
+  display:flex; flex-wrap:wrap; gap:14px 30px; align-items:baseline; justify-content:space-between;
+  color:var(--text-3); font-size:.85rem;
+}
+.foot a{color:var(--accent); text-decoration:none}
+.foot a:hover{text-decoration:underline}
+
+/* ── 스크롤 등장 ── */
+.reveal{
+  opacity:0; filter:blur(10px); transform:translateY(24px);
+  transition:opacity 1s cubic-bezier(.22,1,.36,1), filter 1s cubic-bezier(.22,1,.36,1), transform 1s cubic-bezier(.22,1,.36,1);
+}
+.reveal.is-visible{opacity:1; filter:blur(0); transform:none}
+.reveal.d1{transition-delay:.08s}
+.reveal.d2{transition-delay:.16s}
+
+@media (max-width:768px){
+  .topbar{padding:14px 20px}
+  .wrap{padding:0 20px}
+  .hero{padding:64px 0 48px}
+  .reel-body,.sub-grid .reel-body{padding:26px 22px 30px}
+  .reel h2{font-size:1.35rem}
+  .play{width:60px;height:60px}
+  .sub-grid{gap:24px; margin-top:24px}
+  .foot{margin-top:72px}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .reveal{opacity:1!important; filter:none!important; transform:none!important; transition:none!important}
+  .stage img,.play,.reel{transition:none!important}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home-link" href="./index.html">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+    kt-synergy.com
+  </a>
+  <span class="topbar-tag">Film Studio</span>
+</header>
+
+<main class="wrap">
+
+  <section class="hero reveal">
+    <span class="eyebrow">Film Studio</span>
+    <h1>필요한 영상은, 직접 만듭니다<span class="page-ver">v1.01</span></h1>
+    <p class="hero-desc">
+      기획·촬영·편집까지 시너지영업3팀 안에서 제작한 영상입니다.
+      협약식장, 사내 행사, 매장 단말과 옥외 전광판 — 실제로 상영된 결과물만 모았습니다.
+    </p>
+  </section>
+
+  <!-- 메인: 업무협약 식전 영상 -->
+  <article class="reel reveal">
+    <button class="stage" type="button" data-id="tHoQe0W3yE0" aria-label="업무협약 식전 영상 재생">
+      <img src="https://i.ytimg.com/vi/tHoQe0W3yE0/maxresdefault.jpg"
+           onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/tHoQe0W3yE0/hqdefault.jpg';"
+           alt="업무협약 식전 영상 썸네일">
+      <span class="play" aria-hidden="true">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="#fff"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
+      </span>
+    </button>
+    <div class="reel-body">
+      <span class="reel-role">협약식 상영본</span>
+      <h2>인천광역시소상공인연합회 업무협약 식전 영상</h2>
+      <p>
+        협약식 시작 전 상영을 위해 자체 제작했습니다. 예비 소상공인 대상 사업설명회,
+        프랜차이즈 본사와의 협약 체결, 고객 매장 홍보 영상 촬영, 지역 상인회와의 상생 협업까지 —
+        팀이 현장에서 해온 일을 하나의 흐름으로 엮었습니다.
+      </p>
+      <ul class="chips">
+        <li>신규 채널 발굴 사업설명회</li>
+        <li>프랜차이즈 MOU 체결</li>
+        <li>소상공인 홍보 동반성장</li>
+        <li>지역 기반 상생 협업</li>
+      </ul>
+      <p class="reel-quote">“드디어 더 큰 미래를 향한 MOU를 맺게 되었습니다.”</p>
+      <div class="screened">
+        <span><b>상영</b> 업무협약식장</span>
+        <span><b>제작</b> 시너지영업3팀 기획·촬영·편집</span>
+      </div>
+    </div>
+  </article>
+
+  <div class="sub-grid">
+
+    <!-- 토크콘서트 -->
+    <article class="reel reveal d1">
+      <button class="stage" type="button" data-id="_amC5OLJCQg" aria-label="KT인천지사 토크콘서트 영상 재생">
+        <img src="https://i.ytimg.com/vi/_amC5OLJCQg/maxresdefault.jpg"
+             onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/_amC5OLJCQg/hqdefault.jpg';"
+             alt="KT인천지사 토크콘서트 영상 썸네일">
+        <span class="play" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
+        </span>
+      </button>
+      <div class="reel-body">
+        <span class="reel-role">사내 행사 기록</span>
+        <h3>KT인천지사 토크콘서트</h3>
+        <p>
+          지사 임직원이 한자리에 모인 토크콘서트 현장을 편집한 기록 영상입니다.
+          각자의 자리에서 일하던 사람들이 서로의 이야기를 듣고 나눈 하루를 담았습니다.
+        </p>
+        <div class="screened">
+          <span><b>상영</b> 지사 사내 행사</span>
+        </div>
+      </div>
+    </article>
+
+    <!-- 평창막국수 인트로 -->
+    <article class="reel reveal d2">
+      <button class="stage" type="button" data-id="QgY3EYBa04w" aria-label="평창막국수 매장 인트로 영상 재생">
+        <img src="https://i.ytimg.com/vi/QgY3EYBa04w/maxresdefault.jpg"
+             onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/QgY3EYBa04w/hqdefault.jpg';"
+             alt="평창막국수 매장 인트로 영상 썸네일">
+        <span class="play" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
+        </span>
+        <span class="runtime">30초</span>
+      </button>
+      <div class="reel-body">
+        <span class="reel-role">매장 상영용 인트로</span>
+        <h3>평창막국수 매장 인트로</h3>
+        <p>
+          하이오더 단말이 1분간 조작되지 않으면 자동 재생되는 30초 인트로입니다.
+          매장 외관과 간판, 내부, 시그니처 메뉴를 순서대로 담았고 스피드 램핑·트래킹·FPV 촬영에
+          턴테이블과 포토박스를 함께 썼습니다. 제작 이후 매장주 요청으로 옥외 전광판에도 게시되었습니다.
+        </p>
+        <div class="screened">
+          <span><b>상영</b> 하이오더 단말 · 옥외 전광판</span>
+        </div>
+      </div>
+    </article>
+
+  </div>
+
+  <footer class="foot">
+    <span>KT 인천지사 시너지영업3팀 기획·채널운영파트</span>
+    <span><a href="./index.html">kt-synergy.com</a></span>
+  </footer>
+
+</main>
+
+<script>
+// 썸네일 클릭 시에만 유튜브 플레이어를 삽입 — 초기 로딩 부담 제거
+document.querySelectorAll('.stage').forEach(function (stage) {
+  stage.addEventListener('click', function () {
+    var id = stage.dataset.id;
+    if (!id || stage.dataset.loaded) return;
+    stage.dataset.loaded = '1';
+    var frame = document.createElement('iframe');
+    frame.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1&rel=0&modestbranding=1&vq=hd1080';
+    frame.title = stage.getAttribute('aria-label') || '영상';
+    frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+    frame.allowFullscreen = true;
+    stage.innerHTML = '';
+    stage.style.cursor = 'default';
+    stage.appendChild(frame);
+  });
+});
+
+// 스크롤 등장
+var io = new IntersectionObserver(function (entries) {
+  entries.forEach(function (e) {
+    if (e.isIntersecting) { e.target.classList.add('is-visible'); io.unobserve(e.target); }
+  });
+}, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+document.querySelectorAll('.reveal').forEach(function (el) { io.observe(el); });
+</script>
+
+</body>
+</html>
