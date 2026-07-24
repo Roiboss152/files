@@ -207,7 +207,7 @@ a{color:inherit}
 
   <section class="hero reveal">
     <span class="eyebrow">Film Studio</span>
-    <h1>필요한 영상은, 직접 만듭니다<span class="page-ver">v1.01</span></h1>
+    <h1>필요한 영상은, 직접 만듭니다<span class="page-ver">v1.02</span></h1>
     <p class="hero-desc">
       기획·촬영·편집까지 시너지영업3팀 안에서 제작한 영상입니다.
       협약식장, 사내 행사, 매장 단말과 옥외 전광판 — 실제로 상영된 결과물만 모았습니다.
@@ -306,20 +306,69 @@ a{color:inherit}
 </main>
 
 <script>
-// 썸네일 클릭 시에만 유튜브 플레이어를 삽입 — 초기 로딩 부담 제거
+// 영상에 자막이 이미 삽입돼 있어 유튜브 자막을 이중으로 띄우지 않음
+function killCaptions(pl) {
+  try { pl.setOption('captions', 'track', {}); } catch (_) {}
+  try { pl.unloadModule('captions'); } catch (_) {}
+  try { pl.unloadModule('cc'); } catch (_) {}
+}
+
+// 유튜브 IFrame API 지연 로딩 — 첫 재생 클릭 시에만 불러옴
+var ytLoading = null;
+function loadYT() {
+  if (ytLoading) return ytLoading;
+  ytLoading = new Promise(function (resolve, reject) {
+    if (window.YT && window.YT.Player) return resolve();
+    var done = false;
+    window.onYouTubeIframeAPIReady = function () { done = true; resolve(); };
+    var sc = document.createElement('script');
+    sc.src = 'https://www.youtube.com/iframe_api';
+    sc.onerror = function () { reject(); };
+    document.head.appendChild(sc);
+    setTimeout(function () { if (!done) reject(); }, 5000); // 실패 시 일반 iframe으로 대체
+  });
+  return ytLoading;
+}
+
+// API 실패 시 폴백 — 자막 끄기 옵션을 붙인 일반 iframe
+function plainEmbed(stage, id) {
+  var f = document.createElement('iframe');
+  f.src = 'https://www.youtube-nocookie.com/embed/' + id +
+          '?autoplay=1&rel=0&cc_load_policy=0&playsinline=1&vq=hd1080';
+  f.title = stage.getAttribute('aria-label') || '영상';
+  f.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+  f.allowFullscreen = true;
+  stage.appendChild(f);
+}
+
+// 썸네일 클릭 시에만 플레이어를 삽입 — 초기 로딩 부담 제거
 document.querySelectorAll('.stage').forEach(function (stage) {
   stage.addEventListener('click', function () {
     var id = stage.dataset.id;
     if (!id || stage.dataset.loaded) return;
     stage.dataset.loaded = '1';
-    var frame = document.createElement('iframe');
-    frame.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1&rel=0&modestbranding=1&vq=hd1080';
-    frame.title = stage.getAttribute('aria-label') || '영상';
-    frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
-    frame.allowFullscreen = true;
     stage.innerHTML = '';
     stage.style.cursor = 'default';
-    stage.appendChild(frame);
+
+    loadYT().then(function () {
+      var host = document.createElement('div');
+      stage.appendChild(host);
+      new YT.Player(host, {
+        width: '100%', height: '100%', videoId: id,
+        host: 'https://www.youtube-nocookie.com',
+        playerVars: { autoplay: 1, rel: 0, cc_load_policy: 0, playsinline: 1, vq: 'hd1080' },
+        events: {
+          onReady: function (e) { killCaptions(e.target); e.target.playVideo(); },
+          // 자막 모듈은 재생이 실제로 시작된 뒤에야 확실히 내려감 → 한 번 더 시도
+          onStateChange: function (e) {
+            if (e.data === YT.PlayerState.PLAYING) {
+              killCaptions(e.target);
+              setTimeout(function () { killCaptions(e.target); }, 1200);
+            }
+          }
+        }
+      });
+    }).catch(function () { plainEmbed(stage, id); });
   });
 });
 
