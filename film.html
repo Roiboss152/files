@@ -12,9 +12,9 @@
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 <style>
 :root{
-  --bg:#08080a; --bg-2:#0f0f11; --card:#141416; --line:#232326;
+  --bg:#020204; --bg-2:#0f131a; --card:rgba(15,19,26,0.82); --line:rgba(79,172,254,0.16);
   --accent:#4facfe; --accent-soft:rgba(79,172,254,0.28);
-  --text:#ffffff; --text-2:#a1a1aa; --text-3:#71717a;
+  --text:#ffffff; --text-2:#8b93a1; --text-3:#5a6270;
   --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
 }
 *{margin:0;padding:0;box-sizing:border-box}
@@ -27,13 +27,46 @@ body{
 img{display:block;max-width:100%}
 a{color:inherit}
 
+/* ── 배경 앰버 글로우 (계산기 페이지와 동일) ── */
+.ember{position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden}
+.ember i{position:absolute; display:block; border-radius:50%}
+.ember .e1{
+  top:-25%; left:50%; width:1200px; height:1200px;
+  background:radial-gradient(circle,rgba(79,172,254,0.10) 0%,rgba(48,82,130,0.06) 40%,transparent 65%);
+  animation:emberA 26s ease-in-out infinite;
+}
+.ember .e2{
+  bottom:-30%; right:-15%; width:1000px; height:1000px;
+  background:radial-gradient(circle,rgba(58,149,230,0.08) 0%,transparent 60%);
+  animation:emberB 34s ease-in-out infinite;
+}
+@keyframes emberA{
+  0%,100%{transform:translate(-50%,0) scale(1);opacity:.55}
+  25%{transform:translate(-46%,-3%) scale(1.08);opacity:.75}
+  50%{transform:translate(-52%,2%) scale(.96);opacity:.45}
+  75%{transform:translate(-48%,-2%) scale(1.05);opacity:.68}
+}
+@keyframes emberB{
+  0%,100%{transform:translate(0,0) scale(1);opacity:.35}
+  33%{transform:translate(3%,-4%) scale(1.12);opacity:.55}
+  66%{transform:translate(-2%,3%) scale(.94);opacity:.28}
+}
+@keyframes shimmer{0%{background-position:200% 50%}100%{background-position:-200% 50%}}
+.shim{
+  background:linear-gradient(90deg,#4facfe,#b3e0ff,#4facfe);
+  background-size:200% 100%;
+  -webkit-background-clip:text; background-clip:text;
+  -webkit-text-fill-color:transparent;
+  animation:shimmer 3.5s linear infinite;
+}
+
 /* ── 상단 바 ── */
 .topbar{
-  position:sticky; top:0; z-index:50;
+  position:sticky; top:0; z-index:60;
   display:flex; align-items:center; justify-content:space-between;
   gap:16px; padding:16px 32px;
-  background:rgba(8,8,10,0.82); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
-  border-bottom:1px solid var(--line);
+  background:rgba(2,2,4,0.82); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid rgba(255,255,255,0.08);
 }
 .home-link{
   display:inline-flex; align-items:center; gap:8px;
@@ -48,37 +81,33 @@ a{color:inherit}
 }
 
 /* ── 레이아웃 ── */
-.wrap{max-width:1120px; margin:0 auto; padding:0 32px}
+.wrap{position:relative; z-index:1; max-width:1120px; margin:0 auto; padding:0 32px 140px}
 
 /* ── 히어로 ── */
-.hero{padding:96px 0 72px}
-.eyebrow{
-  display:inline-block; font-family:var(--mono);
-  font-size:.7rem; font-weight:700; letter-spacing:3px; text-transform:uppercase;
-  color:var(--accent); padding:6px 14px;
-  border:1px solid var(--accent-soft); border-radius:999px; margin-bottom:26px;
-}
+.hero{padding:clamp(28px,5vw,64px) 0 clamp(40px,6vw,64px)}
 .hero h1{
-  font-size:clamp(2.1rem,5.2vw,3.4rem); font-weight:800;
-  letter-spacing:-1.5px; line-height:1.2;
+  font-size:clamp(33.6px,6vw,52.8px); font-weight:800;
+  letter-spacing:-0.02em; line-height:1.15;
 }
 .page-ver{
-  display:inline-block; margin-left:12px;
-  font-size:11px; font-weight:400; color:#aaa; letter-spacing:0; vertical-align:middle;
+  display:inline-block; margin-left:2px;
+  font-size:13.2px; font-weight:500; color:#5a6270; letter-spacing:0; vertical-align:middle;
 }
 .hero-desc{
-  margin-top:24px; padding-left:20px;
-  border-left:1px solid var(--accent-soft);
-  color:var(--text-2); font-size:1.08rem; max-width:660px;
+  margin:10px 0 0;
+  color:var(--text-2); font-size:clamp(16.8px,2.4vw,19.2px); max-width:820px;
 }
 
 /* ── 영상 블록 공통 ── */
 .reel{
   background:var(--card); border:1px solid var(--line);
-  border-radius:24px; overflow:hidden;
-  transition:border-color .4s ease, transform .4s cubic-bezier(.25,1,.5,1);
+  border-radius:22px; overflow:hidden; backdrop-filter:blur(10px);
+  transition:transform .5s cubic-bezier(.22,1,.36,1), border-color .4s ease, box-shadow .5s ease;
 }
-.reel:hover{border-color:rgba(79,172,254,0.4)}
+.reel:hover{
+  border-color:rgba(79,172,254,0.5); transform:translateY(-3px);
+  box-shadow:0 18px 50px rgba(0,0,0,0.4), 0 0 34px rgba(79,172,254,0.14);
+}
 .reel-body{padding:36px 40px 40px}
 .reel-role{
   font-family:var(--mono); font-size:.7rem; font-weight:700;
@@ -157,16 +186,6 @@ a{color:inherit}
 }
 .sub-grid .reel-body{padding:28px 30px 32px}
 
-/* ── 푸터 ── */
-.foot{
-  margin-top:110px; padding:40px 0 64px;
-  border-top:1px solid var(--line);
-  display:flex; flex-wrap:wrap; gap:14px 30px; align-items:baseline; justify-content:space-between;
-  color:var(--text-3); font-size:.85rem;
-}
-.foot a{color:var(--accent); text-decoration:none}
-.foot a:hover{text-decoration:underline}
-
 /* ── 스크롤 등장 ── */
 .reveal{
   opacity:0; filter:blur(10px); transform:translateY(24px);
@@ -178,13 +197,12 @@ a{color:inherit}
 
 @media (max-width:768px){
   .topbar{padding:14px 20px}
-  .wrap{padding:0 20px}
+  .wrap{padding:0 20px 100px}
   .hero{padding:64px 0 48px}
   .reel-body,.sub-grid .reel-body{padding:26px 22px 30px}
   .reel h2{font-size:1.35rem}
   .play{width:60px;height:60px}
   .sub-grid{gap:24px; margin-top:24px}
-  .foot{margin-top:72px}
 }
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
@@ -194,6 +212,8 @@ a{color:inherit}
 </style>
 </head>
 <body>
+
+<div class="ember" aria-hidden="true"><i class="e1"></i><i class="e2"></i></div>
 
 <header class="topbar">
   <a class="home-link" href="./index.html">
@@ -206,11 +226,10 @@ a{color:inherit}
 <main class="wrap">
 
   <section class="hero reveal">
-    <span class="eyebrow">Film Studio</span>
-    <h1>필요한 영상은, 직접 만듭니다<span class="page-ver">v1.02</span></h1>
+    <h1>Film <span class="shim">Studio</span> <span class="page-ver">v1.05</span></h1>
     <p class="hero-desc">
-      기획·촬영·편집까지 시너지영업3팀 안에서 제작한 영상입니다.
-      협약식장, 사내 행사, 매장 단말과 옥외 전광판 — 실제로 상영된 결과물만 모았습니다.
+      필요한 영상은, 직접 만듭니다 — 기획·촬영·편집까지 시너지영업3팀 안에서 제작했습니다.
+      협약식장, 사내 행사, 매장 단말과 옥외 전광판에서 실제로 상영된 결과물만 모았습니다.
     </p>
   </section>
 
@@ -297,11 +316,6 @@ a{color:inherit}
     </article>
 
   </div>
-
-  <footer class="foot">
-    <span>KT 인천지사 시너지영업3팀 기획·채널운영파트</span>
-    <span><a href="./index.html">kt-synergy.com</a></span>
-  </footer>
 
 </main>
 
