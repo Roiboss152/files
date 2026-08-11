@@ -2,11 +2,13 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0d1117">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>하이오더 전자청약</title>
 <!--
   ============================================================
-  KT HIORDER 전자청약  ·  contract.html  v1.10
+  KT HIORDER 전자청약  ·  contract.html  v1.20
   ------------------------------------------------------------
   · 원본 가입신청서 PDF(14p)를 화면에 렌더 → 고객이 태블릿에서
     서명란마다 "각각" 직접 서명 + 동의함/않음 선택
@@ -23,7 +25,14 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
+@font-face{
+  font-family:'GeuriunXGukhanbakDaheul';
+  src:url('https://cdn.jsdelivr.net/gh/Project-Noonnu/2607161334@x/x/GriunXHangeul_DAHL-Rg.woff2') format('woff2');
+  font-weight:400;font-display:swap;
+}
 :root{
+  color-scheme:dark;
+  --hand:'GeuriunXGukhanbakDaheul','Pretendard Variable',Pretendard,sans-serif;
   --ink:#0B0E14; --ink2:#131826; --paper:#FFFFFF;
   --kt:#E60012; --kt-soft:rgba(230,0,18,.08);
   --lime:#84FF00; --lime-ink:#3E7A00;
@@ -89,9 +98,9 @@ input{font-family:inherit}
   text-shadow:0 0 6px rgba(255,255,255,.9);pointer-events:none;white-space:nowrap}
 .slot::after{content:'';position:absolute;right:-1px;top:-1px;border-style:solid;
   border-width:0 9px 9px 0;border-color:transparent var(--kt) transparent transparent}
-.slot.opt{background:linear-gradient(180deg,rgba(132,255,0,.05) 0%,rgba(132,255,0,.05) 54%,rgba(132,255,0,.26) 54%,rgba(132,255,0,.26) 100%)}
-.slot.opt .cue{color:#c96a00}
-.slot.opt::after{border-color:transparent #c96a00 transparent transparent}
+.slot.opt{background:linear-gradient(180deg,transparent 0%,transparent 84%,rgba(255,153,0,.35) 84%,rgba(255,153,0,.35) 100%)}
+.slot.opt .cue{color:#cf7a10;opacity:.75}
+.slot.opt::after{border-width:0 6px 6px 0;border-color:transparent rgba(207,122,16,.7) transparent transparent}
 .slot.done{background:none;border:1.5px solid rgba(132,255,0,.85)}
 .slot.done::after{border-color:transparent var(--lime-ink) transparent transparent}
 .slot.done .cue{display:none}
@@ -103,22 +112,46 @@ input{font-family:inherit}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(230,0,18,.5)}50%{box-shadow:0 0 0 8px rgba(230,0,18,0)}}
 
 /* 텍스트 입력 필드 — 형광 밑줄 */
-.fld{position:absolute;border-radius:2px;cursor:text;
-  background:linear-gradient(180deg,transparent 0%,transparent 60%,rgba(132,255,0,.42) 60%,rgba(132,255,0,.42) 100%)}
-.fld:hover{background:linear-gradient(180deg,rgba(132,255,0,.10) 0%,rgba(132,255,0,.10) 60%,rgba(132,255,0,.55) 60%,rgba(132,255,0,.55) 100%)}
-.fld.has{background:none}
+.fld{position:absolute;border-radius:2px;cursor:text;background:none}
+.fld:hover{background:rgba(132,255,0,.14)}
+.fld.main{background:linear-gradient(180deg,transparent 0%,transparent 60%,rgba(132,255,0,.42) 60%,rgba(132,255,0,.42) 100%)}
+.fld.main:hover{background:linear-gradient(180deg,rgba(132,255,0,.10) 0%,rgba(132,255,0,.10) 60%,rgba(132,255,0,.55) 60%,rgba(132,255,0,.55) 100%)}
+.fld.has,.fld.main.has{background:none}
 .fld.has:hover{background:rgba(132,255,0,.10)}
-.fval{position:absolute;left:2px;top:50%;transform:translateY(-50%);color:#0d1117;font-weight:600;
+.fval{position:absolute;left:2px;top:50%;transform:translateY(-50%);color:#0d1117;font-family:var(--hand);font-weight:600;
   white-space:nowrap;line-height:1;pointer-events:none;max-width:none}
 .finp{position:absolute;border:1.5px solid var(--accent);border-radius:3px;background:#fff;color:#0d1117;
-  font-weight:600;padding:0 2px;outline:none;z-index:6}
+  font-family:var(--hand);font-weight:600;padding:0 2px;outline:none;z-index:6}
 
 /* 선택 마크 ○/□ */
-.mk{position:absolute;border-radius:50%;border:1.5px solid rgba(132,255,0,.95);background:rgba(132,255,0,.14);transition:.15s}
-.mk:hover{background:rgba(132,255,0,.3)}
+.mk{position:absolute;border-radius:50%;border:1.5px solid transparent;background:none;transition:.15s}
+.mk:hover{border-color:rgba(132,255,0,.8);background:rgba(132,255,0,.18)}
 .mk.on{border-color:transparent;background:none}
 .mk svg{position:absolute;inset:-14%;width:128%;height:128%;pointer-events:none}
 .mk svg path{fill:none;stroke:#0d1117;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+
+/* ── 단계별 입력 가이드 ── */
+.stepGlow{animation:stepPulse 1.5s ease-in-out infinite;border-radius:4px;z-index:5}
+@keyframes stepPulse{
+  0%,100%{box-shadow:0 0 0 2.5px rgba(230,0,18,.85),0 0 14px 2px rgba(230,0,18,.35)}
+  50%{box-shadow:0 0 0 7px rgba(230,0,18,.12),0 0 22px 6px rgba(230,0,18,.10)}
+}
+.stepTag{position:absolute;z-index:7;transform:translate(0,-100%);display:flex;align-items:center;gap:0;
+  pointer-events:auto;animation:tagBob 1.5s ease-in-out infinite;filter:drop-shadow(0 3px 8px rgba(0,0,0,.35));
+  white-space:nowrap}
+.stepTag .tlab{background:var(--kt);color:#fff;font-size:11px;font-weight:800;letter-spacing:-.01em;
+  padding:4px 9px;border-radius:7px 0 0 7px;pointer-events:none}
+.stepTag .tskip{background:#7a1220;color:#ffd9de;font-size:10px;font-weight:700;padding:4px 8px;
+  border:none;border-radius:0 7px 7px 0;cursor:pointer}
+.stepTag .tskip:active{background:#5d0d18}
+.stepTag::after{content:'';position:absolute;left:14px;bottom:-5px;border:5px solid transparent;
+  border-top-color:var(--kt);border-bottom:none}
+@keyframes tagBob{0%,100%{transform:translate(0,-100%) translateY(0)}50%{transform:translate(0,-100%) translateY(-4px)}}
+.stepChip{position:fixed;left:14px;bottom:14px;z-index:60;background:#161d29;border:1px solid #2a3547;
+  color:#c6d0e0;font-size:11.5px;font-weight:700;border-radius:20px;padding:7px 12px;display:flex;gap:8px;
+  align-items:center;box-shadow:0 6px 18px rgba(0,0,0,.4)}
+.stepChip b{color:var(--lime)}
+.stepChip.hide{display:none}
 
 /* 동의 행 */
 .crow{position:absolute;border-radius:6px;transition:.2s}
@@ -134,14 +167,14 @@ input{font-family:inherit}
 .crow.pulse{animation:pulse .9s 2}
 
 /* 날짜·텍스트 오버레이 항목 */
-.ovtext{position:absolute;transform:translate(-50%,-50%);color:#0d1117;font-weight:600;
+.ovtext{position:absolute;transform:translate(-50%,-50%);color:#0d1117;font-family:var(--hand);font-weight:600;
   white-space:pre;pointer-events:none;line-height:1}
-.titem{position:absolute;color:#0d1117;font-weight:600;white-space:pre;line-height:1.25;
+.titem{position:absolute;color:#0d1117;font-family:var(--hand);font-weight:600;white-space:pre;line-height:1.25;
   cursor:grab;border:1px dashed transparent;border-radius:3px;padding:1px 2px;transform:translate(0,-50%)}
 .titem.sel{border-color:var(--accent);background:rgba(79,172,254,.07)}
 .titem .del{position:absolute;top:-11px;right:-11px;width:20px;height:20px;border-radius:50%;
   background:var(--kt);color:#fff;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center}
-.tinput{position:absolute;transform:translate(0,-50%);border:1.5px solid var(--accent);border-radius:4px;
+.tinput{position:absolute;transform:translate(0,-50%);font-family:var(--hand);border:1.5px solid var(--accent);border-radius:4px;
   background:#fff;color:#0d1117;font-weight:600;padding:2px 4px;outline:none;min-width:110px}
 body.textmode .page{cursor:crosshair}
 
@@ -243,7 +276,15 @@ audio{width:100%;margin-top:9px;height:34px}
     padding:10px 10px 10px 18px;box-shadow:0 14px 40px rgba(0,0,0,.5);font-size:13px;font-weight:800}
   .progress-pill .mini{background:var(--kt);color:#fff;border-radius:999px;font-size:12px;padding:8px 14px}
   .progress-pill.ok .mini{background:var(--lime);color:#173300}
-  .topbar{gap:9px;padding:0 10px}
+  .topbar{gap:8px;padding:0 10px;overflow-x:auto;overflow-y:hidden;
+    scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .topbar::-webkit-scrollbar{display:none}
+  .topbar>*{flex:none}
+  .topbar .btn{padding:7px 10px;font-size:11.5px}
+  #bwTog .full{display:none}
+  .brand{gap:6px}
+  .brand b{display:none}
+  #btnPdf .full{display:none}
   .meta{display:none}
   .actions .btn span{display:none}
   .actions .btn{padding:9px 11px}
@@ -257,7 +298,7 @@ audio{width:100%;margin-top:9px;height:34px}
 <body>
 
 <header class="topbar">
-  <div class="brand"><b>하이오더 전자청약</b><span class="ver">v1.10</span></div>
+  <div class="brand"><b>하이오더 전자청약</b><span class="ver">v1.20</span></div>
   <div class="seg" id="modeSeg">
     <button data-mode="hi" class="on">하이오더</button>
     <button data-mode="full">+ 안심매입</button>
@@ -267,7 +308,7 @@ audio{width:100%;margin-top:9px;height:34px}
     <input id="mOwner" placeholder="대표자 성명" autocomplete="off">
   </div>
   <div class="actions">
-    <button class="btn ghost tglchip on" id="bwTog" title="인쇄·PDF를 흑백으로 변환 (팩스 최적화)"><span class="dot"></span>흑백출력</button>
+    <button class="btn ghost tglchip on" id="bwTog" title="인쇄·PDF를 흑백으로 변환 (팩스 최적화)"><span class="dot"></span>흑백<span class="full">출력</span></button>
     <button class="btn ghost" id="btnText" title="문서 위 임의 위치에 텍스트 입력">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M4 6V4h16v2M12 4v16m-4 0h8"/></svg><span>텍스트</span></button>
     <button class="btn ghost" id="btnPrint" disabled>
@@ -343,6 +384,28 @@ audio{width:100%;margin-top:9px;height:34px}
   </div>
 </div>
 
+<div class="veil" id="sendVeil">
+  <div class="sigbox" role="dialog" aria-modal="true" style="max-width:440px">
+    <header>
+      <span class="dotr" style="background:var(--lime)"></span><b>복사본 전송</b>
+      <span>생성된 신청서 PDF를<br>고객에게 바로 전달</span>
+    </header>
+    <div style="padding:16px 18px;display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:12.5px;color:#93a0b4;line-height:1.55">
+        고객 입력 정보 · <b id="sendTo" style="color:#dfe5f0"></b><br>
+        아래 <b style="color:#dfe5f0">공유</b>에서 문자·카카오톡·메일 앱을 고르고 위 연락처로 보내면 됩니다.
+      </div>
+      <button class="btn pri" id="sendShare" style="justify-content:center">📤 PDF 공유하기 (문자·카톡·메일)</button>
+      <div style="display:flex;gap:8px">
+        <a class="btn ghost" id="sendSms" style="flex:1;justify-content:center;text-decoration:none">문자 앱 열기</a>
+        <a class="btn ghost" id="sendMailto" style="flex:1;justify-content:center;text-decoration:none">메일 앱 열기</a>
+      </div>
+      <div class="cap" style="margin:0">문자·메일 앱에는 안내문이 미리 채워집니다. 첨부가 필요하면 <b>공유하기</b>를 사용하세요. PDF는 기기에도 저장되었습니다.</div>
+    </div>
+    <footer><button class="btn ghost grow" id="sendClose">닫기</button></footer>
+  </div>
+</div>
+<div class="stepChip hide" id="stepChip"><span>입력 가이드 <b id="stepNo">1</b>/<span id="stepTot">0</span></span><button class="btn ghost" id="stepSkip" style="padding:3px 9px;font-size:10.5px">건너뛰기</button></div>
 <div id="toast"></div>
 
 <div id="boot">
@@ -443,11 +506,11 @@ const FIELDS=[
  {id:'f_st7',pg:1,r:[427,570.5,452,585.5],t:'num',s:8},
  {id:'f_bat',pg:1,r:[168,600,210,614.5],t:'num',s:9},
  {id:'f_pow',pg:1,r:[295,600,337,614.5],t:'num',s:9},
- {id:'f_pay_once',pg:1,r:[136,658,236,670.5],t:'num',s:9},
- {id:'f_pay_mon',pg:1,r:[136,674,236,686.5],t:'num',s:9},
- {id:'f_pay_tot',pg:1,r:[324,674,428,686.5],t:'num',s:9},
- {id:'f_svc_pre',pg:1,r:[136,694,236,706.5],t:'num',s:9},
- {id:'f_svc_mon',pg:1,r:[136,710,236,722.5],t:'num',s:9},
+ {id:'f_pay_once',fmt:1,pg:1,r:[136,658,236,670.5],t:'num',s:9},
+ {id:'f_pay_mon',fmt:1,pg:1,r:[136,674,236,686.5],t:'num',s:9},
+ {id:'f_pay_tot',fmt:1,pg:1,r:[324,674,428,686.5],t:'num',s:9},
+ {id:'f_svc_pre',fmt:1,pg:1,r:[136,694,236,706.5],t:'num',s:9},
+ {id:'f_svc_mon',fmt:1,pg:1,r:[136,710,236,722.5],t:'num',s:9},
  {id:'f2_svcno',pg:2,r:[114,76,566,95],t:'text',s:9},
  {id:'f2_etc',pg:2,r:[463,103.5,512,120],t:'text',s:8},
  {id:'f2_now',pg:2,r:[112,128.5,566,150.5],t:'text',s:9},
@@ -460,9 +523,9 @@ const FIELDS=[
  {id:'f2_b_regno',pg:2,r:[308,235.5,419,252],t:'num',s:9},
  {id:'f2_b_phone',pg:2,r:[451,235.5,568,252],t:'tel',s:9},
  {id:'f2_b_addr',pg:2,r:[152,256,414,278],t:'text',s:9},
- {id:'f2_kt_name',pg:2,r:[107,781.8,226,792.4],t:'text',s:7,d:'이대희 / 010-7300-2632'},
+ {id:'f2_kt_name',pg:2,r:[107,781.8,226,792.4],t:'text',s:7},
  {id:'f2_kt_sabun',pg:2,r:[291,781.8,354,792.4],t:'text',s:7},
- {id:'f2_kt_org',pg:2,r:[396,781.8,459,792.4],t:'text',s:7,d:'시너지영업3팀'},
+ {id:'f2_kt_org',pg:2,r:[396,781.8,459,792.4],t:'text',s:7},
  {id:'f2_kt_prj',pg:2,r:[506,781.8,569,792.4],t:'text',s:7},
  {id:'f2_sp_name',pg:2,r:[107,794.8,226,805.6],t:'text',s:7},
  {id:'f2_sp_sabun',pg:2,r:[291,794.8,354,805.6],t:'text',s:7},
@@ -561,6 +624,46 @@ const MK=[
  {id:'m2_8',pg:2,r:[156.6,284.8,165.6,293.8]},
 ];
 
+/* 참조본과 동일한 부분 회색 처리 존 (x0,top,x1,bottom pt) */
+const GRAYZONES={
+  1:[[44.6,171.4,567.4,218.2],[45.4,383,270,452.2],[31.7,522,100.8,552.2],[45.4,617.8,436.9,648],[31.7,654.5,569.5,754.6]],
+  2:[[0,0,595.3,841.9]],
+  3:[[24.5,72,571,85.7],[24.5,501.1,571,514.8]],
+  4:[[24.5,72,571,85.7],[24.5,293.8,571,307.4]],
+};
+
+/* 단계별 입력 가이드 순서 (주요 입력 = 형광 표시 대상) */
+const STEPS=[
+ {f:'f_bizname',lab:'법인명(고객명) 입력'},
+ {f:'f_bizregno',lab:'법인등록번호(생년월일)'},
+ {f:'f_bizno',lab:'사업자등록번호'},
+ {f:'f_phone1',lab:'연락처(휴대폰)'},
+ {f:'f_addr',lab:'설치 주소'},
+ {f:'f_appname',lab:'신청자 성명'},
+ {f:'f_appbirth',lab:'신청자 생년월일'},
+ {f:'f_appphone',lab:'신청자 연락처'},
+ {f:'f_appemail',lab:'이메일 주소'},
+ {f:'f_bank',lab:'은행(카드사)명'},
+ {f:'f_acctno',lab:'계좌(카드)번호'},
+ {f:'f_rel2',lab:'고객과의 관계'},
+ {f:'f_acctbirth',lab:'예금주 사업자번호(생년월일)'},
+ {f:'f_dueyy',lab:'설치 희망 연도'},
+ {f:'f_duemm',lab:'설치 희망 월'},
+ {f:'f_duedd',lab:'설치 희망 일'},
+ {f:'f_menu_cnt',lab:'메뉴판 신청 대수'},
+ {f:'f_pay_mon',lab:'단말 월 납부액'},
+ {f:'f_svc_mon',lab:'서비스 월 납부액'},
+ {sig:'s_p1_acct',lab:'예금주 성명·서명'},
+ {con:'c1',lab:'개인정보 수집·이용 동의'},
+ {con:'c2',lab:'마케팅 활용 (선택)'},
+ {con:'c3',lab:'혜택 제공 (선택)'},
+ {con:'c4',lab:'이용·제3자 제공 동의'},
+ {con:'c5',lab:'신용정보 조회 동의'},
+ {sig:'s_p7_terms',lab:'이용약관 동의 서명'},
+ {sig:'s_p1_apply',lab:'신청인 최종 서명'},
+];
+const MAINF=new Set(STEPS.filter(s=>s.f).map(s=>s.f));
+
 /* ============================================================
    상태 (메모리에만 보관 — 서버·로컬 저장 없음)
 ============================================================ */
@@ -571,7 +674,8 @@ const S = {
   fld:{},                 // fieldId → 값
   mk:{},                  // markId → 1
   texts:[],               // {tid,pg,x,y,txt,size}
-  bw:true,                // 흑백 출력
+  bw:true,                // 흑백 출력(전체) / 해제 시 참조 스타일 부분 회색
+  step:0,                 // 입력 가이드 인덱스
   textMode:false, selText:null, dirty:false, tseq:0,
 };
 const $ = s=>document.querySelector(s);
@@ -632,10 +736,30 @@ async function renderPage(pg){
   const vp=page.getViewport({scale:q});
   const cv=document.createElement('canvas'); cv.width=vp.width; cv.height=vp.height;
   await page.render({canvasContext:cv.getContext('2d'),viewport:vp}).promise;
+  grayRegions(cv.getContext('2d'),cv,pg,q);
   holder.querySelector('.skeleton')?.remove();
   holder.insertBefore(cv,holder.querySelector('.overlay'));
   S.canvases[pg]=cv;
   drawOverlay(pg);
+}
+
+/* 존 단위 그레이스케일 (화면·컬러출력 공용) */
+function grayRegions(ctx,cv,pg,scale){
+  const zs=GRAYZONES[pg]; if(!zs) return;
+  for(const [x0,y0,x1,y1] of zs){
+    const sx=Math.max(0,Math.floor(x0*scale)), sy=Math.max(0,Math.floor(y0*scale));
+    const sw=Math.min(cv.width-sx,Math.ceil((x1-x0)*scale)), sh=Math.min(cv.height-sy,Math.ceil((y1-y0)*scale));
+    if(sw<=0||sh<=0) continue;
+    if('filter' in ctx){
+      const t=document.createElement('canvas'); t.width=sw; t.height=sh;
+      t.getContext('2d').drawImage(cv,sx,sy,sw,sh,0,0,sw,sh);
+      ctx.save(); ctx.filter='grayscale(1)'; ctx.drawImage(t,sx,sy); ctx.restore();
+    }else{
+      const d=ctx.getImageData(sx,sy,sw,sh), p=d.data;
+      for(let i=0;i<p.length;i+=4){const g=(p[i]*0.299+p[i+1]*0.587+p[i+2]*0.114)|0;p[i]=p[i+1]=p[i+2]=g;}
+      ctx.putImageData(d,sx,sy);
+    }
+  }
 }
 
 /* pt → % 배치 헬퍼 */
@@ -657,7 +781,7 @@ function drawOverlay(pg){
   for(const fd of FIELDS.filter(x=>x.pg===pg)){
     const v=S.fld[fd.id];
     const el=document.createElement('button');
-    el.className='fld'+(v?' has':''); el.id='fld_'+fd.id;
+    el.className='fld'+(v?' has':'')+(MAINF.has(fd.id)?' main':''); el.id='fld_'+fd.id;
     el.style.cssText=P(fd.r[0],fd.r[1],fd.r[2]-fd.r[0],fd.r[3]-fd.r[1]);
     if(v){const sp=document.createElement('span');sp.className='fval';sp.dataset.fp=fitSize(v,fd);sp.textContent=v;el.appendChild(sp);}
     el.onclick=e=>{e.stopPropagation();openField(fd);};
@@ -703,6 +827,7 @@ function drawOverlay(pg){
   /* 텍스트 항목 */
   for(const t of S.texts.filter(t=>t.pg===pg)) mountText(ov,t);
   fitOverlayFonts(pg);
+  renderStepUI();
 }
 function sigSVG(z){
   const st=S.sig[z.id]; if(!st) return '';
@@ -712,13 +837,83 @@ function sigSVG(z){
 }
 function dateOn(k){ const owner=SIG.find(z=>z.dg===k); return owner&&S.sig[owner.id]; }
 
+/* ── 단계별 입력 가이드 엔진 ── */
+function stepDone(st){
+  if(st.f) return !!S.fld[st.f];
+  if(st.sig) return !!S.sig[st.sig];
+  if(st.con) return !!S.con[st.con];
+  return true;
+}
+function stepMeta(st){
+  if(st.f){const fd=FIELDS.find(x=>x.id===st.f); return fd?{pg:fd.pg,el:'fld_'+st.f,r:fd.r,verb:'여기에 입력'}:null;}
+  if(st.sig){const z=SIG.find(x=>x.id===st.sig); return z?{pg:z.pg,el:'slot_'+st.sig,r:z.draw,verb:'여기에 서명'}:null;}
+  if(st.con){const c=CON.find(x=>x.id===st.con); return c?{pg:c.pg,el:'crow_'+st.con,r:c.hot,verb:'동의 선택'}:null;}
+  return null;
+}
+function nextIncomplete(from){
+  for(let i=from;i<STEPS.length;i++) if(!stepDone(STEPS[i])) return i;
+  for(let i=0;i<from;i++) if(!stepDone(STEPS[i])) return i;
+  return -1;
+}
+function currentStepIndex(){
+  if(S.step>=0 && S.step<STEPS.length && !stepDone(STEPS[S.step])) return S.step;
+  return nextIncomplete(Math.max(0,S.step));
+}
+function renderStepUI(){          /* 순수 렌더 — 상태 변경 없음 */
+  $$('.stepTag').forEach(e=>e.remove());
+  $$('.stepGlow').forEach(e=>e.classList.remove('stepGlow'));
+  const chip=$('#stepChip');
+  const i=currentStepIndex();
+  if(i<0){ chip.classList.add('hide'); return; }
+  const st=STEPS[i], m=stepMeta(st); if(!m){chip.classList.add('hide');return;}
+  chip.classList.remove('hide');
+  $('#stepNo').textContent=i+1; $('#stepTot').textContent=STEPS.length;
+  const tg=$('#'+m.el); if(!tg) return;   // 대상 페이지 미렌더 시 해당 drawOverlay가 재호출
+  tg.classList.add('stepGlow');
+  const ov=$('#ov'+m.pg); if(!ov) return;
+  const tag=document.createElement('div'); tag.className='stepTag';
+  tag.style.left=(m.r[0]/PW*100)+'%';
+  tag.style.top=(Math.max(m.r[1]-2,10)/PH*100)+'%';
+  tag.innerHTML=`<span class="tlab">${m.verb} ▾</span><button class="tskip" type="button">건너뛰기</button>`;
+  tag.querySelector('.tskip').onclick=e=>{e.stopPropagation(); skipStep();};
+  ov.appendChild(tag);
+}
+function skipStep(){
+  const base=currentStepIndex();
+  const n=nextIncomplete((base<0?S.step:base)+1);
+  if(n<0||n===base){ toast('남은 가이드 항목이 없습니다'); return; }
+  gotoStep(n);
+}
+function gotoStep(i){
+  if(i<0) return;
+  S.step=i; S.stepFin=false;
+  const m=stepMeta(STEPS[i]); if(!m) return;
+  renderStepUI();
+  jump(m.el,m.pg).then(()=>renderStepUI());
+}
+function stepAdvance(kind,id){
+  const wasCur = S.step>=0 && STEPS[S.step] && STEPS[S.step][kind]===id;
+  if(nextIncomplete(0)<0){
+    if(!S.stepFin){
+      S.stepFin=true; renderStepUI();
+      toast('입력 가이드 완료! 판매자 확인 체크 후 출력하세요');
+      $('#rail').classList.add('open');
+    }
+    return;
+  }
+  S.stepFin=false;
+  if(wasCur) gotoStep(nextIncomplete(S.step+1));
+  else renderStepUI();
+}
+
 /* 필드 값 폭 맞춤 (pt) */
+const HANDF=s=>`600 ${s}px 'GeuriunXGukhanbakDaheul','Pretendard Variable',Pretendard,sans-serif`;
 const measCtx=document.createElement('canvas').getContext('2d');
 function fitSize(v,fd){
   const w=(fd.r[2]-fd.r[0])-3, h=(fd.r[3]-fd.r[1]);
   let s=Math.min(fd.s,h*0.85);
   for(;s>5;s-=.5){
-    measCtx.font=`600 ${s}px 'Pretendard Variable',Pretendard,sans-serif`;
+    measCtx.font=HANDF(s);
     if(measCtx.measureText(v).width<=w) break;
   }
   return s;
@@ -736,6 +931,10 @@ function openField(fd){
   if(fd.t==='email') inp.type='email';
   if(fd.t==='tel') inp.type='tel';
   inp.autocomplete='off';
+  if(fd.fmt) inp.addEventListener('input',()=>{
+    const d=inp.value.replace(/[^0-9]/g,'');
+    inp.value=d?Number(d).toLocaleString('ko-KR'):'';
+  });
   ov.appendChild(inp); fitOverlayFonts(fd.pg);
   requestAnimationFrame(()=>inp.focus());
   inp.addEventListener('keydown',e=>{
@@ -746,6 +945,7 @@ function openField(fd){
     const v=inp.value.trim(); inp.remove();
     if(v) S.fld[fd.id]=v; else delete S.fld[fd.id];
     S.dirty=true; drawOverlay(fd.pg);
+    if(v) stepAdvance('f',fd.id);
   },{once:true});
 }
 function fitOverlayFonts(pg){
@@ -806,6 +1006,7 @@ $('#sigOk').onclick=()=>{
   S.sig[curZone.id]={strokes:curStrokes.filter(s=>s.length>1)};
   S.dirty=true; $('#sigVeil').classList.remove('on');
   drawOverlay(curZone.pg); refresh();
+  stepAdvance('sig',curZone.id);
 };
 
 /* ============================================================
@@ -826,6 +1027,7 @@ function setCon(v){
   if(v) S.con[curCon.id]=v; else delete S.con[curCon.id];
   S.dirty=true; $('#conVeil').classList.remove('on');
   drawOverlay(curCon.pg); refresh();
+  if(v) stepAdvance('con',curCon.id);
 }
 $$('.veil').forEach(v=>v.addEventListener('click',e=>{if(e.target===v)v.classList.remove('on')}));
 
@@ -835,7 +1037,7 @@ $$('.veil').forEach(v=>v.addEventListener('click',e=>{if(e.target===v)v.classLis
 $('#bwTog').onclick=()=>{
   S.bw=!S.bw;
   $('#bwTog').classList.toggle('on',S.bw);
-  toast(S.bw?'흑백 출력: 인쇄·PDF가 그레이스케일로 변환됩니다 (팩스 최적화)':'컬러 출력으로 전환');
+  toast(S.bw?'흑백 출력: 인쇄·PDF 전체가 그레이스케일 (팩스 최적화)':'컬러 출력: 화면과 동일하게 주요 구역만 컬러');
 };
 $('#btnText').onclick=()=>{
   S.textMode=!S.textMode;
@@ -948,6 +1150,7 @@ function refresh(){
   updScript();
 }
 $('#sellerOk').onchange=refresh;
+$('#stepSkip').onclick=skipStep;
 $('#pill').onclick=()=>$('#rail').classList.toggle('open');
 function firstMissing(){
   for(const z of reqSig()) if(!S.sig[z.id]) return {el:'slot_'+z.id,pg:z.pg,msg:`'${z.lab}'이 아직 비어 있어요 (p.${z.pg})`};
@@ -998,6 +1201,7 @@ async function composePage(pg){
       ctx.putImageData(d,0,0);
     }
   }
+  if(!S.bw) grayRegions(ctx,cv,pg,FAX_SCALE);
   const s=FAX_SCALE;
   ctx.strokeStyle=ctx.fillStyle='#000'; ctx.lineCap=ctx.lineJoin='round';
   /* 서명 */
@@ -1022,7 +1226,7 @@ async function composePage(pg){
     if(d.pg!==pg||!dateOn(k)) continue;
     for(const part of ['yy','mm','dd']){
       const [cx,by,fp]=d[part];
-      ctx.font=`600 ${fp*s}px 'Pretendard Variable',Pretendard,sans-serif`;
+      ctx.font=HANDF(fp*s);
       ctx.fillText(map[part],cx*s,by*s);
     }
   }
@@ -1030,7 +1234,7 @@ async function composePage(pg){
   ctx.textAlign='left'; ctx.textBaseline='middle';
   for(const fd of FIELDS.filter(x=>x.pg===pg)){
     const v=S.fld[fd.id]; if(!v) continue;
-    ctx.font=`600 ${fitSize(v,fd)*s}px 'Pretendard Variable',Pretendard,sans-serif`;
+    ctx.font=HANDF(fitSize(v,fd)*s);
     ctx.fillText(v,(fd.r[0]+1.5)*s,((fd.r[1]+fd.r[3])/2)*s);
   }
   /* 선택 마크 체크 */
@@ -1042,13 +1246,14 @@ async function composePage(pg){
   }
   /* 텍스트 */
   for(const it of S.texts.filter(t=>t.pg===pg)){
-    ctx.font=`600 ${it.size*s}px 'Pretendard Variable',Pretendard,sans-serif`;
+    ctx.font=HANDF(it.size*s);
     it.txt.split('\n').forEach((line,i)=>ctx.fillText(line,it.x*s,(it.y+i*it.size*1.25)*s));
   }
   return cv;
 }
 async function composeAll(msg){
   await document.fonts.ready;
+  try{ await document.fonts.load("12px 'GeuriunXGukhanbakDaheul'","가나다0123"); }catch(e){}
   const pages=MODE_PAGES[S.mode], out=[];
   for(let i=0;i<pages.length;i++){
     toast(`${msg} ${i+1}/${pages.length}p…`);
@@ -1086,9 +1291,44 @@ $('#btnPdf').onclick=async()=>{
   const pdf=new jsPDF({unit:'pt',format:'a4',compress:true});
   cvs.forEach((cv,i)=>{ if(i) pdf.addPage();
     pdf.addImage(cv.toDataURL('image/jpeg',.9),'JPEG',0,0,PW,PH); });
-  pdf.save(fname('pdf'));
-  toast('PDF가 저장되었습니다. 이메일 발송 시 발송 시각이 증빙으로 남습니다.');
+  const blob=pdf.output('blob'), fn=fname('pdf');
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=fn;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+  S.lastPdf={blob,fn};
+  openSendSheet();
 };
+
+/* ── 복사본 전송 시트 ── */
+function custContacts(){
+  const mail=(S.fld.f_appemail||S.fld.f_msgmail||'').trim();
+  const tel=(S.fld.f_appphone||S.fld.f_phone1||'').replace(/[^0-9]/g,'');
+  return {mail,tel};
+}
+function openSendSheet(){
+  const {mail,tel}=custContacts();
+  $('#sendTo').textContent=[tel&&('📞 '+tel), mail&&('✉ '+mail)].filter(Boolean).join('   ')||'연락처 미입력 (문서의 연락처·이메일 칸을 채우면 자동 표시)';
+  const store=$('#mStore').value.trim()||'고객';
+  const body=encodeURIComponent(`[KT 하이오더] ${store}님, 신청서 사본을 전달드립니다. 문의: KT 담당자`);
+  $('#sendSms').href= tel? `sms:${tel}?body=${body}` : '#';
+  $('#sendSms').style.opacity=tel?'1':'.4';
+  $('#sendMailto').href= mail? `mailto:${mail}?subject=${encodeURIComponent('[KT 하이오더] 신청서 사본')}&body=${body}` : '#';
+  $('#sendMailto').style.opacity=mail?'1':'.4';
+  const canFile=navigator.canShare&&navigator.canShare({files:[new File([new Blob()],'t.pdf',{type:'application/pdf'})]});
+  $('#sendShare').style.display=canFile?'':'none';
+  $('#sendVeil').classList.add('on');
+}
+$('#sendShare').onclick=async()=>{
+  if(!S.lastPdf) return;
+  try{
+    await navigator.share({
+      files:[new File([S.lastPdf.blob],S.lastPdf.fn,{type:'application/pdf'})],
+      title:'KT 하이오더 신청서',
+      text:'신청서 사본을 전달드립니다.',
+    });
+  }catch(e){}
+};
+$('#sendClose').onclick=()=>$('#sendVeil').classList.remove('on');
 
 /* ============================================================
    동의 녹취 (선택)
