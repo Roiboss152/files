@@ -8,7 +8,7 @@
 <title>하이오더 전자청약</title>
 <!--
   ============================================================
-  KT HIORDER 전자청약  ·  contract.html  v1.20
+  KT HIORDER 전자청약  ·  contract.html  v1.21
   ------------------------------------------------------------
   · 원본 가입신청서 PDF(14p)를 화면에 렌더 → 고객이 태블릿에서
     서명란마다 "각각" 직접 서명 + 동의함/않음 선택
@@ -118,6 +118,7 @@ input{font-family:inherit}
 .fld.main:hover{background:linear-gradient(180deg,rgba(132,255,0,.10) 0%,rgba(132,255,0,.10) 60%,rgba(132,255,0,.55) 60%,rgba(132,255,0,.55) 100%)}
 .fld.has,.fld.main.has{background:none}
 .fld.has:hover{background:rgba(132,255,0,.10)}
+.fval.c{left:50%;transform:translate(-50%,-50%)}
 .fval{position:absolute;left:2px;top:50%;transform:translateY(-50%);color:#0d1117;font-family:var(--hand);font-weight:600;
   white-space:nowrap;line-height:1;pointer-events:none;max-width:none}
 .finp{position:absolute;border:1.5px solid var(--accent);border-radius:3px;background:#fff;color:#0d1117;
@@ -137,11 +138,11 @@ input{font-family:inherit}
   50%{box-shadow:0 0 0 7px rgba(230,0,18,.12),0 0 22px 6px rgba(230,0,18,.10)}
 }
 .stepTag{position:absolute;z-index:7;transform:translate(0,-100%);display:flex;align-items:center;gap:0;
-  pointer-events:auto;animation:tagBob 1.5s ease-in-out infinite;filter:drop-shadow(0 3px 8px rgba(0,0,0,.35));
+  pointer-events:none;animation:tagBob 1.5s ease-in-out infinite;filter:drop-shadow(0 3px 8px rgba(0,0,0,.35));
   white-space:nowrap}
 .stepTag .tlab{background:var(--kt);color:#fff;font-size:11px;font-weight:800;letter-spacing:-.01em;
   padding:4px 9px;border-radius:7px 0 0 7px;pointer-events:none}
-.stepTag .tskip{background:#7a1220;color:#ffd9de;font-size:10px;font-weight:700;padding:4px 8px;
+.stepTag .tskip{pointer-events:auto;background:#7a1220;color:#ffd9de;font-size:10px;font-weight:700;padding:4px 8px;
   border:none;border-radius:0 7px 7px 0;cursor:pointer}
 .stepTag .tskip:active{background:#5d0d18}
 .stepTag::after{content:'';position:absolute;left:14px;bottom:-5px;border:5px solid transparent;
@@ -165,6 +166,12 @@ input{font-family:inherit}
   background:rgba(255,255,255,.88);padding:1px 6px;border-radius:5px;pointer-events:none}
 .crow.answered .tag{color:var(--lime-ink)}
 .crow.pulse{animation:pulse .9s 2}
+.cmk{position:absolute;border-radius:50%;border:1.6px solid rgba(132,255,0,.95);background:rgba(132,255,0,.12);transition:.15s}
+.cmk:hover{background:rgba(132,255,0,.3)}
+.cmk.on{border-color:transparent;background:none}
+.cmk.dim{border-color:#d5dce8;background:none}
+.cmk svg{position:absolute;inset:-16%;width:132%;height:132%;pointer-events:none}
+.cmk svg path{fill:none;stroke:#0d1117;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
 
 /* 날짜·텍스트 오버레이 항목 */
 .ovtext{position:absolute;transform:translate(-50%,-50%);color:#0d1117;font-family:var(--hand);font-weight:600;
@@ -298,7 +305,7 @@ audio{width:100%;margin-top:9px;height:34px}
 <body>
 
 <header class="topbar">
-  <div class="brand"><b>하이오더 전자청약</b><span class="ver">v1.20</span></div>
+  <div class="brand"><b>하이오더 전자청약</b><span class="ver">v1.21</span></div>
   <div class="seg" id="modeSeg">
     <button data-mode="hi" class="on">하이오더</button>
     <button data-mode="full">+ 안심매입</button>
@@ -331,7 +338,6 @@ audio{width:100%;margin-top:9px;height:34px}
     <div class="rail-card">
       <label><input type="checkbox" id="sellerOk">
         요금·약정·위약금·해지 조건 등 중요사항을 <b>빠짐없이 설명</b>하였고, 위 서명은 <b>신청 고객 본인이 직접</b> 하였음을 확인합니다.</label>
-      <div class="cap">담당 · 시너지영업3팀 이대희 과장 (010-7300-2632)</div>
     </div>
     <div class="rail-h">동의 녹취 <span style="font-weight:600;color:#5b6478">(선택)</span></div>
     <div class="rail-card">
@@ -373,16 +379,6 @@ audio{width:100%;margin-top:9px;height:34px}
 </div>
 
 <!-- 동의 선택 시트 -->
-<div class="veil" id="conVeil">
-  <div class="sheet" role="dialog" aria-modal="true">
-    <div class="hd"><b id="conTitle">동의 선택</b><p id="conDesc"></p></div>
-    <div class="ops">
-      <button class="btn yes" id="conYes">동의함</button>
-      <button class="btn no" id="conNo">동의하지 않음</button>
-      <button class="btn clr" id="conClr">선택 지우기</button>
-    </div>
-  </div>
-</div>
 
 <div class="veil" id="sendVeil">
   <div class="sigbox" role="dialog" aria-modal="true" style="max-width:440px">
@@ -472,8 +468,8 @@ const FIELDS=[
  {id:'f_appphone',pg:1,r:[158,153,308,169],t:'tel',s:9},
  {id:'f_appemail',pg:1,r:[361,153,568,169],t:'email',s:9},
  {id:'f_svcno',pg:1,r:[319,225,450,240],t:'text',s:8},
- {id:'f_validyy',pg:1,r:[266,258.5,283,271.5],t:'num',s:8},
- {id:'f_validmm',pg:1,r:[297,258.5,311,271.5],t:'num',s:8},
+ {id:'f_validyy',a:'c',pg:1,r:[266,258.5,283,271.5],t:'num',s:8},
+ {id:'f_validmm',a:'c',pg:1,r:[297,258.5,311,271.5],t:'num',s:8},
  {id:'f_bank',pg:1,r:[109,283,194,294.5],t:'text',s:8},
  {id:'f_acctno',pg:1,r:[198,283,386,294.5],t:'num',s:8},
  {id:'f_rel2',pg:1,r:[109,305.5,194,317],t:'text',s:8},
@@ -483,36 +479,36 @@ const FIELDS=[
  {id:'f_msgaddr',pg:1,r:[302,339.5,568,354.5],t:'text',s:9},
  {id:'f_mgrname',pg:1,r:[128,363,256,379],t:'text',s:9},
  {id:'f_mgrphone',pg:1,r:[314,363,568,379],t:'tel',s:9},
- {id:'f_dueyy',pg:1,r:[177,388,196,403],t:'num',s:8},
- {id:'f_duemm',pg:1,r:[211,388,230,403],t:'num',s:8},
- {id:'f_duedd',pg:1,r:[246,388,266,403],t:'num',s:8},
+ {id:'f_dueyy',a:'c',pg:1,r:[177,388,196,403],t:'num',s:8},
+ {id:'f_duemm',a:'c',pg:1,r:[211,388,230,403],t:'num',s:8},
+ {id:'f_duedd',a:'c',pg:1,r:[246,388,266,403],t:'num',s:8},
  {id:'f_ktnum',pg:1,r:[255,407.5,349,424],t:'num',s:9},
  {id:'f_poswin',pg:1,r:[161,431,212,443],t:'text',s:8},
- {id:'f_posetc',pg:1,r:[516,432.5,560,452],t:'text',s:8},
- {id:'f_menu_cnt',pg:1,r:[348,463,385,479],t:'num',s:9},
- {id:'f_menu_hb',pg:1,r:[443,463,464,479],t:'num',s:8},
- {id:'f_menu_on',pg:1,r:[510,463,531,479],t:'num',s:8},
- {id:'f_alarm_cnt',pg:1,r:[348,497,385,513],t:'num',s:9},
- {id:'f_alarm_hb',pg:1,r:[443,497,464,513],t:'num',s:8},
- {id:'f_alarm_on',pg:1,r:[510,497,531,513],t:'num',s:8},
- {id:'f_card_cnt',pg:1,r:[433,529,470,546],t:'num',s:9},
- {id:'f_card_etc',pg:1,r:[299,538,407,551.5],t:'text',s:8},
- {id:'f_st1',pg:1,r:[159,558.5,185,573],t:'num',s:8},
- {id:'f_st2',pg:1,r:[276,558.5,301,573],t:'num',s:8},
- {id:'f_st3',pg:1,r:[406,558.5,432,573],t:'num',s:8},
- {id:'f_st4',pg:1,r:[528,558.5,554,573],t:'num',s:8},
- {id:'f_st5',pg:1,r:[178,570.5,205,585.5],t:'num',s:8},
- {id:'f_st6',pg:1,r:[303,570.5,328,585.5],t:'num',s:8},
- {id:'f_st7',pg:1,r:[427,570.5,452,585.5],t:'num',s:8},
- {id:'f_bat',pg:1,r:[168,600,210,614.5],t:'num',s:9},
- {id:'f_pow',pg:1,r:[295,600,337,614.5],t:'num',s:9},
+ {id:'f_posetc',a:'c',pg:1,r:[516,432.5,560,452],t:'text',s:8},
+ {id:'f_menu_cnt',a:'c',pg:1,r:[348,463,385,479],t:'num',s:9},
+ {id:'f_menu_hb',a:'c',pg:1,r:[443,463,464,479],t:'num',s:8},
+ {id:'f_menu_on',a:'c',pg:1,r:[510,463,531,479],t:'num',s:8},
+ {id:'f_alarm_cnt',a:'c',pg:1,r:[348,497,385,513],t:'num',s:9},
+ {id:'f_alarm_hb',a:'c',pg:1,r:[443,497,464,513],t:'num',s:8},
+ {id:'f_alarm_on',a:'c',pg:1,r:[510,497,531,513],t:'num',s:8},
+ {id:'f_card_cnt',a:'c',pg:1,r:[433,529,470,546],t:'num',s:9},
+ {id:'f_card_etc',a:'c',pg:1,r:[299,538,407,551.5],t:'text',s:8},
+ {id:'f_st1',a:'c',pg:1,r:[159,558.5,185,573],t:'num',s:8},
+ {id:'f_st2',a:'c',pg:1,r:[276,558.5,301,573],t:'num',s:8},
+ {id:'f_st3',a:'c',pg:1,r:[406,558.5,432,573],t:'num',s:8},
+ {id:'f_st4',a:'c',pg:1,r:[528,558.5,554,573],t:'num',s:8},
+ {id:'f_st5',a:'c',pg:1,r:[178,570.5,205,585.5],t:'num',s:8},
+ {id:'f_st6',a:'c',pg:1,r:[303,570.5,328,585.5],t:'num',s:8},
+ {id:'f_st7',a:'c',pg:1,r:[427,570.5,452,585.5],t:'num',s:8},
+ {id:'f_bat',a:'c',pg:1,r:[168,600,210,614.5],t:'num',s:9},
+ {id:'f_pow',a:'c',pg:1,r:[295,600,337,614.5],t:'num',s:9},
  {id:'f_pay_once',fmt:1,pg:1,r:[136,658,236,670.5],t:'num',s:9},
  {id:'f_pay_mon',fmt:1,pg:1,r:[136,674,236,686.5],t:'num',s:9},
  {id:'f_pay_tot',fmt:1,pg:1,r:[324,674,428,686.5],t:'num',s:9},
  {id:'f_svc_pre',fmt:1,pg:1,r:[136,694,236,706.5],t:'num',s:9},
  {id:'f_svc_mon',fmt:1,pg:1,r:[136,710,236,722.5],t:'num',s:9},
  {id:'f2_svcno',pg:2,r:[114,76,566,95],t:'text',s:9},
- {id:'f2_etc',pg:2,r:[463,103.5,512,120],t:'text',s:8},
+ {id:'f2_etc',a:'c',pg:2,r:[463,103.5,512,120],t:'text',s:8},
  {id:'f2_now',pg:2,r:[112,128.5,566,150.5],t:'text',s:9},
  {id:'f2_chg',pg:2,r:[112,155.5,566,177.5],t:'text',s:9},
  {id:'f2_a_name',pg:2,r:[142,189.5,205,205.5],t:'text',s:9},
@@ -535,9 +531,9 @@ const FIELDS=[
  {id:'f11_regno',pg:11,r:[314,85.5,397,100.5],t:'num',s:9},
  {id:'f11_bizno',pg:11,r:[139,106,220,136.5],t:'num',s:9},
  {id:'f11_phone',pg:11,r:[314,106,397,136.5],t:'tel',s:9},
- {id:'f11_menu',pg:11,r:[483,85.5,542,100.5],t:'num',s:9},
- {id:'f11_alarm',pg:11,r:[483,104.3,542,119],t:'num',s:9},
- {id:'f11_wait',pg:11,r:[483,122.9,542,137.7],t:'num',s:9},
+ {id:'f11_menu',a:'c',pg:11,r:[483,85.5,542,100.5],t:'num',s:9},
+ {id:'f11_alarm',a:'c',pg:11,r:[483,104.3,542,119],t:'num',s:9},
+ {id:'f11_wait',a:'c',pg:11,r:[483,122.9,542,137.7],t:'num',s:9},
  {id:'f11_addr',pg:11,r:[139,141.6,542,156.6],t:'text',s:9},
 ];
 
@@ -783,7 +779,7 @@ function drawOverlay(pg){
     const el=document.createElement('button');
     el.className='fld'+(v?' has':'')+(MAINF.has(fd.id)?' main':''); el.id='fld_'+fd.id;
     el.style.cssText=P(fd.r[0],fd.r[1],fd.r[2]-fd.r[0],fd.r[3]-fd.r[1]);
-    if(v){const sp=document.createElement('span');sp.className='fval';sp.dataset.fp=fitSize(v,fd);sp.textContent=v;el.appendChild(sp);}
+    if(v){const sp=document.createElement('span');sp.className='fval'+(fd.a==='c'?' c':'');sp.dataset.fp=fitSize(v,fd);sp.textContent=v;el.appendChild(sp);}
     el.onclick=e=>{e.stopPropagation();openField(fd);};
     ov.appendChild(el);
   }
@@ -794,24 +790,16 @@ function drawOverlay(pg){
     el.className='mk'+(on?' on':''); el.id='mk_'+m.id;
     el.style.cssText=P(m.r[0]-2,m.r[1]-2,(m.r[2]-m.r[0])+4,(m.r[3]-m.r[1])+4);
     if(on) el.innerHTML='<svg viewBox="0 0 24 24"><path d="M3.5 13l6 6.5L21.5 3.5"/></svg>';
-    el.onclick=e=>{e.stopPropagation(); if(S.mk[m.id]) delete S.mk[m.id]; else S.mk[m.id]=1; S.dirty=true; drawOverlay(pg);};
+    el.onclick=e=>{e.stopPropagation();
+      if(S.mk[m.id]) delete S.mk[m.id]; else S.mk[m.id]=1;
+      S.dirty=true;
+      el.classList.toggle('on',!!S.mk[m.id]);
+      el.innerHTML=S.mk[m.id]?'<svg viewBox="0 0 24 24"><path d="M3.5 13l6 6.5L21.5 3.5"/></svg>':'';
+    };
     ov.appendChild(el);
   }
   /* 동의 행 */
-  for(const c of CON.filter(c=>c.pg===pg)){
-    const [hx0,hy0,hx1,hy1]=c.hot, v=S.con[c.id];
-    const el=document.createElement('button');
-    el.className='crow'+(v?' answered':''); el.id='crow_'+c.id;
-    el.style.cssText=P(hx0,hy0,hx1-hx0,hy1-hy0);
-    const rel=(r)=>`left:${(r[0]-hx0)/(hx1-hx0)*100}%;top:${(r[1]-hy0)/(hy1-hy0)*100}%;width:${(r[2]-r[0])/(hx1-hx0)*100}%;height:${(r[3]-r[1])/(hy1-hy0)*100}%`;
-    el.innerHTML=
-      `<span class="tag">${v?'✓ 확인됨':(c.req==='필수'?'필수 선택':'선택 항목')}</span>`+
-      `<span class="opt ${v==='yes'?'pick':''}" style="${rel(c.yes)}"></span>`+
-      `<span class="opt ${v==='no'?'pick':''}" style="${rel(c.no)}"></span>`+
-      (v?`<svg class="mark" style="${rel(v==='yes'?c.yes:c.no)}" viewBox="0 0 24 24"><path d="M4 13l5 5L21 5"/></svg>`:'');
-    el.onclick=()=>openCon(c);
-    ov.appendChild(el);
-  }
+  for(const c of CON.filter(c=>c.pg===pg)) mountCon(ov,c);
   /* 날짜 */
   for(const [k,d] of Object.entries(DATES)){
     if(d.pg!==pg||!dateOn(k)) continue;
@@ -834,6 +822,42 @@ function sigSVG(z){
   const [x0,y0,x1,y1]=z.draw, W=x1-x0, H=y1-y0;
   const ps=st.strokes.map(sk=>'M'+sk.map(p=>`${(p.u*W).toFixed(1)},${(p.v*H).toFixed(1)}`).join(' L')).join(' ');
   return `<svg class="sig" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><path d="${ps}" stroke-width="${Math.max(1.2,H*.07)}"/></svg>`;
+}
+function mountCon(ov,c){
+  const v=S.con[c.id];
+  const wrap=document.createElement('div');
+  wrap.className='crow'+(v?' answered':''); wrap.id='crow_'+c.id;
+  wrap.style.cssText=P(c.hot[0],c.hot[1],c.hot[2]-c.hot[0],c.hot[3]-c.hot[1])+';pointer-events:none';
+  wrap.innerHTML=`<span class="tag">${v?'✓ 확인됨':(c.req==='필수'?'필수 선택':'선택 항목')}</span>`;
+  ov.appendChild(wrap);
+  for(const [k,r] of [['yes',c.yes],['no',c.no]]){
+    const b=document.createElement('button');
+    b.className='cmk'+(v===k?' on':'')+(v&&v!==k?' dim':''); b.id=`cmk_${c.id}_${k[0]}`;
+    b.style.cssText=P(r[0]-2.5,r[1]-2.5,(r[2]-r[0])+5,(r[3]-r[1])+5);
+    if(v===k) b.innerHTML='<svg viewBox="0 0 24 24"><path d="M3.5 13l6 6.5L21.5 3.5"/></svg>';
+    b.onclick=e=>{e.stopPropagation(); setConD(c, S.con[c.id]===k?null:k);};
+    ov.appendChild(b);
+  }
+}
+function updateCon(c){
+  const ov=$('#ov'+c.pg); if(!ov) return;
+  ['#crow_'+c.id, `#cmk_${c.id}_y`, `#cmk_${c.id}_n`].forEach(s=>$(s)?.remove());
+  mountCon(ov,c);
+}
+function setConD(c,v){
+  if(v) S.con[c.id]=v; else delete S.con[c.id];
+  S.dirty=true; updateCon(c); refresh();
+  if(v) stepAdvance('con',c.id); else renderStepUI();
+}
+function updateFld(fd){
+  const btn=$('#fld_'+fd.id); if(!btn) return;
+  const v=S.fld[fd.id];
+  btn.className='fld'+(v?' has':'')+(MAINF.has(fd.id)?' main':'');
+  btn.style.visibility='';
+  btn.innerHTML='';
+  if(v){const sp=document.createElement('span');sp.className='fval'+(fd.a==='c'?' c':'');
+    sp.dataset.fp=fitSize(v,fd);sp.textContent=v;btn.appendChild(sp);}
+  fitOverlayFonts(fd.pg);
 }
 function dateOn(k){ const owner=SIG.find(z=>z.dg===k); return owner&&S.sig[owner.id]; }
 
@@ -927,6 +951,7 @@ function openField(fd){
   inp.dataset.fp=Math.min(fd.s,(y1-y0)*0.8);
   inp.style.cssText=P(x0,y0-1,Math.max(x1-x0,52),(y1-y0)+2);
   inp.value=S.fld[fd.id]||'';
+  if(fd.a==='c') inp.style.textAlign='center';
   inp.inputMode={num:'numeric',tel:'tel',email:'email'}[fd.t]||'text';
   if(fd.t==='email') inp.type='email';
   if(fd.t==='tel') inp.type='tel';
@@ -944,8 +969,8 @@ function openField(fd){
   inp.addEventListener('blur',()=>{
     const v=inp.value.trim(); inp.remove();
     if(v) S.fld[fd.id]=v; else delete S.fld[fd.id];
-    S.dirty=true; drawOverlay(fd.pg);
-    if(v) stepAdvance('f',fd.id);
+    S.dirty=true; updateFld(fd);
+    if(v) stepAdvance('f',fd.id); else renderStepUI();
   },{once:true});
 }
 function fitOverlayFonts(pg){
@@ -1012,23 +1037,7 @@ $('#sigOk').onclick=()=>{
 /* ============================================================
    동의 선택
 ============================================================ */
-let curCon=null;
-function openCon(c){
-  curCon=c;
-  $('#conTitle').textContent=`${c.lab} (${c.req})`;
-  $('#conDesc').textContent = c.req==='필수'
-    ? '필수 동의 항목입니다. 내용을 확인하신 뒤 선택해 주세요.'
-    : '선택 동의 항목입니다. 동의하지 않아도 서비스 이용이 가능합니다.';
-  $('#conVeil').classList.add('on');
-}
-$('#conYes').onclick=()=>setCon('yes'); $('#conNo').onclick=()=>setCon('no');
-$('#conClr').onclick=()=>setCon(null);
-function setCon(v){
-  if(v) S.con[curCon.id]=v; else delete S.con[curCon.id];
-  S.dirty=true; $('#conVeil').classList.remove('on');
-  drawOverlay(curCon.pg); refresh();
-  if(v) stepAdvance('con',curCon.id);
-}
+
 $$('.veil').forEach(v=>v.addEventListener('click',e=>{if(e.target===v)v.classList.remove('on')}));
 
 /* ============================================================
@@ -1235,8 +1244,11 @@ async function composePage(pg){
   for(const fd of FIELDS.filter(x=>x.pg===pg)){
     const v=S.fld[fd.id]; if(!v) continue;
     ctx.font=HANDF(fitSize(v,fd)*s);
-    ctx.fillText(v,(fd.r[0]+1.5)*s,((fd.r[1]+fd.r[3])/2)*s);
+    ctx.textAlign=fd.a==='c'?'center':'left';
+    const fx=fd.a==='c'?(fd.r[0]+fd.r[2])/2:(fd.r[0]+1.5);
+    ctx.fillText(v,fx*s,((fd.r[1]+fd.r[3])/2)*s);
   }
+  ctx.textAlign='left';
   /* 선택 마크 체크 */
   for(const m of MK.filter(x=>x.pg===pg)){
     if(!S.mk[m.id]) continue;
