@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>하이오더 전자청약</title>
+<!--
+  ============================================================
+  KT HIORDER 전자청약  ·  contract.html  v1.00
+  ------------------------------------------------------------
+  · 원본 가입신청서 PDF(14p)를 화면에 렌더 → 고객이 태블릿에서
+    서명란마다 "각각" 직접 서명 + 동의함/않음 선택
+  · 필수 서명·동의가 전부 완료되기 전에는 인쇄/PDF 버튼 잠금
+  · 출력물은 원본 서식 그대로(안내 오버레이 미포함) + 서명·체크·
+    날짜만 순흑색 평면화 → 종이 출력 후 애니팩스 발송용
+  · 서버 저장 없음. 모든 처리는 단말(브라우저) 내에서만 수행.
+  ------------------------------------------------------------
+  배포: kt-synergy.com 루트에 업로드.
+  원본 PDF 경로가 다르면 아래 PDF_URL 만 수정.
+  ============================================================
+-->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{
+  --ink:#0B0E14; --ink2:#131826; --paper:#FFFFFF;
+  --kt:#E60012; --kt-soft:rgba(230,0,18,.08);
+  --lime:#84FF00; --lime-ink:#3E7A00;
+  --steel:#8B94A7; --fog:#C6CCD8;
+  --line:rgba(139,148,167,.18);
+  --accent:#4facfe;
+  --radius:16px;
+  --topbar-h:60px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{font-size:16px}
+body{font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif;background:var(--ink);color:#E8ECF4;overflow-x:hidden}
+button{font-family:inherit;border:0;background:none;color:inherit;cursor:pointer}
+input{font-family:inherit}
+
+/* ── 상단바 ─────────────────────────────── */
+.topbar{position:fixed;top:0;left:0;right:0;height:var(--topbar-h);z-index:60;
+  display:flex;align-items:center;gap:14px;padding:0 16px;
+  background:rgba(11,14,20,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:baseline;gap:8px;white-space:nowrap}
+.brand b{font-size:16px;font-weight:800;letter-spacing:-.02em}
+.brand b::before{content:'KT';color:var(--kt);margin-right:6px;font-weight:900}
+.ver{font-size:10px;color:#aaa;font-weight:500}
+.seg{display:flex;background:var(--ink2);border:1px solid var(--line);border-radius:10px;padding:3px}
+.seg button{font-size:12.5px;font-weight:700;padding:6px 12px;border-radius:7px;color:var(--steel);transition:.18s}
+.seg button.on{background:var(--kt);color:#fff}
+.meta{display:flex;gap:8px;margin-left:auto}
+.meta input{width:118px;background:var(--ink2);border:1px solid var(--line);border-radius:9px;
+  padding:7px 10px;font-size:13px;color:#E8ECF4;outline:none;transition:border .15s}
+.meta input:focus{border-color:var(--accent)}
+.meta input::placeholder{color:#525b6e}
+.actions{display:flex;gap:8px}
+.btn{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;
+  padding:9px 15px;border-radius:10px;transition:.18s;white-space:nowrap}
+.btn.pri{background:var(--kt);color:#fff}
+.btn.pri:active{transform:scale(.97)}
+.btn.ghost{border:1px solid var(--line);color:var(--fog)}
+.btn[disabled]{opacity:.35;cursor:not-allowed}
+.btn svg{width:14px;height:14px}
+
+/* ── 레이아웃 ───────────────────────────── */
+.wrap{display:flex;padding-top:var(--topbar-h);min-height:100vh}
+#stage{flex:1;min-width:0;padding:22px clamp(10px,3vw,40px) 140px;display:flex;flex-direction:column;align-items:center;gap:26px}
+#rail{width:300px;flex:none;position:sticky;top:var(--topbar-h);height:calc(100vh - var(--topbar-h));
+  overflow-y:auto;border-left:1px solid var(--line);padding:18px 16px 30px;background:rgba(19,24,38,.5)}
+
+/* ── 문서 페이지 ────────────────────────── */
+.page{position:relative;width:min(100%,820px);background:var(--paper);border-radius:6px;
+  box-shadow:0 8px 40px rgba(0,0,0,.5);overflow:hidden}
+.page canvas{display:block;width:100%;height:auto}
+.page .skeleton{aspect-ratio:595.276/841.89;display:flex;align-items:center;justify-content:center;color:#98a2b6;font-size:13px;background:
+  linear-gradient(110deg,#f2f4f8 40%,#e7ebf2 50%,#f2f4f8 60%);background-size:200% 100%;animation:shim 1.4s infinite}
+@keyframes shim{to{background-position:-200% 0}}
+.pageno{position:absolute;top:8px;left:10px;font-size:10px;font-weight:700;color:#9aa3b5;
+  background:rgba(255,255,255,.85);border:1px solid #e3e7ee;border-radius:6px;padding:2px 7px;z-index:5}
+.overlay{position:absolute;inset:0;pointer-events:none}
+.overlay>*{pointer-events:auto}
+
+/* 서명 슬롯 */
+.slot{position:absolute;border:1.6px dashed var(--kt);border-radius:5px;background:var(--kt-soft);
+  display:flex;align-items:center;justify-content:center;transition:.2s;overflow:visible}
+.slot .cue{font-size:clamp(9px,1.35vw,12px);font-weight:800;color:var(--kt);letter-spacing:-.01em;
+  text-shadow:0 0 6px rgba(255,255,255,.9);pointer-events:none;white-space:nowrap}
+.slot::after{content:'';position:absolute;right:-1px;top:-1px;border-style:solid;
+  border-width:0 9px 9px 0;border-color:transparent var(--kt) transparent transparent}
+.slot.done{border:1.6px solid var(--lime);background:rgba(132,255,0,.07)}
+.slot.done::after{border-color:transparent var(--lime-ink) transparent transparent}
+.slot.done .cue{display:none}
+.slot svg.sig{position:absolute;inset:0;width:100%;height:100%}
+.slot svg.sig path{fill:none;stroke:#10151c;stroke-linecap:round;stroke-linejoin:round}
+.slot .redo{position:absolute;right:-6px;bottom:-24px;font-size:10px;font-weight:700;color:var(--lime-ink);
+  background:#fff;border:1px solid #dfe5ee;border-radius:20px;padding:2px 9px;box-shadow:0 2px 6px rgba(0,0,0,.12)}
+.slot.pulse{animation:pulse .9s 2}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(230,0,18,.5)}50%{box-shadow:0 0 0 8px rgba(230,0,18,0)}}
+
+/* 동의 행 */
+.crow{position:absolute;border-radius:6px;transition:.2s}
+.crow .opt{position:absolute;border:1.6px dashed var(--kt);border-radius:50%;transition:.15s}
+.crow.answered .opt{border-style:solid;border-color:#c9d1de}
+.crow .opt.pick{border-color:var(--lime-ink);border-style:solid}
+.crow .mark{position:absolute;pointer-events:none}
+.crow .mark path{fill:none;stroke:#0d1117;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.crow .tag{position:absolute;left:-4px;top:50%;transform:translate(-100%,-50%);
+  font-size:clamp(8px,1.15vw,10.5px);font-weight:800;color:var(--kt);white-space:nowrap;
+  background:rgba(255,255,255,.88);padding:1px 6px;border-radius:5px;pointer-events:none}
+.crow.answered .tag{color:var(--lime-ink)}
+.crow.pulse{animation:pulse .9s 2}
+
+/* 날짜·텍스트 오버레이 항목 */
+.ovtext{position:absolute;transform:translate(-50%,-50%);color:#0d1117;font-weight:600;
+  white-space:pre;pointer-events:none;line-height:1}
+.titem{position:absolute;color:#0d1117;font-weight:600;white-space:pre;line-height:1.25;
+  cursor:grab;border:1px dashed transparent;border-radius:3px;padding:1px 2px;transform:translate(0,-50%)}
+.titem.sel{border-color:var(--accent);background:rgba(79,172,254,.07)}
+.titem .del{position:absolute;top:-11px;right:-11px;width:20px;height:20px;border-radius:50%;
+  background:var(--kt);color:#fff;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center}
+.tinput{position:absolute;transform:translate(0,-50%);border:1.5px solid var(--accent);border-radius:4px;
+  background:#fff;color:#0d1117;font-weight:600;padding:2px 4px;outline:none;min-width:110px}
+
+/* ── 체크리스트 레일 ─────────────────────── */
+.rail-h{font-size:11px;font-weight:800;color:var(--steel);letter-spacing:.14em;margin:16px 0 9px}
+.rail-h:first-child{margin-top:2px}
+.stamp{display:flex;align-items:center;gap:11px;width:100%;padding:8px 9px;border-radius:12px;
+  transition:.15s;text-align:left}
+.stamp:hover{background:rgba(255,255,255,.04)}
+.stamp .seal{flex:none;width:32px;height:32px;border-radius:50%;border:2px solid var(--kt);
+  display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:var(--kt);transition:.25s}
+.stamp.done .seal{border-color:var(--lime);background:var(--lime);color:#173300}
+.stamp .tt{min-width:0}
+.stamp .tt b{display:block;font-size:12.5px;font-weight:700;color:#DFE5F0;letter-spacing:-.01em}
+.stamp .tt span{display:block;font-size:10.5px;color:var(--steel);margin-top:1px}
+.stamp.done .tt b{color:#B7C6A0}
+.stamp .st{margin-left:auto;font-size:10px;font-weight:800;color:var(--kt)}
+.stamp.done .st{color:var(--lime)}
+.rail-card{margin-top:14px;border:1px solid var(--line);border-radius:var(--radius);padding:13px;background:rgba(11,14,20,.5)}
+.rail-card label{display:flex;gap:9px;align-items:flex-start;font-size:12px;line-height:1.5;color:#CBD3E1;cursor:pointer}
+.rail-card input[type=checkbox]{width:16px;height:16px;accent-color:var(--kt);margin-top:1px;flex:none}
+.rail-card .cap{font-size:10.5px;color:var(--steel);margin-top:8px;line-height:1.5}
+
+/* 녹취 */
+.rec-row{display:flex;gap:8px;margin-top:10px}
+.rec-row .btn{flex:1;justify-content:center;font-size:12px;padding:8px 6px}
+.rec-dot{width:8px;height:8px;border-radius:50%;background:var(--kt);animation:blink 1s infinite}
+@keyframes blink{50%{opacity:.2}}
+#recScript{margin-top:9px;font-size:11.5px;line-height:1.65;color:#D8DEEA;background:var(--ink2);
+  border:1px solid var(--line);border-radius:10px;padding:10px}
+#recScript b{color:#fff}
+audio{width:100%;margin-top:9px;height:34px}
+
+/* ── 진행 배지(모바일 하단) ──────────────── */
+.progress-pill{display:none}
+
+/* ── 서명 모달 ──────────────────────────── */
+.veil{position:fixed;inset:0;background:rgba(5,7,11,.72);backdrop-filter:blur(4px);z-index:90;
+  display:none;align-items:center;justify-content:center;padding:18px}
+.veil.on{display:flex}
+.sigbox{width:min(96vw,760px);background:#fff;border-radius:20px;overflow:hidden;color:#101418;
+  box-shadow:0 30px 80px rgba(0,0,0,.6)}
+.sigbox header{padding:15px 20px 11px;border-bottom:1px solid #edf0f5;display:flex;align-items:center;gap:10px}
+.sigbox header .dotr{width:9px;height:9px;border-radius:50%;background:var(--kt);flex:none}
+.sigbox header b{font-size:15px;font-weight:800;letter-spacing:-.02em}
+.sigbox header span{font-size:11.5px;color:#7c8698;margin-left:auto;text-align:right}
+.padwrap{position:relative;background:
+  repeating-linear-gradient(0deg,transparent 0 46px,#f2f4f8 46px 47px),#fcfdfe}
+#pad{display:block;width:100%;touch-action:none}
+.padline{position:absolute;left:7%;right:7%;bottom:22%;border-bottom:1.5px solid #d5dae3;pointer-events:none}
+.padline::before{content:'✕';position:absolute;left:-2px;bottom:4px;font-size:13px;color:#c2c9d6}
+.padhint{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  color:#c8cfda;font-size:15px;font-weight:600;pointer-events:none}
+.sigbox footer{display:flex;gap:9px;padding:13px 16px;border-top:1px solid #edf0f5}
+.sigbox footer .btn{font-size:14px;padding:12px 16px;border-radius:12px}
+.sigbox footer .btn.ghost{border-color:#dde2ea;color:#5a6474}
+.sigbox footer .grow{flex:1;justify-content:center}
+.sigbox footer .btn.pri[disabled]{opacity:.35}
+
+/* 동의 선택 시트 */
+.sheet{width:min(94vw,420px);background:#fff;border-radius:20px;color:#101418;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.6)}
+.sheet .hd{padding:16px 20px 4px}
+.sheet .hd b{font-size:15px;font-weight:800}
+.sheet .hd p{font-size:12px;color:#7c8698;margin-top:4px;line-height:1.5}
+.sheet .ops{display:flex;flex-direction:column;gap:8px;padding:14px 16px 16px}
+.sheet .ops .btn{justify-content:center;font-size:14.5px;padding:13px;border-radius:12px}
+.sheet .ops .yes{background:#101418;color:#fff}
+.sheet .ops .no{border:1.5px solid #dde2ea;color:#3a4353}
+.sheet .ops .clr{color:#98a2b4;font-size:12px;padding:6px}
+
+/* 토스트 */
+#toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);opacity:0;z-index:120;
+  background:#fff;color:#101418;font-size:13px;font-weight:700;padding:12px 18px;border-radius:12px;
+  box-shadow:0 12px 40px rgba(0,0,0,.45);transition:.25s;pointer-events:none;max-width:88vw;text-align:center}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+
+/* 로딩/폴백 */
+#boot{position:fixed;inset:0;z-index:80;background:var(--ink);display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:14px;text-align:center;padding:20px}
+#boot .sp{width:34px;height:34px;border:3px solid var(--line);border-top-color:var(--kt);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#boot p{font-size:13px;color:var(--steel);line-height:1.6}
+#boot .btn{margin-top:4px}
+#fileIn{display:none}
+
+/* ── 반응형 ─────────────────────────────── */
+@media (max-width:1080px){
+  .meta input{width:96px}
+}
+@media (max-width:980px){
+  #rail{position:fixed;left:0;right:0;bottom:0;top:auto;width:auto;height:auto;max-height:72vh;
+    transform:translateY(calc(100% - 0px));transition:transform .3s cubic-bezier(.2,.8,.2,1);
+    border-left:0;border-top:1px solid var(--line);border-radius:22px 22px 0 0;
+    background:rgba(15,19,30,.97);backdrop-filter:blur(16px);z-index:70;padding-top:10px}
+  #rail.open{transform:translateY(0)}
+  #rail::before{content:'';display:block;width:44px;height:4px;border-radius:4px;background:#39404f;margin:2px auto 10px}
+  .progress-pill{display:flex;position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:65;
+    align-items:center;gap:10px;background:#fff;color:#101418;border-radius:999px;
+    padding:10px 10px 10px 18px;box-shadow:0 14px 40px rgba(0,0,0,.5);font-size:13px;font-weight:800}
+  .progress-pill .mini{background:var(--kt);color:#fff;border-radius:999px;font-size:12px;padding:8px 14px}
+  .progress-pill.ok .mini{background:var(--lime);color:#173300}
+  .topbar{gap:9px;padding:0 10px}
+  .meta{display:none}
+  .actions .btn span{display:none}
+  .actions .btn{padding:9px 11px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}
+@media print{body{display:none}}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand"><b>하이오더 전자청약</b><span class="ver">v1.00</span></div>
+  <div class="seg" id="modeSeg">
+    <button data-mode="hi" class="on">하이오더</button>
+    <button data-mode="full">+ 안심매입</button>
+  </div>
+  <div class="meta">
+    <input id="mStore" placeholder="상호" autocomplete="off">
+    <input id="mOwner" placeholder="대표자 성명" autocomplete="off">
+  </div>
+  <div class="actions">
+    <button class="btn ghost" id="btnText" title="문서 위 임의 위치에 텍스트 입력">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M4 6V4h16v2M12 4v16m-4 0h8"/></svg><span>텍스트</span></button>
+    <button class="btn ghost" id="btnPrint" disabled>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9V3h12v6M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v7H6z"/></svg><span>인쇄</span></button>
+    <button class="btn pri" id="btnPdf" disabled>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16"/></svg><span>PDF 저장</span></button>
+  </div>
+</header>
+
+<div class="wrap">
+  <main id="stage" aria-label="신청서 문서"></main>
+
+  <aside id="rail" aria-label="진행 체크리스트">
+    <div class="rail-h">서명 · <span id="cntSig">0/0</span></div>
+    <div id="railSig"></div>
+    <div class="rail-h">동의 확인 · <span id="cntCon">0/5</span></div>
+    <div id="railCon"></div>
+    <div class="rail-h">판매자 확인</div>
+    <div class="rail-card">
+      <label><input type="checkbox" id="sellerOk">
+        요금·약정·위약금·해지 조건 등 중요사항을 <b>빠짐없이 설명</b>하였고, 위 서명은 <b>신청 고객 본인이 직접</b> 하였음을 확인합니다.</label>
+      <div class="cap">담당 · 시너지영업3팀 이대희 과장 (010-7300-2632)</div>
+    </div>
+    <div class="rail-h">동의 녹취 <span style="font-weight:600;color:#5b6478">(선택)</span></div>
+    <div class="rail-card">
+      <label><input type="checkbox" id="recConsent">
+        음성은 계약 확인 목적이며, 파일은 서버 전송 없이 이 기기에만 저장됩니다. 녹음에 동의합니다.</label>
+      <div id="recScript"></div>
+      <div class="rec-row">
+        <button class="btn ghost" id="recBtn" disabled>● 녹음 시작</button>
+        <button class="btn ghost" id="recSave" disabled>저장</button>
+      </div>
+      <audio id="recPlay" controls style="display:none"></audio>
+    </div>
+    <div class="rail-card" style="margin-top:10px">
+      <div class="cap" style="margin-top:0">완료 후: <b style="color:#DFE5F0">인쇄 → 고객·판매자 최종 확인 → 애니팩스 발송</b>. 신분증은 뒷자리 마스킹 후 별도 첨부. 새로고침 시 입력 내용이 사라지니 완료 전 이탈에 주의하세요.</div>
+    </div>
+  </aside>
+</div>
+
+<button class="progress-pill" id="pill"><span id="pillTxt">서명 0/3 · 동의 0/5</span><span class="mini" id="pillBtn">체크리스트</span></button>
+
+<!-- 서명 모달 -->
+<div class="veil" id="sigVeil">
+  <div class="sigbox" role="dialog" aria-modal="true">
+    <header>
+      <span class="dotr"></span><b id="sigTitle">서명</b>
+      <span>신청 고객 <b>본인이 직접</b><br>손가락 또는 펜으로 서명</span>
+    </header>
+    <div class="padwrap">
+      <canvas id="pad"></canvas>
+      <div class="padline"></div>
+      <div class="padhint" id="padHint">여기에 서명하세요</div>
+    </div>
+    <footer>
+      <button class="btn ghost" id="sigClear">지우기</button>
+      <button class="btn ghost" id="sigCancel">취소</button>
+      <button class="btn pri grow" id="sigOk" disabled>서명 완료</button>
+    </footer>
+  </div>
+</div>
+
+<!-- 동의 선택 시트 -->
+<div class="veil" id="conVeil">
+  <div class="sheet" role="dialog" aria-modal="true">
+    <div class="hd"><b id="conTitle">동의 선택</b><p id="conDesc"></p></div>
+    <div class="ops">
+      <button class="btn yes" id="conYes">동의함</button>
+      <button class="btn no" id="conNo">동의하지 않음</button>
+      <button class="btn clr" id="conClr">선택 지우기</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<div id="boot">
+  <div class="sp" id="bootSp"></div>
+  <p id="bootMsg">신청서 원본을 불러오는 중…</p>
+  <button class="btn ghost" id="bootPick" style="display:none">PDF 파일 직접 선택</button>
+  <input type="file" id="fileIn" accept="application/pdf">
+</div>
+
+<script>
+/* ============================================================
+   설정
+============================================================ */
+const PDF_URL = '/assets/image/DX_assets/' + encodeURIComponent('하이오더 가입신청서_20260401(안심매입 포함).pdf');
+const PW = 595.276, PH = 841.89;           // A4 pt
+const MODE_PAGES = { hi:[1,2,3,4,5,6,7,8,9,10], full:[1,2,3,4,5,6,7,8,9,10,11,12,13,14] };
+const FAX_SCALE = 200/72;                  // 200dpi 출력 합성
+
+/* 서명 존 — box: 원본 빨간 박스 / draw: 실제 획이 그려지는 영역 (pt) */
+const SIG = [
+ {id:'s_p1_acct', pg:1, box:[438.1,254.8,567.4,272.1], draw:[441,256,564,271],   lab:'예금주(카드주) 성명·서명', sub:'요금 자동이체·결제 동의', grp:'hi', dg:null},
+ {id:'s_p1_apply',pg:1, box:[389.9,790.0,571.7,806.9], draw:[430,791.2,566,805.8],lab:'신청인 서명',            sub:'하이오더 가입 신청 확인', grp:'hi', dg:'d1'},
+ {id:'s_p7_terms',pg:7, box:[418.3,781.4,564.8,798.7], draw:[458,782.6,560,797.6],lab:'이용약관 동의 서명',      sub:'하이오더 서비스 이용약관', grp:'hi', dg:null},
+ {id:'s_p11_gd',  pg:11,box:[399.2,180.0,545.0,287.6], draw:[437,186,540,282],   lab:'주요안내 확인 서명',      sub:'안심매입 약관·주요내용 설명', grp:'safe', dg:null},
+ {id:'s_p11_join',pg:11,box:[259.9,788.1,547.2,809.0], draw:[336,789.6,493,807.4],lab:'안심매입 계약 서명',      sub:'가입 계약 체결 확인', grp:'safe', dg:'d11'},
+ {id:'s_p12_a',   pg:12,box:[336.2,267.6,533.9,286.7], draw:[408,268.8,502,285.4],lab:'수집·이용 동의 서명',     sub:'안심매입 개인정보 (필수)', grp:'safe', dg:'d12a'},
+ {id:'s_p12_b',   pg:12,box:[337.0,414.0,535.3,433.1], draw:[408,415.2,502,431.8],lab:'처리위탁 동의 서명',      sub:'안심매입 개인정보 (필수)', grp:'safe', dg:'d12b'},
+ {id:'s_p12_c',   pg:12,box:[337.0,699.1,535.3,717.8], draw:[408,700.3,502,716.5],lab:'제3자 제공 동의 서명',    sub:'안심매입 개인정보 (필수)', grp:'safe', dg:'d12c'},
+];
+
+/* 동의 행 — yes/no: ○ 위치(pt), hot: 탭 영역 */
+const CON = [
+ {id:'c1', pg:3, req:'필수', lab:'개인정보 수집·이용',       yes:[455.0,272.2,464.0,281.2], no:[501.8,272.2,510.8,281.2], hot:[447,267.2,570,291.2]},
+ {id:'c2', pg:3, req:'선택', lab:'마케팅 활용',              yes:[455.0,399.6,464.0,408.6], no:[501.8,399.6,510.8,408.6], hot:[447,394.6,570,418.6]},
+ {id:'c3', pg:3, req:'선택', lab:'혜택 제공',                yes:[455.8,471.6,464.8,480.6], no:[502.9,471.6,511.9,480.6], hot:[448,466.6,570,490.6]},
+ {id:'c4', pg:3, req:'필수', lab:'이용·제3자 제공',          yes:[455.0,712.1,464.0,721.1], no:[501.8,712.1,510.8,721.1], hot:[447,707.1,570,731.1]},
+ {id:'c5', pg:4, req:'필수', lab:'신용정보 조회 (서울보증)', yes:[453.6,482.4,462.6,491.4], no:[500.4,482.4,509.4,491.4], hot:[446,477.4,570,501.4]},
+];
+
+/* 날짜 자동 기입 — [cx, baselineY, fontPt] */
+const DATES = {
+ d1:  {pg:1,  yy:[218.0,801.5,10],   mm:[269.0,801.5,10],   dd:[315.0,801.5,10]},
+ d11: {pg:11, yy:[68.0,801.3,7.5],   mm:[149.0,801.3,7.5],  dd:[219.5,801.3,7.5]},
+ d12a:{pg:12, yy:[236.5,280.2,7],    mm:[273.5,280.2,7],    dd:[312.5,280.2,7]},
+ d12b:{pg:12, yy:[237.0,426.7,7],    mm:[274.0,426.7,7],    dd:[313.0,426.7,7]},
+ d12c:{pg:12, yy:[237.0,711.3,7],    mm:[274.0,711.3,7],    dd:[312.5,711.3,7]},
+};
+
+/* ============================================================
+   상태 (메모리에만 보관 — 서버·로컬 저장 없음)
+============================================================ */
+const S = {
+  mode:'hi', doc:null, rendered:{}, canvases:{},
+  sig:{},                 // id → {strokes:[[{u,v}..]..]}
+  con:{},                 // id → 'yes'|'no'
+  texts:[],               // {tid,pg,x,y,txt,size}
+  textMode:false, selText:null, dirty:false, tseq:0,
+};
+const $ = s=>document.querySelector(s);
+const $$ = s=>[...document.querySelectorAll(s)];
+const toast = m=>{const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('on'),2600)};
+const today = ()=>{const d=new Date();return {y:d.getFullYear(),yy:String(d.getFullYear()).slice(2),mm:String(d.getMonth()+1),dd:String(d.getDate()),
+  mm2:String(d.getMonth()+1).padStart(2,'0'),dd2:String(d.getDate()).padStart(2,'0')}};
+
+/* ============================================================
+   PDF 로드
+============================================================ */
+pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+async function boot(){
+  try{ await load(await pdfjsLib.getDocument({url:PDF_URL}).promise); }
+  catch(e){
+    $('#bootSp').style.display='none';
+    $('#bootMsg').innerHTML='서버에서 신청서 원본을 불러오지 못했습니다.<br>원본 14페이지 신청서 PDF를 직접 선택해 주세요.';
+    $('#bootPick').style.display='inline-flex';
+  }
+}
+$('#bootPick').onclick=()=>$('#fileIn').click();
+$('#fileIn').onchange=async e=>{
+  const f=e.target.files[0]; if(!f) return;
+  $('#bootSp').style.display='block'; $('#bootMsg').textContent='파일을 여는 중…';
+  try{
+    const buf=await f.arrayBuffer();
+    await load(await pdfjsLib.getDocument({data:buf}).promise);
+  }catch(err){ $('#bootSp').style.display='none'; $('#bootMsg').textContent='PDF를 열 수 없습니다. 원본 신청서 파일인지 확인해 주세요.'; }
+};
+async function load(doc){
+  S.doc=doc;
+  if(doc.numPages!==14) toast(`페이지 수가 ${doc.numPages}p입니다. 원본(14p)이 아니면 서명 위치가 어긋날 수 있어요.`);
+  $('#boot').style.display='none';
+  buildStage(); buildRail(); refresh();
+}
+
+/* ============================================================
+   문서 스테이지
+============================================================ */
+function buildStage(){
+  const st=$('#stage'); st.innerHTML='';
+  for(const pg of MODE_PAGES[S.mode]){
+    const d=document.createElement('div'); d.className='page'; d.id='pg'+pg;
+    d.innerHTML=`<div class="skeleton">p.${pg} 렌더 중…</div><span class="pageno">${pg} / 14</span><div class="overlay" id="ov${pg}"></div>`;
+    st.appendChild(d);
+  }
+  const io=new IntersectionObserver(es=>es.forEach(en=>{ if(en.isIntersecting){ renderPage(+en.target.id.slice(2)); io.unobserve(en.target);} }),{rootMargin:'600px'});
+  $$('.page').forEach(p=>io.observe(p));
+}
+
+async function renderPage(pg){
+  if(S.rendered[pg]) return; S.rendered[pg]=true;
+  const page=await S.doc.getPage(pg);
+  const holder=$('#pg'+pg);
+  const q=Math.min(3,Math.max(1.7,(holder.clientWidth*(devicePixelRatio||1))/PW));
+  const vp=page.getViewport({scale:q});
+  const cv=document.createElement('canvas'); cv.width=vp.width; cv.height=vp.height;
+  await page.render({canvasContext:cv.getContext('2d'),viewport:vp}).promise;
+  holder.querySelector('.skeleton')?.remove();
+  holder.insertBefore(cv,holder.querySelector('.overlay'));
+  S.canvases[pg]=cv;
+  drawOverlay(pg);
+}
+
+/* pt → % 배치 헬퍼 */
+const P = (x,y,w,h)=>`left:${x/PW*100}%;top:${y/PH*100}%;width:${w/PW*100}%;height:${h/PH*100}%`;
+
+function drawOverlay(pg){
+  const ov=$('#ov'+pg); if(!ov) return; ov.innerHTML='';
+  /* 서명 슬롯 */
+  for(const z of SIG.filter(z=>z.pg===pg&&(S.mode==='full'||z.grp==='hi'))){
+    const [x0,y0,x1,y1]=z.draw;
+    const el=document.createElement('button');
+    el.className='slot'+(S.sig[z.id]?' done':''); el.id='slot_'+z.id;
+    el.style.cssText=P(x0,y0,x1-x0,y1-y0);
+    el.innerHTML=S.sig[z.id]? sigSVG(z)+`<span class="redo">다시 서명</span>` : `<span class="cue">탭하여 서명</span>`;
+    el.onclick=()=>openSig(z);
+    ov.appendChild(el);
+  }
+  /* 동의 행 */
+  for(const c of CON.filter(c=>c.pg===pg)){
+    const [hx0,hy0,hx1,hy1]=c.hot, v=S.con[c.id];
+    const el=document.createElement('button');
+    el.className='crow'+(v?' answered':''); el.id='crow_'+c.id;
+    el.style.cssText=P(hx0,hy0,hx1-hx0,hy1-hy0);
+    const rel=(r)=>`left:${(r[0]-hx0)/(hx1-hx0)*100}%;top:${(r[1]-hy0)/(hy1-hy0)*100}%;width:${(r[2]-r[0])/(hx1-hx0)*100}%;height:${(r[3]-r[1])/(hy1-hy0)*100}%`;
+    el.innerHTML=
+      `<span class="tag">${v?'✓ 확인됨':(c.req==='필수'?'필수 선택':'선택 항목')}</span>`+
+      `<span class="opt ${v==='yes'?'pick':''}" style="${rel(c.yes)}"></span>`+
+      `<span class="opt ${v==='no'?'pick':''}" style="${rel(c.no)}"></span>`+
+      (v?`<svg class="mark" style="${rel(v==='yes'?c.yes:c.no)}" viewBox="0 0 24 24"><path d="M4 13l5 5L21 5"/></svg>`:'');
+    el.onclick=()=>openCon(c);
+    ov.appendChild(el);
+  }
+  /* 날짜 */
+  for(const [k,d] of Object.entries(DATES)){
+    if(d.pg!==pg||!dateOn(k)) continue;
+    const t=today(), map={yy:t.yy,mm:t.mm,dd:t.dd};
+    for(const part of ['yy','mm','dd']){
+      const [cx,by,fp]=d[part];
+      const s=document.createElement('span'); s.className='ovtext';
+      s.style.cssText=`left:${cx/PW*100}%;top:${(by-fp*.36)/PH*100}%`;
+      s.textContent=map[part]; s.dataset.fp=fp;
+      ov.appendChild(s);
+    }
+  }
+  /* 텍스트 항목 */
+  for(const t of S.texts.filter(t=>t.pg===pg)) mountText(ov,t);
+  fitOverlayFonts(pg);
+}
+function sigSVG(z){
+  const st=S.sig[z.id]; if(!st) return '';
+  const [x0,y0,x1,y1]=z.draw, W=x1-x0, H=y1-y0;
+  const ps=st.strokes.map(sk=>'M'+sk.map(p=>`${(p.u*W).toFixed(1)},${(p.v*H).toFixed(1)}`).join(' L')).join(' ');
+  return `<svg class="sig" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><path d="${ps}" stroke-width="${Math.max(1.2,H*.07)}"/></svg>`;
+}
+function dateOn(k){ const owner=SIG.find(z=>z.dg===k); return owner&&S.sig[owner.id]; }
+function fitOverlayFonts(pg){
+  const holder=$('#pg'+pg); if(!holder) return;
+  const w=holder.clientWidth, s=w/PW;
+  holder.querySelectorAll('.ovtext').forEach(el=>el.style.fontSize=(+el.dataset.fp*s)+'px');
+  holder.querySelectorAll('.titem,.tinput').forEach(el=>el.style.fontSize=((+el.dataset.fp||10)*s)+'px');
+}
+addEventListener('resize',()=>MODE_PAGES[S.mode].forEach(fitOverlayFonts));
+
+/* ============================================================
+   서명 패드
+============================================================ */
+const pad=$('#pad'), pctx=pad.getContext('2d');
+let curZone=null, curStrokes=[], drawing=false, curPts=null;
+
+function openSig(z){
+  curZone=z; curStrokes=[]; drawing=false;
+  $('#sigTitle').textContent=z.lab;
+  const [x0,y0,x1,y1]=z.draw, ar=(x1-x0)/(y1-y0);
+  const boxW=Math.min(innerWidth*.9,720);
+  const cssH=Math.max(190,Math.min(innerHeight*.5,boxW/Math.max(ar,1.15)));
+  const dpr=devicePixelRatio||1;
+  pad.style.height=cssH+'px'; pad.style.width='100%';
+  $('#sigVeil').classList.add('on');
+  requestAnimationFrame(()=>{
+    pad.width=pad.clientWidth*dpr; pad.height=cssH*dpr;
+    pctx.setTransform(dpr,0,0,dpr,0,0); repad();
+  });
+  $('#padHint').style.display='flex'; $('#sigOk').disabled=true;
+}
+function repad(){
+  pctx.clearRect(0,0,pad.clientWidth,pad.clientHeight);
+  pctx.lineCap=pctx.lineJoin='round'; pctx.strokeStyle='#10151c';
+  pctx.lineWidth=Math.max(2.4,pad.clientHeight*.024);
+  for(const sk of curStrokes) tracePath(pctx,sk,pad.clientWidth,pad.clientHeight);
+}
+function tracePath(ctx,pts,W,H){
+  if(pts.length<2) return;
+  ctx.beginPath(); ctx.moveTo(pts[0].u*W,pts[0].v*H);
+  for(let i=1;i<pts.length-1;i++){
+    const mx=(pts[i].u+pts[i+1].u)/2*W, my=(pts[i].v+pts[i+1].v)/2*H;
+    ctx.quadraticCurveTo(pts[i].u*W,pts[i].v*H,mx,my);
+  }
+  ctx.lineTo(pts.at(-1).u*W,pts.at(-1).v*H); ctx.stroke();
+}
+const padPt=e=>{const r=pad.getBoundingClientRect();return {u:(e.clientX-r.left)/r.width,v:(e.clientY-r.top)/r.height}};
+pad.addEventListener('pointerdown',e=>{e.preventDefault();pad.setPointerCapture(e.pointerId);
+  drawing=true;curPts=[padPt(e)];curStrokes.push(curPts);$('#padHint').style.display='none';});
+pad.addEventListener('pointermove',e=>{if(!drawing)return;curPts.push(padPt(e));repad();
+  $('#sigOk').disabled=totalLen()<0.5;});
+const endStroke=()=>{drawing=false;curPts=null;$('#sigOk').disabled=totalLen()<0.5;};
+pad.addEventListener('pointerup',endStroke); pad.addEventListener('pointercancel',endStroke);
+function totalLen(){let L=0;for(const sk of curStrokes)for(let i=1;i<sk.length;i++)L+=Math.hypot(sk[i].u-sk[i-1].u,sk[i].v-sk[i-1].v);return L;}
+$('#sigClear').onclick=()=>{curStrokes=[];repad();$('#padHint').style.display='flex';$('#sigOk').disabled=true;};
+$('#sigCancel').onclick=()=>$('#sigVeil').classList.remove('on');
+$('#sigOk').onclick=()=>{
+  S.sig[curZone.id]={strokes:curStrokes.filter(s=>s.length>1)};
+  S.dirty=true; $('#sigVeil').classList.remove('on');
+  drawOverlay(curZone.pg); refresh();
+};
+
+/* ============================================================
+   동의 선택
+============================================================ */
+let curCon=null;
+function openCon(c){
+  curCon=c;
+  $('#conTitle').textContent=`${c.lab} (${c.req})`;
+  $('#conDesc').textContent = c.req==='필수'
+    ? '필수 동의 항목입니다. 내용을 확인하신 뒤 선택해 주세요.'
+    : '선택 동의 항목입니다. 동의하지 않아도 서비스 이용이 가능합니다.';
+  $('#conVeil').classList.add('on');
+}
+$('#conYes').onclick=()=>setCon('yes'); $('#conNo').onclick=()=>setCon('no');
+$('#conClr').onclick=()=>setCon(null);
+function setCon(v){
+  if(v) S.con[curCon.id]=v; else delete S.con[curCon.id];
+  S.dirty=true; $('#conVeil').classList.remove('on');
+  drawOverlay(curCon.pg); refresh();
+}
+$$('.veil').forEach(v=>v.addEventListener('click',e=>{if(e.target===v)v.classList.remove('on')}));
+
+/* ============================================================
+   텍스트 도구
+============================================================ */
+$('#btnText').onclick=()=>{
+  S.textMode=!S.textMode;
+  $('#btnText').classList.toggle('pri',S.textMode);
+  $('#btnText').classList.toggle('ghost',!S.textMode);
+  toast(S.textMode?'텍스트 모드: 문서의 빈칸을 탭하면 입력창이 열립니다':'텍스트 모드 종료');
+};
+$('#stage').addEventListener('pointerdown',e=>{
+  if(!S.textMode) return;
+  const ovEl=e.target.closest('.overlay'); if(!ovEl) return;
+  if(e.target.closest('.slot,.crow,.titem,.tinput')) return;
+  const pg=+ovEl.id.slice(2), r=ovEl.getBoundingClientRect();
+  spawnInput(ovEl,pg,(e.clientX-r.left)/r.width*PW,(e.clientY-r.top)/r.height*PH);
+});
+function spawnInput(ov,pg,x,y,item){
+  const inp=document.createElement('input'); inp.className='tinput';
+  inp.dataset.fp=item?item.size:10;
+  inp.style.left=x/PW*100+'%'; inp.style.top=y/PH*100+'%';
+  inp.value=item?item.txt:'';
+  ov.appendChild(inp); fitOverlayFonts(pg); inp.focus();
+  const commit=()=>{
+    inp.remove();
+    const txt=inp.value.trim();
+    if(item){ if(txt){item.txt=txt;} else S.texts=S.texts.filter(t=>t!==item); }
+    else if(txt) S.texts.push({tid:++S.tseq,pg,x,y,txt,size:10});
+    S.dirty=true; drawOverlay(pg);
+  };
+  inp.addEventListener('keydown',e=>{if(e.key==='Enter')inp.blur();if(e.key==='Escape'){inp.value=item?item.txt:'';inp.blur();}});
+  inp.addEventListener('blur',commit,{once:true});
+}
+function mountText(ov,t){
+  const el=document.createElement('span'); el.className='titem'; el.dataset.fp=t.size;
+  el.style.left=t.x/PW*100+'%'; el.style.top=t.y/PH*100+'%';
+  el.textContent=t.txt; ov.appendChild(el);
+  let drag=null,moved=false;
+  el.addEventListener('pointerdown',e=>{
+    e.stopPropagation(); el.setPointerCapture(e.pointerId);
+    const r=ov.getBoundingClientRect();
+    drag={dx:e.clientX-r.left-t.x/PW*r.width, dy:e.clientY-r.top-t.y/PH*r.height, r}; moved=false;
+  });
+  el.addEventListener('pointermove',e=>{
+    if(!drag) return; moved=true;
+    t.x=Math.min(PW-4,Math.max(4,(e.clientX-drag.r.left-drag.dx)/drag.r.width*PW));
+    t.y=Math.min(PH-4,Math.max(4,(e.clientY-drag.r.top-drag.dy)/drag.r.height*PH));
+    el.style.left=t.x/PW*100+'%'; el.style.top=t.y/PH*100+'%'; S.dirty=true;
+  });
+  el.addEventListener('pointerup',e=>{
+    drag=null;
+    if(moved) return;
+    if(S.selText===t){ el.remove(); spawnInput(ov,t.pg,t.x,t.y,t); S.selText=null; return; } // 재탭 → 편집
+    $$('.titem.sel').forEach(x=>{x.classList.remove('sel');x.querySelector('.del')?.remove();});
+    S.selText=t; el.classList.add('sel');
+    const del=document.createElement('button'); del.className='del'; del.textContent='×';
+    del.onclick=ev=>{ev.stopPropagation();S.texts=S.texts.filter(x=>x!==t);S.selText=null;drawOverlay(t.pg);};
+    el.appendChild(del);
+  });
+}
+document.addEventListener('pointerdown',e=>{
+  if(!e.target.closest('.titem')&&S.selText){$$('.titem.sel').forEach(x=>{x.classList.remove('sel');x.querySelector('.del')?.remove();});S.selText=null;}
+},true);
+
+/* ============================================================
+   체크리스트 레일 + 게이트
+============================================================ */
+function activeSig(){ return SIG.filter(z=>S.mode==='full'||z.grp==='hi'); }
+function buildRail(){
+  const rs=$('#railSig'); rs.innerHTML='';
+  for(const z of activeSig()){
+    const b=document.createElement('button'); b.className='stamp'; b.id='st_'+z.id;
+    b.innerHTML=`<span class="seal">서</span><span class="tt"><b>${z.lab}</b><span>p.${z.pg} · ${z.sub}</span></span><span class="st"></span>`;
+    b.onclick=()=>jump('slot_'+z.id,z.pg);
+    rs.appendChild(b);
+  }
+  const rc=$('#railCon'); rc.innerHTML='';
+  for(const c of CON){
+    const b=document.createElement('button'); b.className='stamp'; b.id='st_'+c.id;
+    b.innerHTML=`<span class="seal">확</span><span class="tt"><b>${c.lab}</b><span>p.${c.pg} · ${c.req} 동의 항목</span></span><span class="st"></span>`;
+    b.onclick=()=>jump('crow_'+c.id,c.pg);
+    rc.appendChild(b);
+  }
+}
+async function jump(elId,pg){
+  $('#rail').classList.remove('open');
+  if(!S.rendered[pg]) await renderPage(pg);
+  const el=$('#'+elId)||$('#pg'+pg);
+  el.scrollIntoView({behavior:'smooth',block:'center'});
+  el.classList.remove('pulse'); void el.offsetWidth; el.classList.add('pulse');
+}
+function refresh(){
+  const sigs=activeSig(), sd=sigs.filter(z=>S.sig[z.id]).length;
+  const cd=CON.filter(c=>S.con[c.id]).length;
+  for(const z of sigs){ const st=$('#st_'+z.id); if(!st) continue;
+    st.classList.toggle('done',!!S.sig[z.id]);
+    st.querySelector('.seal').textContent=S.sig[z.id]?'✓':'서';
+    st.querySelector('.st').textContent=S.sig[z.id]?'완료':'대기'; }
+  for(const c of CON){ const st=$('#st_'+c.id); if(!st) continue;
+    st.classList.toggle('done',!!S.con[c.id]);
+    st.querySelector('.seal').textContent=S.con[c.id]?'✓':'확';
+    st.querySelector('.st').textContent=S.con[c.id]?(S.con[c.id]==='yes'?'동의':'미동의'):'대기'; }
+  $('#cntSig').textContent=`${sd}/${sigs.length}`; $('#cntCon').textContent=`${cd}/${CON.length}`;
+  const ok= sd===sigs.length && cd===CON.length && $('#sellerOk').checked;
+  $('#btnPrint').disabled=$('#btnPdf').disabled=!ok;
+  $('#pillTxt').textContent= ok?'전 항목 완료 — 출력 가능':`서명 ${sd}/${sigs.length} · 동의 ${cd}/${CON.length}`;
+  $('#pill').classList.toggle('ok',ok);
+  updScript();
+}
+$('#sellerOk').onchange=refresh;
+$('#pill').onclick=()=>$('#rail').classList.toggle('open');
+function firstMissing(){
+  for(const z of activeSig()) if(!S.sig[z.id]) return {el:'slot_'+z.id,pg:z.pg,msg:`'${z.lab}'이 아직 비어 있어요 (p.${z.pg})`};
+  for(const c of CON) if(!S.con[c.id]) return {el:'crow_'+c.id,pg:c.pg,msg:`'${c.lab}' 동의 선택이 남았어요 (p.${c.pg})`};
+  if(!$('#sellerOk').checked) return {el:null,pg:null,msg:'판매자 확인 체크가 남았습니다'};
+  return null;
+}
+function gate(){
+  const m=firstMissing();
+  if(!m) return true;
+  toast(m.msg);
+  if(m.el) jump(m.el,m.pg); else $('#rail').classList.add('open');
+  return false;
+}
+
+/* ============================================================
+   모드 전환
+============================================================ */
+$('#modeSeg').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b||b.classList.contains('on')) return;
+  if(b.dataset.mode==='hi' && SIG.some(z=>z.grp==='safe'&&S.sig[z.id])
+     && !confirm('안심매입 페이지의 서명이 이미 있습니다. 하이오더 전용으로 전환하면 출력에서 제외됩니다. 전환할까요?')) return;
+  S.mode=b.dataset.mode;
+  $$('#modeSeg button').forEach(x=>x.classList.toggle('on',x===b));
+  S.rendered={}; S.canvases={};
+  buildStage(); buildRail(); refresh();
+});
+
+/* ============================================================
+   출력 합성 (원본 + 흑색 서명·체크·날짜·텍스트)
+============================================================ */
+async function composePage(pg){
+  const page=await S.doc.getPage(pg);
+  const vp=page.getViewport({scale:FAX_SCALE});
+  const cv=document.createElement('canvas'); cv.width=Math.round(vp.width); cv.height=Math.round(vp.height);
+  const ctx=cv.getContext('2d');
+  ctx.fillStyle='#fff'; ctx.fillRect(0,0,cv.width,cv.height);
+  await page.render({canvasContext:ctx,viewport:vp}).promise;
+  const s=FAX_SCALE;
+  ctx.strokeStyle=ctx.fillStyle='#000'; ctx.lineCap=ctx.lineJoin='round';
+  /* 서명 */
+  for(const z of SIG.filter(z=>z.pg===pg&&(S.mode==='full'||z.grp==='hi'))){
+    const st=S.sig[z.id]; if(!st) continue;
+    const [x0,y0,x1,y1]=z.draw, W=(x1-x0)*s, H=(y1-y0)*s;
+    ctx.save(); ctx.translate(x0*s,y0*s); ctx.lineWidth=Math.max(2.2,H*.055);
+    for(const sk of st.strokes) tracePath(ctx,sk,W,H);
+    ctx.restore();
+  }
+  /* 동의 체크 */
+  for(const c of CON.filter(c=>c.pg===pg)){
+    const v=S.con[c.id]; if(!v) continue;
+    const r=v==='yes'?c.yes:c.no, x=r[0]*s, y=r[1]*s, w=(r[2]-r[0])*s, h=(r[3]-r[1])*s;
+    ctx.lineWidth=Math.max(1.8,h*.17); ctx.beginPath();
+    ctx.moveTo(x+w*.14,y+h*.55); ctx.lineTo(x+w*.42,y+h*.86); ctx.lineTo(x+w*.95,y+h*.10); ctx.stroke();
+  }
+  /* 날짜 */
+  const t=today(), map={yy:t.yy,mm:t.mm,dd:t.dd};
+  ctx.textAlign='center'; ctx.textBaseline='alphabetic';
+  for(const [k,d] of Object.entries(DATES)){
+    if(d.pg!==pg||!dateOn(k)) continue;
+    for(const part of ['yy','mm','dd']){
+      const [cx,by,fp]=d[part];
+      ctx.font=`600 ${fp*s}px 'Pretendard Variable',Pretendard,sans-serif`;
+      ctx.fillText(map[part],cx*s,by*s);
+    }
+  }
+  /* 텍스트 */
+  ctx.textAlign='left'; ctx.textBaseline='middle';
+  for(const it of S.texts.filter(t=>t.pg===pg)){
+    ctx.font=`600 ${it.size*s}px 'Pretendard Variable',Pretendard,sans-serif`;
+    it.txt.split('\n').forEach((line,i)=>ctx.fillText(line,it.x*s,(it.y+i*it.size*1.25)*s));
+  }
+  return cv;
+}
+async function composeAll(msg){
+  await document.fonts.ready;
+  const pages=MODE_PAGES[S.mode], out=[];
+  for(let i=0;i<pages.length;i++){
+    toast(`${msg} ${i+1}/${pages.length}p…`);
+    out.push(await composePage(pages[i]));
+  }
+  return out;
+}
+function fname(ext){
+  const t=today(), store=($('#mStore').value.trim()||'미기재').replace(/[\\/:*?"<>|]/g,'');
+  return `${t.yy}${t.mm2}${t.dd2}_${store}_하이오더${S.mode==='full'?'·안심매입':''}_신청서.${ext}`;
+}
+
+/* 인쇄 (→ 종이 출력 → 애니팩스) */
+$('#btnPrint').onclick=async()=>{
+  if(!gate()) return;
+  const cvs=await composeAll('인쇄 준비 중');
+  const fr=document.createElement('iframe');
+  fr.style.cssText='position:fixed;width:0;height:0;border:0;visibility:hidden';
+  document.body.appendChild(fr);
+  const d=fr.contentDocument;
+  d.write(`<html><head><style>@page{size:A4;margin:0}html,body{margin:0}img{display:block;width:210mm;height:297mm;page-break-after:always}img:last-child{page-break-after:auto}</style></head><body></body></html>`);
+  for(const cv of cvs){ const im=d.createElement('img'); im.src=cv.toDataURL('image/jpeg',.92); d.body.appendChild(im); }
+  d.close();
+  await new Promise(r=>setTimeout(r,600));
+  fr.contentWindow.focus(); fr.contentWindow.print();
+  setTimeout(()=>fr.remove(),60000);
+  toast('인쇄 대화상자를 확인하세요. 출력 후 애니팩스로 발송합니다.');
+};
+
+/* PDF 저장 (보관·이메일 발송용 사본) */
+$('#btnPdf').onclick=async()=>{
+  if(!gate()) return;
+  const cvs=await composeAll('PDF 생성 중');
+  const {jsPDF}=window.jspdf;
+  const pdf=new jsPDF({unit:'pt',format:'a4',compress:true});
+  cvs.forEach((cv,i)=>{ if(i) pdf.addPage();
+    pdf.addImage(cv.toDataURL('image/jpeg',.9),'JPEG',0,0,PW,PH); });
+  pdf.save(fname('pdf'));
+  toast('PDF가 저장되었습니다. 이메일 발송 시 발송 시각이 증빙으로 남습니다.');
+};
+
+/* ============================================================
+   동의 녹취 (선택)
+============================================================ */
+let rec=null, chunks=[], recURL=null;
+function updScript(){
+  const t=today(), store=$('#mStore').value.trim()||'(상호)', owner=$('#mOwner').value.trim()||'(성명)';
+  $('#recScript').innerHTML=
+    `“20${t.yy}년 ${t.mm}월 ${t.dd}일, <b>${store} ${owner}</b>입니다. KT 하이오더${S.mode==='full'?' 및 안심매입 서비스':''} 가입신청서의 요금, 약정, 위약금, 해지 조건 등 중요사항에 대한 설명을 모두 듣고 이해하였으며, 신청 내용에 <b>동의합니다</b>.”`;
+}
+$('#mStore').oninput=$('#mOwner').oninput=updScript;
+$('#recConsent').onchange=e=>{$('#recBtn').disabled=!e.target.checked;};
+$('#recBtn').onclick=async()=>{
+  if(rec&&rec.state==='recording'){ rec.stop(); return; }
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    chunks=[]; rec=new MediaRecorder(stream);
+    rec.ondataavailable=e=>chunks.push(e.data);
+    rec.onstop=()=>{
+      stream.getTracks().forEach(t=>t.stop());
+      const blob=new Blob(chunks,{type:rec.mimeType||'audio/webm'});
+      if(recURL) URL.revokeObjectURL(recURL);
+      recURL=URL.createObjectURL(blob);
+      const a=$('#recPlay'); a.src=recURL; a.style.display='block';
+      $('#recSave').disabled=false;
+      $('#recBtn').innerHTML='● 다시 녹음';
+    };
+    rec.start();
+    $('#recBtn').innerHTML='<span class="rec-dot"></span> 녹음 중 — 탭하여 종료';
+  }catch(e){ toast('마이크 권한을 허용해 주세요'); }
+};
+$('#recSave').onclick=()=>{
+  const a=document.createElement('a'); a.href=recURL; a.download=fname('webm').replace('신청서','동의녹취');
+  a.click(); toast('녹취 파일이 저장되었습니다');
+};
+
+/* ============================================================
+   이탈 보호 · 시작
+============================================================ */
+addEventListener('beforeunload',e=>{ if(S.dirty){e.preventDefault(); e.returnValue='';} });
+updScript(); boot();
+</script>
+</body>
+</html>
