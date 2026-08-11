@@ -6,7 +6,7 @@
 <title>하이오더 전자청약</title>
 <!--
   ============================================================
-  KT HIORDER 전자청약  ·  contract.html  v1.00
+  KT HIORDER 전자청약  ·  contract.html  v1.01
   ------------------------------------------------------------
   · 원본 가입신청서 PDF(14p)를 화면에 렌더 → 고객이 태블릿에서
     서명란마다 "각각" 직접 서명 + 동의함/않음 선택
@@ -122,6 +122,7 @@ input{font-family:inherit}
   background:var(--kt);color:#fff;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center}
 .tinput{position:absolute;transform:translate(0,-50%);border:1.5px solid var(--accent);border-radius:4px;
   background:#fff;color:#0d1117;font-weight:600;padding:2px 4px;outline:none;min-width:110px}
+body.textmode .page{cursor:crosshair}
 
 /* ── 체크리스트 레일 ─────────────────────── */
 .rail-h{font-size:11px;font-weight:800;color:var(--steel);letter-spacing:.14em;margin:16px 0 9px}
@@ -235,7 +236,7 @@ audio{width:100%;margin-top:9px;height:34px}
 <body>
 
 <header class="topbar">
-  <div class="brand"><b>하이오더 전자청약</b><span class="ver">v1.00</span></div>
+  <div class="brand"><b>하이오더 전자청약</b><span class="ver">v1.01</span></div>
   <div class="seg" id="modeSeg">
     <button data-mode="hi" class="on">하이오더</button>
     <button data-mode="full">+ 안심매입</button>
@@ -581,13 +582,15 @@ $('#btnText').onclick=()=>{
   S.textMode=!S.textMode;
   $('#btnText').classList.toggle('pri',S.textMode);
   $('#btnText').classList.toggle('ghost',!S.textMode);
+  document.body.classList.toggle('textmode',S.textMode);
   toast(S.textMode?'텍스트 모드: 문서의 빈칸을 탭하면 입력창이 열립니다':'텍스트 모드 종료');
 };
-$('#stage').addEventListener('pointerdown',e=>{
+$('#stage').addEventListener('click',e=>{
   if(!S.textMode) return;
-  const ovEl=e.target.closest('.overlay'); if(!ovEl) return;
   if(e.target.closest('.slot,.crow,.titem,.tinput')) return;
-  const pg=+ovEl.id.slice(2), r=ovEl.getBoundingClientRect();
+  const pageEl=e.target.closest('.page'); if(!pageEl||!pageEl.querySelector('canvas')) return;
+  const ovEl=pageEl.querySelector('.overlay'); if(!ovEl) return;
+  const pg=+ovEl.id.slice(2), r=pageEl.getBoundingClientRect();
   spawnInput(ovEl,pg,(e.clientX-r.left)/r.width*PW,(e.clientY-r.top)/r.height*PH);
 });
 function spawnInput(ov,pg,x,y,item){
@@ -612,6 +615,7 @@ function mountText(ov,t){
   el.textContent=t.txt; ov.appendChild(el);
   let drag=null,moved=false;
   el.addEventListener('pointerdown',e=>{
+    if(e.target.closest('.del')) return;
     e.stopPropagation(); el.setPointerCapture(e.pointerId);
     const r=ov.getBoundingClientRect();
     drag={dx:e.clientX-r.left-t.x/PW*r.width, dy:e.clientY-r.top-t.y/PH*r.height, r}; moved=false;
@@ -623,6 +627,7 @@ function mountText(ov,t){
     el.style.left=t.x/PW*100+'%'; el.style.top=t.y/PH*100+'%'; S.dirty=true;
   });
   el.addEventListener('pointerup',e=>{
+    if(e.target.closest('.del')) return;
     drag=null;
     if(moved) return;
     if(S.selText===t){ el.remove(); spawnInput(ov,t.pg,t.x,t.y,t); S.selText=null; return; } // 재탭 → 편집
