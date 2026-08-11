@@ -6,7 +6,7 @@
 <title>하이오더 전자청약</title>
 <!--
   ============================================================
-  KT HIORDER 전자청약  ·  contract.html  v1.01
+  KT HIORDER 전자청약  ·  contract.html  v1.10
   ------------------------------------------------------------
   · 원본 가입신청서 PDF(14p)를 화면에 렌더 → 고객이 태블릿에서
     서명란마다 "각각" 직접 서명 + 동의함/않음 선택
@@ -82,14 +82,17 @@ input{font-family:inherit}
 .overlay{position:absolute;inset:0;pointer-events:none}
 .overlay>*{pointer-events:auto}
 
-/* 서명 슬롯 */
-.slot{position:absolute;border:1.6px dashed var(--kt);border-radius:5px;background:var(--kt-soft);
-  display:flex;align-items:center;justify-content:center;transition:.2s;overflow:visible}
+/* 서명 슬롯 — 종이 마킹과 동일한 형광 연두 + 빨간 코너 탭 */
+.slot{position:absolute;border-radius:4px;display:flex;align-items:center;justify-content:center;overflow:visible;
+  background:linear-gradient(180deg,rgba(132,255,0,.10) 0%,rgba(132,255,0,.10) 54%,rgba(132,255,0,.50) 54%,rgba(132,255,0,.50) 100%);transition:.2s}
 .slot .cue{font-size:clamp(9px,1.35vw,12px);font-weight:800;color:var(--kt);letter-spacing:-.01em;
   text-shadow:0 0 6px rgba(255,255,255,.9);pointer-events:none;white-space:nowrap}
 .slot::after{content:'';position:absolute;right:-1px;top:-1px;border-style:solid;
   border-width:0 9px 9px 0;border-color:transparent var(--kt) transparent transparent}
-.slot.done{border:1.6px solid var(--lime);background:rgba(132,255,0,.07)}
+.slot.opt{background:linear-gradient(180deg,rgba(132,255,0,.05) 0%,rgba(132,255,0,.05) 54%,rgba(132,255,0,.26) 54%,rgba(132,255,0,.26) 100%)}
+.slot.opt .cue{color:#c96a00}
+.slot.opt::after{border-color:transparent #c96a00 transparent transparent}
+.slot.done{background:none;border:1.5px solid rgba(132,255,0,.85)}
 .slot.done::after{border-color:transparent var(--lime-ink) transparent transparent}
 .slot.done .cue{display:none}
 .slot svg.sig{position:absolute;inset:0;width:100%;height:100%}
@@ -99,10 +102,28 @@ input{font-family:inherit}
 .slot.pulse{animation:pulse .9s 2}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(230,0,18,.5)}50%{box-shadow:0 0 0 8px rgba(230,0,18,0)}}
 
+/* 텍스트 입력 필드 — 형광 밑줄 */
+.fld{position:absolute;border-radius:2px;cursor:text;
+  background:linear-gradient(180deg,transparent 0%,transparent 60%,rgba(132,255,0,.42) 60%,rgba(132,255,0,.42) 100%)}
+.fld:hover{background:linear-gradient(180deg,rgba(132,255,0,.10) 0%,rgba(132,255,0,.10) 60%,rgba(132,255,0,.55) 60%,rgba(132,255,0,.55) 100%)}
+.fld.has{background:none}
+.fld.has:hover{background:rgba(132,255,0,.10)}
+.fval{position:absolute;left:2px;top:50%;transform:translateY(-50%);color:#0d1117;font-weight:600;
+  white-space:nowrap;line-height:1;pointer-events:none;max-width:none}
+.finp{position:absolute;border:1.5px solid var(--accent);border-radius:3px;background:#fff;color:#0d1117;
+  font-weight:600;padding:0 2px;outline:none;z-index:6}
+
+/* 선택 마크 ○/□ */
+.mk{position:absolute;border-radius:50%;border:1.5px solid rgba(132,255,0,.95);background:rgba(132,255,0,.14);transition:.15s}
+.mk:hover{background:rgba(132,255,0,.3)}
+.mk.on{border-color:transparent;background:none}
+.mk svg{position:absolute;inset:-14%;width:128%;height:128%;pointer-events:none}
+.mk svg path{fill:none;stroke:#0d1117;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+
 /* 동의 행 */
 .crow{position:absolute;border-radius:6px;transition:.2s}
-.crow .opt{position:absolute;border:1.6px dashed var(--kt);border-radius:50%;transition:.15s}
-.crow.answered .opt{border-style:solid;border-color:#c9d1de}
+.crow .opt{position:absolute;border:1.6px solid rgba(132,255,0,.95);background:rgba(132,255,0,.12);border-radius:50%;transition:.15s}
+.crow.answered .opt{border-color:#d5dce8;background:none}
 .crow .opt.pick{border-color:var(--lime-ink);border-style:solid}
 .crow .mark{position:absolute;pointer-events:none}
 .crow .mark path{fill:none;stroke:#0d1117;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
@@ -236,7 +257,7 @@ audio{width:100%;margin-top:9px;height:34px}
 <body>
 
 <header class="topbar">
-  <div class="brand"><b>하이오더 전자청약</b><span class="ver">v1.01</span></div>
+  <div class="brand"><b>하이오더 전자청약</b><span class="ver">v1.10</span></div>
   <div class="seg" id="modeSeg">
     <button data-mode="hi" class="on">하이오더</button>
     <button data-mode="full">+ 안심매입</button>
@@ -246,6 +267,7 @@ audio{width:100%;margin-top:9px;height:34px}
     <input id="mOwner" placeholder="대표자 성명" autocomplete="off">
   </div>
   <div class="actions">
+    <button class="btn ghost tglchip on" id="bwTog" title="인쇄·PDF를 흑백으로 변환 (팩스 최적화)"><span class="dot"></span>흑백출력</button>
     <button class="btn ghost" id="btnText" title="문서 위 임의 위치에 텍스트 입력">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M4 6V4h16v2M12 4v16m-4 0h8"/></svg><span>텍스트</span></button>
     <button class="btn ghost" id="btnPrint" disabled>
@@ -261,6 +283,7 @@ audio{width:100%;margin-top:9px;height:34px}
   <aside id="rail" aria-label="진행 체크리스트">
     <div class="rail-h">서명 · <span id="cntSig">0/0</span></div>
     <div id="railSig"></div>
+    <div class="cap" style="margin-top:6px">위임장·광고할인·명의변경 등 <b>선택 서명</b>과 빈칸·○ 표시는 문서에서 직접 탭해 입력</div>
     <div class="rail-h">동의 확인 · <span id="cntCon">0/5</span></div>
     <div id="railCon"></div>
     <div class="rail-h">판매자 확인</div>
@@ -340,14 +363,19 @@ const FAX_SCALE = 200/72;                  // 200dpi 출력 합성
 
 /* 서명 존 — box: 원본 빨간 박스 / draw: 실제 획이 그려지는 영역 (pt) */
 const SIG = [
- {id:'s_p1_acct', pg:1, box:[438.1,254.8,567.4,272.1], draw:[441,256,564,271],   lab:'예금주(카드주) 성명·서명', sub:'요금 자동이체·결제 동의', grp:'hi', dg:null},
- {id:'s_p1_apply',pg:1, box:[389.9,790.0,571.7,806.9], draw:[430,791.2,566,805.8],lab:'신청인 서명',            sub:'하이오더 가입 신청 확인', grp:'hi', dg:'d1'},
- {id:'s_p7_terms',pg:7, box:[418.3,781.4,564.8,798.7], draw:[458,782.6,560,797.6],lab:'이용약관 동의 서명',      sub:'하이오더 서비스 이용약관', grp:'hi', dg:null},
- {id:'s_p11_gd',  pg:11,box:[399.2,180.0,545.0,287.6], draw:[437,186,540,282],   lab:'주요안내 확인 서명',      sub:'안심매입 약관·주요내용 설명', grp:'safe', dg:null},
- {id:'s_p11_join',pg:11,box:[259.9,788.1,547.2,809.0], draw:[336,789.6,493,807.4],lab:'안심매입 계약 서명',      sub:'가입 계약 체결 확인', grp:'safe', dg:'d11'},
- {id:'s_p12_a',   pg:12,box:[336.2,267.6,533.9,286.7], draw:[408,268.8,502,285.4],lab:'수집·이용 동의 서명',     sub:'안심매입 개인정보 (필수)', grp:'safe', dg:'d12a'},
- {id:'s_p12_b',   pg:12,box:[337.0,414.0,535.3,433.1], draw:[408,415.2,502,431.8],lab:'처리위탁 동의 서명',      sub:'안심매입 개인정보 (필수)', grp:'safe', dg:'d12b'},
- {id:'s_p12_c',   pg:12,box:[337.0,699.1,535.3,717.8], draw:[408,700.3,502,716.5],lab:'제3자 제공 동의 서명',    sub:'안심매입 개인정보 (필수)', grp:'safe', dg:'d12c'},
+ {id:'s_p1_acct', pg:1, box:[438.1,254.8,567.4,272.1], draw:[441,256,564,271],   lab:'예금주(카드주) 성명·서명', sub:'요금 자동이체·결제 동의', grp:'hi', dg:null, req:true},
+ {id:'s_p1_apply',pg:1, box:[389.9,790.0,571.7,806.9], draw:[430,791.2,566,805.8],lab:'신청인 서명',            sub:'하이오더 가입 신청 확인', grp:'hi', dg:'d1', req:true},
+ {id:'s_p7_terms',pg:7, box:[418.3,781.4,564.8,798.7], draw:[458,782.6,560,797.6],lab:'이용약관 동의 서명',      sub:'하이오더 서비스 이용약관', grp:'hi', dg:null, req:true},
+ {id:'s_p11_gd',  pg:11,box:[399.2,180.0,545.0,287.6], draw:[437,186,540,282],   lab:'주요안내 확인 서명',      sub:'안심매입 약관·주요내용 설명', grp:'safe', dg:null, req:true},
+ {id:'s_p11_join',pg:11,box:[259.9,788.1,547.2,809.0], draw:[336,789.6,493,807.4],lab:'안심매입 계약 서명',      sub:'가입 계약 체결 확인', grp:'safe', dg:'d11', req:true},
+ {id:'s_p12_a',   pg:12,box:[336.2,267.6,533.9,286.7], draw:[408,268.8,502,285.4],lab:'수집·이용 동의 서명',     sub:'안심매입 개인정보 (필수)', grp:'safe', dg:'d12a', req:true},
+ {id:'s_p12_b',   pg:12,box:[337.0,414.0,535.3,433.1], draw:[408,415.2,502,431.8],lab:'처리위탁 동의 서명',      sub:'안심매입 개인정보 (필수)', grp:'safe', dg:'d12b', req:true},
+ {id:'s_p12_c',   pg:12,box:[337.0,699.1,535.3,717.8], draw:[408,700.3,502,716.5],lab:'제3자 제공 동의 서명',    sub:'안심매입 개인정보 (필수)', grp:'safe', dg:'d12c', req:true},
+ {id:'s_p1_dg', pg:1, box:[413.6,172.1,567.4,189.4], draw:[452,173.5,563,188],   lab:'위임하는 고객 서명',    sub:'위임장 · 해당 시', grp:'hi', dg:null, req:false},
+ {id:'s_p1_dr', pg:1, box:[413.6,191.5,567.4,209.2], draw:[452,193,563,207.7],  lab:'위임받는 고객 서명',    sub:'위임장 · 해당 시', grp:'hi', dg:null, req:false},
+ {id:'s_p1_ad', pg:1, box:[440.3,732.2,569.2,749.5], draw:[464,733.6,566,748],  lab:'광고할인 성명·서명',    sub:'광고 할인 신청 시', grp:'hi', dg:null, req:false},
+ {id:'s_p2_oa', pg:2, box:[418.0,211.0,571.7,228.2], draw:[455,212.4,568,226.8],lab:'명의 주는 고객 서명',   sub:'명의변경 시', grp:'hi', dg:null, req:false},
+ {id:'s_p2_ob', pg:2, box:[418.0,257.8,571.3,275.0], draw:[455,259.2,568,273.6],lab:'명의 받는 고객 서명',   sub:'명의변경 시', grp:'hi', dg:null, req:false},
 ];
 
 /* 동의 행 — yes/no: ○ 위치(pt), hot: 탭 영역 */
@@ -368,6 +396,171 @@ const DATES = {
  d12c:{pg:12, yy:[237.0,711.3,7],    mm:[274.0,711.3,7],    dd:[312.5,711.3,7]},
 };
 
+/* 입력 필드 (r=[x0,top,x1,bottom]pt, t=text|num|tel|email, s=폰트pt, d=기본값) */
+const FIELDS=[
+ {id:'f_bizname',pg:1,r:[157,74.5,308,89.5],t:'text',s:9},
+ {id:'f_bizregno',pg:1,r:[394,74.5,496,89.5],t:'num',s:9},
+ {id:'f_bizno',pg:1,r:[168,94,308,109],t:'num',s:9},
+ {id:'f_phone1',pg:1,r:[364,94,568,109],t:'tel',s:9},
+ {id:'f_addr',pg:1,r:[146,113,568,129],t:'text',s:9},
+ {id:'f_appname',pg:1,r:[128,133,211,149],t:'text',s:9},
+ {id:'f_appbirth',pg:1,r:[253,133,308,149],t:'num',s:9},
+ {id:'f_apprel',pg:1,r:[369,133,496,149],t:'text',s:9},
+ {id:'f_appphone',pg:1,r:[158,153,308,169],t:'tel',s:9},
+ {id:'f_appemail',pg:1,r:[361,153,568,169],t:'email',s:9},
+ {id:'f_svcno',pg:1,r:[319,225,450,240],t:'text',s:8},
+ {id:'f_validyy',pg:1,r:[266,258.5,283,271.5],t:'num',s:8},
+ {id:'f_validmm',pg:1,r:[297,258.5,311,271.5],t:'num',s:8},
+ {id:'f_bank',pg:1,r:[109,283,194,294.5],t:'text',s:8},
+ {id:'f_acctno',pg:1,r:[198,283,386,294.5],t:'num',s:8},
+ {id:'f_rel2',pg:1,r:[109,305.5,194,317],t:'text',s:8},
+ {id:'f_acctbirth',pg:1,r:[263,299,386,316],t:'num',s:8},
+ {id:'f_msgmail',pg:1,r:[292,321,432,337],t:'email',s:9},
+ {id:'f_msgfax',pg:1,r:[458,321,568,337],t:'tel',s:9},
+ {id:'f_msgaddr',pg:1,r:[302,339.5,568,354.5],t:'text',s:9},
+ {id:'f_mgrname',pg:1,r:[128,363,256,379],t:'text',s:9},
+ {id:'f_mgrphone',pg:1,r:[314,363,568,379],t:'tel',s:9},
+ {id:'f_dueyy',pg:1,r:[177,388,196,403],t:'num',s:8},
+ {id:'f_duemm',pg:1,r:[211,388,230,403],t:'num',s:8},
+ {id:'f_duedd',pg:1,r:[246,388,266,403],t:'num',s:8},
+ {id:'f_ktnum',pg:1,r:[255,407.5,349,424],t:'num',s:9},
+ {id:'f_poswin',pg:1,r:[161,431,212,443],t:'text',s:8},
+ {id:'f_posetc',pg:1,r:[516,432.5,560,452],t:'text',s:8},
+ {id:'f_menu_cnt',pg:1,r:[348,463,385,479],t:'num',s:9},
+ {id:'f_menu_hb',pg:1,r:[443,463,464,479],t:'num',s:8},
+ {id:'f_menu_on',pg:1,r:[510,463,531,479],t:'num',s:8},
+ {id:'f_alarm_cnt',pg:1,r:[348,497,385,513],t:'num',s:9},
+ {id:'f_alarm_hb',pg:1,r:[443,497,464,513],t:'num',s:8},
+ {id:'f_alarm_on',pg:1,r:[510,497,531,513],t:'num',s:8},
+ {id:'f_card_cnt',pg:1,r:[433,529,470,546],t:'num',s:9},
+ {id:'f_card_etc',pg:1,r:[299,538,407,551.5],t:'text',s:8},
+ {id:'f_st1',pg:1,r:[159,558.5,185,573],t:'num',s:8},
+ {id:'f_st2',pg:1,r:[276,558.5,301,573],t:'num',s:8},
+ {id:'f_st3',pg:1,r:[406,558.5,432,573],t:'num',s:8},
+ {id:'f_st4',pg:1,r:[528,558.5,554,573],t:'num',s:8},
+ {id:'f_st5',pg:1,r:[178,570.5,205,585.5],t:'num',s:8},
+ {id:'f_st6',pg:1,r:[303,570.5,328,585.5],t:'num',s:8},
+ {id:'f_st7',pg:1,r:[427,570.5,452,585.5],t:'num',s:8},
+ {id:'f_bat',pg:1,r:[168,600,210,614.5],t:'num',s:9},
+ {id:'f_pow',pg:1,r:[295,600,337,614.5],t:'num',s:9},
+ {id:'f_pay_once',pg:1,r:[136,658,236,670.5],t:'num',s:9},
+ {id:'f_pay_mon',pg:1,r:[136,674,236,686.5],t:'num',s:9},
+ {id:'f_pay_tot',pg:1,r:[324,674,428,686.5],t:'num',s:9},
+ {id:'f_svc_pre',pg:1,r:[136,694,236,706.5],t:'num',s:9},
+ {id:'f_svc_mon',pg:1,r:[136,710,236,722.5],t:'num',s:9},
+ {id:'f2_svcno',pg:2,r:[114,76,566,95],t:'text',s:9},
+ {id:'f2_etc',pg:2,r:[463,103.5,512,120],t:'text',s:8},
+ {id:'f2_now',pg:2,r:[112,128.5,566,150.5],t:'text',s:9},
+ {id:'f2_chg',pg:2,r:[112,155.5,566,177.5],t:'text',s:9},
+ {id:'f2_a_name',pg:2,r:[142,189.5,205,205.5],t:'text',s:9},
+ {id:'f2_a_regno',pg:2,r:[308,189.5,419,205.5],t:'num',s:9},
+ {id:'f2_a_phone',pg:2,r:[451,189.5,568,205.5],t:'tel',s:9},
+ {id:'f2_a_addr',pg:2,r:[152,209.5,414,231],t:'text',s:9},
+ {id:'f2_b_name',pg:2,r:[142,235.5,205,252],t:'text',s:9},
+ {id:'f2_b_regno',pg:2,r:[308,235.5,419,252],t:'num',s:9},
+ {id:'f2_b_phone',pg:2,r:[451,235.5,568,252],t:'tel',s:9},
+ {id:'f2_b_addr',pg:2,r:[152,256,414,278],t:'text',s:9},
+ {id:'f2_kt_name',pg:2,r:[107,781.8,226,792.4],t:'text',s:7,d:'이대희 / 010-7300-2632'},
+ {id:'f2_kt_sabun',pg:2,r:[291,781.8,354,792.4],t:'text',s:7},
+ {id:'f2_kt_org',pg:2,r:[396,781.8,459,792.4],t:'text',s:7,d:'시너지영업3팀'},
+ {id:'f2_kt_prj',pg:2,r:[506,781.8,569,792.4],t:'text',s:7},
+ {id:'f2_sp_name',pg:2,r:[107,794.8,226,805.6],t:'text',s:7},
+ {id:'f2_sp_sabun',pg:2,r:[291,794.8,354,805.6],t:'text',s:7},
+ {id:'f2_bizid',pg:2,r:[396,794.8,459,805.6],t:'text',s:7},
+ {id:'f2_svc2',pg:2,r:[506,794.8,569,805.6],t:'text',s:7},
+ {id:'f11_name',pg:11,r:[139,85.5,220,100.5],t:'text',s:9},
+ {id:'f11_regno',pg:11,r:[314,85.5,397,100.5],t:'num',s:9},
+ {id:'f11_bizno',pg:11,r:[139,106,220,136.5],t:'num',s:9},
+ {id:'f11_phone',pg:11,r:[314,106,397,136.5],t:'tel',s:9},
+ {id:'f11_menu',pg:11,r:[483,85.5,542,100.5],t:'num',s:9},
+ {id:'f11_alarm',pg:11,r:[483,104.3,542,119],t:'num',s:9},
+ {id:'f11_wait',pg:11,r:[483,122.9,542,137.7],t:'num',s:9},
+ {id:'f11_addr',pg:11,r:[139,141.6,542,156.6],t:'text',s:9},
+];
+
+/* 선택 마크 ○/□ (탭 토글) */
+const MK=[
+ {id:'m1_0',pg:1,r:[481.8,59.0,490.1,67.3]},
+ {id:'m1_1',pg:1,r:[513.5,59.0,521.8,67.3]},
+ {id:'m1_2',pg:1,r:[544.8,59.0,553.1,67.3]},
+ {id:'m1_3',pg:1,r:[524.2,77.8,532.8,86.8]},
+ {id:'m1_4',pg:1,r:[547.6,77.8,556.6,86.8]},
+ {id:'m1_5',pg:1,r:[524.2,137.2,533.2,146.2]},
+ {id:'m1_6',pg:1,r:[547.6,137.2,556.6,146.2]},
+ {id:'m1_7',pg:1,r:[108.0,227.9,117.0,236.9]},
+ {id:'m1_8',pg:1,r:[144.4,227.9,153.4,236.9]},
+ {id:'m1_9',pg:1,r:[180.4,227.9,189.4,236.9]},
+ {id:'m1_10',pg:1,r:[108.0,246.6,117.0,255.6]},
+ {id:'m1_11',pg:1,r:[231.5,246.6,240.5,255.6]},
+ {id:'m1_12',pg:1,r:[332.3,246.6,341.3,255.6]},
+ {id:'m1_13',pg:1,r:[137.2,259.2,145.8,267.8]},
+ {id:'m1_14',pg:1,r:[166.0,259.2,174.6,267.8]},
+ {id:'m1_15',pg:1,r:[194.8,259.2,203.4,267.8]},
+ {id:'m1_16',pg:1,r:[108.0,324.0,117.0,333.0]},
+ {id:'m1_17',pg:1,r:[185.8,324.0,194.8,333.0]},
+ {id:'m1_18',pg:1,r:[108.0,340.6,117.0,349.6]},
+ {id:'m1_19',pg:1,r:[185.8,340.6,194.8,349.6]},
+ {id:'m1_20',pg:1,r:[385.2,388.8,394.2,397.8]},
+ {id:'m1_21',pg:1,r:[436.7,388.8,445.3,397.8]},
+ {id:'m1_22',pg:1,r:[482.8,388.8,491.4,397.8]},
+ {id:'m1_23',pg:1,r:[164.5,411.5,173.5,420.5]},
+ {id:'m1_24',pg:1,r:[385.2,411.5,394.2,420.5]},
+ {id:'m1_25',pg:1,r:[436.3,411.5,445.3,420.5]},
+ {id:'m1_26',pg:1,r:[482.8,411.5,491.8,420.5]},
+ {id:'m1_27',pg:1,r:[276.1,436.7,285.1,445.7]},
+ {id:'m1_28',pg:1,r:[314.6,436.7,323.6,445.7]},
+ {id:'m1_29',pg:1,r:[349.9,436.7,358.9,445.7]},
+ {id:'m1_30',pg:1,r:[384.8,436.7,393.8,445.7]},
+ {id:'m1_31',pg:1,r:[436.3,436.7,445.3,445.7]},
+ {id:'m1_32',pg:1,r:[482.8,436.7,491.8,445.7]},
+ {id:'m1_33',pg:1,r:[107.6,462.6,116.6,471.6]},
+ {id:'m1_34',pg:1,r:[220.3,462.6,229.3,471.6]},
+ {id:'m1_35',pg:1,r:[49.3,468.7,58.3,478.1]},
+ {id:'m1_36',pg:1,r:[220.3,475.6,229.3,484.6]},
+ {id:'m1_37',pg:1,r:[107.6,494.3,116.6,503.3]},
+ {id:'m1_38',pg:1,r:[220.3,494.3,229.3,503.3]},
+ {id:'m1_39',pg:1,r:[49.3,500.8,58.3,509.8]},
+ {id:'m1_40',pg:1,r:[107.6,507.2,116.6,516.2]},
+ {id:'m1_41',pg:1,r:[220.3,507.2,229.3,516.2]},
+ {id:'m1_42',pg:1,r:[107.6,526.7,116.6,535.7]},
+ {id:'m1_43',pg:1,r:[165.2,526.7,174.2,535.7]},
+ {id:'m1_44',pg:1,r:[209.9,526.7,218.9,535.7]},
+ {id:'m1_45',pg:1,r:[254.2,526.7,263.2,535.7]},
+ {id:'m1_46',pg:1,r:[292.3,526.7,301.3,535.7]},
+ {id:'m1_47',pg:1,r:[345.2,526.7,354.2,535.7]},
+ {id:'m1_48',pg:1,r:[49.3,529.6,58.3,538.6]},
+ {id:'m1_49',pg:1,r:[107.6,540.0,116.6,549.0]},
+ {id:'m1_50',pg:1,r:[172.4,540.0,181.4,549.0]},
+ {id:'m1_51',pg:1,r:[225.0,540.0,233.6,549.0]},
+ {id:'m1_52',pg:1,r:[266.8,540.0,275.8,549.0]},
+ {id:'m1_53',pg:1,r:[106.9,559.4,115.9,568.8]},
+ {id:'m1_54',pg:1,r:[231.8,559.4,240.8,568.8]},
+ {id:'m1_55',pg:1,r:[355.7,559.4,364.7,568.8]},
+ {id:'m1_56',pg:1,r:[475.6,559.4,484.9,568.8]},
+ {id:'m1_57',pg:1,r:[49.3,571.3,58.3,580.7]},
+ {id:'m1_58',pg:1,r:[106.9,572.0,115.9,581.0]},
+ {id:'m1_59',pg:1,r:[231.8,572.0,240.8,581.0]},
+ {id:'m1_60',pg:1,r:[355.7,572.0,364.7,581.0]},
+ {id:'m1_61',pg:1,r:[49.3,602.3,58.3,611.3]},
+ {id:'m1_62',pg:1,r:[106.9,602.3,115.9,611.3]},
+ {id:'m1_63',pg:1,r:[242.6,602.3,251.6,611.3]},
+ {id:'m1_64',pg:1,r:[107.6,621.4,116.6,630.4]},
+ {id:'m1_65',pg:1,r:[107.6,634.3,116.6,643.3]},
+ {id:'m1_66',pg:1,r:[151.9,634.3,160.9,643.3]},
+ {id:'m1_67',pg:1,r:[202.0,634.3,211.0,643.3]},
+ {id:'m1_68',pg:1,r:[245.5,634.3,254.5,643.3]},
+ {id:'m1_69',pg:1,r:[106.2,735.5,115.2,744.5]},
+ {id:'m2_0',pg:2,r:[113.8,108.0,122.8,117.0]},
+ {id:'m2_1',pg:2,r:[179.6,108.0,188.6,117.0]},
+ {id:'m2_2',pg:2,r:[212.8,108.0,221.8,117.0]},
+ {id:'m2_3',pg:2,r:[262.1,108.0,271.1,117.0]},
+ {id:'m2_4',pg:2,r:[311.4,108.0,320.4,117.0]},
+ {id:'m2_5',pg:2,r:[380.2,108.0,389.2,117.0]},
+ {id:'m2_6',pg:2,r:[429.8,108.0,438.5,117.0]},
+ {id:'m2_7',pg:2,r:[114.5,284.8,123.5,293.8]},
+ {id:'m2_8',pg:2,r:[156.6,284.8,165.6,293.8]},
+];
+
 /* ============================================================
    상태 (메모리에만 보관 — 서버·로컬 저장 없음)
 ============================================================ */
@@ -375,7 +568,10 @@ const S = {
   mode:'hi', doc:null, rendered:{}, canvases:{},
   sig:{},                 // id → {strokes:[[{u,v}..]..]}
   con:{},                 // id → 'yes'|'no'
+  fld:{},                 // fieldId → 값
+  mk:{},                  // markId → 1
   texts:[],               // {tid,pg,x,y,txt,size}
+  bw:true,                // 흑백 출력
   textMode:false, selText:null, dirty:false, tseq:0,
 };
 const $ = s=>document.querySelector(s);
@@ -408,6 +604,7 @@ $('#fileIn').onchange=async e=>{
 };
 async function load(doc){
   S.doc=doc;
+  for(const fd of FIELDS) if(fd.d && !(fd.id in S.fld)) S.fld[fd.id]=fd.d;
   if(doc.numPages!==14) toast(`페이지 수가 ${doc.numPages}p입니다. 원본(14p)이 아니면 서명 위치가 어긋날 수 있어요.`);
   $('#boot').style.display='none';
   buildStage(); buildRail(); refresh();
@@ -450,10 +647,30 @@ function drawOverlay(pg){
   for(const z of SIG.filter(z=>z.pg===pg&&(S.mode==='full'||z.grp==='hi'))){
     const [x0,y0,x1,y1]=z.draw;
     const el=document.createElement('button');
-    el.className='slot'+(S.sig[z.id]?' done':''); el.id='slot_'+z.id;
+    el.className='slot'+(S.sig[z.id]?' done':'')+(z.req?'':' opt'); el.id='slot_'+z.id;
     el.style.cssText=P(x0,y0,x1-x0,y1-y0);
-    el.innerHTML=S.sig[z.id]? sigSVG(z)+`<span class="redo">다시 서명</span>` : `<span class="cue">탭하여 서명</span>`;
+    el.innerHTML=S.sig[z.id]? sigSVG(z)+`<span class="redo">다시 서명</span>` : `<span class="cue">${z.req?'탭하여 서명':'선택 서명'}</span>`;
     el.onclick=()=>openSig(z);
+    ov.appendChild(el);
+  }
+  /* 입력 필드 */
+  for(const fd of FIELDS.filter(x=>x.pg===pg)){
+    const v=S.fld[fd.id];
+    const el=document.createElement('button');
+    el.className='fld'+(v?' has':''); el.id='fld_'+fd.id;
+    el.style.cssText=P(fd.r[0],fd.r[1],fd.r[2]-fd.r[0],fd.r[3]-fd.r[1]);
+    if(v){const sp=document.createElement('span');sp.className='fval';sp.dataset.fp=fitSize(v,fd);sp.textContent=v;el.appendChild(sp);}
+    el.onclick=e=>{e.stopPropagation();openField(fd);};
+    ov.appendChild(el);
+  }
+  /* 선택 마크 (○/□) */
+  for(const m of MK.filter(x=>x.pg===pg)){
+    const on=S.mk[m.id];
+    const el=document.createElement('button');
+    el.className='mk'+(on?' on':''); el.id='mk_'+m.id;
+    el.style.cssText=P(m.r[0]-2,m.r[1]-2,(m.r[2]-m.r[0])+4,(m.r[3]-m.r[1])+4);
+    if(on) el.innerHTML='<svg viewBox="0 0 24 24"><path d="M3.5 13l6 6.5L21.5 3.5"/></svg>';
+    el.onclick=e=>{e.stopPropagation(); if(S.mk[m.id]) delete S.mk[m.id]; else S.mk[m.id]=1; S.dirty=true; drawOverlay(pg);};
     ov.appendChild(el);
   }
   /* 동의 행 */
@@ -494,10 +711,47 @@ function sigSVG(z){
   return `<svg class="sig" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><path d="${ps}" stroke-width="${Math.max(1.2,H*.07)}"/></svg>`;
 }
 function dateOn(k){ const owner=SIG.find(z=>z.dg===k); return owner&&S.sig[owner.id]; }
+
+/* 필드 값 폭 맞춤 (pt) */
+const measCtx=document.createElement('canvas').getContext('2d');
+function fitSize(v,fd){
+  const w=(fd.r[2]-fd.r[0])-3, h=(fd.r[3]-fd.r[1]);
+  let s=Math.min(fd.s,h*0.85);
+  for(;s>5;s-=.5){
+    measCtx.font=`600 ${s}px 'Pretendard Variable',Pretendard,sans-serif`;
+    if(measCtx.measureText(v).width<=w) break;
+  }
+  return s;
+}
+function openField(fd){
+  const ov=$('#ov'+fd.pg); if(!ov) return;
+  if(ov.querySelector('.finp')) return;
+  const btn=$('#fld_'+fd.id); if(btn) btn.style.visibility='hidden';
+  const [x0,y0,x1,y1]=fd.r;
+  const inp=document.createElement('input'); inp.className='finp';
+  inp.dataset.fp=Math.min(fd.s,(y1-y0)*0.8);
+  inp.style.cssText=P(x0,y0-1,Math.max(x1-x0,52),(y1-y0)+2);
+  inp.value=S.fld[fd.id]||'';
+  inp.inputMode={num:'numeric',tel:'tel',email:'email'}[fd.t]||'text';
+  if(fd.t==='email') inp.type='email';
+  if(fd.t==='tel') inp.type='tel';
+  inp.autocomplete='off';
+  ov.appendChild(inp); fitOverlayFonts(fd.pg);
+  requestAnimationFrame(()=>inp.focus());
+  inp.addEventListener('keydown',e=>{
+    if(e.key==='Enter') inp.blur();
+    if(e.key==='Escape'){ inp.value=S.fld[fd.id]||''; inp.blur(); }
+  });
+  inp.addEventListener('blur',()=>{
+    const v=inp.value.trim(); inp.remove();
+    if(v) S.fld[fd.id]=v; else delete S.fld[fd.id];
+    S.dirty=true; drawOverlay(fd.pg);
+  },{once:true});
+}
 function fitOverlayFonts(pg){
   const holder=$('#pg'+pg); if(!holder) return;
   const w=holder.clientWidth, s=w/PW;
-  holder.querySelectorAll('.ovtext').forEach(el=>el.style.fontSize=(+el.dataset.fp*s)+'px');
+  holder.querySelectorAll('.ovtext,.fval,.finp').forEach(el=>el.style.fontSize=((+el.dataset.fp||9)*s)+'px');
   holder.querySelectorAll('.titem,.tinput').forEach(el=>el.style.fontSize=((+el.dataset.fp||10)*s)+'px');
 }
 addEventListener('resize',()=>MODE_PAGES[S.mode].forEach(fitOverlayFonts));
@@ -578,6 +832,11 @@ $$('.veil').forEach(v=>v.addEventListener('click',e=>{if(e.target===v)v.classLis
 /* ============================================================
    텍스트 도구
 ============================================================ */
+$('#bwTog').onclick=()=>{
+  S.bw=!S.bw;
+  $('#bwTog').classList.toggle('on',S.bw);
+  toast(S.bw?'흑백 출력: 인쇄·PDF가 그레이스케일로 변환됩니다 (팩스 최적화)':'컬러 출력으로 전환');
+};
 $('#btnText').onclick=()=>{
   S.textMode=!S.textMode;
   $('#btnText').classList.toggle('pri',S.textMode);
@@ -587,7 +846,7 @@ $('#btnText').onclick=()=>{
 };
 $('#stage').addEventListener('click',e=>{
   if(!S.textMode) return;
-  if(e.target.closest('.slot,.crow,.titem,.tinput')) return;
+  if(e.target.closest('.slot,.crow,.titem,.tinput,.fld,.mk,.finp')) return;
   const pageEl=e.target.closest('.page'); if(!pageEl||!pageEl.querySelector('canvas')) return;
   const ovEl=pageEl.querySelector('.overlay'); if(!ovEl) return;
   const pg=+ovEl.id.slice(2), r=pageEl.getBoundingClientRect();
@@ -646,9 +905,10 @@ document.addEventListener('pointerdown',e=>{
    체크리스트 레일 + 게이트
 ============================================================ */
 function activeSig(){ return SIG.filter(z=>S.mode==='full'||z.grp==='hi'); }
+function reqSig(){ return activeSig().filter(z=>z.req); }
 function buildRail(){
   const rs=$('#railSig'); rs.innerHTML='';
-  for(const z of activeSig()){
+  for(const z of reqSig()){
     const b=document.createElement('button'); b.className='stamp'; b.id='st_'+z.id;
     b.innerHTML=`<span class="seal">서</span><span class="tt"><b>${z.lab}</b><span>p.${z.pg} · ${z.sub}</span></span><span class="st"></span>`;
     b.onclick=()=>jump('slot_'+z.id,z.pg);
@@ -670,7 +930,7 @@ async function jump(elId,pg){
   el.classList.remove('pulse'); void el.offsetWidth; el.classList.add('pulse');
 }
 function refresh(){
-  const sigs=activeSig(), sd=sigs.filter(z=>S.sig[z.id]).length;
+  const sigs=reqSig(), sd=sigs.filter(z=>S.sig[z.id]).length;
   const cd=CON.filter(c=>S.con[c.id]).length;
   for(const z of sigs){ const st=$('#st_'+z.id); if(!st) continue;
     st.classList.toggle('done',!!S.sig[z.id]);
@@ -690,7 +950,7 @@ function refresh(){
 $('#sellerOk').onchange=refresh;
 $('#pill').onclick=()=>$('#rail').classList.toggle('open');
 function firstMissing(){
-  for(const z of activeSig()) if(!S.sig[z.id]) return {el:'slot_'+z.id,pg:z.pg,msg:`'${z.lab}'이 아직 비어 있어요 (p.${z.pg})`};
+  for(const z of reqSig()) if(!S.sig[z.id]) return {el:'slot_'+z.id,pg:z.pg,msg:`'${z.lab}'이 아직 비어 있어요 (p.${z.pg})`};
   for(const c of CON) if(!S.con[c.id]) return {el:'crow_'+c.id,pg:c.pg,msg:`'${c.lab}' 동의 선택이 남았어요 (p.${c.pg})`};
   if(!$('#sellerOk').checked) return {el:null,pg:null,msg:'판매자 확인 체크가 남았습니다'};
   return null;
@@ -725,7 +985,19 @@ async function composePage(pg){
   const cv=document.createElement('canvas'); cv.width=Math.round(vp.width); cv.height=Math.round(vp.height);
   const ctx=cv.getContext('2d');
   ctx.fillStyle='#fff'; ctx.fillRect(0,0,cv.width,cv.height);
-  await page.render({canvasContext:ctx,viewport:vp}).promise;
+  if(S.bw && 'filter' in ctx){
+    const tmp=document.createElement('canvas'); tmp.width=cv.width; tmp.height=cv.height;
+    const tctx=tmp.getContext('2d'); tctx.fillStyle='#fff'; tctx.fillRect(0,0,tmp.width,tmp.height);
+    await page.render({canvasContext:tctx,viewport:vp}).promise;
+    ctx.filter='grayscale(1)'; ctx.drawImage(tmp,0,0); ctx.filter='none';
+  }else{
+    await page.render({canvasContext:ctx,viewport:vp}).promise;
+    if(S.bw){
+      const d=ctx.getImageData(0,0,cv.width,cv.height), p=d.data;
+      for(let i=0;i<p.length;i+=4){const g=(p[i]*0.299+p[i+1]*0.587+p[i+2]*0.114)|0;p[i]=p[i+1]=p[i+2]=g;}
+      ctx.putImageData(d,0,0);
+    }
+  }
   const s=FAX_SCALE;
   ctx.strokeStyle=ctx.fillStyle='#000'; ctx.lineCap=ctx.lineJoin='round';
   /* 서명 */
@@ -754,8 +1026,21 @@ async function composePage(pg){
       ctx.fillText(map[part],cx*s,by*s);
     }
   }
-  /* 텍스트 */
+  /* 입력 필드 값 */
   ctx.textAlign='left'; ctx.textBaseline='middle';
+  for(const fd of FIELDS.filter(x=>x.pg===pg)){
+    const v=S.fld[fd.id]; if(!v) continue;
+    ctx.font=`600 ${fitSize(v,fd)*s}px 'Pretendard Variable',Pretendard,sans-serif`;
+    ctx.fillText(v,(fd.r[0]+1.5)*s,((fd.r[1]+fd.r[3])/2)*s);
+  }
+  /* 선택 마크 체크 */
+  for(const m of MK.filter(x=>x.pg===pg)){
+    if(!S.mk[m.id]) continue;
+    const x=m.r[0]*s, y=m.r[1]*s, w=(m.r[2]-m.r[0])*s, h=(m.r[3]-m.r[1])*s;
+    ctx.lineWidth=Math.max(1.8,h*.16); ctx.beginPath();
+    ctx.moveTo(x+w*.10,y+h*.52); ctx.lineTo(x+w*.40,y+h*.86); ctx.lineTo(x+w*1.02,y+h*.04); ctx.stroke();
+  }
+  /* 텍스트 */
   for(const it of S.texts.filter(t=>t.pg===pg)){
     ctx.font=`600 ${it.size*s}px 'Pretendard Variable',Pretendard,sans-serif`;
     it.txt.split('\n').forEach((line,i)=>ctx.fillText(line,it.x*s,(it.y+i*it.size*1.25)*s));
