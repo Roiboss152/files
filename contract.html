@@ -8,7 +8,7 @@
 <title>하이오더 전자청약</title>
 <!--
   ============================================================
-  KT HIORDER 전자청약  ·  contract.html  v1.21
+  KT HIORDER 전자청약  ·  contract.html  v1.30
   ------------------------------------------------------------
   · 원본 가입신청서 PDF(14p)를 화면에 렌더 → 고객이 태블릿에서
     서명란마다 "각각" 직접 서명 + 동의함/않음 선택
@@ -153,6 +153,24 @@ input{font-family:inherit}
   align-items:center;box-shadow:0 6px 18px rgba(0,0,0,.4)}
 .stepChip b{color:var(--lime)}
 .stepChip.hide{display:none}
+
+/* ── 본인인증 촬영 ── */
+#camVeil{background:#fff}
+.camwrap{position:fixed;inset:0;background:#fff;overflow:hidden}
+#camV{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cammask{position:absolute;left:50%;top:45%;transform:translate(-50%,-50%);
+  box-shadow:0 0 0 9999px rgba(255,255,255,.97);border:2.5px solid var(--kt);border-radius:12px}
+.cammask::after{content:'';position:absolute;inset:8px;border:1.5px dashed rgba(230,0,18,.35);border-radius:7px}
+.camtop{position:absolute;top:0;left:0;right:0;z-index:3;padding:16px 20px;display:flex;flex-direction:column;gap:4px;
+  align-items:center;text-align:center}
+.camtop b{font-size:16px;color:#111;letter-spacing:-.02em}
+.camtop span{font-size:12px;color:#c22;font-weight:700}
+.cambar{position:absolute;left:0;right:0;bottom:0;z-index:3;padding:18px 22px calc(18px + env(safe-area-inset-bottom));
+  display:flex;align-items:center;justify-content:space-between;background:linear-gradient(0deg,rgba(255,255,255,.95),rgba(255,255,255,0))}
+.cambar .btn{color:#333;border-color:#ccc;background:#fff}
+.camshot{width:66px;height:66px;border-radius:50%;background:var(--kt);border:5px solid #fff;
+  box-shadow:0 0 0 2.5px var(--kt),0 6px 18px rgba(0,0,0,.25);cursor:pointer}
+.camshot:active{transform:scale(.93)}
 
 /* 동의 행 */
 .crow{position:absolute;border-radius:6px;transition:.2s}
@@ -305,7 +323,7 @@ audio{width:100%;margin-top:9px;height:34px}
 <body>
 
 <header class="topbar">
-  <div class="brand"><b>하이오더 전자청약</b><span class="ver">v1.21</span></div>
+  <div class="brand"><b>하이오더 전자청약</b><span class="ver">v1.30</span></div>
   <div class="seg" id="modeSeg">
     <button data-mode="hi" class="on">하이오더</button>
     <button data-mode="full">+ 안심매입</button>
@@ -334,6 +352,15 @@ audio{width:100%;margin-top:9px;height:34px}
     <div class="cap" style="margin-top:6px">위임장·광고할인·명의변경 등 <b>선택 서명</b>과 빈칸·○ 표시는 문서에서 직접 탭해 입력</div>
     <div class="rail-h">동의 확인 · <span id="cntCon">0/5</span></div>
     <div id="railCon"></div>
+    <div class="rail-h">본인 확인 서류</div>
+    <div class="rail-card">
+      <div id="railAtt" style="font-size:12px;color:#c6d0e0;font-weight:600"></div>
+      <div class="rec-row" style="margin-top:8px">
+        <button class="btn ghost" id="railAttId">🪪 신분증 촬영</button>
+        <button class="btn ghost" id="railAttBiz">📄 등록증 촬영</button>
+      </div>
+      <div class="cap">p.7 약관 서명 완료 시 자동 안내됩니다. 촬영본은 PDF 마지막 장에 첨부.</div>
+    </div>
     <div class="rail-h">판매자 확인</div>
     <div class="rail-card">
       <label><input type="checkbox" id="sellerOk">
@@ -380,6 +407,37 @@ audio{width:100%;margin-top:9px;height:34px}
 
 <!-- 동의 선택 시트 -->
 
+<div class="veil" id="attVeil">
+  <div class="sigbox" role="dialog" aria-modal="true" style="max-width:440px">
+    <header>
+      <span class="dotr"></span><b>본인인증 사진 촬영</b>
+      <span>서명 완료! 신분증·사업자등록증을<br>촬영해 신청서 PDF에 함께 담습니다</span>
+    </header>
+    <div style="padding:16px 18px;display:flex;flex-direction:column;gap:10px">
+      <button class="btn ghost attbtn" id="attIdBtn" style="justify-content:space-between;padding:13px 15px">
+        <span>🪪 신분증 촬영 <small style="color:#8b95a8;font-weight:600">· 뒷자리 가리고</small></span><b id="attIdSt" style="color:var(--kt)">미촬영</b>
+      </button>
+      <button class="btn ghost attbtn" id="attBizBtn" style="justify-content:space-between;padding:13px 15px">
+        <span>📄 사업자등록증 촬영</span><b id="attBizSt" style="color:var(--kt)">미촬영</b>
+      </button>
+      <div class="cap" style="margin:0">촬영본은 서버 전송 없이 이 기기에서만 처리되며, 신청서 PDF 마지막 장에 자동 첨부됩니다. 신분증은 <b>실물 크기</b>로 출력돼 애니팩스 검증에 그대로 쓸 수 있어요.</div>
+    </div>
+    <footer><button class="btn ghost grow" id="attLater">나중에 (건너뛰기)</button></footer>
+  </div>
+</div>
+<div class="veil" id="camVeil">
+  <div class="camwrap">
+    <div class="camtop"><b id="camTitle">신분증 촬영</b><span id="camHint"></span></div>
+    <video id="camV" autoplay playsinline muted></video>
+    <div class="cammask" id="camMask"></div>
+    <div class="cambar">
+      <button class="btn ghost" id="camCancel">취소</button>
+      <button class="camshot" id="camShot" aria-label="촬영"></button>
+      <span style="width:74px"></span>
+    </div>
+  </div>
+</div>
+<input type="file" id="camFile" accept="image/*" capture="environment" style="display:none">
 <div class="veil" id="sendVeil">
   <div class="sigbox" role="dialog" aria-modal="true" style="max-width:440px">
     <header>
@@ -672,6 +730,8 @@ const S = {
   texts:[],               // {tid,pg,x,y,txt,size}
   bw:true,                // 흑백 출력(전체) / 해제 시 참조 스타일 부분 회색
   step:0,                 // 입력 가이드 인덱스
+  att:{},                 // 본인인증 사진 {id, biz} → canvas
+  lastFld:null,
   textMode:false, selText:null, dirty:false, tseq:0,
 };
 const $ = s=>document.querySelector(s);
@@ -707,7 +767,7 @@ async function load(doc){
   for(const fd of FIELDS) if(fd.d && !(fd.id in S.fld)) S.fld[fd.id]=fd.d;
   if(doc.numPages!==14) toast(`페이지 수가 ${doc.numPages}p입니다. 원본(14p)이 아니면 서명 위치가 어긋날 수 있어요.`);
   $('#boot').style.display='none';
-  buildStage(); buildRail(); refresh();
+  buildStage(); buildRail(); refresh(); updateAttUI();
 }
 
 /* ============================================================
@@ -717,7 +777,7 @@ function buildStage(){
   const st=$('#stage'); st.innerHTML='';
   for(const pg of MODE_PAGES[S.mode]){
     const d=document.createElement('div'); d.className='page'; d.id='pg'+pg;
-    d.innerHTML=`<div class="skeleton">p.${pg} 렌더 중…</div><span class="pageno">${pg} / 14</span><div class="overlay" id="ov${pg}"></div>`;
+    d.innerHTML=`<div class="skeleton">p.${pg} 렌더 중…</div><span class="pageno">${pg<=10?pg+' / 10':'안심 '+(pg-10)+' / 4'}</span><div class="overlay" id="ov${pg}"></div>`;
     st.appendChild(d);
   }
   const io=new IntersectionObserver(es=>es.forEach(en=>{ if(en.isIntersecting){ renderPage(+en.target.id.slice(2)); io.unobserve(en.target);} }),{rootMargin:'600px'});
@@ -849,6 +909,18 @@ function setConD(c,v){
   S.dirty=true; updateCon(c); refresh();
   if(v) stepAdvance('con',c.id); else renderStepUI();
 }
+function visFields(){ return FIELDS.filter(f=>f.pg!==11||S.mode==='full'); }
+function adjField(fd,dir){
+  const L=visFields(); const i=Math.max(0,L.findIndex(x=>x.id===fd.id));
+  return L[(i+dir+L.length)%L.length];
+}
+function tabOpen(nx){
+  (async()=>{
+    if(!S.rendered[nx.pg]) await renderPage(nx.pg);
+    $('#fld_'+nx.id)?.scrollIntoView({behavior:'smooth',block:'center'});
+    openField(nx);
+  })();
+}
 function updateFld(fd){
   const btn=$('#fld_'+fd.id); if(!btn) return;
   const v=S.fld[fd.id];
@@ -961,16 +1033,21 @@ function openField(fd){
     inp.value=d?Number(d).toLocaleString('ko-KR'):'';
   });
   ov.appendChild(inp); fitOverlayFonts(fd.pg);
+  S.lastFld=fd;
   requestAnimationFrame(()=>inp.focus());
+  let tabTo=null;
   inp.addEventListener('keydown',e=>{
     if(e.key==='Enter') inp.blur();
     if(e.key==='Escape'){ inp.value=S.fld[fd.id]||''; inp.blur(); }
+    if(e.key==='Tab'){ e.preventDefault(); tabTo=adjField(fd, e.shiftKey?-1:1); inp.blur(); }
   });
   inp.addEventListener('blur',()=>{
     const v=inp.value.trim(); inp.remove();
     if(v) S.fld[fd.id]=v; else delete S.fld[fd.id];
     S.dirty=true; updateFld(fd);
-    if(v) stepAdvance('f',fd.id); else renderStepUI();
+    if(tabTo){ const nx=tabTo; tabTo=null; renderStepUI(); tabOpen(nx); }
+    else if(v) stepAdvance('f',fd.id);
+    else renderStepUI();
   },{once:true});
 }
 function fitOverlayFonts(pg){
@@ -1032,6 +1109,7 @@ $('#sigOk').onclick=()=>{
   S.dirty=true; $('#sigVeil').classList.remove('on');
   drawOverlay(curZone.pg); refresh();
   stepAdvance('sig',curZone.id);
+  if(curZone.id==='s_p7_terms') setTimeout(openAtt,450);
 };
 
 /* ============================================================
@@ -1160,6 +1238,15 @@ function refresh(){
 }
 $('#sellerOk').onchange=refresh;
 $('#stepSkip').onclick=skipStep;
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Tab') return;
+  if(document.querySelector('.finp')) return;
+  if(document.querySelector('.veil.on')) return;
+  if(e.target.closest('input,textarea,select')) return;
+  e.preventDefault();
+  const nx=S.lastFld?adjField(S.lastFld, e.shiftKey?-1:1):visFields()[0];
+  tabOpen(nx);
+});
 $('#pill').onclick=()=>$('#rail').classList.toggle('open');
 function firstMissing(){
   for(const z of reqSig()) if(!S.sig[z.id]) return {el:'slot_'+z.id,pg:z.pg,msg:`'${z.lab}'이 아직 비어 있어요 (p.${z.pg})`};
@@ -1185,7 +1272,7 @@ $('#modeSeg').addEventListener('click',e=>{
   S.mode=b.dataset.mode;
   $$('#modeSeg button').forEach(x=>x.classList.toggle('on',x===b));
   S.rendered={}; S.canvases={};
-  buildStage(); buildRail(); refresh();
+  buildStage(); buildRail(); refresh(); updateAttUI();
 });
 
 /* ============================================================
@@ -1271,6 +1358,10 @@ async function composeAll(msg){
     toast(`${msg} ${i+1}/${pages.length}p…`);
     out.push(await composePage(pages[i]));
   }
+  for(const k of ['id','biz']){
+    const c=attCanvas(k);
+    if(c){ toast(`${msg} 첨부 서류…`); out.push(c); }
+  }
   return out;
 }
 function fname(ext){
@@ -1310,6 +1401,115 @@ $('#btnPdf').onclick=async()=>{
   S.lastPdf={blob,fn};
   openSendSheet();
 };
+
+/* ── 본인인증 사진 촬영 ── */
+let camStream=null, camKind=null;
+function updateAttUI(){
+  const set=(el,ok)=>{ if(!el) return; el.textContent=ok?'✓ 완료':'미촬영'; el.style.color=ok?'var(--lime)':'var(--kt)';};
+  set($('#attIdSt'),!!S.att.id); set($('#attBizSt'),!!S.att.biz);
+  const ra=$('#railAtt');
+  if(ra) ra.innerHTML=`신분증 ${S.att.id?'<b style="color:var(--lime)">✓ 완료</b>':'<b style="color:var(--kt)">미촬영</b>'} · 사업자등록증 ${S.att.biz?'<b style="color:var(--lime)">✓ 완료</b>':'<b style="color:var(--kt)">미촬영</b>'}`;
+}
+function openAtt(){ updateAttUI(); $('#attVeil').classList.add('on'); }
+$('#attLater').onclick=()=>$('#attVeil').classList.remove('on');
+$('#attIdBtn').onclick=()=>openCam('id');
+$('#attBizBtn').onclick=()=>openCam('biz');
+$('#railAttId').onclick=()=>openCam('id');
+$('#railAttBiz').onclick=()=>openCam('biz');
+async function openCam(kind){
+  camKind=kind;
+  const mask=$('#camMask');
+  if(kind==='id'){
+    mask.style.width='min(80vw,540px)'; mask.style.aspectRatio='856/540';
+    $('#camTitle').textContent='신분증 촬영';
+    $('#camHint').textContent='주민등록번호 뒷자리는 가리고, 빨간 테두리에 꽉 차게';
+  }else{
+    mask.style.width='min(64vw,400px)'; mask.style.aspectRatio='210/297';
+    $('#camTitle').textContent='사업자등록증 촬영';
+    $('#camHint').textContent='문서 전체가 테두리 안에 들어오게';
+  }
+  try{
+    camStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1920},height:{ideal:1080}},audio:false});
+    $('#camV').srcObject=camStream;
+    $('#camVeil').classList.add('on');
+  }catch(err){
+    const fi=$('#camFile'); fi.dataset.kind=kind; fi.value=''; fi.click();
+  }
+}
+function closeCam(){
+  camStream?.getTracks().forEach(t=>t.stop()); camStream=null;
+  $('#camV').srcObject=null;
+  $('#camVeil').classList.remove('on');
+}
+$('#camCancel').onclick=closeCam;
+$('#camShot').onclick=()=>{
+  const v=$('#camV'); if(!v.videoWidth) return;
+  const box=$('#camMask').getBoundingClientRect();
+  const vw=v.videoWidth, vh=v.videoHeight, cw=innerWidth, ch=innerHeight;
+  const sc=Math.max(cw/vw, ch/vh), ox=(vw*sc-cw)/2, oy=(vh*sc-ch)/2;
+  const sx=(box.left+ox)/sc, sy=(box.top+oy)/sc, sw=box.width/sc, sh=box.height/sc;
+  const c=document.createElement('canvas');
+  const outW=camKind==='id'?1400:1240, outH=Math.round(outW*sh/sw);
+  c.width=outW; c.height=outH;
+  c.getContext('2d').drawImage(v,sx,sy,sw,sh,0,0,outW,outH);
+  finishShot(c);
+};
+$('#camFile').addEventListener('change',e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const kind=e.target.dataset.kind, img=new Image();
+  img.onload=()=>{
+    const ar=kind==='id'?856/540:210/297;
+    let sw=img.width, sh=sw/ar;
+    if(sh>img.height){ sh=img.height; sw=sh*ar; }
+    const c=document.createElement('canvas');
+    const outW=kind==='id'?1400:1240; c.width=outW; c.height=Math.round(outW/ar);
+    c.getContext('2d').drawImage(img,(img.width-sw)/2,(img.height-sh)/2,sw,sh,0,0,c.width,c.height);
+    camKind=kind; finishShot(c);
+  };
+  img.src=URL.createObjectURL(f);
+});
+function finishShot(c){
+  S.att[camKind]=c; S.dirty=true;
+  closeCam(); updateAttUI();
+  toast(camKind==='id'?'신분증 촬영 완료 — PDF 마지막 장에 실물 크기로 첨부됩니다':'사업자등록증 촬영 완료 — PDF에 첨부됩니다');
+  if(camKind==='id'&&!S.att.biz) setTimeout(()=>openCam('biz'),500);
+  else openAtt();
+}
+/* 첨부 서류 페이지 합성 */
+function attCanvas(kind){
+  const img=S.att[kind]; if(!img) return null;
+  const s=FAX_SCALE, cv=document.createElement('canvas');
+  cv.width=Math.round(PW*s); cv.height=Math.round(PH*s);
+  const ctx=cv.getContext('2d');
+  ctx.fillStyle='#fff'; ctx.fillRect(0,0,cv.width,cv.height);
+  ctx.fillStyle='#0d1117'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
+  ctx.font=`800 ${14*s}px 'Pretendard Variable',Pretendard,sans-serif`;
+  ctx.fillText(kind==='id'?'본인 확인 서류 · 신분증 사본':'본인 확인 서류 · 사업자등록증 사본', 48*s, 62*s);
+  ctx.fillStyle='#555';
+  ctx.font=`500 ${8.5*s}px 'Pretendard Variable',Pretendard,sans-serif`;
+  const t=today(), store=$('#mStore').value.trim()||'';
+  ctx.fillText(`${store?store+' · ':''}20${t.yy}.${t.mm2}.${t.dd2} 촬영 첨부 · 하이오더 가입신청서 별첨`, 48*s, 80*s);
+  ctx.strokeStyle='#999'; ctx.lineWidth=Math.max(1,0.6*s);
+  if(kind==='id'){
+    const w=242.6*s, h=153.1*s, x=(cv.width-w)/2, y=130*s;
+    ctx.drawImage(img,x,y,w,h); ctx.strokeRect(x,y,w,h);
+    ctx.fillStyle='#777'; ctx.textAlign='center';
+    ctx.fillText('※ 실물 크기(85.6×54mm) 출력 · 주민등록번호 뒷자리 마스킹 확인', cv.width/2, y+h+22*s);
+    ctx.textAlign='left';
+  }else{
+    const mW=(PW-110)*s, mH=(PH-190)*s;
+    let w=mW, h=w*img.height/img.width;
+    if(h>mH){ h=mH; w=h*img.width/img.height; }
+    const x=(cv.width-w)/2, y=110*s;
+    ctx.drawImage(img,x,y,w,h); ctx.strokeRect(x,y,w,h);
+  }
+  if(S.bw){
+    const d=ctx.getImageData(0,0,cv.width,cv.height), p=d.data;
+    for(let i=0;i<p.length;i+=4){const g=(p[i]*0.299+p[i+1]*0.587+p[i+2]*0.114)|0;p[i]=p[i+1]=p[i+2]=g;}
+    ctx.putImageData(d,0,0);
+  }
+  return cv;
+}
 
 /* ── 복사본 전송 시트 ── */
 function custContacts(){
