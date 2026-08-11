@@ -8,7 +8,7 @@
 <title>하이오더 전자청약</title>
 <!--
   ============================================================
-  KT HIORDER 전자청약  ·  contract.html  v1.30
+  KT HIORDER 전자청약  ·  contract.html  v1.32
   ------------------------------------------------------------
   · 원본 가입신청서 PDF(14p)를 화면에 렌더 → 고객이 태블릿에서
     서명란마다 "각각" 직접 서명 + 동의함/않음 선택
@@ -44,7 +44,8 @@
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{font-size:16px}
-body{font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif;background:var(--ink);color:#E8ECF4;overflow-x:hidden}
+html{overscroll-behavior-y:none}
+body{font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif;background:var(--ink);color:#E8ECF4;overflow-x:hidden;overscroll-behavior-y:none}
 button{font-family:inherit;border:0;background:none;color:inherit;cursor:pointer}
 input{font-family:inherit}
 
@@ -76,7 +77,7 @@ input{font-family:inherit}
 /* ── 레이아웃 ───────────────────────────── */
 .wrap{display:flex;padding-top:var(--topbar-h);min-height:100vh}
 #stage{flex:1;min-width:0;padding:22px clamp(10px,3vw,40px) 140px;display:flex;flex-direction:column;align-items:center;gap:26px}
-#rail{width:300px;flex:none;position:sticky;top:var(--topbar-h);height:calc(100vh - var(--topbar-h));
+#rail{width:300px;flex:none;position:sticky;top:var(--topbar-h);height:calc(100vh - var(--topbar-h));overscroll-behavior:contain;
   overflow-y:auto;border-left:1px solid var(--line);padding:18px 16px 30px;background:rgba(19,24,38,.5)}
 
 /* ── 문서 페이지 ────────────────────────── */
@@ -295,6 +296,7 @@ audio{width:100%;margin-top:9px;height:34px}
     border-left:0;border-top:1px solid var(--line);border-radius:22px 22px 0 0;
     background:rgba(15,19,30,.97);backdrop-filter:blur(16px);z-index:70;padding-top:10px}
   #rail.open{transform:translateY(0)}
+  #rail.drag{transition:none}
   #rail::before{content:'';display:block;width:44px;height:4px;border-radius:4px;background:#39404f;margin:2px auto 10px}
   .progress-pill{display:flex;position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:65;
     align-items:center;gap:10px;background:#fff;color:#101418;border-radius:999px;
@@ -323,7 +325,7 @@ audio{width:100%;margin-top:9px;height:34px}
 <body>
 
 <header class="topbar">
-  <div class="brand"><b>하이오더 전자청약</b><span class="ver">v1.30</span></div>
+  <div class="brand"><b>하이오더 전자청약</b><span class="ver">v1.32</span></div>
   <div class="seg" id="modeSeg">
     <button data-mode="hi" class="on">하이오더</button>
     <button data-mode="full">+ 안심매입</button>
@@ -1248,6 +1250,35 @@ document.addEventListener('keydown',e=>{
   tabOpen(nx);
 });
 $('#pill').onclick=()=>$('#rail').classList.toggle('open');
+/* 모바일 시트: 아래로 드래그해 닫기 */
+(()=>{
+  const rail=$('#rail');
+  let sy=0, py=0, dy=0, dragging=false, atTop=false;
+  rail.addEventListener('touchstart',e=>{
+    if(!rail.classList.contains('open')||!matchMedia('(max-width:980px)').matches) return;
+    sy=py=e.touches[0].clientY; dy=0; dragging=true; atTop=rail.scrollTop<=0;
+  },{passive:true});
+  rail.addEventListener('touchmove',e=>{
+    if(!dragging) return;
+    const y=e.touches[0].clientY, step=y-py; py=y;
+    if(!atTop && rail.scrollTop<=0 && step>0){ atTop=true; sy=y; }  // 내부 스크롤 끝 → 드래그 전환
+    dy=y-sy;
+    if(atTop && dy>0){
+      e.preventDefault();
+      rail.classList.add('drag');
+      rail.style.transform=`translateY(${dy}px)`;
+    }
+  },{passive:false});
+  const end=()=>{
+    if(!dragging) return; dragging=false;
+    rail.classList.remove('drag');
+    rail.style.transform='';
+    if(atTop && dy>110) rail.classList.remove('open');
+    dy=0;
+  };
+  rail.addEventListener('touchend',end);
+  rail.addEventListener('touchcancel',end);
+})();
 function firstMissing(){
   for(const z of reqSig()) if(!S.sig[z.id]) return {el:'slot_'+z.id,pg:z.pg,msg:`'${z.lab}'이 아직 비어 있어요 (p.${z.pg})`};
   for(const c of CON) if(!S.con[c.id]) return {el:'crow_'+c.id,pg:c.pg,msg:`'${c.lab}' 동의 선택이 남았어요 (p.${c.pg})`};
@@ -1482,26 +1513,13 @@ function attCanvas(kind){
   cv.width=Math.round(PW*s); cv.height=Math.round(PH*s);
   const ctx=cv.getContext('2d');
   ctx.fillStyle='#fff'; ctx.fillRect(0,0,cv.width,cv.height);
-  ctx.fillStyle='#0d1117'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-  ctx.font=`800 ${14*s}px 'Pretendard Variable',Pretendard,sans-serif`;
-  ctx.fillText(kind==='id'?'본인 확인 서류 · 신분증 사본':'본인 확인 서류 · 사업자등록증 사본', 48*s, 62*s);
-  ctx.fillStyle='#555';
-  ctx.font=`500 ${8.5*s}px 'Pretendard Variable',Pretendard,sans-serif`;
-  const t=today(), store=$('#mStore').value.trim()||'';
-  ctx.fillText(`${store?store+' · ':''}20${t.yy}.${t.mm2}.${t.dd2} 촬영 첨부 · 하이오더 가입신청서 별첨`, 48*s, 80*s);
-  ctx.strokeStyle='#999'; ctx.lineWidth=Math.max(1,0.6*s);
   if(kind==='id'){
-    const w=242.6*s, h=153.1*s, x=(cv.width-w)/2, y=130*s;
-    ctx.drawImage(img,x,y,w,h); ctx.strokeRect(x,y,w,h);
-    ctx.fillStyle='#777'; ctx.textAlign='center';
-    ctx.fillText('※ 실물 크기(85.6×54mm) 출력 · 주민등록번호 뒷자리 마스킹 확인', cv.width/2, y+h+22*s);
-    ctx.textAlign='left';
+    /* 신분증: 흰 A4 정중앙, 실물 크기 85.6×54mm — 그 외 요소 없음 */
+    const w=242.6*s, h=153.1*s;
+    ctx.drawImage(img,(cv.width-w)/2,(cv.height-h)/2,w,h);
   }else{
-    const mW=(PW-110)*s, mH=(PH-190)*s;
-    let w=mW, h=w*img.height/img.width;
-    if(h>mH){ h=mH; w=h*img.width/img.height; }
-    const x=(cv.width-w)/2, y=110*s;
-    ctx.drawImage(img,x,y,w,h); ctx.strokeRect(x,y,w,h);
+    /* 사업자등록증: A4 전면 — 복사본처럼 꽉 채움 */
+    ctx.drawImage(img,0,0,cv.width,cv.height);
   }
   if(S.bw){
     const d=ctx.getImageData(0,0,cv.width,cv.height), p=d.data;
