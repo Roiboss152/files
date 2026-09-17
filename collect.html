@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>매장 데이터 수집기 | KT 시너지영업3팀</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{
+  --bg:#0a0b0d;--panel:#131519;--panel-2:#1a1d23;--line:#262a31;--line-2:#343945;
+  --text:#ecedef;--sub:#a4a9b3;--faint:#737985;
+  --red:#ED1B23;--red-hover:#ff3940;--red-text:#ff8a8f;
+  --ok:#3ccb91;--ok-soft:rgba(60,203,145,.12);--warn:#f0ab3e;--warn-soft:rgba(240,171,62,.12);
+  --radius:14px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text)}
+body{font-family:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;word-break:keep-all;overflow-wrap:anywhere}
+a{color:var(--red-text)}
+.wrap{max-width:980px;margin:0 auto;padding:44px 20px 80px}
+.brand{font-size:12px;color:var(--faint);letter-spacing:.02em;margin-bottom:10px}
+h1{margin:0;font-size:28px;font-weight:700;letter-spacing:-.02em;line-height:1.3}
+.ver{font-size:11px;color:#aaa;font-weight:400;margin-left:6px;letter-spacing:0;vertical-align:middle}
+.lead{margin:8px 0 28px;color:var(--sub)}
+.banner{border:1px solid rgba(240,171,62,.45);background:var(--warn-soft);color:#ffd18c;border-radius:12px;padding:12px 16px;margin-bottom:16px;font-size:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px;margin-bottom:16px}
+.step{display:flex;align-items:center;gap:10px;font-weight:600;font-size:16px;margin:0 0 14px}
+.num{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--red);color:#fff;font-size:12px;font-weight:700;flex:none}
+fieldset{border:0;margin:0;padding:0;min-width:0}
+fieldset:disabled{opacity:.45}
+.row{display:flex;gap:8px}
+.row input{flex:1}
+input,select{font:inherit;color:var(--text);background:var(--panel-2);border:1px solid var(--line-2);border-radius:10px;padding:11px 14px;min-width:0}
+input::placeholder{color:var(--faint)}
+input:focus-visible,select:focus-visible,.btn:focus-visible,a:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+.btn{font:inherit;font-weight:600;border-radius:10px;padding:11px 18px;border:1px solid var(--line-2);background:var(--panel-2);color:var(--text);cursor:pointer;white-space:nowrap;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn:hover{border-color:#5b616d}
+.btn.primary{background:var(--red);border-color:var(--red);color:#fff}
+.btn.primary:hover{background:var(--red-hover);border-color:var(--red-hover)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.sm{padding:7px 12px;font-size:13px;border-radius:8px}
+.opts{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;color:var(--sub);font-size:13px}
+.opts label{display:flex;align-items:center;gap:8px}
+.opts .grow{flex:1;min-width:260px}
+.opts .grow input{flex:1}
+.opts select,.opts input{padding:8px 12px;font-size:14px}
+.msg{margin-top:10px;font-size:13px;color:var(--sub)}
+.msg:empty{display:none}
+.msg.err{color:#ff7d82}
+.msg.ok{color:var(--ok)}
+.msg.warn{color:var(--warn)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.chips:empty{display:none}
+.chip{font-size:12px;padding:3px 10px;border-radius:999px;border:1px solid var(--line-2);color:var(--sub)}
+.chip.on{color:var(--ok);border-color:rgba(60,203,145,.4);background:var(--ok-soft)}
+.chip.off{color:var(--warn);border-color:rgba(240,171,62,.4);background:var(--warn-soft)}
+.cands{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:8px}
+.cands:empty{display:none}
+.cand{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:var(--panel-2)}
+.cand .nm{font-weight:600}
+.cand .meta{font-size:13px;color:var(--sub);margin-top:2px}
+.tag{display:inline-block;font-size:11px;font-weight:500;padding:1px 7px;border-radius:6px;background:var(--line);color:var(--sub);margin-left:6px;vertical-align:2px}
+.progress{display:flex;align-items:center;gap:12px;color:var(--sub);padding:6px 0}
+.progress[hidden]{display:none}
+.spinner{width:18px;height:18px;border-radius:50%;border:2px solid var(--line-2);border-top-color:var(--red);animation:spin .8s linear infinite;flex:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+.stamp{font-size:13px;color:var(--sub);margin:-4px 0 16px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+.kpi{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.kpi .k{font-size:12px;color:var(--sub)}
+.kpi .v{font-size:22px;font-weight:700;margin-top:4px;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.kpi .s{font-size:12px;color:var(--faint);margin-top:2px}
+.sec{border-top:1px solid var(--line);padding-top:18px;margin-top:20px}
+.sec h3{margin:0 0 10px;font-size:15px;font-weight:600;display:flex;justify-content:space-between;align-items:baseline;gap:4px 12px;flex-wrap:wrap}
+.src{font-size:12px;color:var(--faint);font-weight:400}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child th,tr:last-child td{border-bottom:0}
+th{color:var(--sub);font-weight:500;width:32%}
+td.n{font-variant-numeric:tabular-nums}
+.note{font-size:13px;color:var(--sub);margin-top:8px}
+.bad{color:#ff7d82}
+.recent{list-style:none;margin:8px 0 0;padding:0;font-size:14px}
+.recent li{padding:4px 0;display:flex;gap:10px}
+.recent .d{color:var(--faint);flex:none;font-variant-numeric:tabular-nums}
+.recent .by{color:var(--faint);font-size:12px}
+.recent .none{color:var(--faint)}
+.subhead{font-size:13px;font-weight:600;color:var(--sub);margin:16px 0 0}
+.subhead .src{margin-left:6px}
+.refnote{border:1px solid rgba(240,171,62,.35);background:var(--warn-soft);color:#ffd18c;border-radius:10px;padding:8px 12px;font-size:13px;margin:0}
+.thumbs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;list-style:none;margin:12px 0 0;padding:0}
+.thumbs[hidden]{display:none}
+.thumbs a{display:block;aspect-ratio:1/1;border-radius:10px;overflow:hidden;background:var(--panel-2);border:1px solid var(--line)}
+.thumbs a:hover{border-color:#5b616d}
+.thumbs img{width:100%;height:100%;object-fit:contain;display:block}
+.thumbs a.broken{display:grid;place-items:center;font-size:12px;color:var(--faint);text-decoration:none}
+.more{display:flex;justify-content:space-between;align-items:center;gap:8px 12px;flex-wrap:wrap;margin-top:10px;font-size:13px;color:var(--sub)}
+.spark{display:grid;grid-template-columns:96px 1fr;gap:14px;align-items:center;margin:10px 0}
+.spark .kw{font-weight:600}
+.spark .kw small{display:block;font-weight:400;font-size:12px;color:var(--faint);line-height:1.5}
+.spark .chart{min-width:0}
+.axis{display:flex;justify-content:space-between;font-size:11px;color:var(--faint);margin-top:3px;font-variant-numeric:tabular-nums}
+.t3 th,.t3 td{width:auto}
+.t3 tr>*:first-child{width:28%}
+.t3 tr>*:nth-child(2){width:88px;white-space:nowrap}
+.tag.warn{background:var(--warn-soft);color:var(--warn)}
+.spark svg{width:100%;height:44px;display:block}
+.bar{fill:#59606c}.bar.peak{fill:var(--red)}.bar.now{fill:#343945}
+.manual{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.manual li{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:var(--panel-2)}
+.manual .what{font-size:14px}
+.manual .why{font-size:12px;color:var(--faint)}
+.errs{margin:0;padding-left:18px;font-size:14px;color:#ff9da1}
+.errs li{margin:2px 0}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px}
+.actions[hidden]{display:none}
+.foot{color:var(--faint);font-size:12px;margin-top:28px;line-height:1.8}
+@media (max-width:640px){
+  .wrap{padding:28px 14px 60px}
+  h1{font-size:23px}
+  .card{padding:18px}
+  .row{flex-direction:column}
+  .cand,.manual li{flex-direction:column;align-items:stretch}
+  th{width:40%}
+  .spark{grid-template-columns:1fr;gap:4px}
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .kpi .v{font-size:20px}
+  .t3 tr>*:first-child{width:30%}
+  .t3 tr>*:nth-child(2){width:64px}
+  .opts .grow{min-width:100%}
+  .thumbs{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+}
+@media (prefers-reduced-motion:reduce){.spinner{animation:none}}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header>
+    <div class="brand">KT 인천지사 시너지영업3팀 · 매장운영진단</div>
+    <h1>매장 데이터 수집기<span class="ver">v1.01</span></h1>
+    <p class="lead">상호와 동네를 넣으면 공개 데이터를 모아 코파일럿에 넣을 묶음으로 만들어 줍니다.</p>
+  </header>
+
+  <div id="configBanner" class="banner" hidden>중계 서버 주소가 아직 설정되지 않았습니다. 이 파일의 <code>API_BASE</code> 값을 Cloudflare Worker 주소로 바꿔서 올려 주세요.</div>
+
+  <section class="card" aria-labelledby="s1">
+    <h2 class="step" id="s1"><span class="num">1</span>팀 비밀번호</h2>
+    <form id="authForm" class="row" autocomplete="off">
+      <input id="pass" type="password" placeholder="팀 비밀번호" aria-label="팀 비밀번호" required>
+      <button id="authBtn" type="submit" class="btn primary">연결</button>
+    </form>
+    <div id="authMsg" class="msg" role="status" aria-live="polite"></div>
+    <div id="keyChips" class="chips" aria-label="중계 서버 키 설정 상태"></div>
+  </section>
+
+  <section class="card" aria-labelledby="s2">
+    <h2 class="step" id="s2"><span class="num">2</span>매장 찾기</h2>
+    <fieldset id="searchSet" disabled>
+      <form id="searchForm" class="row" autocomplete="off">
+        <input id="q" type="search" placeholder="예: 우대포 명동" maxlength="60" aria-label="상호와 동네" required>
+        <button type="submit" class="btn primary">검색</button>
+      </form>
+      <div class="opts">
+        <label>반경
+          <select id="radius" aria-label="조사 반경">
+            <option value="300">300m</option>
+            <option value="500" selected>500m</option>
+            <option value="1000">1km</option>
+          </select>
+        </label>
+        <label class="grow">대표 메뉴
+          <input id="keywords" type="text" maxlength="80" placeholder="비우면 업종에서 자동 · 예: 갈비, 삼겹살" aria-label="대표 메뉴 키워드, 쉼표로 구분">
+        </label>
+      </div>
+      <div id="searchMsg" class="msg" role="status" aria-live="polite"></div>
+      <ul id="cands" class="cands"></ul>
+    </fieldset>
+  </section>
+
+  <section class="card" id="resultCard" aria-labelledby="s3" hidden>
+    <h2 class="step" id="s3"><span class="num">3</span>수집 결과</h2>
+    <div id="progress" class="progress" role="status" aria-live="polite" hidden><span class="spinner" aria-hidden="true"></span><span id="progressText">수집 중</span></div>
+    <div id="result"></div>
+    <div id="actions" class="actions" hidden>
+      <button id="copyBtn" type="button" class="btn primary">코파일럿용 복사</button>
+      <button id="jsonBtn" type="button" class="btn">JSON 저장</button>
+    </div>
+    <div id="copyMsg" class="msg" role="status" aria-live="polite"></div>
+  </section>
+
+  <footer class="foot">
+    모든 숫자에는 출처와 조회 시각이 붙습니다. 공개 데이터와 추정치이므로 리포트에 쓰기 전에 원본과 한 번 대조해 주세요.<br>
+    이 페이지와 중계 서버에는 상호·주소 같은 공개 정보만 넣습니다. 사장님 매출이나 연락처는 넣지 않습니다.
+  </footer>
+</main>
+
+<script>
+(() => {
+  'use strict';
+
+  // ▼ 배포 후 Cloudflare Worker 주소로 바꾸세요 (끝에 / 없이)
+  const API_BASE = 'https://kt.roi0925003.workers.dev';
+  const PAGE_VERSION = 'v1.01';
+
+  const $ = (s) => document.querySelector(s);
+  const el = {
+    banner: $('#configBanner'), authForm: $('#authForm'), pass: $('#pass'), authBtn: $('#authBtn'),
+    authMsg: $('#authMsg'), chips: $('#keyChips'), searchSet: $('#searchSet'), searchForm: $('#searchForm'),
+    q: $('#q'), radius: $('#radius'), keywords: $('#keywords'), searchMsg: $('#searchMsg'), cands: $('#cands'),
+    resultCard: $('#resultCard'), progress: $('#progress'), progressText: $('#progressText'), result: $('#result'),
+    actions: $('#actions'), copyBtn: $('#copyBtn'), jsonBtn: $('#jsonBtn'), copyMsg: $('#copyMsg'),
+  };
+  const state = { pass: '', search: null, bundle: null, busy: false };
+  const configured = !/YOUR-WORKER/.test(API_BASE);
+
+  const LABEL = { region: '행정구역', nearby: '주변 시설', competition: '같은 업종 점포', population: '동네 인구·사업체', online: '온라인 언급', news: '뉴스', images: '메뉴판 사진', trend: '메뉴 검색 추이' };
+  const NEWS_LABEL = { brand: '상호', area: '동네 상권' };
+  const KEY_LABEL = { kakao: '카카오', naver: '네이버', dataGoKr: '공공데이터포털', sgis: 'SGIS' };
+
+  /* ── 작은 도구 ── */
+  const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const has = (v) => v !== null && v !== undefined && v !== '' && !Number.isNaN(Number(v));
+  const num = (v, unit = '') => (has(v) ? Number(v).toLocaleString('ko-KR') + unit : '—');
+  const dist = (m) => {
+    if (!has(m)) return '—';
+    const v = Number(m);
+    if (v < 1000) return `${v}m`;
+    return `${(v / 1000).toFixed(v % 1000 === 0 ? 0 : 1)}km`;
+  };
+  const ym = (s) => (/^\d{6}$/.test(String(s || '')) ? `${String(s).slice(0, 4)}-${String(s).slice(4)}` : String(s || '—'));
+  const safeHref = (u) => (/^https?:\/\//i.test(String(u || '')) ? String(u) : '');
+  const md = (v) => String(v ?? '—').replace(/\|/g, '\\|').replace(/\s*\n\s*/g, ' ');
+  const setMsg = (node, text, kind) => { node.textContent = text || ''; node.className = 'msg' + (kind ? ` ${kind}` : ''); };
+  const mod = (b, k) => (b && b.modules && b.modules[k]) || { ok: false, error: '중계 서버 응답에 이 항목이 없습니다. worker.js를 이 페이지와 같은 버전으로 바꿨는지 확인하세요.', source: { name: '' } };
+  // 중계 서버 v1.00은 블로그 값만 평평하게 보낸다. 페이지만 먼저 바꿔도 화면이 깨지지 않게 맞춘다.
+  const onlineParts = (od) => {
+    if (!od) return null;
+    if (od.blog || od.cafe || od.waiting) return od;
+    return {
+      query: od.query,
+      blog: { total: od.total, recent: od.recent || [] },
+      waiting: { query: od.waitingQuery, total: od.waitingTotal },
+      cafe: { error: '중계 서버 v1.00은 카페 글을 모으지 않습니다' },
+    };
+  };
+  const part = (p) => (p && p.error ? null : p || null);
+  // 응답에 빠진 항목도 실패로 센다 (중계 서버가 옛 버전일 때)
+  const failedModules = (b) => {
+    const keys = [...new Set(Object.keys(LABEL).concat(Object.keys((b && b.modules) || {})))];
+    return keys.map((k) => [k, mod(b, k)]).filter(([, m]) => !m.ok);
+  };
+  const srcText = (m) => (m && m.source ? `${m.source.name}${m.fetchedAt ? ` · ${m.fetchedAt}` : ''}` : '');
+  const cat = (b, code) => {
+    const m = mod(b, 'nearby');
+    return m.ok ? (m.data.categories || []).find((c) => c.code === code) || null : null;
+  };
+
+  function setBusy(on) {
+    state.busy = on;
+    document.querySelectorAll('#searchSet button, #cands button').forEach((b) => { b.disabled = on; });
+  }
+
+  async function api(path, { method = 'GET', body, timeout = 20000 } = {}) {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), timeout);
+    let res;
+    try {
+      res = await fetch(API_BASE + path, {
+        method,
+        headers: Object.assign({ 'X-Team-Pass': state.pass }, body ? { 'Content-Type': 'application/json' } : {}),
+        body: body ? JSON.stringify(body) : undefined,
+        signal: ctrl.signal,
+        cache: 'no-store',
+      });
+    } catch (e) {
+      if (e && e.name === 'AbortError') throw new Error('응답이 너무 늦습니다. 잠시 뒤 다시 시도해 주세요.');
+      throw new Error('중계 서버에 연결하지 못했습니다. 회사 PC에서 주소가 막혔거나, 페이지의 중계 서버 주소가 틀렸을 수 있습니다.');
+    } finally {
+      clearTimeout(timer);
+    }
+    let data = null;
+    try { data = await res.json(); } catch (e) { data = null; }
+    if (!res.ok) {
+      const err = new Error((data && data.error) || `중계 서버 오류 (HTTP ${res.status})`);
+      err.status = res.status;
+      throw err;
+    }
+    return data;
+  }
+
+  function lockAuth(message) {
+    state.pass = '';
+    el.searchSet.disabled = true;
+    el.chips.innerHTML = '';
+    setMsg(el.authMsg, message, 'err');
+    el.pass.focus();
+  }
+
+  function showError(err, node) {
+    if (err && err.status === 401) return lockAuth('비밀번호가 바뀌었거나 맞지 않습니다. 다시 연결해 주세요.');
+    setMsg(node, err && err.message ? err.message : String(err), 'err');
+  }
+
+  /* ── 1. 연결 ── */
+  el.authForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!configured) return setMsg(el.authMsg, '중계 서버 주소를 먼저 설정해 주세요.', 'err');
+    const pass = el.pass.value.trim();
+    if (!pass) return setMsg(el.authMsg, '비밀번호를 넣어 주세요.', 'err');
+    state.pass = pass;
+    el.authBtn.disabled = true;
+    setMsg(el.authMsg, '연결 확인 중…');
+    try {
+      const s = await api('/status', { timeout: 12000 });
+      const keys = s.keys || {};
+      el.chips.innerHTML = Object.keys(KEY_LABEL)
+        .map((k) => `<span class="chip ${keys[k] ? 'on' : 'off'}">${KEY_LABEL[k]} ${keys[k] ? '설정됨' : '미설정'}</span>`)
+        .join('');
+      const missing = Object.keys(KEY_LABEL).filter((k) => !keys[k]).length;
+      const mismatch = s.version !== PAGE_VERSION;
+      const verNote = mismatch ? ` · 이 페이지는 ${PAGE_VERSION}입니다. worker.js와 collect.html을 같은 버전으로 올려야 모든 항목이 나옵니다` : '';
+      setMsg(el.authMsg, `연결됨 · 중계 서버 ${s.version || '버전 모름'}${missing ? ` · 키 ${missing}곳이 비어 있어 해당 항목은 빠집니다` : ''}${verNote}`, mismatch ? 'warn' : 'ok');
+      el.searchSet.disabled = false;
+      el.q.focus();
+    } catch (err) {
+      lockAuth(err.message);
+    } finally {
+      el.authBtn.disabled = false;
+    }
+  });
+
+  /* ── 2. 검색 ── */
+  el.searchForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (state.busy) return;
+    const q = el.q.value.trim();
+    if (q.length < 2) return setMsg(el.searchMsg, '두 글자 이상 넣어 주세요.', 'err');
+    el.cands.innerHTML = '';
+    setMsg(el.searchMsg, '찾는 중…');
+    setBusy(true);
+    try {
+      const r = await api(`/search?q=${encodeURIComponent(q)}`);
+      state.search = r;
+      renderCandidates(r);
+    } catch (err) {
+      showError(err, el.searchMsg);
+    } finally {
+      setBusy(false);
+    }
+  });
+
+  function renderCandidates(r) {
+    const list = r.candidates || [];
+    const notes = (r.notes || []).join(' / ');
+    if (!list.length) {
+      setMsg(el.searchMsg, `후보가 없습니다. 상호만 넣거나 동네 이름을 바꿔 보세요.${notes ? ` (${notes})` : ''}`, 'err');
+      return;
+    }
+    setMsg(el.searchMsg, `후보 ${list.length}곳 · 맞는 매장을 고르세요.${notes ? ` (${notes})` : ''}`);
+    el.cands.innerHTML = list
+      .map((c, i) => {
+        const notFood = c.categoryGroupCode && !['FD6', 'CE7'].includes(c.categoryGroupCode);
+        const tags = (c.sources || []).map((s) => `<span class="tag">${esc(s)}</span>`).join('') + (notFood ? '<span class="tag warn">음식점 아님</span>' : '');
+        const catText = c.category || c.naverCategory || '업종 정보 없음';
+        const addr = c.roadAddress || c.address || '주소 정보 없음';
+        const noXY = c.x === null || c.y === null ? ' · 좌표 없음(주소로 찾음)' : '';
+        return `<li class="cand">
+          <div><div class="nm">${esc(c.name)}${tags}</div>
+          <div class="meta">${esc(catText)}</div>
+          <div class="meta">${esc(addr)}${esc(noXY)}</div></div>
+          <button type="button" class="btn sm" data-i="${i}">이 매장으로 수집</button>
+        </li>`;
+      })
+      .join('');
+  }
+
+  el.cands.addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-i]');
+    if (!btn || state.busy || !state.search) return;
+    const c = state.search.candidates[Number(btn.dataset.i)];
+    if (c) collect(c);
+  });
+
+  /* ── 3. 수집 ── */
+  async function collect(c) {
+    setBusy(true);
+    state.bundle = null;
+    el.resultCard.hidden = false;
+    el.result.innerHTML = '';
+    el.actions.hidden = true;
+    setMsg(el.copyMsg, '');
+    el.progress.hidden = false;
+    const started = Date.now();
+    const tick = () => { el.progressText.textContent = `${c.name} 수집 중 · ${Math.round((Date.now() - started) / 1000)}초 (보통 10~20초)`; };
+    tick();
+    const timer = setInterval(tick, 1000);
+    el.resultCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    try {
+      const bundle = await api('/collect', {
+        method: 'POST',
+        timeout: 45000,
+        body: { store: c, options: { radius: Number(el.radius.value), keywords: el.keywords.value } },
+      });
+      state.bundle = bundle;
+      el.result.innerHTML = renderBundle(bundle);
+      el.actions.hidden = false;
+    } catch (err) {
+      showError(err, el.copyMsg);
+    } finally {
+      clearInterval(timer);
+      el.progress.hidden = true;
+      setBusy(false);
+    }
+  }
+
+  /* ── 결과 화면 ── */
+  function sectionHead(title, m) {
+    return `<h3><span>${esc(title)}</span><span class="src">${esc(srcText(m))}</span></h3>`;
+  }
+  function failBox(m) {
+    return `<p class="note bad">가져오지 못했습니다 — ${esc(m.error || '이유 모름')}</p>`;
+  }
+  function rows(pairs) {
+    return `<table>${pairs.map(([k, v, isNum]) => `<tr><th>${esc(k)}</th><td${isNum ? ' class="n"' : ''}>${v}</td></tr>`).join('')}</table>`;
+  }
+  function linkText(link, title) {
+    const t = esc(title || '(제목 없음)');
+    return safeHref(link) ? `<a href="${esc(link)}" target="_blank" rel="noopener noreferrer">${t}</a>` : t;
+  }
+
+  function renderImages(m) {
+    if (!m.ok) return failBox(m);
+    const d = m.data || {};
+    const items = (d.items || []).filter((it) => safeHref(it.thumbnail));
+    const search = safeHref(d.searchUrl);
+    const note = '<p class="refnote">참고용입니다. 사진이 올라간 게시글 주소는 받을 수 없어 출처를 밝힐 수 없으므로 리포트·코파일럿 묶음·JSON에는 넣지 않습니다. 사진 속 가격은 언제 찍었는지 알 수 없으니 매장에서 확인하세요.</p>';
+    const tiles = items.map((it, i) => {
+      const alt = esc(it.title || `메뉴판 사진 ${i + 1}`);
+      const img = `<img src="${esc(it.thumbnail)}" alt="${alt}" loading="lazy" decoding="async" referrerpolicy="no-referrer">`;
+      const href = safeHref(it.image) || search;
+      return `<li>${href ? `<a href="${esc(href)}" target="_blank" rel="noopener noreferrer" title="${alt}">${img}</a>` : `<a title="${alt}">${img}</a>`}</li>`;
+    }).join('');
+    const grid = tiles ? `<ul class="thumbs">${tiles}</ul>` : '<p class="note">검색된 사진이 없습니다.</p>';
+    const broken = '<p class="note bad" id="thumbsNote" hidden>사진을 불러오지 못했습니다. 회사 네트워크에서 네이버 이미지 서버가 막혔을 수 있습니다. 휴대폰으로 이 페이지를 열거나, 아래 ‘네이버 이미지 검색에서 더 보기’로 확인해 주세요.</p>';
+    const more = `<div class="more"><span>‘${esc(d.query)}’ 검색 결과 ${esc(num(d.total, '장'))}${items.length ? `<span id="thumbsHint"> 중 ${items.length}장 · 사진을 누르면 원본이 열립니다</span>` : ''}</span>${search ? `<a class="btn sm" href="${esc(search)}" target="_blank" rel="noopener noreferrer">네이버 이미지 검색에서 더 보기</a>` : ''}</div>`;
+    return note + grid + broken + more;
+  }
+
+  // 미리보기를 못 불러오면 칸을 비우고, 모두 실패하면 안내를 띄운다 (error 이벤트는 올라오지 않아 capture로 받는다)
+  el.result.addEventListener('error', (e) => {
+    const img = e.target;
+    if (!img || img.tagName !== 'IMG' || !img.closest('.thumbs')) return;
+    const box = img.parentElement;
+    const grid = img.closest('.thumbs');
+    img.remove();
+    box.classList.add('broken');
+    box.textContent = '미리보기 없음';
+    if (!grid.querySelector('img')) {
+      // 전부 실패하면 빈 칸을 늘어놓지 않고 안내만 남긴다
+      grid.hidden = true;
+      const n = document.getElementById('thumbsNote');
+      if (n) n.hidden = false;
+      const h = document.getElementById('thumbsHint');
+      if (h) h.hidden = true;
+    }
+  }, true);
+
+  function renderBundle(b) {
+    const s = b.store || {};
+    const R = (b.options && b.options.radius) || 500;
+    const region = mod(b, 'region');
+    const nearby = mod(b, 'nearby');
+    const comp = mod(b, 'competition');
+    const pop = mod(b, 'population');
+    const online = mod(b, 'online');
+    const news = mod(b, 'news');
+    const images = mod(b, 'images');
+    const trend = mod(b, 'trend');
+    const out = [];
+
+    out.push(`<p class="stamp">${esc(b.collectedAt)} 수집 · 중계 서버 ${esc(b.version)} · 반경 ${esc(dist(R))}</p>`);
+
+    // 한눈에
+    const sw = cat(b, 'SW8');
+    const at = cat(b, 'AT4');
+    const ad = cat(b, 'AD5');
+    const cd = comp.ok ? comp.data : null;
+    const pd = pop.ok ? pop.data : null;
+    const od = online.ok ? onlineParts(online.data) : null;
+    const blog = od && part(od.blog);
+    const cafe = od && part(od.cafe);
+    const waiting = od && part(od.waiting);
+    const kpi = (k, v, sub) => `<div class="kpi"><div class="k">${esc(k)}</div><div class="v">${esc(v)}</div><div class="s">${esc(sub)}</div></div>`;
+    out.push('<div class="kpis">' + [
+      kpi(`같은 업종 (반경 ${dist(R)})`, cd && cd.matched ? num(cd.sameSmall.count, '곳') : '—', cd && cd.matched ? `소분류 ‘${cd.industry.small}’, 이 매장 제외` : comp.ok ? '상가정보에서 매장을 못 찾음' : '수집 안 됨'),
+      kpi('가장 가까운 지하철역', sw && sw.nearest && sw.nearest[0] ? dist(sw.nearest[0].distance) : '—', sw && sw.nearest && sw.nearest[0] ? sw.nearest[0].name : '1km 안에 없음 또는 수집 안 됨'),
+      kpi('관광명소 · 숙박', at || ad ? `${num(at && at.count)} · ${num(ad && ad.count)}` : '—', `반경 ${dist(R)}`),
+      kpi('종사자 ÷ 인구', pd && has(pd.workerPerResident) ? String(pd.workerPerResident) : '—', pd ? `${pd.admName} · ${pd.year}년` : '수집 안 됨'),
+      kpi('블로그 · 카페 언급', od ? `${num(blog && blog.total)} · ${num(cafe && cafe.total)}` : '—', od ? `‘웨이팅’ 함께 ${waiting ? num(waiting.total, '건') : '—'}` : '수집 안 됨'),
+    ].join('') + '</div>');
+
+    // 매장
+    const admin = region.ok && region.data.admin;
+    const links = [
+      safeHref(s.placeUrl) ? `<a href="${esc(s.placeUrl)}" target="_blank" rel="noopener">카카오맵</a>` : '',
+      safeHref(s.naverLink) ? `<a href="${esc(s.naverLink)}" target="_blank" rel="noopener">네이버 등록 링크</a>` : '',
+    ].filter(Boolean).join(' · ');
+    out.push(`<div class="sec">${sectionHead('매장', region)}${rows([
+      ['상호', esc(s.name)],
+      ['업종 (카카오)', esc(s.category || '—')],
+      ['업종 (네이버)', esc(s.naverCategory || '—')],
+      ['도로명 주소', esc(s.roadAddress || '—')],
+      ['지번 주소', esc(s.address || '—')],
+      ['전화', esc(s.phone || '—')],
+      ['행정동', region.ok ? esc(admin ? `${admin.name} (코드 ${admin.code})` : '—') : `<span class="bad">${esc(region.error)}</span>`],
+      ['좌표', has(s.x) ? esc(`${Number(s.y).toFixed(6)}, ${Number(s.x).toFixed(6)}`) : '—', true],
+      ['링크', links || '—'],
+    ])}${(b.notes || []).map((t) => `<p class="note">${esc(t)}</p>`).join('')}</div>`);
+
+    // 주변 시설
+    let nearbyHtml = '';
+    if (nearby.ok) {
+      const cats = nearby.data.categories || [];
+      const trs = cats.map((c) => {
+        const count = c.error ? `<span class="bad">실패</span>` : esc(num(c.count, '곳'));
+        const near = (c.nearest || []).map((x) => `${esc(x.name)} ${esc(dist(x.distance))}`).join(', ');
+        return `<tr><th>${esc(c.label)}${c.radius !== R ? ` <span class="src">${esc(dist(c.radius))}</span>` : ''}</th><td class="n">${count}</td><td>${near || '<span class="src">—</span>'}</td></tr>`;
+      });
+      const uni = nearby.data.universities || { list: [] };
+      const uniText = uni.error ? `<span class="bad">${esc(uni.error)}</span>` : (uni.list || []).map((u) => `${esc(u.name)} ${esc(dist(u.distance))}`).join(', ') || '없음';
+      trs.push(`<tr><th>대학교 <span class="src">1.5km</span></th><td class="n">${uni.error ? '—' : esc(num((uni.list || []).length, '곳'))}</td><td>${uniText}</td></tr>`);
+      nearbyHtml = `<table class="t3"><tr><th>시설</th><th>곳 수</th><th>가까운 곳</th></tr>${trs.join('')}</table>`;
+    } else {
+      nearbyHtml = failBox(nearby);
+    }
+    out.push(`<div class="sec">${sectionHead(`주변 시설 (반경 ${dist(R)})`, nearby)}${nearbyHtml}</div>`);
+
+    // 같은 업종
+    let compHtml = '';
+    if (!comp.ok) compHtml = failBox(comp);
+    else if (!cd.matched) compHtml = `<p class="note">${esc(cd.note)}</p>`;
+    else {
+      const bands = (cd.sameSmall.bands || []).map((x) => `${x.from ? `${x.from}~` : ''}${x.to}m ${x.count}곳`).join(' · ');
+      compHtml = rows([
+        ['상가정보 등록 상호', esc(`${cd.matchedName} (좌표 차이 ${dist(cd.matchedDistance)}${cd.floor ? `, ${cd.floor}층` : ''})`)],
+        ['업종', esc([cd.industry.large, cd.industry.middle, cd.industry.small].filter(Boolean).join(' > '))],
+        [`같은 소분류 (이 매장 제외)`, `${esc(num(cd.sameSmall.count, '곳'))}<br><span class="src">${esc(bands)}${cd.sameSmall.bandsPartial ? ' · 거리 구간은 앞 1,000곳 기준' : ''}</span>`, true],
+        [`같은 중분류 ‘${cd.industry.middle}’`, esc(num(cd.sameMiddle.count, '곳')), true],
+        [`${cd.industry.large || '대분류'} 전체`, esc(num(cd.sameLarge.count, '곳')), true],
+        ['자료 기준월', esc(ym(cd.stdrYm))],
+      ]);
+    }
+    out.push(`<div class="sec">${sectionHead(`같은 업종 점포 (반경 ${dist(R)})`, comp)}${compHtml}</div>`);
+
+    // 인구·사업체
+    let popHtml = '';
+    if (!pop.ok) popHtml = failBox(pop);
+    else {
+      popHtml = rows([
+        ['행정동', esc(`${pd.admName} (SGIS 코드 ${pd.admCd})`)],
+        ['기준연도', esc(`${pd.year}년`)],
+        ['인구', esc(num(pd.population, '명')), true],
+        ['평균 나이', esc(num(pd.avgAge, '세')), true],
+        ['가구', esc(num(pd.households, '가구')), true],
+        ['평균 가구원', esc(num(pd.avgHouseholdSize, '명')), true],
+        ['주택', esc(num(pd.houses, '호')), true],
+        ['사업체', esc(num(pd.businesses, '곳')), true],
+        ['종사자', esc(num(pd.workers, '명')), true],
+        ['종사자 ÷ 인구', `${esc(has(pd.workerPerResident) ? pd.workerPerResident : '—')}<br><span class="src">1보다 크면 사는 사람보다 일하러 오는 사람이 많은 동네</span>`, true],
+      ]);
+    }
+    out.push(`<div class="sec">${sectionHead('동네 인구·사업체', pop)}${popHtml}</div>`);
+
+    // 온라인
+    let onHtml = '';
+    if (!online.ok) onHtml = failBox(online);
+    else {
+      const count = (p) => (p && p.error ? '<span class="bad">실패</span>' : esc(num(p && p.total, '건')));
+      const blogList = blog
+        ? (blog.recent || []).map((r) => `<li><span class="d">${esc(r.date)}</span>${linkText(r.link, r.title)}</li>`).join('')
+        : '';
+      const cafeList = cafe
+        ? (cafe.recent || []).map((r) => `<li><span>${linkText(r.link, r.title)}${r.cafe ? `<span class="by"> · ${esc(r.cafe)}</span>` : ''}</span></li>`).join('')
+        : '';
+      onHtml = rows([
+        [`블로그 글 ‘${od.query}’`, count(od.blog), true],
+        [`블로그 글 ‘${(od.waiting && od.waiting.query) || `${od.query} 웨이팅`}’`, count(od.waiting), true],
+        [`카페 글 ‘${od.query}’`, count(od.cafe), true],
+      ]) + `<p class="note">검색 결과 수라서 다른 매장 글이 섞일 수 있습니다. 많고 적음을 보는 참고치로만 씁니다.</p>` +
+        (blogList ? `<p class="subhead">최근 블로그 글</p><ul class="recent">${blogList}</ul>` : '') +
+        (cafeList ? `<p class="subhead">최근 카페 글<span class="src">카페 이름을 보면 동네 모임에서 오가는 곳인지 알 수 있습니다</span></p><ul class="recent">${cafeList}</ul>` : '');
+    }
+    out.push(`<div class="sec">${sectionHead('온라인 언급 (네이버 블로그·카페)', online)}${onHtml}</div>`);
+
+    // 뉴스
+    let newsHtml = '';
+    if (!news.ok) newsHtml = failBox(news);
+    else {
+      newsHtml = (news.data.queries || []).map((x) => {
+        const head = `<p class="subhead">${esc(NEWS_LABEL[x.key] || x.key)} ‘${esc(x.q)}’ <span class="src">${x.error ? '' : esc(num(x.total, '건'))}</span></p>`;
+        if (x.error) return `${head}<p class="note bad">가져오지 못했습니다 — ${esc(x.error)}</p>`;
+        const list = (x.recent || []).map((r) => `<li><span class="d">${esc(r.date || '—')}</span>${linkText(r.link, r.title)}</li>`).join('');
+        return head + `<ul class="recent">${list || '<li class="none">기사가 없습니다</li>'}</ul>`;
+      }).join('') + `<p class="note">${esc(news.data.note || '')}</p>`;
+    }
+    out.push(`<div class="sec">${sectionHead('뉴스 (네이버 뉴스, 최신순)', news)}${newsHtml}</div>`);
+
+    // 검색 추이
+    let trHtml = '';
+    if (!trend.ok) trHtml = failBox(trend);
+    else {
+      const td = trend.data;
+      trHtml = (td.series || []).map((sr) => sparkRow(sr, td.endMonth)).join('') +
+        `<p class="note">${esc(td.startMonth)} ~ ${esc(td.endMonth)} 월별 · ${esc(td.note)}${b.options && b.options.keywordsDerived ? ' 키워드는 업종에서 자동으로 골랐습니다.' : ''}</p>`;
+    }
+    out.push(`<div class="sec">${sectionHead('메뉴 검색 추이 (네이버 검색어트렌드)', trend)}${trHtml}</div>`);
+
+    // 메뉴판 사진 (참고용)
+    out.push(`<div class="sec" id="menuPhotos">${sectionHead('메뉴판 사진 (참고용)', images)}${renderImages(images)}</div>`);
+
+    // 사람이 채울 것
+    const q = [s.name, admin ? admin.dong : ''].filter(Boolean).join(' ');
+    const manual = manualItems(s, q);
+    out.push(`<div class="sec"><h3><span>사람이 채울 것</span><span class="src">로그인이 필요하거나 공식 API가 없는 곳</span></h3>
+      <ul class="manual">${manual.map((m) => `<li><div><div class="what">${esc(m.what)}</div><div class="why">${esc(m.why)}</div></div>
+      <a class="btn sm" href="${esc(m.href)}" target="_blank" rel="noopener">${esc(m.btn)}</a></li>`).join('')}</ul>
+      <div class="actions" style="margin-top:10px"><button type="button" class="btn sm" id="copyNameBtn">상호·주소 복사</button></div></div>`);
+
+    // 실패 목록
+    const fails = failedModules(b).map(([k, m]) => `<li>${esc(LABEL[k] || k)} — ${esc(m.error)}</li>`);
+    const partial = nearby.ok ? (nearby.data.categories || []).filter((c) => c.error).map((c) => `<li>주변 시설 ${esc(c.label)} — ${esc(c.error)}</li>`) : [];
+    if (od) {
+      [['blog', '블로그'], ['waiting', '‘웨이팅’ 블로그'], ['cafe', '카페']].forEach(([k, name]) => {
+        if (od[k] && od[k].error) partial.push(`<li>온라인 언급 ${esc(name)} — ${esc(od[k].error)}</li>`);
+      });
+    }
+    if (news.ok) {
+      (news.data.queries || []).filter((x) => x.error).forEach((x) => partial.push(`<li>뉴스 ‘${esc(x.q)}’ — ${esc(x.error)}</li>`));
+    }
+    if (fails.length || partial.length) {
+      out.push(`<div class="sec"><h3><span>수집하지 못한 항목</span></h3><ul class="errs">${fails.concat(partial).join('')}</ul></div>`);
+    }
+    return out.join('');
+  }
+
+  function sparkRow(sr, endMonth) {
+    const pts = sr.points || [];
+    const W = 600, H = 44, gap = 4;
+    const bw = pts.length ? (W - gap * (pts.length - 1)) / pts.length : 0;
+    const bars = pts.map((p, i) => {
+      const v = has(p.ratio) ? Number(p.ratio) : 0;
+      const h = Math.max(2, (v / 100) * (H - 2));
+      const cls = p.month === endMonth ? 'bar now' : sr.peak && p.month === sr.peak.month ? 'bar peak' : 'bar';
+      return `<rect class="${cls}" x="${(i * (bw + gap)).toFixed(1)}" y="${(H - h).toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="2"><title>${esc(p.month)}: ${esc(has(p.ratio) ? p.ratio : '—')}</title></rect>`;
+    }).join('');
+    const sub = sr.peak ? `<small>최고 ${esc(sr.peak.month)}</small><small>최저 ${esc(sr.low ? sr.low.month : '—')}</small>` : '';
+    const first = pts.length ? pts[0].month : '';
+    const last = pts.length ? pts[pts.length - 1].month : '';
+    return `<div class="spark"><div class="kw">${esc(sr.keyword)}${sub}</div><div class="chart"><svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="${esc(sr.keyword)} 월별 검색 추이">${bars}</svg><div class="axis"><span>${esc(first)}</span><span>${esc(last)}${last === endMonth ? ' (진행 중)' : ''}</span></div></div></div>`;
+  }
+
+  function manualItems(s, q) {
+    const enc = encodeURIComponent(q || s.name || '');
+    return [
+      { what: '오픈업 매장 페이지 캡처', why: '추정 매출 범위 · 시간대 · 요일 · 고객 구성', href: 'https://www.openub.com/', btn: '오픈업 열기' },
+      { what: '소상공인365 상세분석 캡처', why: '상권 평균 매출 · 유동인구 · 상권 등급', href: 'https://bigdata.sbiz.or.kr/', btn: '소상공인365 열기' },
+      { what: '네이버 플레이스 리뷰 키워드 캡처', why: '방문자 리뷰 수 · ‘이런 점이 좋았어요’ 상위 항목', href: `https://map.naver.com/p/search/${enc}`, btn: '네이버 지도 열기' },
+      { what: '인허가일(업력) 확인', why: '일반음식점 인허가일 · 면적 (자동 수집은 다음 버전)', href: 'https://www.localdata.go.kr/', btn: 'LOCALDATA 열기' },
+      { what: '해외 리뷰 확인', why: '외국어 리뷰가 보이면 코네스트·타베로그도 검색', href: `https://www.google.com/maps/search/?api=1&query=${enc}`, btn: '구글 지도 열기' },
+    ];
+  }
+
+  /* ── 코파일럿용 묶음 ── */
+  function buildMarkdown(b) {
+    const s = b.store || {};
+    const R = (b.options && b.options.radius) || 500;
+    const L = [];
+    const region = mod(b, 'region');
+    const nearby = mod(b, 'nearby');
+    const comp = mod(b, 'competition');
+    const pop = mod(b, 'population');
+    const online = mod(b, 'online');
+    const news = mod(b, 'news');
+    const trend = mod(b, 'trend');
+    const o = online.ok ? onlineParts(online.data) : null;
+    const admin = region.ok && region.data.admin;
+    const src = (m) => md(srcText(m));
+    const cnt = (p) => (!p ? '—' : p.error ? `수집 안 됨: ${md(p.error)}` : num(p.total, '건'));
+
+    L.push('# 매장 데이터 묶음 (자동 수집)');
+    L.push(`- 수집: ${b.collectedAt} · 수집기 ${b.version} / 페이지 ${PAGE_VERSION} · 반경 ${dist(R)}`);
+    L.push('- 규칙: 아래 표에 있는 숫자만 쓰고, 없는 숫자는 만들지 마세요. 숫자를 쓸 때는 출처를 함께 적으세요. "—"는 값이 없다는 뜻입니다.');
+    L.push('');
+    L.push('## 1. 매장');
+    L.push('| 항목 | 값 | 출처 |', '|---|---|---|');
+    L.push(`| 상호 | ${md(s.name)} | ${md((s.sources || []).join('·') || '검색')} 검색 결과 |`);
+    L.push(`| 업종(카카오) | ${md(s.category || '—')} | 카카오 로컬 API |`);
+    L.push(`| 업종(네이버) | ${md(s.naverCategory || '—')} | 네이버 지역검색 API |`);
+    L.push(`| 도로명 주소 | ${md(s.roadAddress || '—')} | 검색 결과 |`);
+    L.push(`| 행정동 | ${region.ok ? md(admin ? `${admin.name} (코드 ${admin.code})` : '—') : `수집 안 됨: ${md(region.error)}`} | ${src(region)} |`);
+    if (s.placeUrl) L.push(`| 카카오맵 | ${md(s.placeUrl)} | 카카오 로컬 API |`);
+    (b.notes || []).forEach((t) => L.push(`- 참고: ${md(t)}`));
+    L.push('');
+
+    L.push(`## 2. 주변 시설 (반경 ${dist(R)}, 지하철역은 1km, 대학교는 1.5km)`);
+    if (nearby.ok) {
+      L.push(`출처: ${src(nearby)}`, '', '| 시설 | 곳 수 | 가까운 곳 |', '|---|---|---|');
+      (nearby.data.categories || []).forEach((c) => {
+        const near = (c.nearest || []).map((x) => `${x.name} ${dist(x.distance)}`).join(', ') || '—';
+        L.push(`| ${md(c.label)}${c.radius !== R ? ` (${dist(c.radius)})` : ''} | ${c.error ? `수집 안 됨: ${md(c.error)}` : num(c.count, '곳')} | ${md(near)} |`);
+      });
+      const uni = nearby.data.universities || { list: [] };
+      L.push(`| 대학교 (1.5km) | ${uni.error ? '수집 안 됨' : num((uni.list || []).length, '곳')} | ${md((uni.list || []).map((u) => `${u.name} ${dist(u.distance)}`).join(', ') || '—')} |`);
+    } else {
+      L.push(`수집 안 됨: ${md(nearby.error)}`);
+    }
+    L.push('');
+
+    L.push(`## 3. 같은 업종 점포 (반경 ${dist(R)})`);
+    if (!comp.ok) L.push(`수집 안 됨: ${md(comp.error)}`);
+    else if (!comp.data.matched) L.push(`출처: ${src(comp)}`, '', `- ${md(comp.data.note)}`);
+    else {
+      const c = comp.data;
+      const bands = (c.sameSmall.bands || []).map((x) => `${x.from ? `${x.from}~` : ''}${x.to}m ${x.count}곳`).join(', ');
+      L.push(`출처: ${src(comp)} · 자료 기준월 ${ym(c.stdrYm)}`, '', '| 항목 | 값 |', '|---|---|');
+      L.push(`| 상가정보 등록 상호 | ${md(c.matchedName)} (좌표 차이 ${dist(c.matchedDistance)}${c.floor ? `, ${md(c.floor)}층` : ''}) |`);
+      L.push(`| 업종 | ${md([c.industry.large, c.industry.middle, c.industry.small].filter(Boolean).join(' > '))} |`);
+      L.push(`| 같은 소분류, 이 매장 제외 | ${num(c.sameSmall.count, '곳')} (${md(bands)}) |`);
+      L.push(`| 같은 중분류(${md(c.industry.middle)}) | ${num(c.sameMiddle.count, '곳')} |`);
+      L.push(`| ${md(c.industry.large || '대분류')} 전체 | ${num(c.sameLarge.count, '곳')} |`);
+    }
+    L.push('');
+
+    L.push('## 4. 동네 인구·사업체');
+    if (!pop.ok) L.push(`수집 안 됨: ${md(pop.error)}`);
+    else {
+      const p = pop.data;
+      L.push(`출처: ${src(pop)} · ${md(p.admName)} · ${p.year}년 기준`, '', '| 항목 | 값 |', '|---|---|');
+      L.push(`| 인구 | ${num(p.population, '명')} |`, `| 평균 나이 | ${num(p.avgAge, '세')} |`, `| 가구 | ${num(p.households, '가구')} |`);
+      L.push(`| 평균 가구원 | ${num(p.avgHouseholdSize, '명')} |`, `| 주택 | ${num(p.houses, '호')} |`, `| 사업체 | ${num(p.businesses, '곳')} |`, `| 종사자 | ${num(p.workers, '명')} |`);
+      L.push(`| 종사자 ÷ 인구 | ${has(p.workerPerResident) ? p.workerPerResident : '—'} (1보다 크면 사는 사람보다 일하러 오는 사람이 많은 동네) |`);
+    }
+    L.push('');
+
+    L.push('## 5. 온라인 언급·뉴스 (네이버 검색 결과 수, 다른 가게 글이 섞인 참고치)');
+    if (!o) L.push(`블로그·카페 수집 안 됨: ${md(online.error)}`);
+    else {
+      L.push(`출처: ${src(online)}`);
+      L.push(`- 블로그 "${md(o.query)}": ${cnt(o.blog)}`);
+      L.push(`- 블로그 "${md((o.waiting && o.waiting.query) || `${o.query} 웨이팅`)}": ${cnt(o.waiting)}`);
+      L.push(`- 카페 "${md(o.query)}": ${cnt(o.cafe)}`);
+      (part(o.blog) ? o.blog.recent || [] : []).forEach((r) => L.push(`- 최근 블로그 글 ${md(r.date)}: ${md(r.title)} ${md(r.link)}`));
+      (part(o.cafe) ? o.cafe.recent || [] : []).forEach((r) => L.push(`- 최근 카페 글 (${md(r.cafe || '카페 이름 없음')}): ${md(r.title)} ${md(r.link)}`));
+    }
+    L.push('');
+    if (!news.ok) L.push(`뉴스 수집 안 됨: ${md(news.error)}`);
+    else {
+      L.push(`뉴스 출처: ${src(news)} · ${md(news.data.note || '')}`);
+      (news.data.queries || []).forEach((x) => {
+        const label = `${NEWS_LABEL[x.key] || x.key} "${md(x.q)}"`;
+        if (x.error) {
+          L.push(`- ${label}: 수집 안 됨: ${md(x.error)}`);
+          return;
+        }
+        L.push(`- ${label}: ${num(x.total, '건')}`);
+        (x.recent || []).forEach((r) => L.push(`  - ${md(r.date || '—')}: ${md(r.title)} ${md(r.link)}`));
+      });
+    }
+    L.push('');
+
+    L.push('## 6. 메뉴 검색 추이 (네이버 검색어트렌드, 월별 상대값)');
+    if (!trend.ok) L.push(`수집 안 됨: ${md(trend.error)}`);
+    else {
+      const t = trend.data;
+      L.push(`출처: ${src(trend)} · ${t.startMonth} ~ ${t.endMonth}${b.options && b.options.keywordsDerived ? ' · 키워드는 업종에서 자동 선택' : ''}`);
+      L.push(`- ${md(t.note)}`, '', '| 키워드 | 가장 높은 달 | 가장 낮은 달 | 월별 값 |', '|---|---|---|---|');
+      (t.series || []).forEach((sr) => {
+        const vals = (sr.points || []).map((p) => `${p.month.slice(2)}:${has(p.ratio) ? p.ratio : '—'}`).join(' ');
+        L.push(`| ${md(sr.keyword)} | ${sr.peak ? sr.peak.month : '—'} | ${sr.low ? sr.low.month : '—'} | ${vals} |`);
+      });
+    }
+    L.push('');
+
+    L.push('## 7. 특성 판정에 쓸 신호 (원자료 · 판정은 사람이)');
+    const sw = cat(b, 'SW8');
+    const at = cat(b, 'AT4');
+    const ad = cat(b, 'AD5');
+    const uni = nearby.ok ? nearby.data.universities || { list: [] } : null;
+    L.push(`- 관광·외국인: 반경 ${dist(R)} 관광명소 ${num(at && at.count, '곳')}, 숙박 ${num(ad && ad.count, '곳')}${at && at.nearest && at.nearest.length ? ` (가까운 명소: ${md(at.nearest.map((x) => x.name).join(', '))})` : ''}. 해외 리뷰는 8번에서 사람이 확인`);
+    L.push(`- 직장·주거: ${pop.ok ? `종사자÷인구 ${has(pop.data.workerPerResident) ? pop.data.workerPerResident : '—'}, 평균 가구원 ${num(pop.data.avgHouseholdSize, '명')}, 평균 나이 ${num(pop.data.avgAge, '세')}` : '수집 안 됨'}`);
+    L.push(`- 역세권·대학가: 가장 가까운 역 ${sw && sw.nearest && sw.nearest[0] ? `${md(sw.nearest[0].name)} ${dist(sw.nearest[0].distance)}` : '1km 안에 없음 또는 수집 안 됨'}, 1.5km 안 대학교 ${uni && uni.list && uni.list.length ? md(uni.list.map((u) => u.name).join(', ')) : '없음 또는 수집 안 됨'}`);
+    L.push(`- 경쟁: ${comp.ok && comp.data.matched ? `같은 소분류 ${num(comp.data.sameSmall.count, '곳')}, ${md(comp.data.industry.large)} 전체 ${num(comp.data.sameLarge.count, '곳')}` : '상가정보 미매칭 또는 수집 안 됨'}`);
+    const short = (p) => (!p || p.error ? '수집 안 됨' : num(p.total, '건'));
+    L.push(`- 온라인·웨이팅: ${o ? `블로그 ${short(o.blog)}, '웨이팅' 함께 ${short(o.waiting)}, 카페 ${short(o.cafe)}` : '수집 안 됨'}`);
+    const cafeNames = o && part(o.cafe) ? [...new Set((o.cafe.recent || []).map((r) => r.cafe).filter(Boolean))] : [];
+    L.push(`- 동네 커뮤니티: ${!o || !part(o.cafe) ? '수집 안 됨' : cafeNames.length ? `최근 글이 올라온 카페 ${md(cafeNames.join(', '))}` : '최근 카페 글 없음'}`);
+    L.push(`- 뉴스: ${news.ok ? (news.data.queries || []).map((x) => `${NEWS_LABEL[x.key] || x.key} "${md(x.q)}" ${x.error ? '수집 안 됨' : num(x.total, '건')}`).join(', ') || '—' : '수집 안 됨'}`);
+    L.push(`- 계절성: ${trend.ok ? (trend.data.series || []).map((sr) => `${md(sr.keyword)} 최고 ${sr.peak ? sr.peak.month : '—'} / 최저 ${sr.low ? sr.low.month : '—'}`).join(', ') || '—' : '수집 안 됨'}`);
+    L.push('');
+
+    L.push('## 8. 사람이 채울 것 (캡처를 이 대화에 첨부)');
+    manualItems(s, '').forEach((m) => L.push(`- [ ] ${m.what} — ${m.why}`));
+    L.push('- [ ] 메뉴판 사진 확인 — 수집기 화면의 참고용 사진으로 대표 메뉴·가격대를 사람이 확인 (사진과 사진 주소는 리포트에 넣지 않음)');
+    L.push('');
+
+    const fails = failedModules(b);
+    if (fails.length) {
+      L.push('## 9. 수집하지 못한 항목');
+      fails.forEach(([k, m]) => L.push(`- ${LABEL[k] || k}: ${md(m.error)}`));
+    }
+    return L.join('\n');
+  }
+
+  /* ── 복사·저장 ── */
+  async function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      try { await navigator.clipboard.writeText(text); return true; } catch (e) { /* 아래 방식으로 재시도 */ }
+    }
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'absolute';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    ta.remove();
+    return ok;
+  }
+
+  el.copyBtn.addEventListener('click', async () => {
+    if (!state.bundle) return;
+    const ok = await copyText(buildMarkdown(state.bundle));
+    setMsg(el.copyMsg, ok ? '복사했습니다. 코파일럿 에이전트에 붙여넣고 캡처 3장을 함께 첨부하세요.' : '복사하지 못했습니다. JSON 저장을 이용해 주세요.', ok ? 'ok' : 'err');
+  });
+
+  el.result.addEventListener('click', async (e) => {
+    if (e.target.id !== 'copyNameBtn' || !state.bundle) return;
+    const s = state.bundle.store || {};
+    const ok = await copyText([s.name, s.roadAddress || s.address].filter(Boolean).join(' '));
+    setMsg(el.copyMsg, ok ? '상호와 주소를 복사했습니다.' : '복사하지 못했습니다.', ok ? 'ok' : 'err');
+  });
+
+  // 메뉴판 사진은 화면 참고용이라 저장 파일에는 사진 주소를 빼고 개수만 남긴다
+  function forExport(b) {
+    const copy = JSON.parse(JSON.stringify(b));
+    const im = copy.modules && copy.modules.images;
+    if (im && im.ok && im.data) {
+      im.data.shownOnScreen = (im.data.items || []).length;
+      delete im.data.items;
+    }
+    return copy;
+  }
+
+  el.jsonBtn.addEventListener('click', () => {
+    if (!state.bundle) return;
+    const s = state.bundle.store || {};
+    const day = String(state.bundle.collectedAt || '').slice(0, 10);
+    const name = `매장데이터_${String(s.name || '매장').replace(/[\\/:*?"<>|\s]+/g, '_')}_${day}.json`;
+    const blob = new Blob([JSON.stringify(forExport(state.bundle), null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+    setMsg(el.copyMsg, `${name} 파일로 저장했습니다.`, 'ok');
+  });
+
+  /* ── 시작 ── */
+  if (!configured) {
+    el.banner.hidden = false;
+    el.authBtn.disabled = true;
+  }
+})();
+</script>
+</body>
+</html>
