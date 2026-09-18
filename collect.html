@@ -115,6 +115,18 @@ td.n{font-variant-numeric:tabular-nums}
 .manual li{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:var(--panel-2)}
 .manual .what{font-size:14px}
 .manual .why{font-size:12px;color:var(--faint)}
+.stars{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0 0;font-size:13px;color:var(--sub)}
+.stars b{font-size:20px;color:var(--text);font-variant-numeric:tabular-nums}
+.bars{display:grid;gap:3px;margin:10px 0 0;max-width:340px}
+.bars .r{display:grid;grid-template-columns:34px 1fr 42px;gap:8px;align-items:center;font-size:12px;color:var(--sub)}
+.bars .t{height:8px;border-radius:4px;background:var(--line);overflow:hidden}
+.bars .t i{display:block;height:100%;background:#59606c;border-radius:4px}
+.bars .r.low .t i{background:var(--red)}
+.kw{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 0}
+.kw span{font-size:12px;padding:3px 10px;border-radius:999px;border:1px solid var(--line-2);color:var(--sub)}
+.rvbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.rvbar input{flex:1;min-width:220px;font-size:14px;padding:8px 12px}
+.mismatch{border:1px solid rgba(237,27,35,.5);background:rgba(237,27,35,.1);color:#ff9da1;border-radius:10px;padding:10px 14px;font-size:13px;margin:10px 0 0}
 .cmp{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:8px}
 .cmp li{border:1px solid var(--line);border-radius:12px;background:var(--panel-2);padding:12px 14px}
 .cmp .top{display:flex;gap:6px;align-items:baseline;flex-wrap:wrap}
@@ -158,7 +170,7 @@ td.n{font-variant-numeric:tabular-nums}
 <main class="wrap">
   <header>
     <div class="brand">KT 인천지사 시너지영업3팀 · 매장운영진단</div>
-    <h1>매장 데이터 수집기<span class="ver">v1.03</span></h1>
+    <h1>매장 데이터 수집기<span class="ver">v1.04</span></h1>
     <p class="lead">상호와 동네를 넣으면 공개 데이터를 모아 코파일럿에 넣을 묶음으로 만들어 줍니다.</p>
   </header>
 
@@ -221,7 +233,7 @@ td.n{font-variant-numeric:tabular-nums}
 
   // ▼ 배포 후 Cloudflare Worker 주소로 바꾸세요 (끝에 / 없이)
   const API_BASE = 'https://kt.roi0925003.workers.dev';
-  const PAGE_VERSION = 'v1.03';
+  const PAGE_VERSION = 'v1.04';
 
   const $ = (s) => document.querySelector(s);
   const el = {
@@ -231,12 +243,12 @@ td.n{font-variant-numeric:tabular-nums}
     resultCard: $('#resultCard'), progress: $('#progress'), progressText: $('#progressText'), result: $('#result'),
     actions: $('#actions'), copyBtn: $('#copyBtn'), jsonBtn: $('#jsonBtn'), copyMsg: $('#copyMsg'),
   };
-  const state = { pass: '', search: null, bundle: null, busy: false };
+  const state = { pass: '', search: null, bundle: null, busy: false, reviews: null };
   const configured = !/YOUR-WORKER/.test(API_BASE);
 
-  const LABEL = { region: '행정구역', nearby: '주변 시설', competition: '같은 업종 점포', population: '동네 인구·사업체', online: '온라인 언급', news: '뉴스', images: '메뉴판 사진', trend: '메뉴 검색 추이', complaints: '손님 불편 신호', notices: '지원사업 공고' };
+  const LABEL = { region: '행정구역', nearby: '주변 시설', competition: '같은 업종 점포', population: '동네 인구·사업체', online: '온라인 언급', news: '뉴스', images: '메뉴판 사진', trend: '메뉴 검색 추이', notices: '지원사업 공고', events: '교육·행사' };
   const NEWS_LABEL = { brand: '상호', area: '동네 상권' };
-  const KEY_LABEL = { kakao: '카카오', naver: '네이버', dataGoKr: '공공데이터포털', sgis: 'SGIS' };
+  const KEY_LABEL = { kakao: '카카오', naver: '네이버', dataGoKr: '공공데이터포털', sgis: 'SGIS', bizinfo: '기업마당', bizinfoEvent: '기업마당 행사', apify: '플레이스 리뷰' };
   // 사장님께 알려 드릴 지원 제도 모음 (2026-09 확인 · 금액과 마감은 반드시 공고 원문에서 다시 보세요)
   const SUPPORT_CHECKED = '2026-09';
   const SUPPORT = [
@@ -249,6 +261,7 @@ td.n{font-variant-numeric:tabular-nums}
     { scope: '전국', tag: '세금', what: '부가세 감면·착한 임대인 세액공제 등', why: '간이과세·신용카드 발행세액공제처럼 신고할 때 챙기는 항목이 있습니다', where: '국세청 국세상담센터', href: 'https://www.nts.go.kr' },
     { scope: '전국', tag: '에너지', what: '고효율기기 교체 지원 (냉장고·에어컨 등)', why: '오래된 기기를 고효율 제품으로 바꿀 때 일부를 돌려줍니다. 예산이 일찍 소진되니 잔여예산부터 확인하세요', where: '한국전력 에너지효율 지원', href: 'https://online.kepco.co.kr' },
     { scope: '전국', tag: '재도전', what: '희망리턴패키지', why: '경영개선 컨설팅, 점포 철거비, 재취업·재창업 교육까지 묶어서 지원합니다', where: '소상공인 지원포털', href: 'https://www.sbiz.or.kr' },
+    { scope: '전국', tag: '교육', what: '소상공인 지식배움터', why: '상권분석·마케팅·세무 온라인 강의를 무료로 듣습니다. 언제든 신청할 수 있습니다', where: '소상공인 지식배움터', href: 'https://edu.sbiz.or.kr' },
     { scope: '전국', tag: '검색', what: '기업마당 지원사업 검색', why: '중앙부처와 지자체 공고를 한곳에서 지역·업종으로 걸러 봅니다', where: '기업마당', href: 'https://www.bizinfo.go.kr' },
     { scope: '인천', tag: '자금', what: '인천 소상공인 경영환경 개선 지원', why: '간판·인테리어·노후 설비 교체 같은 매장 환경 개선비 지원 (최근 공고 기준 업체당 최대 250만 원 · 해마다 예산과 기간이 다릅니다)', where: '인천광역시 공고', href: 'https://www.incheon.go.kr' },
     { scope: '인천', tag: '보증', what: '인천신용보증재단 특례보증', why: '인천 사업장 전용 보증. 시·군·구가 이자 일부를 대신 내주는 상품도 있습니다', where: '인천신용보증재단', href: 'https://www.icsinbo.or.kr' },
@@ -432,6 +445,7 @@ td.n{font-variant-numeric:tabular-nums}
   async function collect(c) {
     setBusy(true);
     state.bundle = null;
+    state.reviews = null;
     el.resultCard.hidden = false;
     el.result.innerHTML = '';
     el.actions.hidden = true;
@@ -450,6 +464,7 @@ td.n{font-variant-numeric:tabular-nums}
       });
       state.bundle = bundle;
       el.result.innerHTML = renderBundle(bundle);
+      paintReviews();
       el.actions.hidden = false;
     } catch (err) {
       showError(err, el.copyMsg);
@@ -531,37 +546,106 @@ td.n{font-variant-numeric:tabular-nums}
     }
   }, true);
 
-  /* ── 손님 불편 신호 ── */
-  function complaintTags(x) {
-    const c = x.category;
-    const cat = c
-      ? `<span class="tag ${c.hiorder ? 'fix' : 'plain'}">${esc(c.label)}</span>`
-      : '<span class="tag plain">분류 안 됨</span>';
-    return `${cat}<span class="tag plain">${esc(x.source)}</span>`;
-  }
-  function renderComplaints(m, placeUrl) {
-    if (!m.ok) return failBox(m);
-    const d = m.data || {};
-    const items = d.items || [];
-    const link = placeUrl ? ` <a href="${esc(placeUrl)}" target="_blank" rel="noopener noreferrer">네이버 지도에서 방문자 리뷰 보기</a>` : '';
-    if (!items.length) {
-      return `<p class="note">‘${esc((d.queries || []).join('’, ‘'))}’로 찾았지만 불만이 적힌 글을 찾지 못했습니다.${link}</p><p class="note">${esc(d.note || '')}</p>`;
-    }
-    const fixable = items.filter((x) => x.category && x.category.hiorder).length;
-    const list = items.map((x) => {
-      const meta = [x.date, x.cafe, `‘${x.query}’ 검색`].filter(Boolean).join(' · ');
-      const fix = x.category && x.category.hiorder ? `<div class="fx">하이오더로 보완: ${esc(x.category.fix)}</div>` : '';
-      return `<li><div class="top">${complaintTags(x)}<span class="ttl">${linkText(x.link, x.title)}</span></div>
-        <div class="sn">${esc(x.snippet || '')}</div>${fix}
-        <div class="mt">${esc(meta)}${x.words && x.words.length ? ` · 걸린 말: ${esc(x.words.join(', '))}` : ''}</div></li>`;
+  /* ── 플레이스 리뷰 (따로 수집) ── */
+  const RV_POLL_MS = 5000;
+  const RV_TRIES = 40;   // 5초 × 40 = 3분 20초까지 기다린다
+
+  function starBars(counts, total) {
+    const rows = [5, 4, 3, 2, 1].map((n) => {
+      const c = Number((counts && counts[n]) || 0);
+      const pct = total ? Math.round((c / total) * 100) : 0;
+      return `<div class="r${n <= 3 ? ' low' : ''}"><span>${n}점</span><span class="t"><i style="width:${pct}%"></i></span><span>${c}건</span></div>`;
     }).join('');
-    const head = `<p class="note">찾은 글 ${esc(num(d.found, '건'))} 가운데 ${esc(num(items.length, '건'))}을 보여 줍니다. 이 중 ${esc(num(fixable, '건'))}은 하이오더로 손볼 수 있는 내용입니다.</p>`;
-    const warn = '<p class="refnote">후보일 뿐입니다. 사장님께 보여 드리기 전에 원문을 눌러 정말 이 매장 이야기인지, 언제 글인지 확인하세요. 맛·위생·가격 불만은 하이오더로 해결되지 않으니 그 말은 쓰지 마세요.</p>';
-    return head + warn + `<ul class="cmp">${list}</ul>` + `<p class="note">${esc(d.note || '')}${link}</p>`;
+    return `<div class="bars">${rows}</div>`;
   }
 
-  /* ── 지원사업 ── */
-  function renderSupport(m, sido) {
+  function renderReviews() {
+    const rv = state.reviews;
+    const ready = state.bundle && configured;
+    const btn = `<div class="rvbar">
+      <button type="button" class="btn primary sm" id="rvBtn"${rv && rv.running ? ' disabled' : ''}>${rv && rv.data ? '다시 가져오기' : '플레이스 리뷰 가져오기'}</button>
+      <span class="why" style="font-size:13px;color:var(--faint)">네이버 플레이스 방문자 리뷰를 가져옵니다 · 1~3분 걸립니다</span></div>`;
+    if (!ready) return '<p class="note">먼저 매장을 수집해 주세요.</p>';
+    if (!rv) return `<p class="note">아직 가져오지 않았습니다. 리뷰에는 블로그·카페에 올라오지 않는 진짜 불만이 담겨 있습니다.</p>${btn}`;
+    if (rv.running) {
+      return `<div class="progress"><span class="spinner" aria-hidden="true"></span><span>${esc(rv.message || '리뷰를 모으는 중입니다')}</span></div>${btn}`;
+    }
+    if (rv.error) return `<p class="note bad">${esc(rv.error)}</p>${btn}`;
+
+    const d = rv.data || {};
+    const place = d.place || {};
+    const out = [];
+    if (!d.matched) {
+      out.push(`<p class="mismatch">가져온 매장이 <b>${esc(place.name || '(이름 없음)')}</b>${place.address ? ` (${esc(place.address)})` : ''} 입니다.
+        찾으시는 매장이 아니면 아래에 네이버 지도 주소를 넣고 다시 가져오세요.</p>`);
+    }
+    const total = (d.counted || 0);
+    out.push(`<div class="stars"><b>${esc(has(d.ratingAvg) ? d.ratingAvg : '—')}</b><span>평균 별점</span>
+      <span>·</span><span>분석한 리뷰 ${esc(num(total, '건'))}${has(place.total) ? ` / 전체 ${num(place.total, '건')}` : ''}</span>
+      ${place.url ? `<a href="${esc(place.url)}" target="_blank" rel="noopener noreferrer">플레이스 열기</a>` : ''}</div>`);
+    out.push(starBars(d.ratingCounts, total));
+
+    if ((d.keywords || []).length) {
+      out.push(`<p class="subhead">손님이 고른 키워드<span class="src">리포트의 강점 부분에 씁니다</span></p>
+        <div class="kw">${d.keywords.map((k) => `<span>${esc(k.word)} ${esc(k.count)}</span>`).join('')}</div>`);
+    }
+
+    const items = d.complaints || [];
+    if (!items.length) {
+      out.push('<p class="note">별점이 낮은 리뷰를 찾지 못했습니다.</p>');
+    } else {
+      out.push(`<p class="refnote">리포트에 쓸 때는 원문 링크와 작성 시점을 함께 적으세요. 맛·위생·가격 불만은 하이오더로 해결되지 않으니 그 말은 쓰지 마세요.</p>`);
+      out.push(`<p class="note">별점 3점 이하 ${esc(num(items.length, '건'))} 가운데 ${esc(num(d.hiorderCount, '건'))}은 하이오더로 손볼 수 있는 내용입니다.</p>`);
+      out.push('<ul class="cmp">' + items.map((x) => {
+        const c = x.category;
+        const tag = c ? `<span class="tag ${c.hiorder ? 'fix' : 'plain'}">${esc(c.label)}</span>` : '<span class="tag plain">분류 안 됨</span>';
+        const fix = c && c.hiorder ? `<div class="fx">하이오더로 보완: ${esc(c.fix)}</div>` : '';
+        const meta = [has(x.rating) ? `별점 ${x.rating}` : '', x.date, x.reply ? '사장님 답글 있음' : ''].filter(Boolean).join(' · ');
+        return `<li><div class="top">${tag}<span class="ttl">${x.link ? linkText(x.link, '리뷰 원문 열기') : '원문 링크 없음'}</span></div>
+          <div class="sn">${esc(x.text || '')}</div>${fix}<div class="mt">${esc(meta)}</div></li>`;
+      }).join('') + '</ul>');
+    }
+    out.push(`<p class="note">${esc(d.note || '')}</p>`);
+    out.push(`<div class="rvbar"><input id="rvUrl" type="url" placeholder="매장이 다르면 네이버 지도 주소를 넣으세요 (https://map.naver.com/...)" maxlength="300" aria-label="네이버 지도 주소">
+      <button type="button" class="btn sm" id="rvBtn">이 주소로 다시 가져오기</button></div>`);
+    return out.join('');
+  }
+
+  async function fetchReviews() {
+    if (!state.bundle || (state.reviews && state.reviews.running)) return;
+    const urlInput = $('#rvUrl');
+    const placeUrl = urlInput ? urlInput.value.trim() : '';
+    state.reviews = { running: true, message: '리뷰 수집을 시작합니다' };
+    paintReviews();
+    try {
+      const start = await api('/reviews/start', { method: 'POST', body: { store: state.bundle.store, placeUrl: placeUrl || undefined }, timeout: 30000 });
+      for (let i = 0; i < RV_TRIES; i += 1) {
+        await new Promise((r) => setTimeout(r, RV_POLL_MS));
+        state.reviews = { running: true, message: `리뷰를 모으는 중입니다 · ${Math.round(((i + 1) * RV_POLL_MS) / 1000)}초 지남 (1~3분 걸립니다)` };
+        paintReviews();
+        const r = await api('/reviews/result', { method: 'POST', body: { runId: start.runId, store: state.bundle.store }, timeout: 30000 });
+        if (r.done) {
+          state.reviews = { running: false, data: r.data, source: r.source, fetchedAt: r.fetchedAt };
+          paintReviews();
+          return;
+        }
+        if (r.failed) throw new Error('리뷰 수집이 중간에 멈췄습니다. 잠시 뒤 다시 시도해 주세요.');
+      }
+      throw new Error('리뷰 수집이 너무 오래 걸립니다. 잠시 뒤 다시 시도해 주세요.');
+    } catch (err) {
+      state.reviews = { running: false, error: err && err.message ? err.message : String(err) };
+      paintReviews();
+      if (err && err.status === 401) lockAuth('비밀번호가 바뀌었거나 맞지 않습니다. 다시 연결해 주세요.');
+    }
+  }
+
+  function paintReviews() {
+    const box = document.getElementById('reviewBox');
+    if (box) box.innerHTML = renderReviews();
+  }
+
+  /* ── 지원사업 · 교육 행사 ── */
+  function renderSupport(notices, events, sido) {
     const inIncheon = /인천/.test(String(sido || ''));
     const list = SUPPORT.filter((x) => x.scope !== '인천' || inIncheon);
     const rowsHtml = list.map((x) => `<li><div><div class="what"><span class="tag plain">${esc(x.scope === '가구' ? '사장님 가구' : x.scope)}</span> ${esc(x.what)}</div>
@@ -569,15 +653,27 @@ td.n{font-variant-numeric:tabular-nums}
       <a class="btn sm" href="${esc(x.href)}" target="_blank" rel="noopener noreferrer">열기</a></li>`).join('');
     const regionNote = inIncheon ? '' : '<p class="note">이 매장은 인천이 아니어서 인천시 사업은 숨겼습니다. 기업마당에서 해당 지역으로 검색하세요.</p>';
     const ask = `<p class="subhead">사장님께 여쭤볼 것<span class="src">대답에 따라 위 제도 해당 여부가 갈립니다</span></p><ul class="ask">${ASK_OWNER.map((q) => `<li>${esc(q)}</li>`).join('')}</ul>`;
+
     let live = '';
-    if (!m.ok) live = `<p class="subhead">최근 공고</p>${failBox(m)}`;
+    if (!notices.ok) live = `<p class="subhead">지금 접수 중인 공고</p>${failBox(notices)}`;
     else {
-      const items = (m.data && m.data.items) || [];
-      const li = items.map((x) => `<li><span class="d">${esc(x.date || '—')}</span>${linkText(x.link, x.title)}</li>`).join('');
-      live = `<p class="subhead">최근 공고<span class="src">${esc(srcText(m))}</span></p><ul class="recent">${li || '<li class="none">최근 공고에 소상공인 관련 글이 없습니다</li>'}</ul><p class="note">${esc((m.data && m.data.note) || '')}</p>`;
+      const items = (notices.data.items || []);
+      const li = items.map((x) => `<li><span>${linkText(x.link, x.title)}<span class="by"> · ${esc([x.org, x.period].filter(Boolean).join(' · '))}</span></span></li>`).join('');
+      live = `<p class="subhead">지금 접수 중인 공고<span class="src">${esc(srcText(notices))}</span></p>
+        <ul class="recent">${li || '<li class="none">해당되는 공고가 없습니다</li>'}</ul><p class="note">${esc(notices.data.note || '')}</p>`;
     }
-    const caution = `<p class="refnote">안내만 하고 신청은 사장님이 직접 하십니다. 대신 신청해 주거나 수수료를 받는 일은 하지 마세요. 정부지원금을 미끼로 접근하는 사칭 업체가 있으니 공식 누리집에서만 신청하시라고 함께 알려 드리세요. 금액과 마감은 ${esc(SUPPORT_CHECKED)} 기준이라 반드시 공고 원문에서 다시 확인해야 합니다.</p>`;
-    return caution + `<ul class="sup">${rowsHtml}</ul>` + regionNote + live + ask;
+
+    let ev = '';
+    if (!events.ok) ev = `<p class="subhead">갈 만한 교육·행사</p>${failBox(events)}`;
+    else {
+      const items = (events.data.items || []);
+      const li = items.map((x) => `<li><span>${linkText(x.link, x.title)}<span class="by"> · ${esc([x.area, x.period].filter(Boolean).join(' · '))}</span></span></li>`).join('');
+      ev = `<p class="subhead">갈 만한 교육·행사<span class="src">${esc(srcText(events))}</span></p>
+        <ul class="recent">${li || '<li class="none">지금은 이 지역에 해당되는 행사가 없습니다</li>'}</ul><p class="note">${esc(events.data.note || '')}</p>`;
+    }
+
+    const caution = `<p class="refnote">안내만 하고 신청은 사장님이 직접 하십니다. 대신 신청해 주거나 수수료를 받는 일은 하지 마세요. 정부지원금을 미끼로 접근하는 사칭 업체가 있으니 공식 누리집에서만 신청하시라고 함께 알려 드리세요. 아래 제도 목록은 ${esc(SUPPORT_CHECKED)} 기준이라 금액과 마감은 반드시 원문에서 다시 확인해야 합니다.</p>`;
+    return caution + live + ev + `<ul class="sup">${rowsHtml}</ul>` + regionNote + ask;
   }
 
   function renderBundle(b) {
@@ -591,8 +687,8 @@ td.n{font-variant-numeric:tabular-nums}
     const news = mod(b, 'news');
     const images = mod(b, 'images');
     const trend = mod(b, 'trend');
-    const complaints = mod(b, 'complaints');
     const notices = mod(b, 'notices');
+    const events = mod(b, 'events');
     const out = [];
 
     out.push(`<p class="stamp">${esc(b.collectedAt)} 수집 · 중계 서버 ${esc(b.version)} · 반경 ${esc(dist(R))}</p>`);
@@ -614,7 +710,7 @@ td.n{font-variant-numeric:tabular-nums}
       kpi('관광명소 · 숙박', at || ad ? `${num(at && at.count)} · ${num(ad && ad.count)}` : '—', `반경 ${dist(R)}`),
       kpi('종사자 ÷ 인구', pd && has(pd.workerPerResident) ? String(pd.workerPerResident) : '—', pd ? `${pd.admName} · ${pd.year}년` : '수집 안 됨'),
       kpi('블로그 · 카페 언급', od ? `${num(blog && blog.total)} · ${num(cafe && cafe.total)}` : '—', od ? `‘웨이팅’ 함께 ${waiting ? num(waiting.total, '건') : '—'}` : '수집 안 됨'),
-      kpi('손님 불편 신호', complaints.ok ? `${num(fixableCount(complaints))} / ${num((complaints.data.items || []).length)}` : '—', complaints.ok ? '하이오더로 보완 가능 / 찾은 글' : '수집 안 됨'),
+      kpi('지금 되는 지원사업', notices.ok ? num((notices.data.items || []).length, '건') : '—', notices.ok ? `${notices.data.sido} 기준 · 접수 중` : '수집 안 됨'),
     ].join('') + '</div>');
 
     // 매장
@@ -745,12 +841,11 @@ td.n{font-variant-numeric:tabular-nums}
     // 메뉴판 사진 (참고용)
     out.push(`<div class="sec" id="menuPhotos">${sectionHead('메뉴판 사진 (참고용)', images)}${renderImages(images)}</div>`);
 
-    // 손님 불편 신호
-    const placeUrl = `https://map.naver.com/p/search/${encodeURIComponent([s.name, admin ? admin.dong : ''].filter(Boolean).join(' '))}`;
-    out.push(`<div class="sec" id="complaints">${sectionHead('손님 불편 신호 (블로그·카페 글에서 찾은 후보)', complaints)}${renderComplaints(complaints, placeUrl)}</div>`);
+    // 손님 불편 신호 (플레이스 리뷰 — 따로 가져온다)
+    out.push(`<div class="sec"><h3><span>손님 불편 신호 (네이버 플레이스 방문자 리뷰)</span><span class="src">따로 가져옵니다 · 1~3분</span></h3><div id="reviewBox"></div></div>`);
 
-    // 지원사업
-    out.push(`<div class="sec" id="support"><h3><span>사장님께 알려드릴 지원사업</span><span class="src">${esc(SUPPORT_CHECKED)} 확인 · 금액과 마감은 공고 원문에서</span></h3>${renderSupport(notices, admin ? admin.sido : '')}</div>`);
+    // 지원사업·행사
+    out.push(`<div class="sec" id="support"><h3><span>사장님께 알려드릴 지원사업·교육</span><span class="src">공고는 실시간 · 아래 제도 목록은 ${esc(SUPPORT_CHECKED)} 확인</span></h3>${renderSupport(notices, events, admin ? admin.sido : '')}</div>`);
 
     // 사람이 채울 것
     const q = [s.name, admin ? admin.dong : ''].filter(Boolean).join(' ');
@@ -772,9 +867,6 @@ td.n{font-variant-numeric:tabular-nums}
     if (news.ok) {
       (news.data.queries || []).filter((x) => x.error).forEach((x) => partial.push(`<li>뉴스 ‘${esc(x.q)}’ — ${esc(x.error)}</li>`));
     }
-    if (complaints.ok) {
-      (complaints.data.errors || []).forEach((t) => partial.push(`<li>손님 불편 신호 ${esc(t)}</li>`));
-    }
     const slowNote = failed.some(([, m]) => isSlow(m))
       ? '<p class="note">서버가 느리거나 연결이 끊겨서 못 가져온 항목이 있습니다. 한 번 더 수집하면 대개 채워집니다.</p>'
       : '';
@@ -783,8 +875,6 @@ td.n{font-variant-numeric:tabular-nums}
     }
     return out.join('');
   }
-
-  const fixableCount = (m) => (m && m.ok ? (m.data.items || []).filter((x) => x.category && x.category.hiorder).length : 0);
 
   function sparkRow(sr, endMonth) {
     const pts = sr.points || [];
@@ -825,8 +915,8 @@ td.n{font-variant-numeric:tabular-nums}
     const online = mod(b, 'online');
     const news = mod(b, 'news');
     const trend = mod(b, 'trend');
-    const complaints = mod(b, 'complaints');
     const notices = mod(b, 'notices');
+    const events = mod(b, 'events');
     const o = online.ok ? onlineParts(online.data) : null;
     const admin = region.ok && region.data.admin;
     const src = (m) => md(srcText(m));
@@ -953,8 +1043,8 @@ td.n{font-variant-numeric:tabular-nums}
     L.push(`- 동네 커뮤니티: ${!o || !part(o.cafe) ? '수집 안 됨' : cafeNames.length ? `최근 글이 올라온 카페 ${md(cafeNames.join(', '))}` : '최근 카페 글 없음'}`);
     L.push(`- 뉴스: ${news.ok ? (news.data.queries || []).map((x) => `${NEWS_LABEL[x.key] || x.key} "${md(x.q)}" ${x.error ? '수집 안 됨' : num(x.total, '건')}`).join(', ') || '—' : '수집 안 됨'}`);
     L.push(`- 계절성: ${trend.ok ? (trend.data.series || []).map((sr) => `${md(sr.keyword)} 최고 ${sr.peak ? sr.peak.month : '—'} / 최저 ${sr.low ? sr.low.month : '—'}`).join(', ') || '—' : '수집 안 됨'}`);
-    const cItems = complaints.ok ? complaints.data.items || [] : [];
-    L.push(`- 손님 불편 신호: ${complaints.ok ? `${cItems.length}건 후보, 하이오더로 보완 가능 ${cItems.filter((x) => x.category && x.category.hiorder).length}건 (9번 참고)` : '수집 안 됨'}`);
+    const rv = state.reviews && state.reviews.data;
+    L.push(`- 손님 불편 신호: ${rv ? `방문자 리뷰 ${rv.counted}건 분석, 평균 별점 ${has(rv.ratingAvg) ? rv.ratingAvg : '—'}, 낮은 별점 ${(rv.complaints || []).length}건 중 하이오더로 보완 가능 ${rv.hiorderCount}건 (9번 참고)` : '아직 리뷰를 가져오지 않음'}`);
     L.push('');
 
     L.push('## 8. 사람이 채울 것 (캡처를 이 대화에 첨부)');
@@ -962,49 +1052,76 @@ td.n{font-variant-numeric:tabular-nums}
     L.push('- [ ] 메뉴판 사진 확인 — 수집기 화면의 참고용 사진으로 대표 메뉴·가격대를 사람이 확인 (사진과 사진 주소는 리포트에 넣지 않음)');
     L.push('');
 
-    L.push('## 9. 손님 불편 신호 (블로그·카페 글에서 찾은 후보 · 확정된 사실 아님)');
-    L.push('- 규칙: 여기 있는 글은 후보일 뿐입니다. 리포트에 쓸 때는 반드시 원문 링크와 글 날짜를 함께 적고, 이 매장 이야기가 맞는지 사람이 확인한 뒤에 쓰세요.');
+    L.push('## 9. 손님 불편 신호 (네이버 플레이스 방문자 리뷰)');
     L.push('- 규칙: ‘하이오더 보완’ 칸이 ○인 항목만 하이오더 개선 사례로 연결하세요. 맛·위생·가격·응대 태도는 하이오더로 해결되지 않으므로 그런 식으로 쓰면 안 됩니다.');
-    L.push('- 규칙: 네이버 플레이스 방문자 리뷰는 공식 API가 없어 여기에 없습니다. 0건이라도 불만이 없다는 뜻이 아닙니다. 8번에서 사람이 확인하세요.');
-    if (!complaints.ok) L.push(`- 수집 안 됨: ${md(complaints.error)}`);
-    else if (!cItems.length) L.push(`- 검색어 ${md((complaints.data.queries || []).join(', '))} 로 찾았지만 불만이 적힌 글이 없습니다.`);
-    else {
-      L.push(`- 검색어 ${md((complaints.data.queries || []).join(', '))} · 찾은 글 ${cItems.length}건 · 출처: ${src(complaints)}`);
-      L.push('');
-      L.push('| 분류 | 하이오더 보완 | 출처 | 날짜 | 글 | 내용 | 링크 |');
-      L.push('|---|---|---|---|---|---|---|');
-      cItems.forEach((x) => {
-        const c = x.category;
-        L.push(`| ${md(c ? c.label : '분류 안 됨')} | ${c && c.hiorder ? '○' : '×'} | ${md(x.source)}${x.cafe ? ` (${md(x.cafe)})` : ''} | ${md(x.date || '—')} | ${md(x.title)} | ${md(x.snippet)} | ${md(x.link || '—')} |`);
-      });
-      L.push('');
-      const fixes = [...new Set(cItems.filter((x) => x.category && x.category.hiorder).map((x) => `${x.category.label} → ${x.category.fix}`))];
-      if (fixes.length) {
-        L.push('- 하이오더로 이어 말할 수 있는 것:');
-        fixes.forEach((t) => L.push(`  - ${md(t)}`));
+    L.push('- 규칙: 리포트에 쓸 때는 원문 링크와 작성 시점을 함께 적으세요. 오래된 리뷰를 지금 일처럼 쓰면 안 됩니다.');
+    L.push('- 규칙: 손님이 고른 키워드는 강점 부분에 쓰고, 불만은 개선 제안 부분에 씁니다. 리뷰 문장을 그대로 길게 옮기지 말고 요약하세요.');
+    if (!rv) {
+      L.push('- 아직 가져오지 않았습니다. 수집기 화면에서 ‘플레이스 리뷰 가져오기’를 누른 뒤 다시 복사하세요.');
+    } else {
+      const place = rv.place || {};
+      L.push(`- 매장: ${md(place.name || '—')}${place.address ? ` (${md(place.address)})` : ''}${rv.matched ? '' : ' ⚠ 우리 매장과 다를 수 있습니다 — 확인 필요'}`);
+      L.push(`- 분석한 리뷰 ${rv.counted}건${has(place.total) ? ` (플레이스 전체 ${num(place.total, '건')})` : ''} · 평균 별점 ${has(rv.ratingAvg) ? rv.ratingAvg : '—'} · 출처: 네이버 플레이스 방문자 리뷰 (${md(state.reviews.fetchedAt || b.collectedAt)} 조회)`);
+      const rc = rv.ratingCounts || {};
+      L.push(`- 별점 분포: ${[5, 4, 3, 2, 1].map((n) => `${n}점 ${Number(rc[n] || 0)}건`).join(', ')}`);
+      if ((rv.keywords || []).length) {
+        L.push(`- 손님이 고른 키워드: ${md(rv.keywords.map((k) => `${k.word} ${k.count}`).join(', '))}`);
+      }
+      const items = rv.complaints || [];
+      if (!items.length) L.push('- 별점 3점 이하 리뷰를 찾지 못했습니다.');
+      else {
+        L.push('');
+        L.push('| 분류 | 하이오더 보완 | 별점 | 날짜 | 리뷰 내용 | 사장님 답글 | 링크 |');
+        L.push('|---|---|---|---|---|---|---|');
+        items.forEach((x) => {
+          const c = x.category;
+          L.push(`| ${md(c ? c.label : '분류 안 됨')} | ${c && c.hiorder ? '○' : '×'} | ${has(x.rating) ? x.rating : '—'} | ${md(x.date || '—')} | ${md(x.text)} | ${x.reply ? '있음' : '없음'} | ${md(x.link || '—')} |`);
+        });
+        L.push('');
+        const fixes = [...new Set(items.filter((x) => x.category && x.category.hiorder).map((x) => `${x.category.label} → ${x.category.fix}`))];
+        if (fixes.length) {
+          L.push('- 하이오더로 이어 말할 수 있는 것:');
+          fixes.forEach((t) => L.push(`  - ${md(t)}`));
+        }
       }
     }
     L.push('');
 
-    L.push(`## 10. 사장님께 알려드릴 지원사업 (${SUPPORT_CHECKED} 확인 · 참고용)`);
+    L.push('## 10. 사장님께 알려드릴 지원사업·교육');
     L.push('- 규칙: 안내만 하고 신청은 사장님이 직접 하십니다. 대신 신청하거나 수수료를 받는 내용은 절대 쓰지 마세요.');
     L.push('- 규칙: 금액·마감·대상은 바뀝니다. 리포트에는 “공고 원문에서 확인”이라는 말을 함께 넣고, 확정된 금액처럼 쓰지 마세요.');
     L.push('- 규칙: 정부지원금을 미끼로 접근하는 사칭 업체가 있으니 공식 누리집에서만 신청하시라는 안내를 함께 넣으세요.');
+    const sido = admin ? admin.sido : '';
     L.push('');
+    if (notices.ok) {
+      const ni = (notices.data.items || []);
+      L.push(`### 지금 접수 중인 공고 (${src(notices)})`);
+      if (!ni.length) L.push(`- ${md(notices.data.note)}`);
+      else {
+        L.push('| 공고 | 소관 | 접수기간 | 대상 | 링크 |');
+        L.push('|---|---|---|---|---|');
+        ni.forEach((x) => L.push(`| ${md(x.title)} | ${md(x.org || '—')} | ${md(x.period || '—')} | ${md(x.target || '—')} | ${md(x.link || '—')} |`));
+      }
+    } else {
+      L.push(`### 지금 접수 중인 공고\n- 수집 안 됨: ${md(errLine(notices))}`);
+    }
+    L.push('');
+    if (events.ok) {
+      const ei = (events.data.items || []);
+      L.push(`### 갈 만한 교육·행사 (${src(events)})`);
+      if (!ei.length) L.push(`- ${md(events.data.note)}`);
+      else ei.forEach((x) => L.push(`- ${md(x.title)} · ${md(x.area || '—')} · ${md(x.period || '—')} ${md(x.link || '')}`));
+    } else {
+      L.push(`### 갈 만한 교육·행사\n- 수집 안 됨: ${md(errLine(events))}`);
+    }
+    L.push('');
+    L.push(`### 상시 제도 (${SUPPORT_CHECKED} 확인 · 마감 없는 창구)`);
     L.push('| 구분 | 제도 | 무엇을 도와주는지 | 창구 | 주소 |');
     L.push('|---|---|---|---|---|');
-    const sido = admin ? admin.sido : '';
     SUPPORT.filter((x) => x.scope !== '인천' || /인천/.test(String(sido || ''))).forEach((x) => {
       L.push(`| ${md(x.scope === '가구' ? '사장님 가구' : x.scope)} | ${md(x.what)} | ${md(x.why)} | ${md(x.where)} | ${md(x.href)} |`);
     });
     L.push('');
-    if (notices.ok) {
-      const ni = (notices.data.items || []);
-      L.push(`- 최근 공고 (${src(notices)}): ${ni.length ? '' : '소상공인 관련 공고 없음'}`);
-      ni.forEach((x) => L.push(`  - ${md(x.date || '—')} ${md(x.title)} ${md(x.link || '')}`));
-    } else {
-      L.push(`- 최근 공고: 수집 안 됨 — ${md(notices.error)}`);
-    }
     L.push('- 사장님께 여쭤볼 것 (대답에 따라 해당 제도가 갈립니다):');
     ASK_OWNER.forEach((x) => L.push(`  - ${md(x)}`));
     L.push('');
@@ -1041,6 +1158,10 @@ td.n{font-variant-numeric:tabular-nums}
     setMsg(el.copyMsg, ok ? '복사했습니다. 코파일럿 에이전트에 붙여넣고 캡처 3장을 함께 첨부하세요.' : '복사하지 못했습니다. JSON 저장을 이용해 주세요.', ok ? 'ok' : 'err');
   });
 
+  el.result.addEventListener('click', (e) => {
+    if (e.target && e.target.id === 'rvBtn') fetchReviews();
+  });
+
   el.result.addEventListener('click', async (e) => {
     if (e.target.id !== 'copyNameBtn' || !state.bundle) return;
     const s = state.bundle.store || {};
@@ -1055,6 +1176,9 @@ td.n{font-variant-numeric:tabular-nums}
     if (im && im.ok && im.data) {
       im.data.shownOnScreen = (im.data.items || []).length;
       delete im.data.items;
+    }
+    if (state.reviews && state.reviews.data) {
+      copy.reviews = { fetchedAt: state.reviews.fetchedAt, source: state.reviews.source, data: state.reviews.data };
     }
     return copy;
   }
