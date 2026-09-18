@@ -604,7 +604,7 @@ td.n{font-variant-numeric:tabular-nums}
         const tag = c ? `<span class="tag ${c.hiorder ? 'fix' : 'plain'}">${esc(c.label)}</span>` : '<span class="tag plain">분류 안 됨</span>';
         const fix = c && c.hiorder ? `<div class="fx">하이오더로 보완: ${esc(c.fix)}</div>` : '';
         const meta = [has(x.rating) ? `별점 ${x.rating}` : '', x.date, x.reply ? '사장님 답글 있음' : ''].filter(Boolean).join(' · ');
-        return `<li><div class="top">${tag}<span class="ttl">${x.link ? linkText(x.link, '리뷰 원문 열기') : '원문 링크 없음'}</span></div>
+        return `<li><div class="top">${tag}<span class="ttl">${x.link ? linkText(x.link, '플레이스에서 확인') : '링크 없음'}</span></div>
           <div class="sn">${esc(x.text || '')}</div>${fix}<div class="mt">${esc(meta)}</div></li>`;
       }).join('') + '</ul>');
     }
