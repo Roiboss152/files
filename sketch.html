@@ -618,7 +618,7 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
       <div class="name">밑그림</div>
       <div class="tag"><span class="en">SKETCH</span><em>밑</em>천이 되는 <em>그림</em></div>
     </div>
-    <div class="ver">v2.70</div>
+    <div class="ver">v2.80</div>
   </div>
 
   <section class="tool" id="tool" aria-label="수집 도구">
@@ -664,8 +664,8 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
 
   // ▼ 배포 후 Cloudflare Worker 주소로 바꾸세요 (끝에 / 없이)
   const API_BASE = 'https://kt.roi0925003.workers.dev';
-  const PAGE_VERSION = 'v2.70';
-  const WORKER_VERSION = 'v1.23';   // 이 페이지와 짝이 되는 worker.js 버전
+  const PAGE_VERSION = 'v2.80';
+  const WORKER_VERSION = 'v1.24';   // 이 페이지와 짝이 되는 worker.js 버전
   // 'show' = 발표 모드(느리고 우아한 연출) / 'fast' = 업무 모드(0.4초, 카운트업 없음)
   const MOTION = 'show';
   document.documentElement.dataset.motion = MOTION;
@@ -687,7 +687,7 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
 
   const RV_LABEL = { naver:'네이버', kakao:'카카오', google:'구글' };
   const KEY_LABEL = { kakao:'카카오', naver:'네이버', dataGoKr:'공공데이터포털', sgis:'SGIS',
-    bizinfo:'기업마당', bizinfoEvent:'기업마당 행사', apify:'플레이스 리뷰' };
+    bizinfo:'기업마당', bizinfoEvent:'기업마당 행사', apify:'플레이스 리뷰', google:'구글 플레이스' };
   const LABEL = { region:'행정구역', nearby:'주변 시설', competition:'같은 업종 점포', population:'동네 인구·사업체',
     online:'온라인 언급', news:'뉴스', images:'메뉴판 사진', trend:'메뉴 검색 추이',
     notices:'지원사업 공고', events:'교육·행사' };
@@ -1888,11 +1888,10 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
     const rv = state.reviews;
     const ready = state.bundle && configured;
     const blocked = usageBlocked();
-    const hasKakao = Boolean(state.bundle && state.bundle.store && /place\.map\.kakao\.com\/\d+/.test(String(state.bundle.store.placeUrl||'')));
+    /* 카카오는 리뷰 API가 없어 뺐다(별점 하나에 스크래핑 비용). 구글은 Apify 대신 Places API — 월 1,000회 무료 구간 안에서 돈다 */
     const opts = `<div class="rvopts">
-      <label><input type="checkbox" id="rvKakao"${state.reviewOpts.kakao?' checked':''}${hasKakao?'':' disabled'}> 카카오맵 리뷰도 (최신 100건 · 별점 있음${hasKakao?'':' · 카카오 후보로 수집한 매장만'})</label>
-      <label><input type="checkbox" id="rvGoogle"${state.reviewOpts.google?' checked':''}> 구글 지도 리뷰도 (최신 50건 · 외국인 손님 매장)</label></div>
-      <p class="src9">기본은 네이버만 · 매장당 약 $0.10, 셋 다 켜면 약 $0.40</p>`;
+      <label><input type="checkbox" id="rvGoogle"${state.reviewOpts.google?' checked':''}> 구글 리뷰도 (평점 · 리뷰 수 · 리뷰 5건 — 외국인 손님 신호)</label></div>
+      <p class="src9">네이버는 매장당 약 $0.10(Apify 크레딧) · 구글은 Places API 무료 구간(월 1,000회) 안이라 추가 비용 없음</p>`;
     const btn = (label) => `<div class="rvbar"><button type="button" class="abtn primary" id="rvBtn"${(rv&&rv.running)||blocked?' disabled':''}>${esc(label)}</button>
       <span class="src9">네이버 플레이스 방문자 리뷰 최신 100건 · 1~3분 걸립니다</span></div>${usageLine()}${opts}`;
 
@@ -1913,7 +1912,7 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
     const srcList = Object.values(d.sources||{});
     if (srcList.length) out.push(`<p class="src9">${srcList.map(x => x.error
       ? `${badge('fail',x.label)} ${esc(x.error)}`
-      : `<b>${esc(x.label)}</b> ${esc(num(x.counted,'건'))}${x.place&&has(x.place.rating)?` · 평점 ${esc(x.place.rating)}`:''}${x.matched?'':' · ⚠ 매장 확인'}${x.others?` · 다른 장소 ${esc(x.others)}곳 제외`:''}`).join(' &nbsp;/&nbsp; ')}
+      : `<b>${esc(x.label)}</b> ${esc(num(x.counted,'건'))}${x.place&&has(x.place.total)?` (전체 ${esc(num(x.place.total,'건'))})`:''}${x.place&&has(x.place.rating)?` · 평점 ${esc(x.place.rating)}`:''}${has(x.foreign)?` · 외국어 리뷰 ${esc(num(x.foreign,'건'))}${x.langs?` (${esc(x.langs)})`:''}`:''}${x.matched?'':' · ⚠ 매장 확인'}${x.others?` · 다른 장소 ${esc(x.others)}곳 제외`:''}`).join(' &nbsp;/&nbsp; ')}
       ${(rv.skipped||[]).map(t=>`<br>${badge('warn','건너뜀')} ${esc(t)}`).join('')}</p>`);
 
     if (d.rated){
@@ -1963,9 +1962,9 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
     if (!state.bundle || (state.reviews && state.reviews.running)) return;
     const urlInput = $('#rvUrl');
     const placeUrl = urlInput ? urlInput.value.trim() : '';
-    const k = $('#rvKakao'), g = $('#rvGoogle');
-    state.reviewOpts = { kakao: Boolean(k && k.checked && !k.disabled), google: Boolean(g && g.checked) };
-    const sources = ['naver'].concat(state.reviewOpts.kakao?['kakao']:[], state.reviewOpts.google?['google']:[]);
+    const g = $('#rvGoogle');
+    state.reviewOpts = { kakao: false, google: Boolean(g && g.checked) };
+    const sources = ['naver'].concat(state.reviewOpts.google?['google']:[]);
     state.reviews = { running:true, message:'리뷰 수집을 시작합니다' };
     paintReviews();
     try {
@@ -1978,7 +1977,7 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
         await new Promise(r => setTimeout(r, RV_POLL_MS));
         state.reviews = { running:true, message:`${label} 리뷰를 모으는 중입니다 · ${Math.round(((i+1)*RV_POLL_MS)/1000)}초 지남 (1~3분 걸립니다)${skipped.length?` · 건너뜀 — ${skipped.join(' / ')}`:''}` };
         paintReviews();
-        const r = await api('/reviews/result', { method:'POST', body:{ runs, runId:start.runId, store:state.bundle.store }, timeout:30000 });
+        const r = await api('/reviews/result', { method:'POST', body:{ runs, runId:start.runId, store:state.bundle.store, sources }, timeout:30000 });
         if (r.done){
           if (r.usage) state.apifyUsage = r.usage;
           state.reviews = { running:false, data:r.data, source:r.source, fetchedAt:r.fetchedAt, skipped };
@@ -2460,7 +2459,7 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
         }
         const pl = x.place || {};
         const score = has(pl.rating) ? `평점 ${pl.rating}${x.label === '네이버' ? ' (네이버 공식값)' : ''}` : has(x.ratingAvg) ? `별점 평균 ${x.ratingAvg} (분석한 리뷰 기준)` : '';
-        L.push(`- ${md(x.label)}: ${md(pl.name || '—')}${pl.address ? ` (${md(pl.address)})` : ''}${x.matched ? '' : ' ⚠ 우리 매장과 다를 수 있습니다 — 확인 필요'} · 분석 ${x.counted}건${has(pl.total) ? ` (전체 ${num(pl.total, '건')})` : ''}${score ? ` · ${score}` : ''}${x.others ? ` · 검색에 섞인 다른 장소 ${x.others}곳 제외` : ''}${x.label === '네이버' ? ` · 별점 있는 리뷰 ${x.rated ?? '—'}건 / 없는 리뷰 ${x.unrated ?? '—'}건` : ''}`);
+        L.push(`- ${md(x.label)}: ${md(pl.name || '—')}${pl.address ? ` (${md(pl.address)})` : ''}${x.matched ? '' : ' ⚠ 우리 매장과 다를 수 있습니다 — 확인 필요'} · 분석 ${x.counted}건${has(pl.total) ? ` (전체 ${num(pl.total, '건')})` : ''}${score ? ` · ${score}` : ''}${x.others ? ` · 검색에 섞인 다른 장소 ${x.others}곳 제외` : ''}${x.label === '네이버' ? ` · 별점 있는 리뷰 ${x.rated ?? '—'}건 / 없는 리뷰 ${x.unrated ?? '—'}건` : ''}${has(x.foreign) ? ` · 외국어 리뷰 ${x.foreign}건${x.langs ? ` (${md(x.langs)})` : ''} — 외국인 손님 신호` : ''}`);
       });
       L.push(`- 조회: ${md(state.reviews.fetchedAt || b.collectedAt)}`);
       const rc = rv.ratingCounts || {};
