@@ -770,6 +770,15 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     </footer>`;
   }
 
+  /* 배경 타이포 — 글자 폭을 역산해 마지막 글자의 24%만 칼럼 밖으로 나가게 둔다 */
+  function bgWord(word, no){
+    const F = 250 + ((no*29)%60);                 // 250~309px
+    const w = F * 0.95 * word.length;             // 한글 글자 폭 ≈ 0.95em
+    const left = Math.round(590 + 0.24*F - w);
+    const top = -Math.round(16 + ((no*37)%52));
+    return `<div class="bgw" style="left:${left}px;top:${top}px;font-size:${F}px">${esc(word)}</div>`;
+  }
+
   /* ── 리포트 조립 — 장번호는 실제로 그려진 섹션에만 순서대로 매긴다 ── */
   function renderReport(b){
     let no = 0;
@@ -779,7 +788,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       if (!r) return '';
       no += 1;
       return `<section class="sec ${sd.cls||''}" id="sec-${sd.id}">
-        ${sd.bg ? `<div class="bgw" style="left:${232+((no*59)%128)}px;top:${-84+((no*47)%62)}px;font-size:${238+((no*37)%48)}px">${esc(sd.bg)}</div>` : ''}
+        ${sd.bg ? bgWord(sd.bg, no) : ''}
         <div class="hd">
           <div class="chap" data-rule="hb,vr"><span class="dig">${no}</span><h2>${esc(sd.title)}</h2></div>
           <span class="meta">${esc(r.meta||'')}</span>
@@ -848,15 +857,20 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
   let SCRUB = [], _sy = 0, _run = false;
   function buildScrub(){
     SCRUB = $$('.bgw').filter(e => !e.closest('.sec.static')).map((e,i) => ({
-      el:e, host:(e.closest('.sec')||e.parentElement), ax:790+((i*67)%170), top:0 }));
+      el:e, ax:790+((i*67)%170), top:0 }));
+    _sy = window.scrollY;
     measure();
   }
-  function measure(){ const so=window.scrollY; SCRUB.forEach(o => { o.top = o.host.getBoundingClientRect().top + so; }); }
+  function measure(){
+    const so = window.scrollY;
+    SCRUB.forEach(o => { o.el.style.transform = 'none'; });      // 변형을 걷고 원래 자리를 잰다
+    SCRUB.forEach(o => { o.top = o.el.getBoundingClientRect().top + so; });
+  }
   function paint(sy){
     const vh = innerHeight || 900;
     SCRUB.forEach((o) => {
-      const trig = Math.max(0, o.top - vh);
-      let p = (sy - trig) / (vh*.88); p = p<0?0:p>1?1:p;
+      // 글자가 화면 바닥에 들어오면 0, 거기서 0.62화면 더 내려오면 1 (화면 중상단에서 수렴 완료)
+      let p = (sy + vh - o.top) / (vh*.62); p = p<0?0:p>1?1:p;
       const k = (1-p)*(1-p);
       o.el.style.transform = `translate3d(${(o.ax*k).toFixed(2)}px,0,0) scale(${(1+2.00*k).toFixed(4)})`;
     });
