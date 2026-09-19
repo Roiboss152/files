@@ -536,7 +536,7 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
       <div class="name">밑그림</div>
       <div class="tag"><span class="en">SKETCH</span><em>밑</em>천이 되는 <em>그림</em></div>
     </div>
-    <div class="ver">v2.30</div>
+    <div class="ver">v2.40</div>
   </div>
 
   <section class="tool" id="tool" aria-label="수집 도구">
@@ -580,7 +580,7 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
 
   // ▼ 배포 후 Cloudflare Worker 주소로 바꾸세요 (끝에 / 없이)
   const API_BASE = 'https://kt.roi0925003.workers.dev';
-  const PAGE_VERSION = 'v2.30';
+  const PAGE_VERSION = 'v2.40';
   // 'show' = 발표 모드(느리고 우아한 연출) / 'fast' = 업무 모드(0.4초, 카운트업 없음)
   const MOTION = 'show';
   document.documentElement.dataset.motion = MOTION;
@@ -799,7 +799,8 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
     return { ymd:`${y.slice(0,4)}-${y.slice(4,6)}-${y.slice(6,8)}`, months:mo,
       years:Math.floor(mo/12), rest:mo%12, state:m.data.trdStateNm || '',
       name:m.data.bplcNm || '', addr:m.data.addr || '', area:m.data.siteArea || '',
-      exact:m.data.exact !== false, source:(m.source && m.source.name) || 'LOCALDATA' };
+      uptae:m.data.uptae || '', hood:m.data.hood || null,
+      exact:m.data.exact !== false, source:(m.source && m.source.name) || '공공데이터포털' };
   }
   function ageText(L){
     return L.years ? `${L.years}년${L.rest ? ` ${L.rest}개월` : ''}` : `${L.months}개월`;
@@ -1190,6 +1191,7 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
       + distHTML(bands, cd.industry.small, R, Number(cd.sameSmall.count)||0)
       + nearHTML(near)
       + mixHTML(mix, cd.mixTotal, R)
+      + hoodHTML(licence(b), R)
       + `<p class="src9">상가정보 등록 상호 ‘${esc(cd.matchedName)}’ (좌표 차이 ${esc(dist(cd.matchedDistance))}${cd.floor?`, ${esc(cd.floor)}층`:''})${cd.how?` · ${esc(cd.how)}에서 찾음`:''} · 자료 기준월 ${esc(ym(cd.stdrYm))}${bands.length?'':` · 거리별 — ${esc(bandText(bands,' · '))}`}</p>`,
       meta: `${srcText(m).toUpperCase()} · 반경 ${dist(R)}` };
   }
@@ -1227,6 +1229,23 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
     return `<p class="k" style="margin-top:34px">바로 옆 ${esc(num(near.length,'곳'))} — 방문 전에 한 번 보고 가세요</p>
       <table class="tbl">${near.slice(0,6).map(x =>
         `<tr><th>${esc(dist(x.distance))}</th><td>${esc(x.name)}${x.small?` <span class="src9">${esc(x.small)}</span>`:''}</td></tr>`).join('')}</table>`;
+  }
+
+  /* 동네 업력 — 인허가 자료로만 나오는 숫자. 새로 여는 곳과 닫은 곳이 경쟁 압력이다 */
+  function hoodHTML(L, R){
+    const h = L && L.hood;
+    if (!h || !has(h.active)) return '';
+    const pc = h.active ? (h.newly / h.active * 100) : 0;
+    return `<p class="k" style="margin-top:34px">${esc(h.where)} 일반음식점 — 얼마나 자주 바뀌는 동네인가</p>
+      <div class="two" style="margin-top:13px">
+        <div><div class="k">최근 ${esc(h.years)}년 새로 연 곳</div>
+          <div class="v" style="font-size:54px">${esc(num(h.newly))}</div>
+          <div class="lead-ref">곳 · 영업 중 ${esc(num(h.active,'곳'))}의 ${pc.toFixed(1)}%</div></div>
+        <div><div class="k">폐업으로 기록된 곳</div>
+          <div class="v" style="font-size:54px">${esc(num(h.closed))}</div>
+          <div class="lead-ref">곳 · 자료에 쌓인 누계입니다</div></div>
+      </div>
+      <p class="src9">행정동이 아니라 <b>주소에 ‘${esc(h.where)}’가 들어간 곳</b>을 센 값이라, 위의 반경 ${dist(R)} 숫자와 기준이 다릅니다. 같이 놓고 비교하지 마세요.</p>`;
   }
 
   /* 주변 업종 구성 — 이 골목이 무슨 골목인지 */
