@@ -374,8 +374,98 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
 #report a{color:var(--ink);text-decoration:underline;text-decoration-color:#C7C7CC;text-underline-offset:3px}
 #report a:hover{text-decoration-color:var(--accent)}
 .nm{white-space:nowrap}
+
+/* ══ 로그인 팝업 ══ */
+.modal{position:fixed;inset:0;z-index:60;display:grid;place-items:center;
+  background:rgba(32,30,29,.22);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  transition:opacity 480ms cubic-bezier(.16,1,.3,1),visibility 480ms}
+.modal.done{opacity:0;visibility:hidden;pointer-events:none}
+.mcard{width:min(420px,calc(100vw - 32px));background:var(--paper);border-radius:20px;padding:34px 30px 26px;
+  box-shadow:0 30px 90px rgba(32,30,29,.26);transform:scale(1);
+  transition:transform 480ms cubic-bezier(.16,1,.3,1)}
+.modal.done .mcard{transform:scale(.94)}
+.mcard .mname{font-size:30px;font-weight:800;letter-spacing:-.03em;line-height:1}
+.mcard .mtag{font-size:11px;color:var(--faint);margin-top:6px}
+.mcard .mtag .en{color:var(--accent);font-weight:700;letter-spacing:.08em;margin-right:7px}
+.mcard .mtag em{font-style:normal;color:var(--accent);font-weight:700}
+.mform{display:flex;gap:9px;margin-top:26px}
+.mform input{flex:1;font:inherit;font-size:15px;color:var(--ink);background:var(--panel);
+  border:1px solid transparent;border-radius:12px;padding:12px 15px;outline:none;
+  transition:background 300ms ease,border-color 300ms ease,box-shadow 300ms ease}
+.mform input:focus{background:var(--paper);border-color:rgba(32,30,29,.16);box-shadow:0 0 0 4px rgba(236,48,19,.13)}
+.mcard .msg{margin-top:14px}
+.mcard .chips{margin-top:13px}
+
+/* ══ 리뷰·차트 부속 ══ */
+.rvbar{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-top:16px}
+.rvbar input{flex:1;min-width:220px;font:inherit;font-size:13px;color:var(--ink);background:var(--panel);
+  border:1px solid transparent;border-radius:11px;padding:10px 13px;outline:none}
+.rvbar input:focus{background:var(--paper);border-color:rgba(32,30,29,.16)}
+.rvopts{display:flex;flex-direction:column;gap:7px;margin-top:13px;font-size:11px;color:var(--sub)}
+.rvopts label{display:inline-flex;align-items:center;gap:7px;cursor:pointer}
+.rvopts input{accent-color:var(--accent)}
+.kw{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.kw span{font-size:11px;padding:4px 10px;border-radius:999px;background:var(--panel);color:var(--sub)}
+.cmp{list-style:none;margin:13px 0 0;padding:0}
+.cmp li{padding:16px 0;border-bottom:1px solid var(--line)}
+.cmp li:last-child{border-bottom:0}
+.cmp .top{display:flex;gap:6px;align-items:baseline;flex-wrap:wrap;font-size:11px}
+.cmp .sn{font-size:13px;line-height:1.6;margin-top:8px}
+.cmp .fx{font-size:11px;color:var(--accent-ink);font-weight:600;margin-top:6px}
+.flag2{position:relative;margin-top:26px;padding:3px 0 3px 21px;border-left:3px solid var(--accent)}
+.flag2 .eyebrow{font-size:9px;letter-spacing:.16em;font-weight:700;color:var(--accent)}
+.flag2 .lead-read{margin-top:8px;font-size:16px}
+svg.trend{width:100%;height:auto;display:block;margin-top:8px;overflow:visible}
+svg.trend .g{stroke:var(--line);stroke-width:1}
+svg.trend .yl{fill:var(--faint);font-size:9px;text-anchor:end}
+svg.trend .xl{fill:var(--faint);font-size:9px;text-anchor:middle}
+svg.trend path{fill:none;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+svg.trend path.now{stroke-dasharray:4 4;stroke-width:1.5}
+svg.trend circle.now{fill:var(--paper);stroke-width:2}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:11px;color:var(--sub)}
+.legend .lg{display:inline-flex;align-items:center;gap:7px;font-weight:600}
+.legend .lg i{width:10px;height:10px;border-radius:3px;display:inline-block;flex:none}
+.legend .lg small{font-weight:400;color:var(--faint)}
+.thumbs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;list-style:none;margin:13px 0 0;padding:0}
+.thumbs a{display:block;aspect-ratio:1/1;border-radius:10px;overflow:hidden;background:var(--panel)}
+.thumbs img{width:100%;height:100%;object-fit:contain;display:block}
+/* ══ 막대 묶음 — 개수에 맞춰 폭·간격이 정해진다 ══ */
+.bars{grid-template-columns:repeat(var(--bn,3),var(--bw,88px));column-gap:var(--bgap,59.5px)}
+
+@media print{
+  .modal,.rvbar,.rvopts,#sec-images{display:none!important}
+  .sec.screen-only{display:none!important}
+  .core span{opacity:1;color:#D4D4D4}     /* 흰색 80%를 #2A2827 위에 합성한 값 */
+  /* 마우스가 차트 위에 있는 채로 인쇄하면 나머지가 흐리게 찍힌다 — 호버 효과를 끈다 */
+  /* 낱장 조각이 나지 않게 — 한 덩어리는 한 쪽 안에서 끝낸다 */
+  .cmp li,.recent li,.sup li,.two,.rest,.flag2,.acts,.tbl tr,.kpi,.bar
+    {break-inside:avoid;page-break-inside:avoid}
+  .k,.eyebrow,.legend{break-after:avoid;page-break-after:avoid}
+  .bars *,.rosewrap *{filter:none!important;translate:none!important}
+  .bars:hover .bar,.bars .bar:hover,.rosewrap:hover .wedge,.rosewrap .wedge:hover
+    {opacity:1!important;scale:1!important}
+  .bars .bar:hover .n,.lbl.lit .n{scale:1!important}
+  /* 전환(transition)은 !important보다 우선한다 — 지연 구간에 갇히지 않게 아예 끈다 */
+  .wedge,.lead-l,.lbl,.lbl .n,.lbl .t,.bar,.bar .col,.bar .n,.core,.arule,.bgw
+    {transition:none!important}
+  .wedge,.lead-l,.lbl,.bar .col,.bar .n{opacity:1!important}
+  .bars{grid-template-columns:repeat(var(--bn,3),1fr)}
+}
 </style></head>
 <body>
+<div class="modal" id="login">
+  <div class="mcard">
+    <div class="mname">밑그림</div>
+    <div class="mtag"><span class="en">SKETCH</span><em>밑</em>천이 되는 <em>그림</em></div>
+    <form class="mform" id="authForm" autocomplete="off">
+      <input id="pass" type="password" placeholder="팀 비밀번호" aria-label="팀 비밀번호" required autofocus>
+      <button class="tbtn" id="authBtn" type="submit">연결</button>
+    </form>
+    <p class="msg" id="authMsg" role="status" aria-live="polite"></p>
+    <div class="chips" id="keyChips" aria-label="중계 서버 키 상태"></div>
+  </div>
+</div>
+
 <main class="page">
   <div id="scrim"></div>
 
@@ -388,11 +478,6 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
   </div>
 
   <section class="tool" id="tool" aria-label="수집 도구">
-    <form class="trow" id="authForm" autocomplete="off">
-      <div class="tf grow"><span class="tl">팀 비밀번호</span>
-        <input id="pass" type="password" placeholder="••••••••" aria-label="팀 비밀번호" required></div>
-      <button class="tbtn" id="authBtn" type="submit">연결</button>
-    </form>
     <fieldset id="searchSet" disabled>
       <form class="trow" id="searchForm" autocomplete="off">
         <div class="tf grow"><span class="tl">매장 찾기</span>
@@ -410,8 +495,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     </fieldset>
   </section>
 
-  <p class="msg" id="authMsg" role="status" aria-live="polite"></p>
-  <div class="chips" id="keyChips" aria-label="중계 서버 키 상태"></div>
+  <p class="msg" id="connMsg"></p>
   <p class="msg" id="searchMsg" role="status" aria-live="polite"></p>
   <ul class="cands" id="cands"></ul>
   <div class="prog" id="prog" role="status" aria-live="polite" hidden>
@@ -447,6 +531,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     searchSet: $('#searchSet'), searchForm: $('#searchForm'), q: $('#q'), radius: $('#radius'),
     keywords: $('#keywords'), searchMsg: $('#searchMsg'), cands: $('#cands'),
     prog: $('#prog'), progText: $('#progText'), result: $('#report'),
+    login: $('#login'), connMsg: $('#connMsg'),
     acts: $('#acts'), copyBtn: $('#copyBtn'), txtBtn: $('#txtBtn'), jsonBtn: $('#jsonBtn'),
     printBtn: $('#printBtn'), copyMsg: $('#copyMsg'),
   };
@@ -544,6 +629,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     el.searchSet.disabled = true;
     el.chips.innerHTML = '';
     setMsg(el.authMsg, message, 'err');
+    var _lg = document.getElementById('login'); if (_lg) _lg.classList.remove('done');   // 팝업 다시 열기
     el.pass.focus();
   }
 
@@ -614,8 +700,102 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
   }
 
 
-  // 리뷰 수집은 2단계에서 붙인다
-  function fetchReviews(){ setMsg(el.copyMsg, '플레이스 리뷰 수집은 다음 단계에서 연결됩니다.', 'warn'); }
+  /* ══════════ 차트 ══════════ */
+  const RAMP = ['#201E1D','#4A4846','#6E6E73','#86868B','#A1A1A6','#B8B8BD','#C7C7CC','#D5D5DA'];
+
+  /* 세로 막대 — 값이 작아도 최소 3% 높이 + 숫자가 막대와 같이 올라온다 */
+  function barsHTML(data, id){
+    const mx = Math.max(...data.map(d => d.v), 1);
+    /* 590px 안에 반드시 한 줄로 — 간격을 먼저 줄이고, 모자라면 막대를 줄인다 */
+    const n = data.length, W = 590;
+    let bw = 88, gap = 59.5;
+    if (n*bw + (n-1)*gap > W) {
+      gap = (W - n*bw) / (n-1);
+      if (gap < 24) { gap = 24; bw = (W - (n-1)*gap) / n; }
+    }
+    const gv = `--bn:${n};--bw:${bw.toFixed(1)}px;--bgap:${gap.toFixed(1)}px`;
+    return `<div class="bars" style="${gv}" ${id?`id="${id}"`:''} data-rule="vl,vr,hb">` + data.map((d,i) => {
+      const p = Math.max(d.v/mx*100, 3).toFixed(2);
+      return `<div class="bar ${d.hot?'hot':''}" style="--p:${p};--c:${d.c||RAMP[i]};--d:${i*240}ms">
+        <div class="track"><span class="n">${esc(Number(d.v).toLocaleString('ko-KR'))}</span><i class="col"></i></div>
+        <span class="lb">${esc(d.nm)}<small>${esc(d.sub||'')}</small></span></div>`;
+    }).join('') + '</div>';
+  }
+
+  /* 로즈 — 각도는 균등, 값은 반지름. 1위만 기준의 120%, 나머지는 95~105% */
+  function roseSVG(data, totalLabel){
+    const cx=295, cy=214, RB=136, rMax=RB*1.2, GAP=1.6*Math.PI/180;
+    const tot = data.reduce((a,b) => a+b.v, 0);
+    if (!tot) return '';
+    const sorted = [...data].sort((a,b) => b.v-a.v);
+    const rest = sorted.slice(1).map(d=>d.v);
+    const lo = rest.length ? Math.min(...rest) : 0, hi = rest.length ? Math.max(...rest) : 1;
+    const radius = (d,i) => i===0 ? RB*1.20 : RB*(0.95 + 0.10*((d.v-lo)/((hi-lo)||1)));
+    const step = 2*Math.PI/sorted.length;
+    let a = -Math.PI/2, wed='', marks=[];
+    sorted.forEach((d,i) => {
+      const r = radius(d,i), a0=a+GAP/2, a1=a+step-GAP/2, mid=a+step/2;
+      const P = (g,rr) => [(cx+rr*Math.cos(g)).toFixed(2), (cy+rr*Math.sin(g)).toFixed(2)];
+      const [x0,y0]=P(a0,r), [x1,y1]=P(a1,r);
+      wed += `<path class="wedge" data-i="${i}" style="--wd:${i*190}ms;--ox:${(11*Math.cos(mid)).toFixed(1)}px;--oy:${(11*Math.sin(mid)).toFixed(1)}px"
+        fill="${d.c||RAMP[i%RAMP.length]}" d="M${cx},${cy} L${x0},${y0} A${r},${r} 0 0 1 ${x1},${y1} Z"/>`;
+      marks.push({...d, i, mid, r, pct:d.v/tot*100}); a += step;
+    });
+    marks.forEach((m) => {
+      m.ax=cx+(m.r+7)*Math.cos(m.mid); m.ay=cy+(m.r+7)*Math.sin(m.mid);
+      m.bx=cx+(rMax+16)*Math.cos(m.mid); m.by=cy+(rMax+16)*Math.sin(m.mid);
+      m.right=Math.cos(m.mid)>=-0.02;
+      m.lx=m.right?cx+rMax+28:cx-rMax-28; m.ly=m.by;
+    });
+    [true,false].forEach((side) => {
+      const g = marks.filter(m=>m.right===side).sort((p,q)=>p.ly-q.ly);
+      for (let i=1;i<g.length;i++) if (g[i].ly-g[i-1].ly<42) g[i].ly=g[i-1].ly+42;
+      const over = g.length ? g[g.length-1].ly-426 : 0;
+      if (over>0) g.forEach(m => { m.ly -= over; });
+      g.forEach(m => { if (m.ly<22) m.ly=22; });
+    });
+    let ln='', lb='';
+    marks.forEach((m) => {
+      const ex = m.right ? m.lx-7 : m.lx+7;
+      ln += `<path class="lead-l" style="--wd:${m.i*190}ms" d="M${m.ax.toFixed(1)},${m.ay.toFixed(1)} L${m.bx.toFixed(1)},${m.by.toFixed(1)} L${(ex+(m.right?-14:14)).toFixed(1)},${m.ly.toFixed(1)} L${ex.toFixed(1)},${m.ly.toFixed(1)}"/>`;
+      lb += `<g class="lbl ${m.hot?'hot':''}" data-i="${m.i}" style="--wd:${m.i*190}ms" text-anchor="${m.right?'start':'end'}">
+        <text class="n" x="${m.lx}" y="${(m.ly+2).toFixed(1)}">${esc(m.v)}</text>
+        <text class="t" x="${m.lx}" y="${(m.ly+15).toFixed(1)}">${esc(m.nm)} · ${m.pct.toFixed(1)}%</text></g>`;
+    });
+    return `<div class="rosewrap" data-rule="vc,ht,hb">
+      <svg class="rose" viewBox="0 0 590 450" aria-label="구성 비율"><g>${wed}</g>${ln}${lb}</svg>
+      <div class="core"><b>${esc(Number(tot).toLocaleString('ko-KR'))}</b><span>${esc(totalLabel||'')}</span></div></div>`;
+  }
+
+  /* 검색 추이 — 키워드마다 선 하나. 값은 조회기간 최고월을 100으로 둔 상대값 */
+  const TREND_COLORS = ['#201E1D','#EC3013','#6E6E73','#A1A1A6','#C7C7CC'];
+  function trendChart(td){
+    const series = (td.series||[]).filter(s => (s.points||[]).length);
+    if (!series.length) return '';
+    const months = series.reduce((a,s) => (s.points.length>a.length ? s.points.map(p=>p.month) : a), []);
+    const n = months.length, W=590, H=250, L=32, R=14, T=20, B=28;
+    const iw = W-L-R, ih = H-T-B;
+    const x = (i) => L + (n>1 ? (i*iw)/(n-1) : iw/2);
+    const y = (v) => T + ih - (Math.max(0, Math.min(100, Number(v)))/100)*ih;
+    const f = (v) => v.toFixed(1);
+    const grid = [0,50,100].map(v => `<line class="g" x1="${L}" x2="${W-R}" y1="${f(y(v))}" y2="${f(y(v))}"/><text class="yl" x="${L-6}" y="${f(y(v)+4)}">${v}</text>`).join('');
+    const step = n<=13 ? 1 : n<=26 ? 2 : 3;
+    const xl = months.map((m,i) => (i%step===0||i===n-1) ? `<text class="xl" x="${f(x(i))}" y="${H-8}">${esc(String(m).slice(2))}</text>` : '').join('');
+    const lines = series.map((s,si) => {
+      const c = TREND_COLORS[si%TREND_COLORS.length];
+      const pts = s.points.map((p,i) => ({...p, i: months.indexOf(p.month)>=0 ? months.indexOf(p.month) : i}));
+      const full = pts.filter(p => has(p.ratio) && p.month !== td.endMonth);
+      const now = pts.find(p => has(p.ratio) && p.month === td.endMonth);
+      const d = full.map((p,k) => `${k===0?'M':'L'}${f(x(p.i))},${f(y(p.ratio))}`).join(' ');
+      const last = full[full.length-1];
+      const nowPath = now && last ? `<path class="now" stroke="${c}" d="M${f(x(last.i))},${f(y(last.ratio))} L${f(x(now.i))},${f(y(now.ratio))}"/>` : '';
+      const dots = pts.filter(p => has(p.ratio)).map(p => `<circle${p.month===td.endMonth?' class="now"':''} cx="${f(x(p.i))}" cy="${f(y(p.ratio))}" r="3" fill="${c}" stroke="${c}"><title>${esc(s.keyword)} ${esc(p.month)}: ${esc(p.ratio)}</title></circle>`).join('');
+      return `<g>${d?`<path stroke="${c}" d="${d}"/>`:''}${nowPath}${dots}</g>`;
+    }).join('');
+    const legend = series.map((s,si) => `<span class="lg"><i style="background:${TREND_COLORS[si%TREND_COLORS.length]}"></i>${esc(s.keyword)}<small>최고 ${esc(s.peak?`${s.peak.month} (${s.peak.ratio})`:'—')}</small></span>`).join('');
+    return `<div class="legend">${legend}</div>
+      <svg class="trend" viewBox="0 0 ${W} ${H}" data-rule="ht,hb" role="img" aria-label="메뉴 검색 추이">${grid}${xl}${lines}</svg>`;
+  }
 
 
   /* ══════════ 섹션 렌더러 ══════════
@@ -743,8 +923,17 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
 
   /* ── 섹션 목록 ── */
   const SECTIONS = [
-    { id:'store', title:'매장',            bg:'매장', cls:'hero', render:renderStore },
-    { id:'pop',   title:'동네 인구·사업체',  bg:'동네', render:renderPop },
+    { id:'store',   title:'매장',                    bg:'매장', cls:'hero', render:renderStore },
+    { id:'nearby',  title:'주변 시설 구성',            bg:'주변', render:renderNearby },
+    { id:'comp',    title:'같은 업종 점포',            bg:'업종', render:renderComp },
+    { id:'pop',     title:'동네 인구·사업체',          bg:'동네', render:renderPop },
+    { id:'reviews', title:'손님 불편 신호',            bg:'리뷰', render:renderReviewSection },
+    { id:'online',  title:'온라인 언급',               bg:'언급', render:renderOnline },
+    { id:'news',    title:'뉴스',                     bg:'뉴스', render:renderNews },
+    { id:'trend',   title:'메뉴 검색 추이',            bg:'추이', render:renderTrend },
+    { id:'support', title:'사장님께 알려드릴 지원사업·교육', bg:'지원', render:renderSupport },
+    { id:'manual',  title:'사람이 채울 것',            bg:'현장', render:renderManual },
+    { id:'images',  title:'메뉴판 사진',               bg:'메뉴', render:renderImages },
   ];
 
   /* ── 푸터 ── */
@@ -787,7 +976,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       try { r = sd.render(b); } catch (e) { console.error(sd.id, e); r = null; }
       if (!r) return '';
       no += 1;
-      return `<section class="sec ${sd.cls||''}" id="sec-${sd.id}">
+      return `<section class="sec ${sd.cls||''}${r.static?' static':''}${r.screenOnly?' screen-only':''}" id="sec-${sd.id}">
         ${sd.bg ? bgWord(sd.bg, no) : ''}
         <div class="hd">
           <div class="chap" data-rule="hb,vr"><span class="dig">${no}</span><h2>${esc(sd.title)}</h2></div>
@@ -797,6 +986,323 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       </section>`;
     });
     return parts.join('') + renderFoot(b);
+  }
+
+
+  /* ── 주변 시설 (로즈) ── */
+  function renderNearby(b){
+    const m = mod(b,'nearby');
+    if (!m.ok) return null;
+    const R = (b.options && b.options.radius) || 500;
+    const cats = (m.data.categories||[]).filter(c => !c.error && has(c.count) && Number(c.count) > 0);
+    const uni = m.data.universities || { list: [] };
+    const data = cats.map(c => ({ nm:c.label, v:Number(c.count) }));
+    if (!uni.error && (uni.list||[]).length) data.push({ nm:'대학교', v:(uni.list||[]).length });
+    if (!data.length) return null;                       // 반경 안에 아무것도 없음 → 섹션 생략
+    // 숙박이 있으면 관광 상권 신호라 빨강 하나를 여기에 준다
+    const hotIdx = data.findIndex(d => /숙박/.test(d.nm));
+    if (hotIdx >= 0){ data[hotIdx].c = '#EC3013'; data[hotIdx].hot = 1; }
+    const near = cats.filter(c => (c.nearest||[]).length)
+      .map(c => `${esc(c.label)} ${(c.nearest||[]).map(x => `${esc(x.name)} ${esc(dist(x.distance))}`).join(', ')}`).join(' · ');
+    const lodge = data.find(d => /숙박/.test(d.nm));
+    const tot = data.reduce((a,d)=>a+d.v,0);
+    const read = lodge && lodge.v/tot >= 0.08
+      ? `숙박 ${lodge.v}곳이 전체의 ${(lodge.v/tot*100).toFixed(1)}%입니다 — 밖에서 오는 손님이 섞이는 상권으로 읽습니다.`
+      : '가까운 시설이 손님이 어디서 오는지를 말해 줍니다.';
+    return { html: roseSVG(data, '곳') +
+      `<p class="lead-read" style="font-size:15px;margin-top:8px">${read}</p>
+       <p class="src9">조각은 같은 각도를 나눠 갖고 개수는 반지름으로 읽습니다. 정확한 값은 옆의 숫자가 책임집니다.
+       ${near ? `<br>가까운 곳 — ${near}` : ''}
+       ${(m.data.notes||[]).map(t=>`<br>${esc(t)}`).join('')}</p>`,
+      meta: `${srcText(m).toUpperCase()} · 반경 ${dist(R)}` };
+  }
+
+  /* ── 같은 업종 점포 (세로 막대) ── */
+  function renderComp(b){
+    const m = mod(b,'competition');
+    if (!m.ok) return null;
+    const R = (b.options && b.options.radius) || 500;
+    const cd = m.data;
+    if (!cd.matched){
+      const nb = cd.nearby || {};
+      const list = (nb.list||[]).slice(0,10).map(x => `${esc(x.name)}<span class="src9"> ${esc([x.small||x.large, x.floor?`${x.floor}층`:''].filter(Boolean).join(' '))}</span>`).join(' · ');
+      return { html: `<p class="lead-read" style="font-size:15px">${badge('warn','매장 못 찾음')} ${esc(cd.note||'상가정보에서 이 매장을 찾지 못했습니다.')}</p>
+        ${list ? `<p class="src9">${esc(nb.from||'주변')}에 등록된 상가 (매장 확인용이지 경쟁 수치가 아닙니다)<br>${list}</p>` : ''}`,
+        meta: srcText(m).toUpperCase() };
+    }
+    const data = [
+      { nm:cd.industry.large||'대분류', v:Number(cd.sameLarge.count||0), sub:'대분류', c:'#C7C7CC' },
+      { nm:cd.industry.middle||'중분류', v:Number(cd.sameMiddle.count||0), sub:`중분류 · ${cd.sameLarge.count?((cd.sameMiddle.count/cd.sameLarge.count)*100).toFixed(1):'—'}%`, c:'#6E6E73' },
+      { nm:cd.industry.small||'소분류', v:Number(cd.sameSmall.count||0), sub:`소분류 · ${cd.sameLarge.count?((cd.sameSmall.count/cd.sameLarge.count)*100).toFixed(1):'—'}%`, c:'#EC3013', hot:1 },
+    ];
+    return { html: barsHTML(data) +
+      `<p class="lead-read" style="font-size:15px;margin-top:21px">반경 ${dist(R)} 안 ${esc(cd.industry.large||'음식')} ${esc(num(cd.sameLarge.count,'곳'))} 가운데
+        ${esc(cd.industry.middle)} ${esc(num(cd.sameMiddle.count,'곳'))}, 그중 <b>${esc(cd.industry.small)} ${esc(num(cd.sameSmall.count,'곳'))}</b>입니다.</p>
+       <p class="src9">거리별 — ${esc(bandText(cd.sameSmall.bands,' · '))} · 상가정보 등록 상호 ‘${esc(cd.matchedName)}’ (좌표 차이 ${esc(dist(cd.matchedDistance))}${cd.floor?`, ${esc(cd.floor)}층`:''})${cd.how?` · ${esc(cd.how)}에서 찾음`:''} · 자료 기준월 ${esc(ym(cd.stdrYm))}</p>`,
+      meta: `${srcText(m).toUpperCase()} · 반경 ${dist(R)}` };
+  }
+
+  /* ── 손님 불편 신호 (늦게 도착 · 연출 없음) ── */
+  function renderReviewSection(b){
+    return { html: '<div id="reviewBox"></div>', meta:'NAVER PLACE · 따로 가져옵니다', static:true };
+  }
+
+  /* ── 온라인 언급 ── */
+  function renderOnline(b){
+    const m = mod(b,'online');
+    if (!m.ok) return null;
+    const od = onlineParts(m.data);
+    const blog = part(od.blog), cafe = part(od.cafe), waiting = part(od.waiting);
+    const cnt = (p) => p ? num(p.total,'건') : badge('fail','실패');
+    const otherTag = (r) => r.otherBranch ? `${badge('warn','다른 지점 '+r.otherBranch)} ` : '';
+    const row = (list, withDate) => (list||[]).map(r =>
+      `<li>${withDate?`<span class="d">${esc(r.date||'')}</span>`:'<span class="d"></span>'}<span>${otherTag(r)}${linkText(r.link, r.title)}${r.cafe?`<span class="by">${esc(r.cafe)}</span>`:''}</span></li>`).join('');
+    const others = blog ? (blog.recent||[]).filter(r=>r.otherBranch) : [];
+    const lead = blog ? `블로그 <b>${esc(num(blog.total))}</b>건 · 카페 <b>${esc(cafe?num(cafe.total):'—')}</b>건` : '';
+    return { html: `<p class="lead-read">${lead}${waiting?` · ‘웨이팅’이 함께 적힌 글 ${esc(num(waiting.total,'건'))}`:''}</p>
+      <p class="src9">검색 결과 수라서 다른 매장 글이 섞일 수 있습니다. 많고 적음을 보는 참고치로만 씁니다.
+        ${others.length?`<br>${badge('warn','주의')} 최근 블로그 글 ${(blog.recent||[]).length}건 중 ${others.length}건이 같은 브랜드의 다른 지점(${esc([...new Set(others.map(r=>r.otherBranch))].join(', '))}) 글입니다.`:''}</p>
+      ${row(blog&&blog.recent,true) ? `<p class="k" style="margin-top:26px">최근 블로그 글</p><ul class="recent" data-rule="ht">${row(blog.recent,true)}</ul>` : ''}
+      ${row(cafe&&cafe.recent,false) ? `<p class="k" style="margin-top:26px">최근 카페 글</p><ul class="recent">${row(cafe.recent,false)}</ul>` : ''}`,
+      meta: srcText(m).toUpperCase() };
+  }
+
+  /* ── 뉴스 ── */
+  function renderNews(b){
+    const m = mod(b,'news');
+    if (!m.ok) return null;
+    const qs = (m.data.queries||[]).filter(x => !x.error);
+    if (!qs.length) return null;
+    const blocks = qs.map((x) => {
+      const list = (x.recent||[]).map(r => `<li><span class="d">${esc(r.date||'—')}</span>${linkText(r.link, r.title)}</li>`).join('');
+      const empty = x.filter ? `최근 ${x.filter.fetched}건 중 제목에 동네 이름(‘${x.filter.word}’)과 상권 관련 말이 함께 있는 기사가 없습니다` : '기사가 없습니다';
+      return `<p class="k" style="margin-top:21px">${esc(NEWS_LABEL[x.key]||x.key)} ‘${esc(x.q)}’ · ${esc(num(x.total,'건'))}</p>
+        <ul class="recent">${list || `<li><span class="d"></span><span style="color:var(--faint)">${esc(empty)}</span></li>`}</ul>`;
+    }).join('');
+    return { html: blocks + `<p class="src9">${esc(m.data.note||'')}</p>`, meta: srcText(m).toUpperCase() };
+  }
+
+  /* ── 메뉴 검색 추이 ── */
+  function renderTrend(b){
+    const m = mod(b,'trend');
+    if (!m.ok) return null;
+    const td = m.data;
+    const svg = trendChart(td);
+    if (!svg) return null;
+    const o = b.options || {};
+    return { html: svg + `<p class="src9">${esc(td.startMonth)} ~ ${esc(td.endMonth)} 월별 · ${esc(td.note||'')}${o.keywordsDerived?' 키워드는 업종에서 자동으로 골랐습니다.':''}
+      ${o.keywordsWeak?`<br>${badge('warn','범위 넓음')} ‘${esc((o.keywords||[]).join(', '))}’는 업종 이름이라 범위가 넓습니다. 대표 메뉴를 넣고 다시 수집하면 정확해집니다.`:''}</p>`,
+      meta: srcText(m).toUpperCase() };
+  }
+
+  /* ── 지원사업·교육 (3단 아코디언) ── */
+  const SUP_T1 = ['인천 소상공인 경영환경 개선 지원','인천신용보증재단 특례보증','인천 소상공인·서민금융 상담 창구','소상공인 지식배움터','기업마당 지원사업 검색'];
+  const SUP_T2 = ['스마트상점·디지털 전환 지원','소상공인 정책자금 (융자)','지역신용보증재단 보증서'];
+  function supList(items){
+    return `<ul class="sup">${items.map(x => `<li><div><div class="what">${badge('info', x.scope==='가구'?'사장님 가구':x.scope)} ${esc(x.what)}</div>
+      <div class="why">${esc(x.why)} · ${esc(x.where)}</div></div>
+      <a href="${esc(x.href)}" target="_blank" rel="noopener noreferrer">열기</a></li>`).join('')}</ul>`;
+  }
+  function acc(title, count, inner, open){
+    return `<details class="acc"${open?' open':''}><summary>${esc(title)}<span class="cnt">${esc(count)}</span><i class="ico" aria-hidden="true"></i></summary>
+      <div class="body"><div><div class="inner">${inner}</div></div></div></details>`;
+  }
+  function renderSupport(b){
+    const notices = mod(b,'notices'), events = mod(b,'events'), region = mod(b,'region');
+    const admin = region.ok && region.data.admin;
+    const sido = admin ? admin.sido : '';
+    const inIncheon = /인천/.test(String(sido||''));
+    const list = SUPPORT.filter(x => x.scope !== '인천' || inIncheon);
+    const t1 = list.filter(x => SUP_T1.includes(x.what));
+    const t2 = list.filter(x => SUP_T2.includes(x.what));
+    const t3 = list.filter(x => !SUP_T1.includes(x.what) && !SUP_T2.includes(x.what));
+
+    let live = '';
+    if (notices.ok){
+      const items = notices.data.items || [];
+      live += `<p class="k" style="margin-top:8px">지금 접수 중인 공고 · ${esc(num(items.length,'건'))}</p>
+        <ul class="recent">${items.length ? items.map(x => `<li><span class="d"></span><span>${linkText(x.link,x.title)}<span class="by">${esc([x.org,x.target?`대상 ${x.target}`:'',x.period,x.contact].filter(Boolean).join(' · '))}</span></span></li>`).join('')
+          : '<li><span class="d"></span><span style="color:var(--faint)">해당되는 공고가 없습니다</span></li>'}</ul>`;
+    }
+    if (events.ok){
+      const items = events.data.items || [];
+      live += `<p class="k" style="margin-top:21px">갈 만한 교육·행사 · ${esc(num(items.length,'건'))}</p>
+        <ul class="recent">${items.length ? items.map(x => `<li><span class="d"></span><span>${linkText(x.link,x.title)}<span class="by">${esc([x.kind,x.org,x.period?`행사 ${x.period}`:'',x.apply?`접수 ${x.apply}`:''].filter(Boolean).join(' · '))}</span></span></li>`).join('')
+          : '<li><span class="d"></span><span style="color:var(--faint)">지금은 이 지역에 해당되는 행사가 없습니다</span></li>'}</ul>`;
+    }
+    if (!live && !list.length) return null;
+
+    const html = `<p class="lead-read" style="font-size:15px">주소와 업종으로 <b>확정되는 것</b>만 펼쳐 두었습니다. 나머지는 사장님 사정에 따라 갈립니다.</p>
+      <p class="src9">안내만 하고 신청은 사장님이 직접 하십니다. 대신 신청하거나 수수료를 받는 일은 하지 마세요.
+        정부지원금을 미끼로 접근하는 사칭 업체가 있으니 공식 누리집에서만 신청하시라고 함께 알려 드리세요.
+        아래 제도 목록은 ${esc(SUPPORT_CHECKED)} 기준이라 금액과 마감은 반드시 원문에서 다시 확인해야 합니다.</p>
+      <div style="margin-top:21px" data-rule="ht">
+      ${acc('해당됩니다 — 주소·업종으로 확정', `${t1.length}건 + 실시간 공고`, live + supList(t1), true)}
+      ${t2.length ? acc('해당될 수 있습니다 — 확인 필요', `${t2.length}건`, supList(t2)) : ''}
+      ${t3.length ? acc('사장님께 여쭤봐야 압니다', `${t3.length}건`, supList(t3)) : ''}
+      </div>
+      <p class="k" style="margin-top:26px">사장님께 여쭤볼 것</p>
+      <p class="src9" style="margin-top:2px">대답에 따라 위 제도 해당 여부가 갈립니다. 이 목록은 현장에서 쓰는 것이라 인쇄물에 항상 남습니다.</p>
+      <ul class="ask" style="margin-top:11px">${ASK_OWNER.map(q => `<li>${esc(q)}</li>`).join('')}</ul>
+      ${inIncheon ? '' : '<p class="src9">이 매장은 인천이 아니어서 인천시 사업은 숨겼습니다. 기업마당에서 해당 지역으로 검색하세요.</p>'}`;
+    return { html, meta: (notices.ok ? srcText(notices).toUpperCase() : '기업마당') };
+  }
+
+  /* ── 사람이 채울 것 ── */
+  function renderManual(b){
+    const s = b.store || {};
+    const region = mod(b,'region');
+    const admin = region.ok && region.data.admin;
+    const q = [s.name, admin ? admin.dong : ''].filter(Boolean).join(' ');
+    const items = manualItems(s, q);
+    return { html: `<p class="lead-read" style="font-size:15px">로그인이 필요하거나 아직 자동 수집을 붙이지 않은 곳입니다.</p>
+      <ul class="sup" data-rule="ht">${items.map(m => `<li><div><div class="what">${esc(m.what)}</div><div class="why">${esc(m.why)}</div></div>
+        <a href="${esc(m.href)}" target="_blank" rel="noopener noreferrer">${esc(m.btn)}</a></li>`).join('')}</ul>
+      <div class="acts" style="margin-top:16px"><button class="abtn" type="button" id="copyNameBtn">상호·주소 복사</button></div>`,
+      meta:'MANUAL' };
+  }
+
+  /* ── 메뉴판 사진 (화면 전용) ── */
+  function renderImages(b){
+    const m = mod(b,'images');
+    if (!m.ok) return null;
+    const d = m.data || {};
+    const items = (d.items||[]).filter(it => safeHref(it.thumbnail));
+    if (!items.length) return null;
+    const search = safeHref(d.searchUrl);
+    return { html: `<p class="src9">참고용입니다. 사진이 올라간 게시글 주소를 받을 수 없어 출처를 밝힐 수 없으므로 리포트·코파일럿 묶음·JSON에는 넣지 않습니다.
+        사진 속 가격은 언제 찍었는지 알 수 없으니 매장에서 확인하세요. <b>인쇄물에는 나오지 않습니다.</b></p>
+      <ul class="thumbs">${items.map((it,i) => `<li><a href="${esc(safeHref(it.image)||search)}" target="_blank" rel="noopener noreferrer">
+        <img src="${esc(it.thumbnail)}" alt="${esc(it.title||`메뉴판 사진 ${i+1}`)}" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a></li>`).join('')}</ul>
+      ${search ? `<p class="src9"><a href="${esc(search)}" target="_blank" rel="noopener noreferrer">네이버 이미지 검색에서 더 보기</a> · ‘${esc(d.query)}’ ${esc(num(d.total,'장'))} 중 ${items.length}장</p>` : ''}`,
+      meta:'NAVER IMAGE · 화면 전용', screenOnly:true };
+  }
+
+
+  /* ══════════ 손님 불편 신호 (플레이스 리뷰) ══════════ */
+  const RV_POLL_MS = 5000;
+  const RV_TRIES = 40;                       // 5초 × 40 = 3분 20초까지 기다린다
+  const RV_LINK = { 네이버:'플레이스에서 확인', 카카오:'카카오맵에서 확인', 구글:'구글 리뷰 열기' };
+
+  function usageLine(){
+    const u = state.apifyUsage;
+    if (!u || !has(u.used) || !has(u.limit)) return '';
+    const ratio = u.limit > 0 ? u.used/u.limit : 0;
+    const left = ratio >= 0.9 ? ' · 거의 소진되어 이번 기간에는 더 가져오지 못합니다' : '';
+    return `<span class="src9" style="display:block;margin-top:7px">${ratio>=0.9?badge('warn','한도 임박')+' ':''}이번 달 리뷰 수집 비용 $${Number(u.used).toFixed(2)} / $${Number(u.limit).toFixed(2)}${u.cycleEnd?` · ${esc(u.cycleEnd)} 갱신`:''}${esc(left)}</span>`;
+  }
+  const usageBlocked = () => { const u = state.apifyUsage;
+    return Boolean(u && has(u.used) && has(u.limit) && u.limit>0 && u.used/u.limit>=0.9); };
+
+  function renderReviews(){
+    const rv = state.reviews;
+    const ready = state.bundle && configured;
+    const blocked = usageBlocked();
+    const hasKakao = Boolean(state.bundle && state.bundle.store && /place\.map\.kakao\.com\/\d+/.test(String(state.bundle.store.placeUrl||'')));
+    const opts = `<div class="rvopts">
+      <label><input type="checkbox" id="rvKakao"${state.reviewOpts.kakao?' checked':''}${hasKakao?'':' disabled'}> 카카오맵 리뷰도 (최신 100건 · 별점 있음${hasKakao?'':' · 카카오 후보로 수집한 매장만'})</label>
+      <label><input type="checkbox" id="rvGoogle"${state.reviewOpts.google?' checked':''}> 구글 지도 리뷰도 (최신 50건 · 외국인 손님 매장)</label></div>
+      <p class="src9">기본은 네이버만 · 매장당 약 $0.10, 셋 다 켜면 약 $0.40</p>`;
+    const btn = (label) => `<div class="rvbar"><button type="button" class="abtn primary" id="rvBtn"${(rv&&rv.running)||blocked?' disabled':''}>${esc(label)}</button>
+      <span class="src9">네이버 플레이스 방문자 리뷰 최신 100건 · 1~3분 걸립니다</span></div>${usageLine()}${opts}`;
+
+    if (!ready) return '<p class="src9">먼저 매장을 수집해 주세요.</p>';
+    if (!rv) return `<p class="lead-read" style="font-size:15px">아직 가져오지 않았습니다. 리뷰에는 블로그·카페에 올라오지 않는 진짜 불만이 담겨 있습니다.</p>${btn('플레이스 리뷰 가져오기')}`;
+    if (rv.running) return `<div class="prog"><span class="spin" aria-hidden="true"></span><span>${esc(rv.message||'리뷰를 모으는 중입니다')}</span></div>${btn('가져오는 중')}`;
+    if (rv.error) return `<p class="lead-read" style="font-size:15px">${badge('fail','실패')} ${esc(rv.error)}</p>${btn('다시 가져오기')}`;
+
+    const d = rv.data || {}, place = d.place || {}, out = [];
+    if (!d.matched) out.push(`<p class="lead-read" style="font-size:15px">${badge('warn','매장 확인')} 가져온 매장이 <b>${esc(place.name||'(이름 없음)')}</b>${place.address?` (${esc(place.address)})`:''} 입니다. 찾으시는 매장이 아니면 아래에 네이버 지도 주소를 넣고 다시 가져오세요.</p>`);
+
+    const total = d.counted || 0;
+    const headline = has(place.rating) ? place.rating : d.ratingAvg;
+    out.push(`<div class="k">${has(place.rating)?'플레이스 평점':'별점 평균'}</div>
+      <div class="lead-n" data-rule="hb,vr">${esc(has(headline)?headline:'—')}</div>
+      <div class="lead-ref">분석한 리뷰 ${esc(num(total,'건'))}${has(place.total)?` / 전체 ${esc(num(place.total,'건'))}`:''}${place.url?` · <a href="${esc(place.url)}" target="_blank" rel="noopener noreferrer">플레이스 열기</a>`:''}</div>`);
+
+    const srcList = Object.values(d.sources||{});
+    if (srcList.length) out.push(`<p class="src9">${srcList.map(x => x.error
+      ? `${badge('fail',x.label)} ${esc(x.error)}`
+      : `<b>${esc(x.label)}</b> ${esc(num(x.counted,'건'))}${x.place&&has(x.place.rating)?` · 평점 ${esc(x.place.rating)}`:''}${x.matched?'':' · ⚠ 매장 확인'}${x.others?` · 다른 장소 ${esc(x.others)}곳 제외`:''}`).join(' &nbsp;/&nbsp; ')}
+      ${(rv.skipped||[]).map(t=>`<br>${badge('warn','건너뜀')} ${esc(t)}`).join('')}</p>`);
+
+    if (d.rated){
+      const counts = d.ratingCounts || {};
+      const bars = [5,4,3,2,1].map(n => ({ nm:`${n}점`, v:Number(counts[n]||0),
+        sub: d.rated ? `${Math.round((Number(counts[n]||0)/d.rated)*100)}%` : '',
+        c: n<=2 ? '#EC3013' : RAMP[5-n], hot: n<=2 }));
+      out.push(barsHTML(bars.filter((x,i)=>i<4 || x.v>0)));
+      if (has(d.unrated)) out.push(`<p class="src9">별점이 있는 리뷰 ${esc(num(d.rated,'건'))}${has(d.ratingAvg)?` (평균 ${esc(d.ratingAvg)})`:''} · 별점 없는 리뷰 ${esc(num(d.unrated,'건'))} — 네이버는 2021년부터 별점 대신 키워드로 평가합니다. 위 막대는 별점이 있는 것만 센 값입니다.</p>`);
+    }
+    if ((d.keywords||[]).length) out.push(`<p class="k" style="margin-top:26px">손님이 고른 키워드 <span style="font-weight:400;color:var(--faint)">리포트의 강점 부분에 씁니다</span></p>
+      <div class="kw">${d.keywords.map(k=>`<span>${esc(k.word)} ${esc(k.count)}</span>`).join('')}</div>`);
+    if ((d.keywordsKakao||[]).length) out.push(`<p class="k" style="margin-top:21px">카카오 손님이 고른 키워드</p>
+      <div class="kw">${d.keywordsKakao.map(k=>`<span>${esc(k.word)} ${esc(k.count)}</span>`).join('')}</div>`);
+
+    const to = tableOrderSignals(d);
+    if (to.count) out.push(`<div class="flag2"><div class="eyebrow">CHECK</div>
+      <div class="lead-read">테이블 주문기 사용 흔적 ${esc(num(to.count,'건'))} — 이미 태블릿 주문을 쓰는 매장일 수 있습니다.</div>
+      <p class="src9">리포트는 ‘주문 불편 해소’가 아니라 ‘지금 태블릿으로 되는 것 / 하이오더로만 되는 것’ 비교(전환형)로 쓰고, 방문 때 어떤 기기인지 확인하세요.
+      ${to.hits.map(h=>`<br>${esc(h.source)} · ${esc(h.date||'—')} · “${esc(h.text)}”`).join('')}</p></div>`);
+
+    const items = d.complaints || [];
+    if (!items.length){
+      out.push(`<p class="lead-read" style="font-size:15px;margin-top:26px">분석한 ${esc(num(total,'건'))} 가운데 불만이 적힌 리뷰를 찾지 못했습니다. 리뷰가 고르게 긍정적인 매장입니다 — 이건 그대로 리포트의 강점으로 쓰세요.</p>`);
+    } else {
+      out.push(`<p class="k" style="margin-top:26px">불만이 적힌 리뷰 ${esc(num(items.length,'건'))} 중 ${esc(num(d.hiorderCount,'건'))}은 하이오더로 손볼 수 있습니다</p>
+        <p class="src9">리포트에 쓸 때는 작성 시점을 함께 적으세요. 맛·위생·가격 불만은 하이오더로 해결되지 않으니 그 말은 쓰지 마세요.</p>`);
+      out.push(`<ul class="cmp">${items.map((x) => {
+        const c = x.category;
+        const tag = c ? badge(c.hiorder?'info':'info', c.label) : badge('info','분류 안 됨');
+        const fix = c && c.hiorder ? `<div class="fx">하이오더로 보완 — ${esc(c.fix)}</div>` : '';
+        const meta = [has(x.rating)?`별점 ${x.rating}`:'별점 없음', x.date, x.reply?'사장님 답글 있음':'', x.lang&&x.lang!=='ko'?`원문 ${x.lang}`:''].filter(Boolean).join(' · ');
+        return `<li><div class="top">${x.source?badge('info',x.source)+' ':''}${tag} ${x.link?linkText(x.link, RV_LINK[x.source]||'원문 확인'):'<span class="src9">링크 없음</span>'}</div>
+          <div class="sn">${esc(x.text||'')}</div>${fix}<div class="src9">${esc(meta)}</div></li>`;
+      }).join('')}</ul>`);
+    }
+    out.push(`<p class="src9">${esc(d.note||'')}</p>`);
+    out.push(`<div class="rvbar" style="margin-top:21px"><input id="rvUrl" type="url" maxlength="300" aria-label="네이버 지도 주소"
+      placeholder="매장이 다르면 네이버 지도 주소를 넣으세요">
+      <button type="button" class="abtn" id="rvBtn"${blocked?' disabled':''}>이 주소로 다시</button></div>${usageLine()}${opts}`);
+    return out.join('');
+  }
+
+  function paintReviews(){ const box = document.getElementById('reviewBox'); if (box) box.innerHTML = renderReviews(); }
+
+  async function fetchReviews(){
+    if (!state.bundle || (state.reviews && state.reviews.running)) return;
+    const urlInput = $('#rvUrl');
+    const placeUrl = urlInput ? urlInput.value.trim() : '';
+    const k = $('#rvKakao'), g = $('#rvGoogle');
+    state.reviewOpts = { kakao: Boolean(k && k.checked && !k.disabled), google: Boolean(g && g.checked) };
+    const sources = ['naver'].concat(state.reviewOpts.kakao?['kakao']:[], state.reviewOpts.google?['google']:[]);
+    state.reviews = { running:true, message:'리뷰 수집을 시작합니다' };
+    paintReviews();
+    try {
+      const start = await api('/reviews/start', { method:'POST', body:{ store:state.bundle.store, placeUrl:placeUrl||undefined, sources }, timeout:30000 });
+      const runs = {};
+      Object.entries(start.runs||{}).forEach(([key,r]) => { if (r && r.runId) runs[key] = r.runId; });
+      const skipped = Object.entries(start.runs||{}).filter(([,r]) => r && r.error).map(([key,r]) => `${RV_LABEL[key]||key}: ${r.error}`);
+      const label = Object.keys(runs).map(key => RV_LABEL[key]||key).join('·');
+      for (let i = 0; i < RV_TRIES; i += 1){
+        await new Promise(r => setTimeout(r, RV_POLL_MS));
+        state.reviews = { running:true, message:`${label} 리뷰를 모으는 중입니다 · ${Math.round(((i+1)*RV_POLL_MS)/1000)}초 지남 (1~3분 걸립니다)${skipped.length?` · 건너뜀 — ${skipped.join(' / ')}`:''}` };
+        paintReviews();
+        const r = await api('/reviews/result', { method:'POST', body:{ runs, runId:start.runId, store:state.bundle.store }, timeout:30000 });
+        if (r.done){
+          if (r.usage) state.apifyUsage = r.usage;
+          state.reviews = { running:false, data:r.data, source:r.source, fetchedAt:r.fetchedAt, skipped };
+          paintReviews();
+          return;
+        }
+        if (r.failed) throw new Error('리뷰 수집이 중간에 멈췄습니다. 잠시 뒤 다시 시도해 주세요.');
+      }
+      throw new Error('리뷰 수집이 너무 오래 걸립니다. 잠시 뒤 다시 시도해 주세요.');
+    } catch (err) {
+      state.reviews = { running:false, error: err && err.message ? err.message : String(err) };
+      paintReviews();
+      if (err && err.status === 401) lockAuth('비밀번호가 바뀌었거나 맞지 않습니다. 다시 연결해 주세요.');
+    }
   }
 
 
@@ -1316,6 +1822,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     state.pass = pass;
     setBusy(true);
     setMsg(el.authMsg, '연결 중…');
+    setMsg(el.connMsg, '');
     try {
       const s = await api('/status', { timeout: 12000 });
       state.pass = pass;
@@ -1325,10 +1832,12 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       const missing = Object.keys(KEY_LABEL).filter(k => !keys[k]).length;
       const mismatch = s.version !== PAGE_VERSION;
       const verNote = mismatch ? ` · 이 페이지는 ${PAGE_VERSION}입니다. worker.js와 sketch.html을 같은 버전으로 올려야 모든 항목이 나옵니다` : '';
-      setMsg(el.authMsg, `연결됨 · 중계 서버 ${s.version || '버전 모름'}${missing ? ` · 키 ${missing}곳이 비어 있어 해당 항목은 빠집니다` : ''}${verNote}`, mismatch ? 'err' : '');
+      setMsg(el.authMsg, '');
+      setMsg(el.connMsg, `연결됨 · 중계 서버 ${s.version || '버전 모름'}${missing ? ` · 키 ${missing}곳이 비어 있어 해당 항목은 빠집니다` : ''}${verNote}`, mismatch ? 'warn' : '');
+      el.login.classList.add('done');          // 팝업은 처음 한 번만
       setBusy(false);
       el.searchSet.disabled = false;
-      el.q.focus();
+      setTimeout(() => el.q.focus(), 420);
     } catch (err) { state.pass=''; setBusy(false); showError(err, el.authMsg); }
   });
 
@@ -1392,6 +1901,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       });
       state.bundle = bundle;
       el.result.innerHTML = renderReport(bundle);
+      paintReviews();                    // 리뷰 칸은 비어 있어도 버튼은 나와야 한다
       el.acts.hidden = false;
       setMsg(el.searchMsg, '');
       el.cands.innerHTML = '';
