@@ -467,6 +467,24 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
 .kwtop li:first-child .kt{color:var(--accent-ink)}
 .kwtop .kw9{margin-left:auto;font-size:9px;color:var(--faint);text-align:right;white-space:nowrap}
 
+/* ══ 견적 밑그림 ══ */
+.chain{list-style:none;counter-reset:ch;margin:21px 0 0;padding:0;font-size:13px}
+.chain li{counter-increment:ch;display:grid;grid-template-columns:24px 1fr;gap:10px;padding:9px 0;
+  border-bottom:1px solid var(--line);line-height:1.6;font-variant-numeric:tabular-nums}
+/* li 안의 글과 <b>가 각각 그리드 칸이 되지 않게 — 내용은 span 하나로 감싼다 */
+.chain li>span{display:block}
+.tbl.fee th{width:38%}
+.chain li::before{content:counter(ch,decimal-leading-zero);font-size:9px;color:var(--faint);font-weight:600;
+  padding-top:4px;letter-spacing:.04em}
+.chain li:last-child{border-bottom:0}
+.chain b{font-weight:700;color:var(--ink)}
+.tbl.qt th{width:15%}
+.tbl.qt td{width:auto}
+.tbl.qt .hd9 th,.tbl.qt .hd9 td{font-size:9px;letter-spacing:.06em;color:var(--faint);font-weight:600;padding-bottom:6px}
+.tbl.qt td:last-child{font-weight:600}
+.tool input[type=number]{-moz-appearance:textfield}
+.tool input[type=number]::-webkit-outer-spin-button,.tool input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+
 /* ══ 큰 화면 — 종이 한 장으로 읽히게 ══
    본문 590px은 인쇄 폭(156mm)이라 늘릴 수 없다. 대신 A4 한 장을 통째로 그리고
    배율로 키운다. 인쇄에는 zoom:1이 걸려 있어 출력물은 배율과 무관하다. */
@@ -499,7 +517,7 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
   /* 마우스가 차트 위에 있는 채로 인쇄하면 나머지가 흐리게 찍힌다 — 호버 효과를 끈다 */
   /* 낱장 조각이 나지 않게 — 한 덩어리는 한 쪽 안에서 끝낸다 */
   .cmp li,.recent li,.sup li,.tips li,.two,.rest,.flag2,.acts,.tbl tr,.kpi,.bar,.kwtop li,
-  .dist,.dist li,.mixbar,.mixleg,.barswrap,.rosewrap
+  .dist,.dist li,.mixbar,.mixleg,.barswrap,.rosewrap,.chain li,.tbl.qt
     {break-inside:avoid;page-break-inside:avoid}
   .k,.eyebrow,.legend{break-after:avoid;page-break-after:avoid}
   .bars *,.rosewrap *{filter:none!important;translate:none!important}
@@ -536,7 +554,7 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
       <div class="name">밑그림</div>
       <div class="tag"><span class="en">SKETCH</span><em>밑</em>천이 되는 <em>그림</em></div>
     </div>
-    <div class="ver">v2.40</div>
+    <div class="ver">v2.50</div>
   </div>
 
   <section class="tool" id="tool" aria-label="수집 도구">
@@ -553,6 +571,8 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
       <div class="trow">
         <div class="tf grow"><span class="tl">대표 메뉴 <span style="color:#B4B4B9">선택</span></span>
           <input id="keywords" type="text" maxlength="80" placeholder="비우면 업종에서 자동으로 고릅니다" aria-label="대표 메뉴 키워드"></div>
+        <div class="tf w96"><span class="tl">테이블 수 <span style="color:#B4B4B9">선택</span></span>
+          <input id="tables" type="number" min="1" max="99" inputmode="numeric" placeholder="실측" aria-label="테이블 수 (실측)" title="방문해서 센 테이블 수. 넣으면 견적 장이 면적 추정 대신 이 값으로 계산됩니다"></div>
       </div>
     </fieldset>
   </section>
@@ -580,7 +600,8 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
 
   // ▼ 배포 후 Cloudflare Worker 주소로 바꾸세요 (끝에 / 없이)
   const API_BASE = 'https://kt.roi0925003.workers.dev';
-  const PAGE_VERSION = 'v2.40';
+  const PAGE_VERSION = 'v2.50';
+  const WORKER_VERSION = 'v1.22';   // 이 페이지와 짝이 되는 worker.js 버전
   // 'show' = 발표 모드(느리고 우아한 연출) / 'fast' = 업무 모드(0.4초, 카운트업 없음)
   const MOTION = 'show';
   document.documentElement.dataset.motion = MOTION;
@@ -591,7 +612,7 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
     tool: $('#tool'), scrim: $('#scrim'),
     authForm: $('#authForm'), pass: $('#pass'), authBtn: $('#authBtn'), authMsg: $('#authMsg'), chips: $('#keyChips'),
     searchSet: $('#searchSet'), searchForm: $('#searchForm'), q: $('#q'), radius: $('#radius'),
-    keywords: $('#keywords'), searchMsg: $('#searchMsg'), cands: $('#cands'),
+    keywords: $('#keywords'), tables: $('#tables'), searchMsg: $('#searchMsg'), cands: $('#cands'),
     prog: $('#prog'), progText: $('#progText'), result: $('#report'),
     login: $('#login'), connMsg: $('#connMsg'),
     acts: $('#acts'), copyBtn: $('#copyBtn'), txtBtn: $('#txtBtn'), jsonBtn: $('#jsonBtn'),
@@ -1075,6 +1096,7 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
     { id:'online',  title:'온라인 언급',               bg:'언급', render:renderOnline },
     { id:'news',    title:'뉴스',                     bg:'뉴스', render:renderNews },
     { id:'trend',   title:'메뉴 검색 추이',            bg:'추이', render:renderTrend },
+    { id:'quote',   title:'하이오더 견적 밑그림',        bg:'견적', render:renderQuote },
     { id:'keyword', title:'플레이스 노출 키워드 후보',   bg:'검색', render:renderKeyword },
     { id:'support', title:'사장님께 알려드릴 지원사업·교육', bg:'지원', render:renderSupport },
     { id:'manual',  title:'사람이 채울 것',            bg:'현장', render:renderManual },
@@ -1236,7 +1258,7 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
     const h = L && L.hood;
     if (!h || !has(h.active)) return '';
     const pc = h.active ? (h.newly / h.active * 100) : 0;
-    return `<p class="k" style="margin-top:34px">${esc(h.where)} 일반음식점 — 얼마나 자주 바뀌는 동네인가</p>
+    return `<p class="k" style="margin-top:34px">${esc(h.where)} ${esc(h.kind||'일반음식점')} — 얼마나 자주 바뀌는 동네인가</p>
       <div class="two" style="margin-top:13px">
         <div><div class="k">최근 ${esc(h.years)}년 새로 연 곳</div>
           <div class="v" style="font-size:54px">${esc(num(h.newly))}</div>
@@ -1400,6 +1422,158 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
         <img src="${esc(it.thumbnail)}" alt="${esc(it.title||`메뉴판 사진 ${i+1}`)}" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a></li>`).join('')}</ul>
       ${search ? `<p class="src9"><a href="${esc(search)}" target="_blank" rel="noopener noreferrer">네이버 이미지 검색에서 더 보기</a> · ‘${esc(d.query)}’ ${esc(num(d.total,'장'))} 중 ${items.length}장</p>` : ''}`,
       meta:'NAVER IMAGE · 화면 전용', screenOnly:true };
+  }
+
+
+  /* ══════════ 하이오더 견적 밑그림 ══════════
+     요금은 견적 계산기(cal.html v1.11)의 공식 요금표만 쓴다. 정책지원금·프로모션·프랜차이즈가는 종이에
+     올리지 않는다 — 매장마다 다르게 쪼개지는 값이라 찍는 순간 그 매장의 약속이 된다.
+     대수는 인허가 면적에서 역산한 '첫 추정치'다. 테이블 수를 직접 넣으면 그 값이 추정을 덮어쓴다.
+     인건비 대비는 사람을 대신한다는 뜻이 아니라 비용의 크기를 재는 잣대다. */
+  const QUOTE = {
+    service: 15000,        // 서비스이용료 · 3년 약정 (VAT 별도)
+    serviceFree: 21000,    // 무약정
+    device: 5000,          // 단말대금 월납 · 10인치 · 36개월 (VAT 별도)
+    deviceLump: 170000,    // 일시납 (VAT 별도 · VAT 포함 187,000원)
+    months: 36, vat: 1.1,
+    wage: 10320, hours: 209, wageYear: 2026,   // 최저임금 월 환산 (주휴수당 포함)
+    hall: 0.65,            // 영업장 면적 중 홀 비율 (가정)
+    perTable: [3.6, 4.8],  // 4인 테이블 1개당 홀 면적 ㎡ — 테이블 120~140cm + 통로 0.9~1.2m (일반업소 기준)
+    notice: 1,             // 알림판 10인치 1대
+    calcVer: 'v1.11',
+  };
+  const QUOTE_UNIT = QUOTE.service + QUOTE.device;   // 대당 월 20,000원 (VAT 별도)
+  const QUOTE_WAGE = QUOTE.wage * QUOTE.hours;       // 2,156,880원
+  const PYEONG = 3.3058;
+  const wonN = (v) => Math.round(v).toLocaleString('ko-KR');
+  const won  = (v) => `${wonN(v)}원`;
+  const wonV = (v) => `${won(v)} (VAT 포함 ${won(v*QUOTE.vat)})`;
+  const pct  = (v) => `${(v*100).toFixed(1)}%`;
+  const rng  = (p, f) => p[0] === p[1] ? f(p[0]) : `${f(p[0])}~${f(p[1])}`;
+  const rngN = (p, unit) => p[0] === p[1] ? `${p[0]}${unit}` : `${p[0]}~${p[1]}${unit}`;
+  const pctRange = (p) => p[0] === p[1] ? pct(p[0]) : `${(p[0]*100).toFixed(1)}~${(p[1]*100).toFixed(1)}%`;
+  const wonR = (p, k = 1) => p[0] === p[1] ? won(p[0]*k) : `${wonN(p[0]*k)}~${won(p[1]*k)}`;
+  const wonRange = (p) => p[0] === p[1] ? wonV(p[0]) : `${wonR(p)} (VAT 포함 ${wonR(p, QUOTE.vat)})`;
+
+  /* 대수 → 월 이용료 → 인건비 대비. 비율은 사장님이 실제로 내는 VAT 포함 금액으로 잰다(보수적) */
+  function quoteOf(tables){
+    const d = [tables[0] + QUOTE.notice, tables[1] + QUOTE.notice];
+    return { tables, devices: d,
+      monthly: [d[0]*QUOTE_UNIT, d[1]*QUOTE_UNIT],
+      ratio:   [d[0]*QUOTE_UNIT*QUOTE.vat/QUOTE_WAGE, d[1]*QUOTE_UNIT*QUOTE.vat/QUOTE_WAGE] };
+  }
+  function quoteCalc(b){
+    const L = licence(b);
+    const area = L && has(L.area) && Number(L.area) >= 10 ? Number(L.area) : 0;
+    const typed = el.tables ? Math.min(99, Math.max(0, Math.floor(Number(el.tables.value) || 0))) : 0;
+    let byArea = null;
+    if (area){
+      const hall = area * QUOTE.hall;
+      const lo = Math.max(1, Math.floor(hall / QUOTE.perTable[1]));
+      const hi = Math.max(lo, Math.round(hall / QUOTE.perTable[0]));
+      byArea = { hall, ...quoteOf([lo, hi]) };
+    }
+    const est = typed ? quoteOf([typed, typed]) : byArea;
+    return { area, typed, byArea, est, how: typed ? 'typed' : byArea ? 'area' : '' };
+  }
+
+  function renderQuote(b){
+    return { html: `<div id="quoteBody">${quoteBodyHTML(b)}</div>`,
+      meta: `KT 하이오더 요금표 ${QUOTE.calcVer} · ${QUOTE.wageYear} 최저임금` };
+  }
+  function quoteBodyHTML(b){
+    const Q = quoteCalc(b), P = placeInfo(b);
+
+    /* ① 요금 구성 — 두 줄로 풀어 쓴다. 서비스료와 기계값 할부가 따로 보여야 한다 */
+    const fee = `<p class="k">대당 월 요금 — 후불형 · 3년 약정 · 월납</p>` + tbl([
+      ['서비스이용료', esc(wonV(QUOTE.service))],
+      ['단말대금 월납 (10인치 · 36개월)', `${esc(wonV(QUOTE.device))}<span class="tiny"><br>36개월 총 ${esc(wonV(QUOTE.device*QUOTE.months))} · 일시납 ${esc(wonV(QUOTE.deviceLump))}</span>`],
+      ['합계', `<b>${esc(wonV(QUOTE_UNIT))}</b>`],
+    ]).replace('class="tbl"', 'class="tbl fee"') + `<p class="src9">무약정은 서비스이용료 ${esc(wonV(QUOTE.serviceFree))}. 선불형(카드리더기)·15인치 알림판·부가서비스·할인은 견적 계산기에서 따로 계산합니다.</p>`;
+
+    /* ② 이 매장 추정 */
+    let est;
+    if (Q.est){
+      const E = Q.est, chain = [];
+      if (Q.how === 'typed'){
+        chain.push(`테이블 <b>${Q.typed}개</b> — 직접 넣은 값 (실측)`);
+      } else {
+        chain.push(`영업장 면적 <b>${esc(num(Q.area))}㎡</b> (약 ${Math.round(Q.area/PYEONG)}평) — 인허가 자료, 주방·창고 포함`);
+        chain.push(`홀 ${Math.round(QUOTE.hall*100)}% 가정 → ${esc(num(Math.round(Q.byArea.hall)))}㎡`);
+        chain.push(`4인 테이블 1개당 홀 ${QUOTE.perTable[0]}~${QUOTE.perTable[1]}㎡ (통로 포함 · 일반업소 기준) → 테이블 <b>${esc(rngN(E.tables,'개'))}</b>`);
+      }
+      chain.push(`테이블당 1대 + 알림판 ${QUOTE.notice}대 → 하이오더 <b>${esc(rngN(E.devices,'대'))}</b>`);
+      chain.push(`월 이용료 = ${esc(rngN(E.devices,'대'))} × ${esc(won(QUOTE_UNIT))} = <b>${esc(wonRange(E.monthly))}</b>`);
+      chain.push(`홀 인력 1명 월 인건비 ${esc(won(QUOTE_WAGE))} (${QUOTE.wageYear}년 최저임금 ${esc(won(QUOTE.wage))} × ${QUOTE.hours}시간) 대비 <b>${esc(pctRange(E.ratio))}</b> — VAT 포함 금액으로 잰 값`);
+      est = `<div class="two" data-rule="ht">
+        <div><div class="k">하이오더 대수 ${Q.how === 'typed' ? '(실측 기준)' : '(추정)'}</div>
+          <div class="v">${esc(rngN(E.devices,''))}</div>
+          <div class="lead-ref">대 · 테이블 ${esc(rngN(E.tables,'개'))} + 알림판 ${QUOTE.notice}대</div></div>
+        <div><div class="k">홀 인력 1명 인건비 대비</div>
+          <div class="v">${esc(rng(E.ratio, v => (v*100).toFixed(1)))}</div>
+          <div class="lead-ref">% · 월 ${esc(wonR(E.monthly, QUOTE.vat))} (VAT 포함)</div></div>
+      </div>
+      <ol class="chain">${chain.map(t => `<li><span>${t}</span></li>`).join('')}</ol>
+      ${Q.how === 'typed' && Q.byArea ? `<p class="src9">면적 기준 추정은 ${esc(rngN(Q.byArea.devices,'대'))}였습니다. 실측과 차이가 크면 이 매장은 홀 비율이나 테이블 크기가 일반 기준과 다른 곳입니다.</p>` : ''}
+      ${Q.how === 'area' ? `<p class="src9">추정치입니다. 방문해서 테이블을 세고 화면의 「테이블 수」 칸에 넣으면 이 장이 실측으로 다시 계산됩니다.${P && P.seats ? ` 네이버 플레이스 좌석 정보: ${esc(P.seats)}.` : ''}</p>` : ''}`;
+    } else {
+      est = `<p class="lead-read" style="font-size:15px;margin-top:26px">${badge('warn','추정 없음')} 인허가 면적이 없어 이 매장 추정은 비었습니다. 방문해서 테이블을 세고 화면의 「테이블 수」 칸에 넣으면 여기서 계산됩니다.</p>
+        ${P && P.seats ? `<p class="src9">네이버 플레이스 좌석 정보: ${esc(P.seats)}</p>` : ''}`;
+    }
+
+    /* ③ 대수별 환산표 — 면적이 없는 매장, 그리고 종이만 받는 대리점용 */
+    const rows = [5, 8, 10, 12, 15, 20].map(n => `<tr><th>${n}대</th><td>${esc(won(n*QUOTE_UNIT))}</td>
+      <td>${esc(won(n*QUOTE_UNIT*QUOTE.vat))}</td><td>${esc(pct(n*QUOTE_UNIT*QUOTE.vat/QUOTE_WAGE))}</td></tr>`).join('');
+    const table = `<p class="k" style="margin-top:34px">대수별 환산표 — 알림판 포함 총 대수 기준</p>
+      <table class="tbl qt"><tr class="hd9"><th>대수</th><td>월 이용료</td><td>VAT 포함</td><td>홀 인력 1명 인건비 대비</td></tr>${rows}</table>
+      <p class="src9">가정: 홀 비율 ${Math.round(QUOTE.hall*100)}%, 4인 테이블 1개당 홀 ${QUOTE.perTable[0]}~${QUOTE.perTable[1]}㎡(테이블 120~140cm + 통로 0.9~1.2m), 알림판 10인치 1대 — 시너지영업3팀 일반업소 기준.
+        인건비는 ${QUOTE.wageYear}년 최저임금 월 환산액(주휴수당 포함 · 사업주 4대보험 부담 제외)이라 실제 인건비는 이보다 큽니다.
+        하이오더가 사람을 대신한다는 뜻이 아니라 비용의 크기를 재는 잣대입니다. 요금표: KT 하이오더 견적 계산기 ${QUOTE.calcVer}.</p>`;
+
+    return fee + est + table;
+  }
+
+  /* 화면의 「테이블 수」가 바뀌면 이 장만 다시 그린다 — 수집을 다시 하지 않는다 */
+  function repaintQuote(){
+    if (!state.bundle) return;
+    const box = document.getElementById('quoteBody');
+    if (box) box.innerHTML = quoteBodyHTML(state.bundle);
+  }
+
+  /* 코파일럿용 묶음 · JSON */
+  function quoteMarkdown(b){
+    const Q = quoteCalc(b), L = [];
+    L.push('- 규칙: 아래 요금만 쓰세요. 정책지원금·프로모션·프랜차이즈 전용가는 리포트에 쓰지 마세요. 가격은 "20,000원 (VAT 포함 22,000원)"처럼 VAT 포함가를 병기하세요.');
+    L.push('- 규칙: 대수는 면적에서 역산한 추정치입니다. "약 N~M대(추정)"로 쓰고, 실측 전에는 확정 대수처럼 쓰지 마세요.');
+    L.push('- 규칙: 인건비 대비는 비용의 크기를 재는 잣대입니다. 하이오더가 인력을 대체한다고 쓰지 마세요.');
+    L.push('', '| 항목 | 값 |', '|---|---|');
+    L.push(`| 서비스이용료 (3년 약정) | ${wonV(QUOTE.service)} |`);
+    L.push(`| 단말대금 월납 (10인치 · 36개월) | ${wonV(QUOTE.device)} · 36개월 총 ${wonV(QUOTE.device*QUOTE.months)} · 일시납 ${wonV(QUOTE.deviceLump)} |`);
+    L.push(`| 대당 월 합계 (후불형 · 3년 약정 · 월납) | ${wonV(QUOTE_UNIT)} |`);
+    L.push(`| 무약정 서비스이용료 | ${wonV(QUOTE.serviceFree)} |`);
+    L.push(`| 홀 인력 1명 월 인건비 | ${won(QUOTE_WAGE)} (${QUOTE.wageYear}년 최저임금 ${won(QUOTE.wage)} × ${QUOTE.hours}시간 · 주휴수당 포함 · 사업주 4대보험 부담 제외) |`);
+    L.push('');
+    if (Q.est){
+      const E = Q.est;
+      const head = Q.how === 'typed'
+        ? `테이블 ${Q.typed}개 (직접 입력 · 실측)`
+        : `영업장 면적 ${num(Q.area)}㎡ (약 ${Math.round(Q.area/PYEONG)}평, 인허가 · 주방 포함) → 홀 ${Math.round(QUOTE.hall*100)}% 가정 ${num(Math.round(Q.byArea.hall))}㎡ → 4인 테이블 1개당 ${QUOTE.perTable[0]}~${QUOTE.perTable[1]}㎡ → 테이블 ${rngN(E.tables,'개')}`;
+      L.push(`- 이 매장 추정: ${head} → + 알림판 ${QUOTE.notice}대 → 하이오더 ${rngN(E.devices,'대')} → 월 이용료 ${wonRange(E.monthly)} → 홀 인력 1명 인건비 대비 ${pctRange(E.ratio)} (VAT 포함 기준)`);
+      if (Q.how === 'typed' && Q.byArea) L.push(`- 참고: 면적 기준 추정은 ${rngN(Q.byArea.devices,'대')}였습니다 (실측이 우선).`);
+    } else {
+      L.push('- 이 매장 추정: 인허가 면적이 없어 비었습니다. 방문 때 테이블을 세어 수집기의 「테이블 수」에 넣으면 계산됩니다.');
+    }
+    L.push('', '| 대수 (알림판 포함) | 월 이용료 | VAT 포함 | 홀 인력 1명 인건비 대비 |', '|---|---|---|---|');
+    [5, 8, 10, 12, 15, 20].forEach(n => L.push(`| ${n}대 | ${won(n*QUOTE_UNIT)} | ${won(n*QUOTE_UNIT*QUOTE.vat)} | ${pct(n*QUOTE_UNIT*QUOTE.vat/QUOTE_WAGE)} |`));
+    L.push(`- 가정: 홀 비율 ${Math.round(QUOTE.hall*100)}%, 4인 테이블 1개당 홀 ${QUOTE.perTable[0]}~${QUOTE.perTable[1]}㎡(테이블 120~140cm + 통로 0.9~1.2m), 알림판 10인치 1대 — 시너지영업3팀 일반업소 기준(가정). 요금표: KT 하이오더 견적 계산기 ${QUOTE.calcVer}. 인건비: ${QUOTE.wageYear}년 최저임금 고시.`);
+    return L;
+  }
+  function quoteExport(b){
+    const Q = quoteCalc(b);
+    return { basis: { ...QUOTE, unitMonthly: QUOTE_UNIT, unitMonthlyVat: QUOTE_UNIT*QUOTE.vat, laborMonthly: QUOTE_WAGE },
+      area: Q.area || null, tablesTyped: Q.typed || null, how: Q.how || null,
+      byArea: Q.byArea, estimate: Q.est,
+      note: '정책지원금·프로모션은 넣지 않은 공식 요금표 기준. 대수는 추정치.' };
   }
 
   /* ══════════ 플레이스 노출 키워드 후보 ══════════
@@ -2246,9 +2420,12 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
       L.push('- AI에게: 위 후보 중 이 매장에 맞는 5개를 고르고, 왜 나머지를 뺐는지 한 줄씩 적어 주세요. 후보에 없는 말을 새로 지어내지 마세요.');
     }
     L.push('');
+    L.push('## 12. 하이오더 견적 밑그림 (KT 공식 요금표 · 대수는 추정)');
+    quoteMarkdown(b).forEach((t) => L.push(t));
+    L.push('');
     const fails = failedModules(b);
     if (fails.length) {
-      L.push('## 12. 수집하지 못한 항목');
+      L.push('## 13. 수집하지 못한 항목');
       fails.forEach(([k, m]) => L.push(`- ${LABEL[k] || k}: ${md(errLine(m))}`));
     }
     return L.join('\n');
@@ -2322,6 +2499,7 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
     if (state.reviews && state.reviews.data) {
       copy.reviews = { fetchedAt: state.reviews.fetchedAt, source: state.reviews.source, data: state.reviews.data };
     }
+    copy.quote = quoteExport(b);     // 공식 요금표 기준 · 대수는 추정 (정책지원금 없음)
     return copy;
   }
 
@@ -2350,8 +2528,8 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
       el.chips.innerHTML = Object.keys(KEY_LABEL)
         .map(k => `<span class="chip${keys[k] ? '' : ' off'}">${esc(KEY_LABEL[k])}${keys[k] ? '' : ' 없음'}</span>`).join('');
       const missing = Object.keys(KEY_LABEL).filter(k => !keys[k]).length;
-      const mismatch = s.version !== PAGE_VERSION;
-      const verNote = mismatch ? ` · 이 페이지는 ${PAGE_VERSION}입니다. worker.js와 sketch.html을 같은 버전으로 올려야 모든 항목이 나옵니다` : '';
+      const mismatch = s.version !== WORKER_VERSION;
+      const verNote = mismatch ? ` · 이 페이지(${PAGE_VERSION})는 worker.js ${WORKER_VERSION}와 짝입니다. worker.js를 ${WORKER_VERSION}로 올려야 모든 항목이 나옵니다` : '';
       setMsg(el.authMsg, '');
       setMsg(el.connMsg, `연결됨 · 중계 서버 ${s.version || '버전 모름'}${missing ? ` · 키 ${missing}곳이 비어 있어 해당 항목은 빠집니다 (공공데이터포털은 키가 있어도 데이터셋별로 활용신청이 따로입니다)` : ''}${verNote}`, mismatch ? 'warn' : '');
       el.login.classList.add('done');          // 팝업은 처음 한 번만
@@ -2366,6 +2544,7 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
     e.preventDefault();
     const q = el.q.value.trim();
     if (!q || state.busy) return;
+    if (el.tables) el.tables.value = '';   // 다른 매장을 찾는 것이니 실측 테이블 수는 비운다
     setBusy(true);
     setMsg(el.searchMsg, '찾는 중…');
     el.cands.innerHTML = '';
@@ -2429,6 +2608,9 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
     } catch (err) { showError(err, el.searchMsg); }
     finally { clearInterval(timer); el.prog.hidden = true; setBusy(false); }
   }
+
+  /* 3-1. 실측 테이블 수 — 견적 장만 다시 계산 */
+  if (el.tables) el.tables.addEventListener('input', () => repaintQuote());
 
   /* 4. 내보내기 */
   el.jsonBtn.addEventListener('click', () => {
