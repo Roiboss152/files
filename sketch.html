@@ -429,6 +429,26 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
 .thumbs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;list-style:none;margin:13px 0 0;padding:0}
 .thumbs a{display:block;aspect-ratio:1/1;border-radius:10px;overflow:hidden;background:var(--panel)}
 .thumbs img{width:100%;height:100%;object-fit:contain;display:block}
+/* ══ 거리별 밀도 · 주변 업종 구성 (3장) ══ */
+.dist{list-style:none;margin:13px 0 0;padding:0}
+.dist li{display:flex;align-items:center;gap:13px;padding:7px 0}
+.dist .dl{width:76px;flex:none;font-size:11px;color:var(--sub);font-variant-numeric:tabular-nums}
+.dist .db{flex:1;height:10px;background:var(--panel);border-radius:2px;overflow:hidden}
+.dist .db i{display:block;height:100%;background:#6E6E73;
+  transform-origin:left center;transform:scaleX(0);transition:transform 900ms cubic-bezier(.2,.8,.2,1)}
+.on .dist .db i{transform:scaleX(1)}
+.dist li.hot .db i{background:var(--accent)}
+.dist li.hot .dn{color:var(--accent-ink);font-weight:700}
+.dist .dn{width:56px;flex:none;text-align:right;font-size:13px;font-weight:600;
+  font-variant-numeric:tabular-nums}
+.mixbar{display:flex;height:21px;border-radius:3px;overflow:hidden;margin-top:13px;background:var(--panel)}
+.mixbar i{display:block;height:100%}
+.mixleg{list-style:none;display:flex;flex-wrap:wrap;gap:9px 26px;margin:16px 0 0;padding:0;font-size:11px;color:var(--sub)}
+.mixleg li{display:inline-flex;align-items:baseline;gap:7px}
+.mixleg li .src9{font-size:11px;color:var(--faint)}
+.mixleg i{width:10px;height:10px;border-radius:3px;flex:none}
+.mixleg b{color:var(--ink);font-weight:700}
+
 /* ══ 부정 표현 — 빨강은 절제하기로 했으니 본문에는 진한 쪽(#AE1800)을 쓴다 ══ */
 .cmp .sn em.neg{font-style:normal;font-weight:700;color:var(--accent-ink)}
 /* 빨간 '글씨'는 문제(부정 표현)에만, 우리 해결책은 빨간 '선'으로 — 둘이 안 섞이게 */
@@ -478,7 +498,8 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
   .core span{opacity:1;color:#D4D4D4}     /* 흰색 80%를 #2A2827 위에 합성한 값 */
   /* 마우스가 차트 위에 있는 채로 인쇄하면 나머지가 흐리게 찍힌다 — 호버 효과를 끈다 */
   /* 낱장 조각이 나지 않게 — 한 덩어리는 한 쪽 안에서 끝낸다 */
-  .cmp li,.recent li,.sup li,.tips li,.two,.rest,.flag2,.acts,.tbl tr,.kpi,.bar,.kwtop li
+  .cmp li,.recent li,.sup li,.tips li,.two,.rest,.flag2,.acts,.tbl tr,.kpi,.bar,.kwtop li,
+  .dist,.dist li,.mixbar,.mixleg,.barswrap,.rosewrap
     {break-inside:avoid;page-break-inside:avoid}
   .k,.eyebrow,.legend{break-after:avoid;page-break-after:avoid}
   .bars *,.rosewrap *{filter:none!important;translate:none!important}
@@ -486,8 +507,9 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
     {opacity:1!important;scale:1!important}
   .bars .bar:hover .n,.lbl.lit .n{scale:1!important}
   /* 전환(transition)은 !important보다 우선한다 — 지연 구간에 갇히지 않게 아예 끈다 */
-  .wedge,.lead-l,.lbl,.lbl .n,.lbl .t,.bar,.bar .col,.bar .n,.core,.arule,.bgw
+  .wedge,.lead-l,.lbl,.lbl .n,.lbl .t,.bar,.bar .col,.bar .n,.core,.arule,.bgw,.dist .db i
     {transition:none!important}
+  .dist .db i{transform:scaleX(1)!important}
   .wedge,.lead-l,.lbl,.bar .col,.bar .n{opacity:1!important}
   .bars{grid-template-columns:repeat(var(--bn,3),1fr)}
 }
@@ -514,7 +536,7 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
       <div class="name">밑그림</div>
       <div class="tag"><span class="en">SKETCH</span><em>밑</em>천이 되는 <em>그림</em></div>
     </div>
-    <div class="ver">v2.10</div>
+    <div class="ver">v2.30</div>
   </div>
 
   <section class="tool" id="tool" aria-label="수집 도구">
@@ -558,7 +580,7 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
 
   // ▼ 배포 후 Cloudflare Worker 주소로 바꾸세요 (끝에 / 없이)
   const API_BASE = 'https://kt.roi0925003.workers.dev';
-  const PAGE_VERSION = 'v2.10';
+  const PAGE_VERSION = 'v2.30';
   // 'show' = 발표 모드(느리고 우아한 연출) / 'fast' = 업무 모드(0.4초, 카운트업 없음)
   const MOTION = 'show';
   document.documentElement.dataset.motion = MOTION;
@@ -729,6 +751,43 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
     return { count: reviewCount + blogCount, reviewCount, blogCount, hits };
   }
 
+  /* 플레이스 자료(영업시간·편의시설·소개글) — Worker가 place 모듈을 실어 주면 쓴다.
+     카카오 로컬에도 네이버 지역검색에도 없는 값이라, 플레이스를 긁어야만 들어온다. */
+  const DAYS = ['월','화','수','목','금','토','일'];
+  function placeInfo(b){
+    const m = mod(b,'place');
+    if (!m.ok || !m.data) return null;
+    const d = m.data;
+    const closed = (d.closedDays || []).filter(x => DAYS.indexOf(x) >= 0);
+    const hours = (d.hours || []).filter(h => h && h.day);
+    const am = (d.amenities || []).map(String).filter(Boolean);
+    const pk = d.parking || null;
+    const has_ = closed.length || hours.length || am.length || pk || d.intro;
+    if (!has_) return null;
+    return {
+      closed, hours, amenities: am, parking: pk,
+      intro: String(d.intro || ''), seats: String(d.seats || ''),
+      weekendOff: closed.indexOf('토') >= 0 || closed.indexOf('일') >= 0,
+      openDays: DAYS.filter(x => closed.indexOf(x) < 0),
+      source: (m.source && m.source.name) || '네이버 플레이스',
+    };
+  }
+  function hoursText(P){
+    if (!P) return '';
+    const open = P.openDays.length ? P.openDays.join('·') : '';
+    const off  = P.closed.length ? `${P.closed.join('·')} 휴무` : '';
+    const h    = P.hours[0];
+    const time = h ? `${h.open || ''}~${h.close || ''}`.replace(/^~$/,'') : '';
+    return [open && `영업 ${open}`, off, time].filter(Boolean).join(' · ');
+  }
+  function parkText(P){
+    if (!P || !P.parking) return '';
+    const pk = P.parking;
+    return [pk.available === false ? '주차 불가' : '주차 가능',
+      pk.paid === true ? '유료' : pk.paid === false ? '무료' : '',
+      pk.note || ''].filter(Boolean).join(' · ');
+  }
+
   /* 인허가 자료 — Worker가 localdata 모듈을 실어 주면 쓰고, 없으면 조용히 넘어간다 */
   function licence(b){
     const m = mod(b,'localdata');
@@ -752,7 +811,7 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
     return [
       { what: '오픈업 매장 페이지 캡처', why: '추정 매출 범위 · 시간대 · 요일 · 고객 구성', href: 'https://www.openub.com/', btn: '오픈업 열기' },
       { what: '소상공인365 상세분석 캡처', why: '상권 평균 매출 · 유동인구 · 상권 등급', href: 'https://bigdata.sbiz.or.kr/', btn: '소상공인365 열기' },
-      lic ? null : { what: '인허가일(업력) 확인', why: '일반음식점 인허가일 · 면적', href: 'https://www.localdata.go.kr/', btn: 'LOCALDATA 열기' },
+      lic ? null : { what: "인허가일(업력) 확인", why: "일반음식점 인허가일 · 면적", href: "https://www.data.go.kr/data/15154916/openapi.do", btn: "공공데이터포털 열기" },
       { what: '코네스트·타베로그 확인', why: '일본 손님이 보이는 매장만. 구글·카카오 리뷰는 수집기가 함께 가져옵니다', href: `https://www.konest.com/contents/search_result.html?keyword=${enc}`, btn: '코네스트 열기' },
     ].filter(Boolean);
   }
@@ -772,12 +831,12 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
       if (gap < 24) { gap = 24; bw = (W - (n-1)*gap) / n; }
     }
     const gv = `--bn:${n};--bw:${bw.toFixed(1)}px;--bgap:${gap.toFixed(1)}px`;
-    return `<div class="bars" style="${gv}" ${id?`id="${id}"`:''} data-rule="vl,vr,hb">` + data.map((d,i) => {
+    return `<div class="barswrap"><div class="bars" style="${gv}" ${id?`id="${id}"`:''} data-rule="vl,vr,hb">` + data.map((d,i) => {
       const p = Math.max(d.v/mx*100, 3).toFixed(2);
       return `<div class="bar ${d.hot?'hot':''}" style="--p:${p};--c:${d.c||RAMP[i]};--d:${i*240}ms">
         <div class="track"><span class="n">${esc(Number(d.v).toLocaleString('ko-KR'))}</span><i class="col"></i></div>
         <span class="lb">${esc(d.nm)}<small>${esc(d.sub||'')}</small></span></div>`;
-    }).join('') + '</div>';
+    }).join('') + '</div></div>';
   }
 
   /* 로즈 — 각도는 균등, 값은 반지름. 1위만 기준의 120%, 나머지는 95~105% */
@@ -907,8 +966,9 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
       safeHref(s.naverLink) ? `<a href="${esc(s.naverLink)}" target="_blank" rel="noopener">네이버 등록</a>` : '',
     ].filter(Boolean).join(' · ');
 
-    const lic = licence(b);
-    const info = tbl([
+    const lic = licence(b), P = placeInfo(b);
+    const ld = mod(b,'localdata');
+    const rows = [
       ['업종 (카카오)', esc(s.category || '—')],
       ['업종 (네이버)', esc(s.naverCategory || '—')],
       ['도로명 주소', esc(s.roadAddress || '—')],
@@ -916,12 +976,18 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
       ['전화', esc(s.phone || '—')],
       ['행정동', region.ok ? esc(admin ? `${admin.name} (코드 ${admin.code})` : '—') : badge('fail','수집 안 됨')],
       ['링크', links || '—'],
-    ].concat(lic ? [
-      ['인허가일 (업력)', esc(`${lic.ymd} · ${ageText(lic)}`) +
-        (lic.state ? ` <span class="src9">${esc(lic.state)}</span>` : '') +
-        (lic.exact ? '' : ' <span class="src9">상호가 비슷한 곳을 골랐습니다 — 확인하세요</span>')],
-    ] : (lic===null && mod(b,'localdata').ok === false && mod(b,'localdata').error
-        ? [['인허가일 (업력)', badge('fail','수집 안 됨') + ` <span class="src9">${esc(mod(b,'localdata').error)}</span>`]] : [])));
+    ];
+    if (P && hoursText(P)) rows.push(['영업일 · 시간', esc(hoursText(P))]);
+    if (P && parkText(P))  rows.push(['주차', esc(parkText(P))]);
+    const amen = P ? P.amenities.filter(x => !/^주차/.test(x)) : [];
+    if (amen.length) rows.push(['편의시설', esc(amen.join(' · '))]);
+    if (P && P.seats) rows.push(['좌석 · 공간', esc(P.seats)]);
+    if (lic) rows.push(['인허가일 (업력)', esc(`${lic.ymd} · ${ageText(lic)}`) +
+      (lic.state ? ` <span class="src9">${esc(lic.state)}</span>` : '') +
+      (lic.exact ? '' : ' <span class="src9">상호가 비슷한 곳을 골랐습니다 — 확인하세요</span>')]);
+    else if (ld.ok === false && ld.error) rows.push(['인허가일 (업력)',
+      badge('fail','수집 안 됨') + ` <span class="src9">${esc(ld.error)}</span>`]);
+    const info = tbl(rows);
 
     const html = `<div class="eyebrow">STORE</div>
       <div class="nm" data-rule="ht,hb,vr">${esc(s.name || '매장')}</div>
@@ -944,9 +1010,22 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
     const r = has(pd.workerPerResident) ? Number(pd.workerPerResident) : null;
     let read = '이 동네의 성격을 판단할 값이 없습니다.';
     if (r !== null) {
-      read = r >= 1
-        ? `사는 사람보다 일하러 오는 사람이 많은 <b>직장가</b>입니다. 평일 점심이 큽니다.`
-        : `일하러 오는 사람보다 사는 사람이 ${(1/r).toFixed(1)}배 많은 <b>주거지</b>입니다. 저녁과 주말에 손님이 몰립니다.`;
+      /* 인구 비율은 '동네 성격'까지만 말한다. 언제 손님이 오는지는 매장 영업일이 정한다 —
+         토·일 휴무인 가게에 "주말에 몰린다"고 적으면 그 자리에서 신뢰를 잃는다. */
+      const P2 = placeInfo(b);
+      const kind = r >= 1
+        ? `사는 사람보다 일하러 오는 사람이 많은 <b>직장가</b>입니다.`
+        : `일하러 오는 사람보다 사는 사람이 ${(1/r).toFixed(1)}배 많은 <b>주거지</b>입니다.`;
+      let when;
+      if (P2 && P2.weekendOff){
+        when = `이런 동네는 보통 저녁·주말이 큰데, 이 매장은 <b>${esc(P2.closed.join('·'))} 휴무</b>라 그 수요를 받지 못합니다. 평일 수요로 읽으세요.`;
+      } else if (P2 && P2.openDays.length === 7){
+        when = r >= 1 ? `주 7일 영업이라 평일 점심이 가장 큽니다.` : `주 7일 영업이라 저녁과 주말을 그대로 받습니다.`;
+      } else {
+        when = r >= 1 ? `평일 점심이 클 가능성이 높습니다 — 영업시간으로 확인하세요.`
+                      : `저녁·주말이 클 가능성이 높습니다 — 영업일·휴무를 먼저 확인하세요.`;
+      }
+      read = `${kind} ${when}`;
     }
     const refLine = [
       sido && has(sido.workerPerResident) ? `${sido.name} ${sido.workerPerResident}` : '',
@@ -1100,11 +1179,72 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
       { nm:cd.industry.middle||'중분류', v:Number(cd.sameMiddle.count||0), sub:`중분류 · ${cd.sameLarge.count?((cd.sameMiddle.count/cd.sameLarge.count)*100).toFixed(1):'—'}%`, c:'#6E6E73' },
       { nm:cd.industry.small||'소분류', v:Number(cd.sameSmall.count||0), sub:`소분류 · ${cd.sameLarge.count?((cd.sameSmall.count/cd.sameLarge.count)*100).toFixed(1):'—'}%`, c:'#EC3013', hot:1 },
     ];
+    /* 상가정보는 점포 목록을 통째로 주는 API다. 개수로 접어 두면 아까운 것 셋을 더 편다. */
+    const bands = (cd.sameSmall.bands || []);
+    const near  = (cd.neighbors || []).filter(x => x && x.name);
+    const mix   = (cd.mix || []).filter(x => x && x.small && x.count);
+
     return { html: barsHTML(data) +
       `<p class="lead-read" style="font-size:15px;margin-top:21px">반경 ${dist(R)} 안 ${esc(cd.industry.large||'음식')} ${esc(num(cd.sameLarge.count,'곳'))} 가운데
-        ${esc(cd.industry.middle)} ${esc(num(cd.sameMiddle.count,'곳'))}, 그중 <b>${esc(cd.industry.small)} ${esc(num(cd.sameSmall.count,'곳'))}</b>입니다.</p>
-       <p class="src9">거리별 — ${esc(bandText(cd.sameSmall.bands,' · '))} · 상가정보 등록 상호 ‘${esc(cd.matchedName)}’ (좌표 차이 ${esc(dist(cd.matchedDistance))}${cd.floor?`, ${esc(cd.floor)}층`:''})${cd.how?` · ${esc(cd.how)}에서 찾음`:''} · 자료 기준월 ${esc(ym(cd.stdrYm))}</p>`,
+        ${esc(cd.industry.middle)} ${esc(num(cd.sameMiddle.count,'곳'))}, 그중 <b>${esc(cd.industry.small)} ${esc(num(cd.sameSmall.count,'곳'))}</b>입니다.</p>`
+      + distHTML(bands, cd.industry.small, R, Number(cd.sameSmall.count)||0)
+      + nearHTML(near)
+      + mixHTML(mix, cd.mixTotal, R)
+      + `<p class="src9">상가정보 등록 상호 ‘${esc(cd.matchedName)}’ (좌표 차이 ${esc(dist(cd.matchedDistance))}${cd.floor?`, ${esc(cd.floor)}층`:''})${cd.how?` · ${esc(cd.how)}에서 찾음`:''} · 자료 기준월 ${esc(ym(cd.stdrYm))}${bands.length?'':` · 거리별 — ${esc(bandText(bands,' · '))}`}</p>`,
       meta: `${srcText(m).toUpperCase()} · 반경 ${dist(R)}` };
+  }
+
+  /* 거리별 밀도 — 가까울수록 위협이다. 세로 막대를 또 쓰면 지루하니 가로 띠로 */
+  function distHTML(bands, small, R, total){
+    if (!bands.length) return '';
+    const mx = Math.max(...bands.map(x => Number(x.count)||0), 1);
+    const lab = (x) => `${x.from ? `${x.from}~` : ''}${x.to}m`;
+    const closest = bands[0];
+    return `<p class="k" style="margin-top:34px">거리별 ${esc(small||'같은 업종')} — 가까울수록 같은 손님을 나눕니다</p>
+      <ul class="dist" data-rule="vl,vr">${bands.map((x,i) => {
+        const v = Number(x.count)||0, w = Math.max(v/mx*100, 1.5);
+        return `<li${i===0?' class="hot"':''}><span class="dl">${esc(lab(x))}</span>
+          <span class="db"><i style="width:${w.toFixed(1)}%"></i></span>
+          <span class="dn">${esc(num(v,'곳'))}</span></li>`;
+      }).join('')}</ul>
+      ${densLine(closest, R, total)}`;
+  }
+  /* 개수만 보면 먼 구간이 늘 커 보인다 — 땅 넓이로 나눠야 '촘촘함'이 보인다 */
+  function densLine(c, R, total){
+    if (!c || !Number(c.count) || !R || !total) return '';
+    const ring = Math.PI * (Math.pow(Number(c.to),2) - Math.pow(Number(c.from)||0, 2));
+    const all  = Math.PI * Math.pow(Number(R), 2);
+    if (!(ring > 0) || !(all > 0)) return '';
+    const k = (all/total) / (ring/Number(c.count));
+    const lab = `${c.from ? `${c.from}~` : ''}${c.to}m`;
+    return `<p class="src9">가장 가까운 ${esc(lab)} 안에 ${esc(num(c.count,'곳'))} — 땅 넓이로 따지면
+      반경 ${dist(R)} 평균보다 <b>${k.toFixed(1)}배 촘촘</b>합니다. 이 구간이 실제 경쟁입니다.</p>`;
+  }
+
+  /* 바로 옆 경쟁점 — 방문 전에 눈으로 훑을 수 있게 */
+  function nearHTML(near){
+    if (!near.length) return '';
+    return `<p class="k" style="margin-top:34px">바로 옆 ${esc(num(near.length,'곳'))} — 방문 전에 한 번 보고 가세요</p>
+      <table class="tbl">${near.slice(0,6).map(x =>
+        `<tr><th>${esc(dist(x.distance))}</th><td>${esc(x.name)}${x.small?` <span class="src9">${esc(x.small)}</span>`:''}</td></tr>`).join('')}</table>`;
+  }
+
+  /* 주변 업종 구성 — 이 골목이 무슨 골목인지 */
+  function mixHTML(mix, total, R){
+    if (mix.length < 2) return '';
+    const tot = Number(total) || mix.reduce((a,x) => a + Number(x.count||0), 0);
+    if (!tot) return '';
+    const top = mix.slice(0,5);
+    const rest = tot - top.reduce((a,x) => a + Number(x.count), 0);
+    const pc = (v) => (v/tot*100);
+    return `<p class="k" style="margin-top:34px">반경 ${dist(R)} 음식점 ${esc(num(tot,'곳'))}은 무슨 골목인가</p>
+      <div class="mixbar" data-rule="hb">${top.map((x,i) =>
+        `<i style="width:${pc(x.count).toFixed(2)}%;background:${['#201E1D','#4A4846','#6E6E73','#A1A1A6','#C7C7CC'][i]}"></i>`).join('')}${
+        rest > 0 ? `<i style="width:${pc(rest).toFixed(2)}%;background:#E5E5E7"></i>` : ''}</div>
+      <ul class="mixleg">${top.map((x,i) =>
+        `<li><i style="background:${['#201E1D','#4A4846','#6E6E73','#A1A1A6','#C7C7CC'][i]}"></i>${esc(x.small)}
+          <b>${esc(num(x.count,'곳'))}</b><span class="src9">${pc(x.count).toFixed(1)}%</span></li>`).join('')}${
+        rest > 0 ? `<li><i style="background:#E5E5E7"></i>그 밖<b>${esc(num(rest,'곳'))}</b><span class="src9">${pc(rest).toFixed(1)}%</span></li>` : ''}</ul>`;
   }
 
   /* ── 손님 불편 신호 (늦게 도착 · 연출 없음) ── */
@@ -1290,7 +1430,11 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
     if (nb.ok){
       const c = (nb.data.categories||[]).find(c => c.label==='지하철역');
       const st = c && (c.nearest||[])[0];
-      if (st && st.name) out.push({ t:String(st.name), why:`가까운 역 ${dist(st.distance)}`, s:3 });
+      /* 카카오는 '인천터미널역 인천1호선'처럼 노선명을 붙여 준다 — 첫 '역'까지만 쓴다.
+         그리고 800m가 넘으면 도보 10분 밖이라 역 이름으로 찾아오지 않는다. */
+      const nm = st && st.name ? (/^(.+?역)/.exec(String(st.name)) || [])[1] : '';
+      if (nm && (!has(st.distance) || Number(st.distance) <= 800))
+        out.push({ t:nm, why:`가까운 역 ${dist(st.distance)}`, s:3 });
     }
     return out;
   }
@@ -1299,7 +1443,8 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
   function kwKinds(b){
     const s = b.store || {}, comp = mod(b,'competition'), out = [];
     const nm = String(s.name||'');
-    const hay = [nm, s.category, s.naverCategory,
+    const P = placeInfo(b);
+    const hay = [nm, s.category, s.naverCategory, P && P.intro,
       comp.ok && comp.data.industry && comp.data.industry.small].filter(Boolean).join(' ');
     KW_FOOD.forEach(f => {                       // 뒤에 한글이 이어지면 다른 낱말이다 ('한우리'의 '한우')
       if (new RegExp(f + '(?![가-힣])').test(nm) && !out.some(o=>o.t===f)) out.push({ t:f, why:'상호', s:3 });
@@ -1319,6 +1464,8 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
   /* 상황어 — 동네 사람들이 실제로 쓴 말에서만 고른다 */
   function kwOccs(b){
     const online = mod(b,'online'), news = mod(b,'news'), nb = mod(b,'nearby'), texts = [];
+    const P = placeInfo(b);
+    if (P && P.intro) texts.push(P.intro);            // 사장님이 직접 쓴 말이 제일 세다
     if (online.ok){
       const d = online.data;
       ((d.blog && d.blog.recent) || []).forEach(x => texts.push(x.title));
@@ -1327,7 +1474,22 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
     if (news.ok) (news.data.queries || []).forEach(q => (q.recent||[]).forEach(x => texts.push(x.title)));
     const hay = texts.filter(Boolean).join(' ');
     const out = [];
-    KW_OCC.forEach(o => { if (hay.includes(o.w)) out.push(Object.assign({ why:'동네 글에 나온 말', s:2 }, o)); });
+    const why0 = (w) => (P && P.intro && P.intro.includes(w)) ? '매장 소개글에 있는 말' : '동네 글에 나온 말';
+    KW_OCC.forEach(o => { if (hay.includes(o.w)) out.push(Object.assign({ why:why0(o.w), s:2 }, o)); });
+    /* 편의시설이 들어오면 추측을 확정으로 바꾸고 ASK를 뗀다 */
+    if (P){
+      const amen = (P.amenities||[]).join(' ');
+      const conf = (w, ok, why) => {
+        if (!ok) return;
+        const d = KW_OCC.find(x => x.w === w); if (!d) return;
+        const i = out.findIndex(o => o.w === w);
+        const row = Object.assign({}, d, { why, s:3, ask:'' });
+        if (i >= 0) out[i] = row; else out.push(row);
+      };
+      conf('주차', P.parking && P.parking.available !== false, `플레이스에 주차 가능${P.parking && P.parking.paid ? '(유료)' : ''}`);
+      conf('포장', /포장/.test(amen), '플레이스 편의시설에 포장');
+      conf('단체', /단체/.test(amen), '플레이스 편의시설에 단체석');
+    }
     if (nb.ok){
       const g = (L) => { const c=(nb.data.categories||[]).find(c=>c.label===L); return c ? c.count : 0; };
       const add = (w, why) => { const d = KW_OCC.find(x=>x.w===w);
@@ -1349,20 +1511,25 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
       if (t.length > 22) return;
       if (!list.some(c => c.t === t)) list.push({ t, why, s, ask: ask||'' });
     };
-    places.forEach(p => kinds.forEach(k => push(`${p.t} ${k.t}`, `${p.why} × ${k.why}`, p.s + k.s)));
+    places.forEach(p => kinds.forEach(k => {
+      push(`${p.t} ${k.t}`, `${p.why} × ${k.why}`, p.s + k.s);
+      const c = list[list.length-1]; if (c) c.basic = true;
+    }));
     places.slice(0,2).forEach(p => occs.forEach(o => {
       kinds.slice(0,2).forEach(k => push(`${p.t} ${o.adj} ${k.t}`, o.why, p.s + k.s + o.s - 1, o.ask));
       if (o.place) push(`${p.t} ${o.w} 장소`, o.why, p.s + o.s, o.ask);
     }));
     list.sort((a,c) => c.s - a.s);
     const top = [], useP = {}, useK = {};          // 한 지역·한 업종이 다섯 칸을 다 먹지 않게
-    list.forEach(c => {
-      if (top.length >= 5) return;
+    const take = (c) => {
+      if (top.length >= 5 || top.indexOf(c) >= 0) return;
       const pl = (places.find(p => c.t.indexOf(p.t) === 0) || {}).t || '';
       const kd = (kinds.find(k => c.t.slice(-k.t.length) === k.t) || {}).t || '';
       if ((useP[pl]||0) >= 3 || (useK[kd]||0) >= 3) return;
       useP[pl] = (useP[pl]||0) + 1; useK[kd] = (useK[kd]||0) + 1; top.push(c);
-    });
+    };
+    list.filter(c => c.basic).slice(0,2).forEach(take);   // 기본형 두 자리는 먼저 잡아 둔다
+    list.forEach(take);
     const rest = list.filter(c => top.indexOf(c) < 0).slice(0,12);
     return { top, rest, places, kinds, occs, total: list.length };
   }
@@ -1776,6 +1943,10 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
     L.push(`| 업종(네이버) | ${md(s.naverCategory || '—')} | 네이버 지역검색 API |`);
     L.push(`| 도로명 주소 | ${md(s.roadAddress || '—')} | 검색 결과 |`);
     L.push(`| 행정동 | ${region.ok ? md(admin ? `${admin.name} (코드 ${admin.code})` : '—') : `수집 안 됨: ${md(region.error)}`} | ${src(region)} |`);
+    const PL = placeInfo(b);
+    if (PL && hoursText(PL)) L.push(`| 영업일·시간 | ${md(hoursText(PL))} | ${md(PL.source)} |`);
+    if (PL && parkText(PL))  L.push(`| 주차 | ${md(parkText(PL))} | ${md(PL.source)} |`);
+    if (PL && PL.amenities.length) L.push(`| 편의시설 | ${md(PL.amenities.join(' · ') + (PL.seats ? ` · ${PL.seats}` : ''))} | ${md(PL.source)} |`);
     const LIC = licence(b);
     if (LIC) L.push(`| 인허가일(업력) | ${md(`${LIC.ymd} · ${ageText(LIC)}${LIC.state ? ` · ${LIC.state}` : ''}${LIC.exact ? '' : ' · 상호가 비슷한 곳을 고른 값이라 확인 필요'}`)} | ${md(LIC.source)} |`);
     if (s.placeUrl) L.push(`| 카카오맵 | ${md(s.placeUrl)} | 카카오 로컬 API |`);
@@ -1814,6 +1985,13 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
       L.push(`| 업종 | ${md([c.industry.large, c.industry.middle, c.industry.small].filter(Boolean).join(' > '))} |`);
       L.push(`| 같은 소분류, 이 매장 제외 | ${num(c.sameSmall.count, '곳')} (${md(bands)}) |`);
       L.push(`| 같은 중분류(${md(c.industry.middle)}) | ${num(c.sameMiddle.count, '곳')} |`);
+      const near = (c.neighbors || []).filter(x => x && x.name);
+      const mix  = (c.mix || []).filter(x => x && x.small && x.count);
+      if (near.length) L.push(`| 바로 옆 ${num(near.length,'곳')} | ${md(near.slice(0,6).map(x => `${x.name} ${dist(x.distance)}`).join(', '))} |`);
+      if (mix.length >= 2){
+        const tot = Number(c.mixTotal) || mix.reduce((a,x)=>a+Number(x.count||0),0);
+        if (tot) L.push(`| 반경 안 음식점 구성 (${num(tot,'곳')}) | ${md(mix.slice(0,6).map(x => `${x.small} ${x.count}곳(${(x.count/tot*100).toFixed(1)}%)`).join(', '))} |`);
+      }
       L.push(`| ${md(c.industry.large || '대분류')} 전체 | ${num(c.sameLarge.count, '곳')} |`);
     }
     L.push('');
@@ -1885,6 +2063,13 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
     L.push('');
 
     L.push('## 7. 특성 판정에 쓸 신호 (원자료 · 판정은 사람이)');
+    if (PL){
+      L.push(`- 영업일: ${md(PL.openDays.join('·'))}${PL.closed.length ? ` (${md(PL.closed.join('·'))} 휴무)` : ''}`+
+        (PL.weekendOff ? ' — **주말 수요를 받지 못하는 매장입니다. 리포트에 "주말에 몰린다"고 쓰지 마세요.**' : ''));
+      if (PL.intro) L.push(`- 사장님이 쓴 소개글: ${md(PL.intro.replace(/\s+/g,' ').slice(0,200))}`);
+    } else {
+      L.push('- 영업일: 수집 안 됨 — 시간대·요일 이야기는 방문 때 확인하고 쓰세요.');
+    }
     const sw = cat(b, 'SW8');
     const at = cat(b, 'AT4');
     const ad = cat(b, 'AD5');
@@ -2149,7 +2334,7 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
       const mismatch = s.version !== PAGE_VERSION;
       const verNote = mismatch ? ` · 이 페이지는 ${PAGE_VERSION}입니다. worker.js와 sketch.html을 같은 버전으로 올려야 모든 항목이 나옵니다` : '';
       setMsg(el.authMsg, '');
-      setMsg(el.connMsg, `연결됨 · 중계 서버 ${s.version || '버전 모름'}${missing ? ` · 키 ${missing}곳이 비어 있어 해당 항목은 빠집니다` : ''}${verNote}`, mismatch ? 'warn' : '');
+      setMsg(el.connMsg, `연결됨 · 중계 서버 ${s.version || '버전 모름'}${missing ? ` · 키 ${missing}곳이 비어 있어 해당 항목은 빠집니다 (공공데이터포털은 키가 있어도 데이터셋별로 활용신청이 따로입니다)` : ''}${verNote}`, mismatch ? 'warn' : '');
       el.login.classList.add('done');          // 팝업은 처음 한 번만
       setBusy(false);
       el.searchSet.disabled = false;
