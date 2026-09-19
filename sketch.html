@@ -429,16 +429,56 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
 .thumbs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;list-style:none;margin:13px 0 0;padding:0}
 .thumbs a{display:block;aspect-ratio:1/1;border-radius:10px;overflow:hidden;background:var(--panel)}
 .thumbs img{width:100%;height:100%;object-fit:contain;display:block}
+/* ══ 부정 표현 — 빨강은 절제하기로 했으니 본문에는 진한 쪽(#AE1800)을 쓴다 ══ */
+.cmp .sn em.neg{font-style:normal;font-weight:700;color:var(--accent-ink)}
+/* 빨간 '글씨'는 문제(부정 표현)에만, 우리 해결책은 빨간 '선'으로 — 둘이 안 섞이게 */
+.cmp .fx{color:var(--ink);font-weight:600;border-left:2px solid var(--accent);padding-left:9px}
+/* 안내 목록 */
+.tips{list-style:none;margin:13px 0 0;padding:0;font-size:12px;color:var(--sub)}
+.tips li{padding:8px 0;border-bottom:1px solid var(--line);line-height:1.65}
+.tips li:last-child{border-bottom:0}
+.tips b{color:var(--ink);font-weight:700}
+
+/* ══ 키워드 후보 ══ */
+.kwtop{list-style:none;margin:13px 0 0;padding:0 0 13px}
+.kwtop li{display:flex;align-items:baseline;gap:13px;padding:9px 0;border-bottom:1px solid var(--line)}
+.kwtop li:last-child{border-bottom:0}
+.kwtop .kt{font-size:26px;font-weight:700;letter-spacing:-.03em;line-height:1.15}
+.kwtop li:first-child .kt{color:var(--accent-ink)}
+.kwtop .kw9{margin-left:auto;font-size:9px;color:var(--faint);text-align:right;white-space:nowrap}
+
+/* ══ 큰 화면 — 종이 한 장으로 읽히게 ══
+   본문 590px은 인쇄 폭(156mm)이라 늘릴 수 없다. 대신 A4 한 장을 통째로 그리고
+   배율로 키운다. 인쇄에는 zoom:1이 걸려 있어 출력물은 배율과 무관하다. */
+@media screen and (min-width:900px){
+  body{background:#E6E6E9}
+  .page{width:794px;padding:102px 102px 89px;   /* 794 = A4 폭, 102 = 27mm 여백 */
+    background-color:var(--paper);background-origin:content-box;
+    box-shadow:0 1px 3px rgba(32,30,29,.10),0 18px 56px rgba(32,30,29,.16);
+    zoom:var(--zoom,1)}
+  .modal,.zoomui{zoom:var(--zoom,1)}
+}
+/* 배율 조절 — 우하단 */
+.zoomui{position:fixed;right:20px;bottom:20px;z-index:30;display:flex;align-items:center;gap:2px;
+  background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:3px;
+  box-shadow:0 2px 10px rgba(32,30,29,.10);font-size:11px;color:var(--sub)}
+.zoomui button{font:inherit;font-size:14px;line-height:1;border:0;background:none;color:var(--ink);
+  width:26px;height:24px;border-radius:7px;cursor:pointer}
+.zoomui button:hover{background:var(--panel)}
+.zoomui span{min-width:38px;text-align:center;font-variant-numeric:tabular-nums;font-weight:600}
+@media screen and (max-width:899px){ .zoomui{display:none} }
+
 /* ══ 막대 묶음 — 개수에 맞춰 폭·간격이 정해진다 ══ */
 .bars{grid-template-columns:repeat(var(--bn,3),var(--bw,88px));column-gap:var(--bgap,59.5px)}
 
 @media print{
-  .modal,.rvbar,.rvopts,#sec-images{display:none!important}
+  .modal,.rvbar,.rvopts,#sec-images,.zoomui{display:none!important}
+  .page{zoom:1!important;box-shadow:none!important}
   .sec.screen-only{display:none!important}
   .core span{opacity:1;color:#D4D4D4}     /* 흰색 80%를 #2A2827 위에 합성한 값 */
   /* 마우스가 차트 위에 있는 채로 인쇄하면 나머지가 흐리게 찍힌다 — 호버 효과를 끈다 */
   /* 낱장 조각이 나지 않게 — 한 덩어리는 한 쪽 안에서 끝낸다 */
-  .cmp li,.recent li,.sup li,.two,.rest,.flag2,.acts,.tbl tr,.kpi,.bar
+  .cmp li,.recent li,.sup li,.tips li,.two,.rest,.flag2,.acts,.tbl tr,.kpi,.bar,.kwtop li
     {break-inside:avoid;page-break-inside:avoid}
   .k,.eyebrow,.legend{break-after:avoid;page-break-after:avoid}
   .bars *,.rosewrap *{filter:none!important;translate:none!important}
@@ -474,7 +514,7 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
       <div class="name">밑그림</div>
       <div class="tag"><span class="en">SKETCH</span><em>밑</em>천이 되는 <em>그림</em></div>
     </div>
-    <div class="ver">v2.00</div>
+    <div class="ver">v2.10</div>
   </div>
 
   <section class="tool" id="tool" aria-label="수집 도구">
@@ -518,7 +558,7 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
 
   // ▼ 배포 후 Cloudflare Worker 주소로 바꾸세요 (끝에 / 없이)
   const API_BASE = 'https://kt.roi0925003.workers.dev';
-  const PAGE_VERSION = 'v2.00';
+  const PAGE_VERSION = 'v2.10';
   // 'show' = 발표 모드(느리고 우아한 연출) / 'fast' = 업무 모드(0.4초, 카운트업 없음)
   const MOTION = 'show';
   document.documentElement.dataset.motion = MOTION;
@@ -689,14 +729,32 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
     return { count: reviewCount + blogCount, reviewCount, blogCount, hits };
   }
 
-  function manualItems(s, q) {
+  /* 인허가 자료 — Worker가 localdata 모듈을 실어 주면 쓰고, 없으면 조용히 넘어간다 */
+  function licence(b){
+    const m = mod(b,'localdata');
+    if (!m.ok || !m.data || !m.data.apvPermYmd) return null;
+    const y = String(m.data.apvPermYmd).replace(/[^0-9]/g,'').slice(0,8);
+    if (y.length < 8) return null;
+    const d = new Date(+y.slice(0,4), +y.slice(4,6)-1, +y.slice(6,8));
+    const mo = Math.max(0, Math.round((Date.now() - d.getTime()) / 2629800000));
+    return { ymd:`${y.slice(0,4)}-${y.slice(4,6)}-${y.slice(6,8)}`, months:mo,
+      years:Math.floor(mo/12), rest:mo%12, state:m.data.trdStateNm || '',
+      name:m.data.bplcNm || '', addr:m.data.addr || '', area:m.data.siteArea || '',
+      exact:m.data.exact !== false, source:(m.source && m.source.name) || 'LOCALDATA' };
+  }
+  function ageText(L){
+    return L.years ? `${L.years}년${L.rest ? ` ${L.rest}개월` : ''}` : `${L.months}개월`;
+  }
+
+  function manualItems(s, q, b) {
     const enc = encodeURIComponent(q || s.name || '');
+    const lic = b ? licence(b) : null;
     return [
       { what: '오픈업 매장 페이지 캡처', why: '추정 매출 범위 · 시간대 · 요일 · 고객 구성', href: 'https://www.openub.com/', btn: '오픈업 열기' },
       { what: '소상공인365 상세분석 캡처', why: '상권 평균 매출 · 유동인구 · 상권 등급', href: 'https://bigdata.sbiz.or.kr/', btn: '소상공인365 열기' },
-      { what: '인허가일(업력) 확인', why: '일반음식점 인허가일 · 면적 (자동 수집은 다음 버전)', href: 'https://www.localdata.go.kr/', btn: 'LOCALDATA 열기' },
+      lic ? null : { what: '인허가일(업력) 확인', why: '일반음식점 인허가일 · 면적', href: 'https://www.localdata.go.kr/', btn: 'LOCALDATA 열기' },
       { what: '코네스트·타베로그 확인', why: '일본 손님이 보이는 매장만. 구글·카카오 리뷰는 수집기가 함께 가져옵니다', href: `https://www.konest.com/contents/search_result.html?keyword=${enc}`, btn: '코네스트 열기' },
-    ];
+    ].filter(Boolean);
   }
 
 
@@ -849,6 +907,7 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
       safeHref(s.naverLink) ? `<a href="${esc(s.naverLink)}" target="_blank" rel="noopener">네이버 등록</a>` : '',
     ].filter(Boolean).join(' · ');
 
+    const lic = licence(b);
     const info = tbl([
       ['업종 (카카오)', esc(s.category || '—')],
       ['업종 (네이버)', esc(s.naverCategory || '—')],
@@ -857,7 +916,12 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
       ['전화', esc(s.phone || '—')],
       ['행정동', region.ok ? esc(admin ? `${admin.name} (코드 ${admin.code})` : '—') : badge('fail','수집 안 됨')],
       ['링크', links || '—'],
-    ]);
+    ].concat(lic ? [
+      ['인허가일 (업력)', esc(`${lic.ymd} · ${ageText(lic)}`) +
+        (lic.state ? ` <span class="src9">${esc(lic.state)}</span>` : '') +
+        (lic.exact ? '' : ' <span class="src9">상호가 비슷한 곳을 골랐습니다 — 확인하세요</span>')],
+    ] : (lic===null && mod(b,'localdata').ok === false && mod(b,'localdata').error
+        ? [['인허가일 (업력)', badge('fail','수집 안 됨') + ` <span class="src9">${esc(mod(b,'localdata').error)}</span>`]] : [])));
 
     const html = `<div class="eyebrow">STORE</div>
       <div class="nm" data-rule="ht,hb,vr">${esc(s.name || '매장')}</div>
@@ -931,6 +995,7 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
     { id:'online',  title:'온라인 언급',               bg:'언급', render:renderOnline },
     { id:'news',    title:'뉴스',                     bg:'뉴스', render:renderNews },
     { id:'trend',   title:'메뉴 검색 추이',            bg:'추이', render:renderTrend },
+    { id:'keyword', title:'플레이스 노출 키워드 후보',   bg:'검색', render:renderKeyword },
     { id:'support', title:'사장님께 알려드릴 지원사업·교육', bg:'지원', render:renderSupport },
     { id:'manual',  title:'사람이 채울 것',            bg:'현장', render:renderManual },
     { id:'images',  title:'메뉴판 사진',               bg:'메뉴', render:renderImages },
@@ -1154,7 +1219,7 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
     const region = mod(b,'region');
     const admin = region.ok && region.data.admin;
     const q = [s.name, admin ? admin.dong : ''].filter(Boolean).join(' ');
-    const items = manualItems(s, q);
+    const items = manualItems(s, q, b);
     return { html: `<p class="lead-read" style="font-size:15px">로그인이 필요하거나 아직 자동 수집을 붙이지 않은 곳입니다.</p>
       <ul class="sup" data-rule="ht">${items.map(m => `<li><div><div class="what">${esc(m.what)}</div><div class="why">${esc(m.why)}</div></div>
         <a href="${esc(m.href)}" target="_blank" rel="noopener noreferrer">${esc(m.btn)}</a></li>`).join('')}</ul>
@@ -1176,6 +1241,188 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
         <img src="${esc(it.thumbnail)}" alt="${esc(it.title||`메뉴판 사진 ${i+1}`)}" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a></li>`).join('')}</ul>
       ${search ? `<p class="src9"><a href="${esc(search)}" target="_blank" rel="noopener noreferrer">네이버 이미지 검색에서 더 보기</a> · ‘${esc(d.query)}’ ${esc(num(d.total,'장'))} 중 ${items.length}장</p>` : ''}`,
       meta:'NAVER IMAGE · 화면 전용', screenOnly:true };
+  }
+
+  /* ══════════ 플레이스 노출 키워드 후보 ══════════
+     네이버는 키워드를 넣어 두기만 하면 올려 주지 않는다. 사장님이 직접 넣는 칸은
+     대표키워드 5개뿐이고, 나머지는 상호·메뉴·소개글·편의시설·리뷰에서 자동으로 뽑힌다.
+     여기서는 이미 가진 자료로 후보를 조합만 한다 — 검색량 검증은 다음 단계. */
+
+  const KW_OCC = [
+    { w:'회식',   adj:'회식',     place:true  },
+    { w:'모임',   adj:'모임',     place:true  },
+    { w:'단체',   adj:'단체',     place:true  },
+    { w:'가족',   adj:'가족',     place:true  },
+    { w:'돌잔치', adj:'돌잔치',   place:true  },
+    { w:'상견례', adj:'상견례',   place:true  },
+    { w:'데이트', adj:'데이트',   place:true  },
+    { w:'점심',   adj:'점심',     place:false },
+    { w:'혼밥',   adj:'혼밥',     place:false },
+    { w:'룸',     adj:'룸 있는',  place:false, ask:'룸이 실제로 있는지' },
+    { w:'주차',   adj:'주차되는', place:false, ask:'매장 주차가 되는지' },
+    { w:'포장',   adj:'포장되는', place:false, ask:'포장을 받는지' },
+  ];
+  const KW_KIND = [
+    [/육류|고기|구이|갈비|삼겹|막창|곱창/, '고깃집'],
+    [/횟집|물회|막회|생선|수산|해물/,      '횟집'],
+    [/치킨|닭강정/,                        '치킨집'],
+    [/중식|중국|짜장|짬뽕/,                '중국집'],
+    [/일식|초밥|스시|돈카츠|돈까스/,        '일식당'],
+    [/분식|떡볶이|김밥/,                   '분식집'],
+    [/주점|술집|호프|포차|이자카야/,        '술집'],
+    [/카페|커피|디저트|베이커리/,           '카페'],
+    [/한식|백반|국밥|찌개/,                '한식당'],
+  ];
+  const KW_FOOD = ['숯불갈비','생갈비','양념갈비','소갈비','돼지갈비','갈비','삼겹살','목살','오겹살','막창','곱창',
+    '불고기','한우','냉면','칼국수','보쌈','족발','감자탕','부대찌개','해물탕','물회','막회','회','초밥','돈까스',
+    '치킨','피자','파스타','국밥','설렁탕','삼계탕','떡볶이','짜장면','짬뽕','곰탕','추어탕','아구찜','장어'];
+
+  /* 지역어 — 행정동, 시군구, 가까운 지하철역 */
+  function kwPlaces(b){
+    const region = mod(b,'region'), nb = mod(b,'nearby'), out = [];
+    const ad = region.ok && region.data.admin;
+    if (ad){
+      if (ad.dong) out.push({ t:String(ad.dong).replace(/\d+동$/,'동'), why:'행정동', s:3 });
+      const tk = String(ad.name||'').split(/\s+/).filter(Boolean);
+      const gu = tk.slice(1,-1).filter(x => /[시군구]$/.test(x)).pop();
+      if (gu) out.push({ t:gu, why:'시·군·구', s:2 });
+    }
+    if (nb.ok){
+      const c = (nb.data.categories||[]).find(c => c.label==='지하철역');
+      const st = c && (c.nearest||[])[0];
+      if (st && st.name) out.push({ t:String(st.name), why:`가까운 역 ${dist(st.distance)}`, s:3 });
+    }
+    return out;
+  }
+
+  /* 업종어 — 상호에 박힌 음식 이름이 제일 세다 */
+  function kwKinds(b){
+    const s = b.store || {}, comp = mod(b,'competition'), out = [];
+    const nm = String(s.name||'');
+    const hay = [nm, s.category, s.naverCategory,
+      comp.ok && comp.data.industry && comp.data.industry.small].filter(Boolean).join(' ');
+    KW_FOOD.forEach(f => {                       // 뒤에 한글이 이어지면 다른 낱말이다 ('한우리'의 '한우')
+      if (new RegExp(f + '(?![가-힣])').test(nm) && !out.some(o=>o.t===f)) out.push({ t:f, why:'상호', s:3 });
+    });
+    for (let i=out.length-1; i>=0; i--){          // '숯불갈비'가 있으면 '갈비'는 군더더기
+      if (out.some((o,j) => j!==i && o.t.includes(out[i].t) && o.t.length>out[i].t.length)) out.splice(i,1);
+    }
+    ((b.options && b.options.keywords) || []).forEach(k => {
+      k = String(k).trim(); if (k && !out.some(o=>o.t===k)) out.push({ t:k, why:'대표 메뉴', s:2 });
+    });
+    for (const [re, label] of KW_KIND){
+      if (re.test(hay)){ if(!out.some(o=>o.t===label)) out.push({ t:label, why:'업종', s:2 }); break; }
+    }
+    return out.slice(0,4);
+  }
+
+  /* 상황어 — 동네 사람들이 실제로 쓴 말에서만 고른다 */
+  function kwOccs(b){
+    const online = mod(b,'online'), news = mod(b,'news'), nb = mod(b,'nearby'), texts = [];
+    if (online.ok){
+      const d = online.data;
+      ((d.blog && d.blog.recent) || []).forEach(x => texts.push(x.title));
+      ((d.cafe && d.cafe.recent) || []).forEach(x => texts.push(x.title));
+    }
+    if (news.ok) (news.data.queries || []).forEach(q => (q.recent||[]).forEach(x => texts.push(x.title)));
+    const hay = texts.filter(Boolean).join(' ');
+    const out = [];
+    KW_OCC.forEach(o => { if (hay.includes(o.w)) out.push(Object.assign({ why:'동네 글에 나온 말', s:2 }, o)); });
+    if (nb.ok){
+      const g = (L) => { const c=(nb.data.categories||[]).find(c=>c.label===L); return c ? c.count : 0; };
+      const add = (w, why) => { const d = KW_OCC.find(x=>x.w===w);
+        if (d && !out.some(o=>o.w===w)) out.push(Object.assign({ why, s:1 }, d)); };
+      if (g('숙박') >= 5) add('회식', `주변 숙박 ${g('숙박')}곳 — 밖에서 오는 손님`);
+      if (g('주차장') >= 5) add('주차', `주변 주차장 ${g('주차장')}곳`);
+      if (g('관광명소') >= 3) add('가족', `주변 관광명소 ${g('관광명소')}곳`);
+    }
+    return out.slice(0,5);
+  }
+
+  /* 후보 조합 — 지역 × 업종이 뼈대, 상황은 덧붙임 */
+  function kwBuild(b){
+    const places = kwPlaces(b), kinds = kwKinds(b), occs = kwOccs(b);
+    if (!places.length || !kinds.length) return null;
+    const list = [];
+    const push = (t, why, s, ask) => {
+      t = t.replace(/\s+/g,' ').trim();
+      if (t.length > 22) return;
+      if (!list.some(c => c.t === t)) list.push({ t, why, s, ask: ask||'' });
+    };
+    places.forEach(p => kinds.forEach(k => push(`${p.t} ${k.t}`, `${p.why} × ${k.why}`, p.s + k.s)));
+    places.slice(0,2).forEach(p => occs.forEach(o => {
+      kinds.slice(0,2).forEach(k => push(`${p.t} ${o.adj} ${k.t}`, o.why, p.s + k.s + o.s - 1, o.ask));
+      if (o.place) push(`${p.t} ${o.w} 장소`, o.why, p.s + o.s, o.ask);
+    }));
+    list.sort((a,c) => c.s - a.s);
+    const top = [], useP = {}, useK = {};          // 한 지역·한 업종이 다섯 칸을 다 먹지 않게
+    list.forEach(c => {
+      if (top.length >= 5) return;
+      const pl = (places.find(p => c.t.indexOf(p.t) === 0) || {}).t || '';
+      const kd = (kinds.find(k => c.t.slice(-k.t.length) === k.t) || {}).t || '';
+      if ((useP[pl]||0) >= 3 || (useK[kd]||0) >= 3) return;
+      useP[pl] = (useP[pl]||0) + 1; useK[kd] = (useK[kd]||0) + 1; top.push(c);
+    });
+    const rest = list.filter(c => top.indexOf(c) < 0).slice(0,12);
+    return { top, rest, places, kinds, occs, total: list.length };
+  }
+
+  function renderKeyword(b){
+    const K = kwBuild(b);
+    if (!K) return null;
+    const asks = K.top.concat(K.rest).filter(c => c.ask);
+    const seen = [];
+    asks.forEach(c => { if (!seen.includes(c.ask)) seen.push(c.ask); });
+
+    const html =
+      `<p class="k">스마트플레이스 대표키워드 5칸에 넣을 후보</p>
+       <ol class="kwtop" data-rule="vl,hb">${K.top.map(c =>
+         `<li><span class="kt">${esc(c.t)}</span><span class="kw9">${esc(c.why)}</span></li>`).join('')}</ol>
+       <p class="src9">지역 이름과 세부 업종을 붙인 형태입니다. ‘맛집’·‘추천’처럼 누구나 쓰는 말은 뺐습니다.
+         검색량은 아직 확인하지 않았습니다 — 다섯 개를 그대로 넣기 전에 사장님과 한 번 읽어 보세요.</p>` +
+
+      (K.rest.length ? `<p class="k" style="margin-top:26px">소개글·메뉴명·블로그에 섞어 쓸 후보 ${esc(num(K.rest.length,'개'))}</p>` +
+        tbl(K.rest.map(c => [c.t, `<span class="src9">${esc(c.why)}</span>`])) : '') +
+
+      (seen.length ? `<div class="flag2"><div class="eyebrow">ASK</div>
+        <div class="lead-read">사장님께 먼저 여쭐 것 — ${esc(seen.join(' / '))}</div>
+        <p class="src9">주변에 주차장이 많다고 우리 가게에 주차가 되는 것은 아닙니다. 확인 못 한 말을 넣으면 손님이 헛걸음합니다.</p></div>` : '') +
+
+      `<p class="k" style="margin-top:26px">키워드만으로는 안 오릅니다</p>
+       <ul class="tips">
+         <li><b>편의시설 체크</b>가 따로 잡습니다 — 주차·단체석·예약은 키워드가 아니라 스마트플레이스 편의시설에서 켜세요.</li>
+         <li><b>영수증 리뷰</b>가 일반 리뷰보다 무겁게 셉니다 — 실제 방문 증거라서 그렇습니다.</li>
+         <li><b>문장형은 검색어가 아닙니다</b> — ‘주차장이 있는 식당’이 아니라 ‘${esc(K.places[0].t)} 주차되는 ${esc(K.kinds[0].t)}’처럼 씁니다.</li>
+         <li>소식·사진을 손대지 않으면 키워드를 바꿔도 순위가 잘 움직이지 않습니다.</li>
+       </ul>`;
+
+    return { html, meta: `조합 규칙 · 후보 ${K.total}개 · 검색량 미검증` };
+  }
+
+  /* ── 불만 리뷰 안의 부정 표현만 빨갛게 ──
+     이미 '불만'으로 분류된 리뷰 안에서만 칠하므로 오검출 비용이 낮다. */
+  const NEG_WORDS = [
+    '기다렸','기다리','기다려','한참','오래 걸','오래걸','늦게 나','늦어','늦었','지연','밀려서','밀렸',
+    '안 나와','안나와','느리','느려','느렸','하세월','계속 불러','불러야','부르느라','호출이',
+    '불친절','무뚝뚝','퉁명','성의 없','성의없','무시당','무시하','짜증','쌀쌀맞','불쾌',
+    '불편','불만','실망','아쉬','별로','최악','다시는','다신 안','후회','기분 나','기분나','언짢','화가 났',
+    '더럽','지저분','불결','머리카락','벌레','냄새가','비린내','위생이',
+    '시들','질기','질겼','싱거','눅눅','식었','식어서','차갑','딱딱','맛없','맛이 없','비려','탄 맛',
+    '비싸','비쌌','바가지','양이 적','양 적','돈 아까','돈아까',
+    '좁아','좁고','좁은','시끄','소란','붐벼','자리가 없','주차가 힘','웨이팅',
+    '안 돼','안돼','안 됨','못했','못 했','없어서','없었','아쉽'
+  ];
+  const NEG_RE = new RegExp('(' + NEG_WORDS.slice().sort((a,b)=>b.length-a.length)
+    .map(w => w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|') + ')','g');
+  function negHTML(t){
+    t = String(t || ''); NEG_RE.lastIndex = 0;
+    let out = '', last = 0, m;
+    while ((m = NEG_RE.exec(t))){
+      if (!m[0].length){ NEG_RE.lastIndex++; continue; }
+      out += esc(t.slice(last, m.index)) + '<em class="neg">' + esc(m[0]) + '</em>';
+      last = m.index + m[0].length;
+    }
+    return out + esc(t.slice(last));
   }
 
 
@@ -1257,7 +1504,7 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
         const fix = c && c.hiorder ? `<div class="fx">하이오더로 보완 — ${esc(c.fix)}</div>` : '';
         const meta = [has(x.rating)?`별점 ${x.rating}`:'별점 없음', x.date, x.reply?'사장님 답글 있음':'', x.lang&&x.lang!=='ko'?`원문 ${x.lang}`:''].filter(Boolean).join(' · ');
         return `<li><div class="top">${x.source?badge('info',x.source)+' ':''}${tag} ${x.link?linkText(x.link, RV_LINK[x.source]||'원문 확인'):'<span class="src9">링크 없음</span>'}</div>
-          <div class="sn">${esc(x.text||'')}</div>${fix}<div class="src9">${esc(meta)}</div></li>`;
+          <div class="sn">${negHTML(x.text)}</div>${fix}<div class="src9">${esc(meta)}</div></li>`;
       }).join('')}</ul>`);
     }
     out.push(`<p class="src9">${esc(d.note||'')}</p>`);
@@ -1312,6 +1559,8 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
      내용이 바뀔 때마다 둘 다 다시 재야 한다. */
 
   const reduce = matchMedia('(prefers-reduced-motion:reduce)').matches;
+  /* 화면 배율 — getBoundingClientRect는 배율이 곱해진 값을 돌려주므로 잴 때 나눠 준다 */
+  let ZOOM = 1;
   const GC='#E4E4E4', GC2='#FAFAFA', GC0='#FFFFFF', EXT=168, LO=-26, HI=616;
   let _drawing = false;
 
@@ -1332,15 +1581,15 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
     const cnt = new Map();
     $$('[data-rule]').forEach((e) => {
       const sec = e.closest('.sec'); if(!sec) return;
-      const a = inkRect(e), b = sec.getBoundingClientRect();
-      const x=a.left-b.left, y=a.top-b.top, w=a.width, h=a.height;
+      const a = inkRect(e), b = sec.getBoundingClientRect(), Z = ZOOM;
+      const x=(a.left-b.left)/Z, y=(a.top-b.top)/Z, w=a.width/Z, h=a.height/Z;
       e.dataset.rule.split(/\s*,\s*/).forEach((kind) => {
         const i = document.createElement('i');
         i.className = 'arule';
         i.classList.add(kind[0]==='v' ? 'v' : 'h');
         const rd = cnt.get(sec) || 0; cnt.set(sec, rd+1);
         if (kind[0]==='v'){
-          const SH=b.height, s0=Math.max(y-EXT,-18), s1=Math.min(y+h+EXT,SH+18), span=s1-s0;
+          const SH=b.height/Z, s0=Math.max(y-EXT,-18), s1=Math.min(y+h+EXT,SH+18), span=s1-s0;
           const fade=Math.min(EXT, span*.34);
           const cx = kind==='vl' ? x : kind==='vr' ? x+w : x+w/2;
           i.style.cssText = `left:${cx.toFixed(1)}px;top:${s0.toFixed(1)}px;width:1px;`+
@@ -1457,6 +1706,46 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
     ['mouseleave','focusout'].forEach(e => el.tool.addEventListener(e, () => setTimeout(() => set(active()), 0)));
   })();
 
+  /* ══ 화면 배율 — 590px는 인쇄 폭이라 못 늘린다. 종이째 확대한다 ══
+     인쇄에는 zoom:1이 걸려 있어 출력물은 배율과 무관하다. */
+  (() => {
+    const STEPS = [100,125,150,175,200];
+    let touched = false;
+
+    function auto(){
+      const w = innerWidth;
+      return w>=3200 ? 200 : w>=2560 ? 175 : w>=1920 ? 150 : w>=1600 ? 125 : 100;
+    }
+    function apply(pc, why){
+      pc = Math.min(200, Math.max(100, pc));
+      ZOOM = pc/100;
+      document.documentElement.style.setProperty('--zoom', ZOOM);
+      const lb = document.getElementById('zoomNow');
+      if (lb) lb.textContent = pc + '%';
+      if (why==='user') touched = true;
+      scheduleRefresh();
+    }
+    function step(dir){
+      const now = Math.round(ZOOM*100);
+      let i = STEPS.indexOf(now);
+      if (i < 0) i = STEPS.findIndex(v => v>=now);
+      i = Math.min(STEPS.length-1, Math.max(0, (i<0?0:i)+dir));
+      apply(STEPS[i], 'user');
+    }
+
+    const ui = document.createElement('div');
+    ui.className = 'zoomui';
+    ui.innerHTML = '<button type="button" id="zoomOut" aria-label="작게">−</button>'+
+      '<span id="zoomNow">100%</span>'+
+      '<button type="button" id="zoomIn" aria-label="크게">+</button>';
+    document.body.appendChild(ui);
+    ui.querySelector('#zoomOut').addEventListener('click', () => step(-1));
+    ui.querySelector('#zoomIn').addEventListener('click', () => step(1));
+
+    apply(auto(), 'auto');
+    addEventListener('resize', () => { if(!touched) apply(auto(),'auto'); }, {passive:true});
+  })();
+
   /* ── 코파일럿용 묶음 ── */
   function buildMarkdown(b) {
     const s = b.store || {};
@@ -1487,6 +1776,8 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
     L.push(`| 업종(네이버) | ${md(s.naverCategory || '—')} | 네이버 지역검색 API |`);
     L.push(`| 도로명 주소 | ${md(s.roadAddress || '—')} | 검색 결과 |`);
     L.push(`| 행정동 | ${region.ok ? md(admin ? `${admin.name} (코드 ${admin.code})` : '—') : `수집 안 됨: ${md(region.error)}`} | ${src(region)} |`);
+    const LIC = licence(b);
+    if (LIC) L.push(`| 인허가일(업력) | ${md(`${LIC.ymd} · ${ageText(LIC)}${LIC.state ? ` · ${LIC.state}` : ''}${LIC.exact ? '' : ' · 상호가 비슷한 곳을 고른 값이라 확인 필요'}`)} | ${md(LIC.source)} |`);
     if (s.placeUrl) L.push(`| 카카오맵 | ${md(s.placeUrl)} | 카카오 로컬 API |`);
     (b.notes || []).forEach((t) => L.push(`- 참고: ${md(t)}`));
     L.push('');
@@ -1623,7 +1914,7 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
     L.push('');
 
     L.push('## 8. 사람이 채울 것 (캡처를 이 대화에 첨부)');
-    manualItems(s, '').forEach((m) => L.push(`- [ ] ${m.what} — ${m.why}`));
+    manualItems(s, '', b).forEach((m) => L.push(`- [ ] ${m.what} — ${m.why}`));
     L.push('- [ ] 메뉴판 사진 확인 — 수집기 화면의 참고용 사진으로 대표 메뉴·가격대를 사람이 확인 (사진과 사진 주소는 리포트에 넣지 않음)');
     L.push('');
 
@@ -1726,9 +2017,34 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
     ASK_OWNER.forEach((x) => L.push(`  - ${md(x)}`));
     L.push('');
 
+    const KW = (typeof kwBuild === 'function') ? kwBuild(b) : null;
+    L.push('## 11. 플레이스 노출 키워드 후보 (조합 규칙 · 검색량 미검증)');
+    if (!KW){
+      L.push('- 지역 또는 업종을 정하지 못해 후보를 만들지 못했습니다.');
+    } else {
+      L.push(`- 만드는 방법: 지역어(${md(KW.places.map(p=>p.t).join(', '))}) × 업종어(${md(KW.kinds.map(k=>k.t).join(', '))})`+
+        (KW.occs.length ? ` × 상황어(${md(KW.occs.map(o=>o.w).join(', '))} — 동네 블로그·카페 글 제목에서 뽑음)` : ''));
+      L.push('- 주의: 검색량을 확인하지 않은 후보입니다. 네이버 데이터랩은 상대값만 주므로 "월 몇 건"은 낼 수 없습니다.');
+      L.push('- 주의: 대표키워드는 스마트플레이스에 5개까지만 넣을 수 있습니다. 주차·단체석·예약은 키워드가 아니라 편의시설에서 켭니다.');
+      L.push('');
+      L.push('### 대표키워드 5칸 후보');
+      L.push('| 후보 | 근거 | 확인할 것 |');
+      L.push('|---|---|---|');
+      KW.top.forEach(c => L.push(`| ${md(c.t)} | ${md(c.why)} | ${md(c.ask || '—')} |`));
+      if (KW.rest.length){
+        L.push('');
+        L.push('### 소개글·메뉴명에 섞어 쓸 후보');
+        L.push('| 후보 | 근거 |');
+        L.push('|---|---|');
+        KW.rest.forEach(c => L.push(`| ${md(c.t)} | ${md(c.why)} |`));
+      }
+      L.push('');
+      L.push('- AI에게: 위 후보 중 이 매장에 맞는 5개를 고르고, 왜 나머지를 뺐는지 한 줄씩 적어 주세요. 후보에 없는 말을 새로 지어내지 마세요.');
+    }
+    L.push('');
     const fails = failedModules(b);
     if (fails.length) {
-      L.push('## 11. 수집하지 못한 항목');
+      L.push('## 12. 수집하지 못한 항목');
       fails.forEach(([k, m]) => L.push(`- ${LABEL[k] || k}: ${md(errLine(m))}`));
     }
     return L.join('\n');
