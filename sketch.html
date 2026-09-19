@@ -664,8 +664,8 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
 
   // ▼ 배포 후 Cloudflare Worker 주소로 바꾸세요 (끝에 / 없이)
   const API_BASE = 'https://kt.roi0925003.workers.dev';
-  const PAGE_VERSION = 'v2.90';
-  const WORKER_VERSION = 'v1.25';   // 이 페이지와 짝이 되는 worker.js 버전
+  const PAGE_VERSION = 'v2.91';
+  const WORKER_VERSION = 'v1.26';   // 이 페이지와 짝이 되는 worker.js 버전
   // 'show' = 발표 모드(느리고 우아한 연출) / 'fast' = 업무 모드(0.4초, 카운트업 없음)
   const MOTION = 'show';
   document.documentElement.dataset.motion = MOTION;
@@ -857,7 +857,7 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
       intro: String(d.intro || ''), seats: String(d.seats || ''),
       menus, reviewMenus: (d.reviewMenus || []).map(String).filter(Boolean),
       themes: (d.themes || []).filter(x => x && x.word),
-      name: String(d.name || ''), address: String(d.address || ''), url: safeHref(d.url),
+      name: String(d.name || ''), address: String(d.address || ''), url: safeHref(d.url), phone: String(d.phone || ''),
       matched: d.matched === false ? false : true,
       weekendOff: closed.indexOf('토') >= 0 || closed.indexOf('일') >= 0,
       openDays: DAYS.filter(x => closed.indexOf(x) < 0),
@@ -1077,19 +1077,21 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
         notices.ok ? `${notices.data.sido} 기준 · 접수 중` : '수집 안 됨'),
     ].join('') + '</div>';
 
+    const lic = licence(b), P = placeInfo(b);
     const links = [
       safeHref(s.placeUrl) ? `<a href="${esc(s.placeUrl)}" target="_blank" rel="noopener">카카오맵</a>` : '',
+      P && P.url ? `<a href="${esc(P.url)}" target="_blank" rel="noopener">네이버 플레이스</a>` : '',
       safeHref(s.naverLink) ? `<a href="${esc(s.naverLink)}" target="_blank" rel="noopener">네이버 등록</a>` : '',
     ].filter(Boolean).join(' · ');
-
-    const lic = licence(b), P = placeInfo(b);
+    /* 전화 — 검색 결과에 없으면 플레이스 번호(가상번호일 수 있음)를 쓴다 */
+    const phone = s.phone ? esc(s.phone) : P && P.phone ? `${esc(P.phone)} <span class="src9">플레이스</span>` : '—';
     const ld = mod(b,'localdata');
     const rows = [
       ['업종 (카카오)', esc(s.category || '—')],
       ['업종 (네이버)', esc(s.naverCategory || '—')],
       ['도로명 주소', esc(s.roadAddress || '—')],
       ['지번 주소', esc(s.address || '—')],
-      ['전화', esc(s.phone || '—')],
+      ['전화', phone],
       ['행정동', region.ok ? esc(admin ? `${admin.name} (코드 ${admin.code})` : '—') : badge('fail','수집 안 됨')],
       ['링크', links || '—'],
     ];
@@ -1923,7 +1925,7 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
   const NEG_RE = new RegExp('(' + NEG_WORDS.slice().sort((a,b)=>b.length-a.length)
     .map(w => w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|') + ')','g');
   /* 글자만 맞으면 칠하던 것을 고쳤다 — '종류별로'의 '별로', '입맛없을때'의 '맛없', '기다리지 않아요'는 칠하지 않는다 (worker v1.23과 같은 규칙) */
-  const NEG_AFTER = /^\s?[가-힣]{0,3}?\s?[가-힣]{0,2}?\s?(지\s?않|지\s?안|진\s?않|지도\s?않|없|안\s|않|아니)/;
+  const NEG_AFTER = /^\s?[가-힣]{0,3}?\s?(?:하나도|전혀|별로|딱히|거의|조금도|일도|1도)?\s?[가-힣]{0,2}?\s?(지\s?않|지\s?안|진\s?않|지도\s?않|없|안\s|않|아니)/;   // v2.91: '하나도 없'
   const NEG_BEFORE = /(안|않|없이|전혀|하나도)\s?$/;
   const NEG_SELF = /안|않|없|다신|다시는/;
   function negSkip(t, i, w){
@@ -1931,6 +1933,7 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
     if (w === '별로' && /[가-힣]$/.test(before)) return true;
     if (/^맛/.test(w) && before.endsWith('입')) return true;
     if (/^친절/.test(w) && before.endsWith('불')) return true;      // '불친절하지 않았어요'는 칭찬
+    if (/^상했/.test(w) && /(속|인|정)$/.test(before)) return true;  // '속상했'·'인상했'은 상한 음식이 아니다
     if (!NEG_SELF.test(w) && (NEG_AFTER.test(after) || NEG_BEFORE.test(before))) return true;
     return false;
   }
@@ -2396,6 +2399,7 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
     L.push(`| 도로명 주소 | ${md(s.roadAddress || '—')} | 검색 결과 |`);
     L.push(`| 행정동 | ${region.ok ? md(admin ? `${admin.name} (코드 ${admin.code})` : '—') : `수집 안 됨: ${md(region.error)}`} | ${src(region)} |`);
     const PL = placeInfo(b);
+    if (s.phone || (PL && PL.phone)) L.push(`| 전화 | ${md(s.phone || PL.phone)} | ${s.phone ? '검색 결과' : md(PL.source)} |`);
     const plWarn = PL && PL.matched === false ? ` ⚠ 플레이스에서 가져온 곳이 '${PL.name}'${PL.address ? ` (${PL.address})` : ''}이라 우리 매장과 다를 수 있음` : '';
     if (PL && hoursText(PL)) L.push(`| 영업일·시간 | ${md(hoursText(PL) + plWarn)} | ${md(PL.source)} |`);
     if (PL && parkText(PL))  L.push(`| 주차 | ${md(parkText(PL))} | ${md(PL.source)} |`);
