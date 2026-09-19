@@ -1,0 +1,1408 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>밑그림 — 매장운영진단 기초자료 | KT 시너지영업3팀</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{
+  --paper:#FFFFFF; --panel:#F5F5F7; --line:#E5E5E7; --grid:#F4F4F4;
+  --ink:#201E1D; --sub:#6E6E73; --faint:#86868B;
+  --accent:#EC3013; --accent-ink:#AE1800; --on:#FFFFFF;
+  --W:590px; --pitch:147.5px;        /* 4분할 — 선을 절반 이하로 */
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);overflow-x:hidden;
+  font-family:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,sans-serif;
+  font-size:13px;line-height:1.6;word-break:keep-all;-webkit-font-smoothing:antialiased}
+
+.page{position:relative;z-index:1;width:var(--W);margin:0 auto;padding:55px 0 89px;
+  background-image:linear-gradient(to right,var(--grid) 0 1px,var(--grid) 1px);
+  background-size:1px 100%;background-position:442.5px 0;background-repeat:no-repeat}
+
+/* ── 배경 타이포그래피 — 기능 없는 장식 단어 ── */
+.bgw{position:absolute;z-index:-1;font-weight:900;letter-spacing:-.05em;line-height:.78;
+  color:#F8F8F8;white-space:nowrap;pointer-events:none;user-select:none}
+/* 그리드 — 기준이 되는 텍스트 블록에 붙고, 그 블록을 벗어나면서 흐려져 사라진다 */
+.arule{position:absolute;z-index:-1;pointer-events:none;transform-origin:center center;
+  transition:transform 1900ms cubic-bezier(.16,1,.3,1) var(--rd,0ms)}
+.arule.h{transform:scaleX(0)} .sec.on .arule.h{transform:scaleX(1)}
+.arule.v{transform:scaleY(0)} .sec.on .arule.v{transform:scaleY(1)}
+
+/* ── 마스트헤드 ── */
+.mast{display:flex;justify-content:space-between;align-items:flex-end;
+  padding-bottom:9px;border-bottom:2px solid var(--ink)}
+.mast .name{font-size:26px;font-weight:800;letter-spacing:-.03em;line-height:1}
+.mast .tag{font-size:11px;color:var(--faint);margin-top:5px}
+.mast .tag em{font-style:normal;color:var(--accent);font-weight:700}
+.mast .tag .en{color:var(--accent);font-weight:700;letter-spacing:.08em;margin-right:8px}
+.mast .ver{font-size:9px;color:var(--faint);letter-spacing:.06em}
+
+/* ── 섹션 ── */
+.sec{position:relative;margin-top:55px}
+.sec>.hd{position:relative;display:flex;justify-content:space-between;align-items:center;gap:12px;
+  padding-top:16px;margin-bottom:18px}
+.sec>.hd::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;
+  background:linear-gradient(to right,var(--ink) 0,var(--ink) 74%,var(--paper) 100%)}
+.chap{position:relative;line-height:0;flex:none}
+.chap .dig{display:block;width:58px;text-align:center;font-size:88px;font-weight:800;
+  line-height:.92;letter-spacing:-.05em;color:#D2D2D2}
+.chap h2{position:absolute;top:50%;left:29px;transform:translateY(-50%);white-space:nowrap;
+  font-size:18px;font-weight:700;letter-spacing:-.015em;line-height:1.2}
+.sec>.hd .meta{font-size:9px;color:var(--faint);letter-spacing:.04em;white-space:nowrap}
+
+/* ── 01 히어로 ── */
+.hero .eyebrow{font-size:9px;letter-spacing:.14em;color:var(--accent);font-weight:700;margin-bottom:9px}
+.hero .nm{font-size:76px;font-weight:800;letter-spacing:-.04em;line-height:1}
+.hero .meta2{font-size:11px;color:var(--sub);margin-top:13px}
+
+/* Tier1 — 선 없이 여백으로만 나눈다 */
+.kpis{display:grid;grid-template-columns:1fr 1fr;row-gap:34px;column-gap:34px;margin-top:42px;padding-top:21px}
+.kpi .k{font-size:9px;letter-spacing:.08em;color:var(--faint);font-weight:600}
+.kpi .v{font-size:66px;font-weight:700;letter-spacing:-.045em;line-height:1.05;margin-top:5px;
+  font-variant-numeric:tabular-nums}
+.kpi .v u{text-decoration:none;font-size:19px;font-weight:600;color:var(--sub);margin-left:3px;
+  vertical-align:.45em;letter-spacing:0}
+.kpi .s{font-size:9px;color:var(--faint);margin-top:7px}
+
+/* ── 발견 — 레드 면 대신 레드 세로선 하나 ── */
+.find{position:relative;margin-top:42px;padding:3px 0 3px 21px;border-left:3px solid var(--accent)}
+.find .eyebrow{font-size:9px;letter-spacing:.16em;font-weight:700;color:var(--accent)}
+.find .lead{font-size:26px;font-weight:700;letter-spacing:-.022em;line-height:1.38;margin-top:10px}
+.find .cite{font-size:9px;color:var(--faint);margin-top:12px;line-height:1.75}
+
+/* ── 세로 막대 ── */
+.bars{position:relative;display:grid;justify-content:start;column-gap:59.5px;align-items:end;margin-top:44px}
+.bars::after{content:'';position:absolute;left:0;right:0;top:200px;height:1px;background:var(--line)}
+.bars.n4{grid-template-columns:repeat(4,88px)}
+.bars.n3{grid-template-columns:repeat(3,88px)}
+.bar .track{position:relative;height:200px}
+.bar .col{position:absolute;left:0;right:0;bottom:0;height:calc(var(--p)*2px);background:var(--c);
+  scale:1 0;transform-origin:bottom;opacity:0;border-radius:1px;
+  transition:scale 2200ms cubic-bezier(.16,1,.3,1) var(--d,0ms),
+             opacity 900ms ease var(--d,0ms),
+             translate 300ms cubic-bezier(.2,.8,.2,1), filter 300ms ease}
+.on .bar .col{scale:1 1;opacity:1}
+.bar .n{position:absolute;left:0;right:0;text-align:center;bottom:calc(var(--p)*2px + 9px);
+  font-size:22px;font-weight:700;letter-spacing:-.025em;font-variant-numeric:tabular-nums;
+  opacity:0;translate:0 calc(var(--p)*2px + 30px);
+  transition:translate 2200ms cubic-bezier(.16,1,.3,1) var(--d,0ms),
+             opacity 1100ms ease var(--d,0ms), scale 300ms cubic-bezier(.2,.8,.2,1), color 300ms ease}
+.on .bar .n{opacity:1;translate:0 0}
+/* 마이크로 인터랙션 */
+.bars:hover .bar{opacity:.4;transition:opacity 300ms ease}
+.bars .bar:hover{opacity:1}
+.bars .bar:hover .col{translate:0 -6px;filter:brightness(.82) saturate(1.1)}
+.bars .bar:hover .n{scale:1.14}
+.bar{transition:opacity 300ms ease}
+.bar .lb{display:block;text-align:center;font-size:11px;color:var(--sub);margin-top:20px}
+.bar .lb small{display:block;font-size:9px;color:var(--faint);margin-top:2px}
+.bar.hot .n{color:var(--accent)}
+.bar.hot .lb{color:var(--accent-ink);font-weight:600}
+.axis{font-size:9px;color:var(--faint);margin-top:13px}
+
+/* ── 로즈 ── */
+.rosewrap{position:relative;width:100%}
+.rose{width:100%;height:auto;display:block;overflow:visible}
+.wedge{scale:.1;opacity:0;transform-origin:295px 214px;transform-box:view-box;cursor:default;
+  transition:scale 2200ms cubic-bezier(.16,1,.3,1) var(--wd,0ms),
+             opacity 1000ms ease var(--wd,0ms),
+             translate 340ms cubic-bezier(.2,.8,.2,1), filter 340ms ease}
+.on .wedge{scale:1;opacity:1}
+.rosewrap:hover .wedge{opacity:.34}
+.rosewrap .wedge:hover{opacity:1;translate:var(--ox) var(--oy);filter:brightness(1.06)}
+.lbl.lit .n{scale:1.16}
+.lbl{transition:opacity 900ms ease calc(var(--wd,0ms) + 1300ms)}
+.lbl .n,.lbl .t{transition:scale 300ms cubic-bezier(.2,.8,.2,1),fill 300ms ease;
+  transform-origin:center;transform-box:fill-box}
+.lead-l{stroke:var(--faint);stroke-width:.75;stroke-dasharray:1.5 2.5;fill:none;opacity:0;
+  transition:opacity 900ms ease calc(var(--wd,0ms) + 1100ms)}
+.on .lead-l{opacity:.75}
+.lbl{opacity:0}
+.on .lbl{opacity:1}
+.lbl .n{font-size:19px;font-weight:700;letter-spacing:-.02em;fill:var(--ink)}
+.lbl .t{font-size:9px;fill:var(--faint)}
+.lbl.hot .n{fill:var(--accent)}
+.lbl.hot .t{fill:var(--accent-ink)}
+/* 어두운 유리 — 색이 깔린 자리 위에만 */
+.core{position:absolute;left:50%;top:47.6%;width:122px;height:122px;margin:-61px 0 0 -61px;
+  border-radius:50%;display:grid;place-content:center;text-align:center;
+  background:rgba(32,30,29,.78);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  color:var(--on);opacity:0;transform:scale(.72);
+  transition:opacity 1100ms ease 2300ms,transform 1600ms cubic-bezier(.16,1,.3,1) 2300ms}
+.on .core{opacity:1;transform:scale(1)}
+.core b{display:block;font-size:36px;font-weight:800;letter-spacing:-.04em;line-height:1;
+  font-variant-numeric:tabular-nums}
+.core span{display:block;font-size:9px;opacity:.8;margin-top:4px}
+
+/* ── 목록 ── */
+.list{list-style:none}
+.list li{display:grid;grid-template-columns:70px 1fr;gap:13px;padding:13px 0;
+  border-bottom:1px solid var(--line)}
+.list li:last-child{border-bottom:0}
+.list .d{font-size:9px;color:var(--faint);font-variant-numeric:tabular-nums;padding-top:3px}
+.list .ti{font-size:13px;line-height:1.5}
+.list .by{font-size:9px;color:var(--faint);display:block;margin-top:3px}
+
+.nt{font-size:9px;color:var(--faint);line-height:1.75;margin-top:13px}
+.foot{margin-top:55px;padding-top:13px;border-top:1px solid var(--line);font-size:9px;
+  color:var(--faint);line-height:1.85}
+.foot .warn{color:var(--accent-ink)}
+
+/* ── 도구 구역 (애플 스타일) + 포커스 스크림 ── */
+.tool{position:relative;z-index:41;display:flex;gap:10px;align-items:flex-end;
+  margin:21px -14px 0;padding:14px;border-radius:16px;background:transparent;
+  transition:background 480ms ease,box-shadow 480ms ease}
+.tool.lit{background:var(--paper);box-shadow:0 22px 70px rgba(32,30,29,.22)}
+.tf{width:148px;flex:none}.tf.grow{flex:1;width:auto}
+.tl{display:block;font-size:9px;letter-spacing:.07em;color:var(--faint);font-weight:600;margin-bottom:7px}
+.tool input{width:100%;font:inherit;font-size:14px;color:var(--ink);background:var(--panel);
+  border:1px solid transparent;border-radius:12px;padding:11px 14px;outline:none;
+  transition:background 300ms ease,border-color 300ms ease,box-shadow 300ms ease}
+.tool input::placeholder{color:#B4B4B9}
+.tool input:hover{background:#EDEDF0}
+.tool input:focus{background:var(--paper);border-color:rgba(32,30,29,.16);
+  box-shadow:0 0 0 4px rgba(236,48,19,.13)}
+.tbtn{font:inherit;font-size:14px;font-weight:600;border:0;border-radius:12px;padding:12px 22px;
+  background:var(--ink);color:#fff;cursor:pointer;
+  transition:transform 260ms cubic-bezier(.2,.8,.2,1),background 260ms ease}
+.tbtn:hover{background:#000;transform:translateY(-2px)}
+#scrim{position:fixed;inset:0;z-index:40;pointer-events:none;opacity:0;
+  background:rgba(32,30,29,.19);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+  transition:opacity 560ms cubic-bezier(.16,1,.3,1)}
+#scrim.on{opacity:1}
+.bgw{will-change:transform}
+.bar-ui{position:fixed;right:21px;bottom:21px;z-index:9;display:flex;gap:8px;
+  background:rgba(255,255,255,.7);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
+  border:1px solid var(--line);border-radius:12px;padding:8px}
+.bar-ui button{font:inherit;font-size:12px;font-weight:600;border:0;border-radius:8px;
+  padding:9px 14px;background:var(--ink);color:#fff;cursor:pointer}
+.bar-ui button.g{background:var(--panel);color:var(--ink)}
+
+@media screen{ .sec{overflow:hidden} }
+@media (max-width:660px){
+  :root{--W:100%;--pitch:33.3%}
+  .tool{flex-wrap:wrap;margin:16px 0 0;padding:0}
+  .tf{width:100%}.tbtn{width:100%}
+  .page{padding:34px 16px 55px}
+  .bgw{display:none}
+  .hero .nm{font-size:44px}
+  .kpi .v{font-size:46px}
+  .bars{column-gap:16px}
+  .bars.n4{grid-template-columns:repeat(4,1fr)}
+  .bars.n3{grid-template-columns:repeat(3,1fr)}
+}
+
+@media print{
+  @page{size:A4;margin:27mm}
+  .bar-ui,.tool,#scrim{display:none!important}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .page{width:100%;padding:0;background-position:75% 0}
+  .sec{overflow:visible}
+  .kpis,.find,.bars,.rosewrap,.list{break-inside:avoid;page-break-inside:avoid}
+  .foot{margin-top:26px}
+  .rose{width:84%}
+  .sec>.hd{break-after:avoid;page-break-after:avoid}
+  .sec{margin-top:38px}
+  .chap .dig{font-size:70px}
+  .chap h2{left:24px;font-size:17px}
+  .sec>.hd{padding-top:13px;margin-bottom:14px}
+  .hero .nm{font-size:64px}
+  .kpis{margin-top:34px}
+  .kpi .v{font-size:54px}
+  .find{margin-top:34px}
+  .find .lead{font-size:23px}
+  .bgw{color:#F7F7F7}
+  .chap .dig{color:#CECECE}
+  .bar .col{transform:scaleY(1)!important;transition:none}
+  .bar .n,.lbl,.core{opacity:1!important;transform:none!important;transition:none}
+  .bgw{transform:none!important}
+  .wedge{transform:scale(1)!important;opacity:1!important;transition:none}
+  .lead-l{opacity:1!important;stroke:#A4A4A8}
+  .arule{transform:none!important;transition:none}
+  .core{background:#2A2827;-webkit-backdrop-filter:none;backdrop-filter:none}
+  a{color:var(--ink);text-decoration:none}
+}
+@media (prefers-reduced-motion:reduce){
+  .bar .col,.bar .n,.wedge,.lead-l,.lbl,.core,.arule{transition:none!important}
+  .arule{transform:none!important}
+  .bgw{transform:none!important}
+}
+
+fieldset{border:0;margin:0;padding:0;min-width:0}
+
+/* ══ 도구 구역 추가 ══ */
+.trow{display:flex;gap:10px;align-items:flex-end}
+.trow+.trow{margin-top:12px}
+.trow[aria-disabled="true"]{opacity:.42;pointer-events:none}
+.tf.w96{width:96px;flex:none}
+.tool select{width:100%;font:inherit;font-size:14px;color:var(--ink);background:var(--panel);
+  border:1px solid transparent;border-radius:12px;padding:11px 12px;outline:none;appearance:none;
+  transition:background 300ms ease,border-color 300ms ease,box-shadow 300ms ease}
+.tool select:hover{background:#EDEDF0}
+.tool select:focus{background:var(--paper);border-color:rgba(32,30,29,.16);box-shadow:0 0 0 4px rgba(236,48,19,.13)}
+.msg{font-size:11px;color:var(--sub);margin:12px 0 0;line-height:1.7}
+.msg.err{color:var(--accent-ink);font-weight:600}
+.msg.warn{color:var(--ink);font-weight:600}
+.msg.ok{color:var(--sub)}
+.msg:empty{display:none}
+
+/* 키 상태 칩 */
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:11px}
+.chips:empty{display:none}
+.chip{font-size:9px;letter-spacing:.04em;padding:3px 9px;border-radius:999px;border:1px solid var(--line);color:var(--faint)}
+.chip.off{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+/* 후보 목록 */
+.cands{list-style:none;margin:21px 0 0;padding:0}
+.cands:empty{display:none}
+.cand{display:flex;justify-content:space-between;align-items:center;gap:16px;
+  padding:16px 0;border-bottom:1px solid var(--line)}
+.cand .nm{font-size:17px;font-weight:700;letter-spacing:-.015em}
+.cand .meta{font-size:11px;color:var(--faint);margin-top:4px}
+.cand .pick{font:inherit;font-size:12px;font-weight:600;border:1px solid var(--line);background:var(--paper);
+  color:var(--ink);border-radius:10px;padding:9px 15px;cursor:pointer;white-space:nowrap;
+  transition:background 240ms ease,border-color 240ms ease,transform 240ms cubic-bezier(.2,.8,.2,1)}
+.cand .pick:hover{background:var(--ink);border-color:var(--ink);color:#fff;transform:translateY(-2px)}
+
+/* 진행 */
+.prog{display:flex;align-items:center;gap:12px;margin-top:21px;font-size:12px;color:var(--sub)}
+.prog[hidden]{display:none}
+.spin{width:15px;height:15px;border-radius:50%;border:2px solid var(--line);border-top-color:var(--accent);
+  animation:sp .9s linear infinite;flex:none}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* ══ 흑백 배지 (색 대신 명도로 상태를 나눈다) ══ */
+.bdg{display:inline-block;font-size:9px;font-weight:600;letter-spacing:.03em;
+  padding:2px 7px;border-radius:4px;vertical-align:1px}
+.bdg.fail{background:var(--ink);color:#fff}            /* 수집 실패 */
+.bdg.warn{background:#6E6E73;color:#fff}               /* 확인 필요 */
+.bdg.info{background:#E9E9EC;color:var(--ink)}         /* 참고·보조 */
+
+/* ══ 극단적 스케일 대비 (데이터가 디자인) ══ */
+.lead-n{font-size:112px;font-weight:800;letter-spacing:-.05em;line-height:.92;margin-top:6px;
+  font-variant-numeric:tabular-nums}
+.lead-read{font-size:17px;font-weight:600;letter-spacing:-.015em;line-height:1.45;margin-top:11px}
+.lead-ref{font-size:11px;color:var(--faint);margin-top:8px;font-variant-numeric:tabular-nums}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:34px;margin-top:26px;padding-top:21px;border-top:1px solid var(--line)}
+.two .v{font-size:46px;font-weight:700;letter-spacing:-.04em;line-height:1;margin-top:5px;font-variant-numeric:tabular-nums}
+.rest{font-size:11px;color:var(--sub);margin-top:26px;padding-top:11px;border-top:1px solid var(--line);
+  font-variant-numeric:tabular-nums;line-height:1.95}
+.src9{font-size:9px;color:var(--faint);margin-top:7px;line-height:1.7}
+
+/* ══ 표 ══ */
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th,.tbl td{padding:9px 6px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.tbl th{width:30%;color:var(--sub);font-weight:500}
+.tbl td{font-variant-numeric:tabular-nums}
+.tbl tr:last-child th,.tbl tr:last-child td{border-bottom:0}
+.tbl .tiny{font-size:9px;color:var(--faint)}
+
+/* ══ 아코디언 ══ */
+.acc{border-bottom:1px solid var(--line)}
+.acc>summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;
+  gap:12px;padding:21px 0;font-size:15px;font-weight:600;letter-spacing:-.01em}
+.acc>summary::-webkit-details-marker{display:none}
+.acc>summary .cnt{font-size:9px;color:var(--faint);font-weight:500;letter-spacing:.04em}
+.acc .ico{flex:none;width:17px;height:17px;position:relative;
+  transition:transform 380ms cubic-bezier(.4,0,.2,1)}
+.acc .ico::before,.acc .ico::after{content:'';position:absolute;left:0;top:8px;width:17px;height:1.5px;background:var(--ink)}
+.acc .ico::after{transform:rotate(90deg);transition:opacity 380ms cubic-bezier(.4,0,.2,1)}
+.acc[open] .ico{transform:rotate(45deg)}
+.acc .body{display:grid;grid-template-rows:0fr;transition:grid-template-rows 520ms cubic-bezier(.4,0,.2,1)}
+.acc[open] .body{grid-template-rows:1fr}
+.acc .body>div{overflow:hidden;opacity:0;transition:opacity 300ms ease 180ms}
+.acc[open] .body>div{opacity:1}
+.acc .body .inner{padding-bottom:21px}
+
+/* 지원 제도 목록 */
+.sup{list-style:none;margin:0;padding:0}
+.sup li{display:flex;justify-content:space-between;align-items:baseline;gap:14px;padding:11px 0;
+  border-bottom:1px solid var(--line)}
+.sup li:last-child{border-bottom:0}
+.sup .what{font-size:13px;font-weight:600}
+.sup .why{font-size:11px;color:var(--faint);margin-top:3px;line-height:1.6}
+.sup a{font-size:11px;color:var(--sub);white-space:nowrap}
+.ask{margin:0;padding-left:17px;font-size:13px;line-height:1.9}
+
+/* 목록 공통 */
+.recent{list-style:none;margin:0;padding:0;font-size:13px}
+.recent li{display:grid;grid-template-columns:70px 1fr;gap:13px;padding:11px 0;border-bottom:1px solid var(--line)}
+.recent li:last-child{border-bottom:0}
+.recent .d{font-size:9px;color:var(--faint);font-variant-numeric:tabular-nums;padding-top:3px}
+.recent .by{display:block;font-size:9px;color:var(--faint);margin-top:3px}
+.errs{margin:0;padding-left:17px;font-size:11px;color:var(--sub);line-height:1.85}
+
+/* 결과 동작 버튼 */
+.acts{display:flex;gap:9px;flex-wrap:wrap;margin-top:34px}
+.acts[hidden]{display:none}
+.abtn{font:inherit;font-size:13px;font-weight:600;border:1px solid var(--line);background:var(--paper);
+  color:var(--ink);border-radius:11px;padding:11px 17px;cursor:pointer;
+  transition:background 240ms ease,border-color 240ms ease,transform 240ms cubic-bezier(.2,.8,.2,1)}
+.abtn:hover{border-color:#B9B9BE;transform:translateY(-2px)}
+.abtn.primary{background:var(--ink);border-color:var(--ink);color:#fff}
+.abtn.primary:hover{background:#000}
+
+/* ══ 빠름 모드 ══ */
+[data-motion="fast"] .arule,[data-motion="fast"] .bar .col,[data-motion="fast"] .bar .n,
+[data-motion="fast"] .wedge,[data-motion="fast"] .lead-l,[data-motion="fast"] .lbl,[data-motion="fast"] .core
+  {transition-duration:400ms!important;transition-delay:0ms!important}
+[data-motion="fast"] .bgw{transform:none!important}
+
+/* 늦게 도착한 섹션은 연출 없이 바로 */
+.sec.static .arule{transform:none!important;transition:none}
+.sec.static .bar .col,.sec.static .bar .n,.sec.static .wedge,
+.sec.static .lead-l,.sec.static .lbl,.sec.static .core{transition:none!important}
+.sec.static .bgw{display:none}
+
+@media print{
+  .tool,.chips,.cands,.prog,.acts,.msg,#scrim{display:none!important}
+  .acc:not([open]){display:none!important}          /* 접힌 건 인쇄하지 않는다 */
+  .acc>summary .ico{display:none}
+  .acc[open]>.body{grid-template-rows:1fr}
+  .acc[open]>.body>div{opacity:1}
+}
+@media (max-width:660px){
+  .trow{flex-wrap:wrap}.trow .tf,.trow .tbtn{width:100%}
+  .two{grid-template-columns:1fr;gap:26px}
+  .lead-n{font-size:72px}
+}
+
+/* 리포트 안 링크는 먹색 밑줄 */
+#report a{color:var(--ink);text-decoration:underline;text-decoration-color:#C7C7CC;text-underline-offset:3px}
+#report a:hover{text-decoration-color:var(--accent)}
+.nm{white-space:nowrap}
+</style></head>
+<body>
+<main class="page">
+  <div id="scrim"></div>
+
+  <div class="mast">
+    <div>
+      <div class="name">밑그림</div>
+      <div class="tag"><span class="en">SKETCH</span><em>밑</em>천이 되는 <em>그림</em></div>
+    </div>
+    <div class="ver">v2.00</div>
+  </div>
+
+  <section class="tool" id="tool" aria-label="수집 도구">
+    <form class="trow" id="authForm" autocomplete="off">
+      <div class="tf grow"><span class="tl">팀 비밀번호</span>
+        <input id="pass" type="password" placeholder="••••••••" aria-label="팀 비밀번호" required></div>
+      <button class="tbtn" id="authBtn" type="submit">연결</button>
+    </form>
+    <fieldset id="searchSet" disabled>
+      <form class="trow" id="searchForm" autocomplete="off">
+        <div class="tf grow"><span class="tl">매장 찾기</span>
+          <input id="q" type="search" maxlength="60" placeholder="상호와 동네 — 예: 우대포 명동" aria-label="상호와 동네" required></div>
+        <div class="tf w96"><span class="tl">반경</span>
+          <select id="radius" aria-label="조사 반경">
+            <option value="300">300m</option><option value="500" selected>500m</option><option value="1000">1km</option>
+          </select></div>
+        <button class="tbtn" id="searchBtn" type="submit">검색</button>
+      </form>
+      <div class="trow">
+        <div class="tf grow"><span class="tl">대표 메뉴 <span style="color:#B4B4B9">선택</span></span>
+          <input id="keywords" type="text" maxlength="80" placeholder="비우면 업종에서 자동으로 고릅니다" aria-label="대표 메뉴 키워드"></div>
+      </div>
+    </fieldset>
+  </section>
+
+  <p class="msg" id="authMsg" role="status" aria-live="polite"></p>
+  <div class="chips" id="keyChips" aria-label="중계 서버 키 상태"></div>
+  <p class="msg" id="searchMsg" role="status" aria-live="polite"></p>
+  <ul class="cands" id="cands"></ul>
+  <div class="prog" id="prog" role="status" aria-live="polite" hidden>
+    <span class="spin" aria-hidden="true"></span><span id="progText">수집 중</span></div>
+
+  <div id="report"></div>
+
+  <div class="acts" id="acts" hidden>
+    <button class="abtn primary" id="copyBtn" type="button">코파일럿용 복사</button>
+    <button class="abtn" id="txtBtn" type="button">묶음 파일 저장 (.txt)</button>
+    <button class="abtn" id="jsonBtn" type="button">JSON 저장</button>
+    <button class="abtn" id="printBtn" type="button">인쇄</button>
+  </div>
+  <p class="msg" id="copyMsg" role="status" aria-live="polite"></p>
+</main>
+
+<script>
+(() => {
+  'use strict';
+
+  // ▼ 배포 후 Cloudflare Worker 주소로 바꾸세요 (끝에 / 없이)
+  const API_BASE = 'https://kt.roi0925003.workers.dev';
+  const PAGE_VERSION = 'v2.00';
+  // 'show' = 발표 모드(느리고 우아한 연출) / 'fast' = 업무 모드(0.4초, 카운트업 없음)
+  const MOTION = 'show';
+  document.documentElement.dataset.motion = MOTION;
+
+  const $ = (s) => document.querySelector(s);
+  const $$ = (s) => [...document.querySelectorAll(s)];
+  const el = {
+    tool: $('#tool'), scrim: $('#scrim'),
+    authForm: $('#authForm'), pass: $('#pass'), authBtn: $('#authBtn'), authMsg: $('#authMsg'), chips: $('#keyChips'),
+    searchSet: $('#searchSet'), searchForm: $('#searchForm'), q: $('#q'), radius: $('#radius'),
+    keywords: $('#keywords'), searchMsg: $('#searchMsg'), cands: $('#cands'),
+    prog: $('#prog'), progText: $('#progText'), result: $('#report'),
+    acts: $('#acts'), copyBtn: $('#copyBtn'), txtBtn: $('#txtBtn'), jsonBtn: $('#jsonBtn'),
+    printBtn: $('#printBtn'), copyMsg: $('#copyMsg'),
+  };
+  const state = { pass:'', search:null, bundle:null, busy:false, reviews:null, apifyUsage:null,
+    reviewOpts:{ kakao:false, google:false } };
+
+  const RV_LABEL = { naver:'네이버', kakao:'카카오', google:'구글' };
+  const KEY_LABEL = { kakao:'카카오', naver:'네이버', dataGoKr:'공공데이터포털', sgis:'SGIS',
+    bizinfo:'기업마당', bizinfoEvent:'기업마당 행사', apify:'플레이스 리뷰' };
+  const LABEL = { region:'행정구역', nearby:'주변 시설', competition:'같은 업종 점포', population:'동네 인구·사업체',
+    online:'온라인 언급', news:'뉴스', images:'메뉴판 사진', trend:'메뉴 검색 추이',
+    notices:'지원사업 공고', events:'교육·행사' };
+  const NEWS_LABEL = { brand:'상호', area:'동네 상권' };
+  const POP_ROWS = [['population','인구','명'],['avgAge','평균 나이','세'],['households','가구','가구'],
+    ['avgHouseholdSize','평균 가구원','명'],['houses','주택','호'],['businesses','사업체','곳'],['workers','종사자','명']];
+  const TABLE_ORDER_WORDS = /태블릿|테이블\s?오더|티오더|키오스크|메뉴잇|포스오더|셀프\s?주문|무인\s?주문|테이블\s?주문|QR\s?주문|큐알\s?주문|tablet order|kiosk/i;
+  const configured = !/YOUR-WORKER/.test(API_BASE);
+
+  /* ── 작은 도구 ── */
+  const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const has = (v) => v !== null && v !== undefined && v !== '' && !Number.isNaN(Number(v));
+  const num = (v, unit = '') => (has(v) ? Number(v).toLocaleString('ko-KR') + unit : '—');
+  const dist = (m) => {
+    if (!has(m)) return '—';
+    const v = Number(m);
+    if (v < 1000) return `${v}m`;
+    return `${(v / 1000).toFixed(v % 1000 === 0 ? 0 : 1)}km`;
+  };
+  const ym = (s) => (/^\d{6}$/.test(String(s || '')) ? `${String(s).slice(0, 4)}-${String(s).slice(4)}` : String(s || '—'));
+  const safeHref = (u) => (/^https?:\/\//i.test(String(u || '')) ? String(u) : '');
+  const md = (v) => String(v ?? '—').replace(/\|/g, '\\|').replace(/\s*\n\s*/g, ' ');
+  const setMsg = (node, text, kind) => { node.textContent = text || ''; node.className = 'msg' + (kind ? ` ${kind}` : ''); };
+  const mod = (b, k) => (b && b.modules && b.modules[k]) || { ok: false, error: '중계 서버 응답에 이 항목이 없습니다. worker.js를 이 페이지와 같은 버전으로 바꿨는지 확인하세요.', source: { name: '' } };
+  // 중계 서버 v1.00은 블로그 값만 평평하게 보낸다. 페이지만 먼저 바꿔도 화면이 깨지지 않게 맞춘다.
+  const onlineParts = (od) => {
+    if (!od) return null;
+    if (od.blog || od.cafe || od.waiting) return od;
+    return {
+      query: od.query,
+      blog: { total: od.total, recent: od.recent || [] },
+      waiting: { query: od.waitingQuery, total: od.waitingTotal },
+      cafe: { error: '중계 서버 v1.00은 카페 글을 모으지 않습니다' },
+    };
+  };
+  const part = (p) => (p && p.error ? null : p || null);
+  // 응답에 빠진 항목도 실패로 센다 (중계 서버가 옛 버전일 때)
+  const failedModules = (b) => {
+    const keys = [...new Set(Object.keys(LABEL).concat(Object.keys((b && b.modules) || {})))];
+    return keys.map((k) => [k, mod(b, k)]).filter(([, m]) => !m.ok);
+  };
+  const srcText = (m) => (m && m.source ? `${m.source.name}${m.fetchedAt ? ` · ${m.fetchedAt}` : ''}` : '');
+  const cat = (b, code) => {
+    const m = mod(b, 'nearby');
+    return m.ok ? (m.data.categories || []).find((c) => c.code === code) || null : null;
+  };
+
+  function setBusy(on) {
+    state.busy = on;
+    document.querySelectorAll('#searchSet button, #cands button').forEach((b) => { b.disabled = on; });
+  }
+
+  async function api(path, { method = 'GET', body, timeout = 20000 } = {}) {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), timeout);
+    let res;
+    try {
+      res = await fetch(API_BASE + path, {
+        method,
+        headers: Object.assign({ 'X-Team-Pass': state.pass }, body ? { 'Content-Type': 'application/json' } : {}),
+        body: body ? JSON.stringify(body) : undefined,
+        signal: ctrl.signal,
+        cache: 'no-store',
+      });
+    } catch (e) {
+      if (e && e.name === 'AbortError') throw new Error('응답이 너무 늦습니다. 잠시 뒤 다시 시도해 주세요.');
+      throw new Error('중계 서버에 연결하지 못했습니다. 회사 PC에서 주소가 막혔거나, 페이지의 중계 서버 주소가 틀렸을 수 있습니다.');
+    } finally {
+      clearTimeout(timer);
+    }
+    let data = null;
+    try { data = await res.json(); } catch (e) { data = null; }
+    if (!res.ok) {
+      // 중계 서버가 보내는 상세 사유까지 보여 준다 (이게 없으면 원인을 알 수 없다)
+      const base = (data && data.error) || `중계 서버 오류 (HTTP ${res.status})`;
+      const detail = data && data.detail ? ` — ${data.detail}` : '';
+      const err = new Error(`${base}${detail}`);
+      err.status = res.status;
+      throw err;
+    }
+    return data;
+  }
+
+  function lockAuth(message) {
+    state.pass = '';
+    el.searchSet.disabled = true;
+    el.chips.innerHTML = '';
+    setMsg(el.authMsg, message, 'err');
+    el.pass.focus();
+  }
+
+  function showError(err, node) {
+    if (err && err.status === 401) return lockAuth('비밀번호가 바뀌었거나 맞지 않습니다. 다시 연결해 주세요.');
+    setMsg(node, err && err.message ? err.message : String(err), 'err');
+  }
+
+
+  function bandText(bands, sep) {
+    return (bands || []).map((x) => `${x.from ? `${x.from}~` : ''}${x.to}m ${has(x.count) ? `${x.count}곳` : '—'}`).join(sep);
+  }
+
+
+  // 사장님께 알려 드릴 지원 제도 모음 (2026-09 확인 · 금액과 마감은 반드시 공고 원문에서 다시 보세요)
+  const SUPPORT_CHECKED = '2026-09';
+  const SUPPORT = [
+    { scope: '전국', tag: '자금', what: '소상공인 정책자금 (융자)', why: '운전자금·시설자금을 낮은 금리로. 자금 종류마다 대상과 한도가 다릅니다', where: '소상공인시장진흥공단 정책자금', href: 'https://ols.semas.or.kr' },
+    { scope: '전국', tag: '보증', what: '지역신용보증재단 보증서', why: '담보가 모자라 대출이 막힐 때 보증서로 대출을 받습니다', where: '신용보증재단중앙회', href: 'https://www.koreg.or.kr' },
+    { scope: '전국', tag: '디지털', what: '스마트상점·디지털 전환 지원', why: '테이블오더·키오스크 같은 스마트기술 도입비 일부 지원 (연도별 공고)', where: '소상공인24', href: 'https://www.sbiz24.kr' },
+    { scope: '전국', tag: '공제', what: '노란우산공제', why: '폐업할 때 돌려받는 목돈 + 납입액 소득공제. 압류에서 보호됩니다', where: '중소기업중앙회', href: 'https://www.8899.or.kr' },
+    { scope: '전국', tag: '인건비', what: '두루누리 사회보험료 지원', why: '10인 미만 사업장에서 보수가 기준 아래인 직원의 고용보험·국민연금 일부를 대신 냅니다', where: '두루누리 사회보험', href: 'https://www.insurancesupport.or.kr' },
+    { scope: '전국', tag: '인건비', what: '고용장려금 (청년·고령자 등)', why: '조건에 맞는 직원을 새로 뽑으면 인건비 일부를 지원합니다', where: '고용24', href: 'https://www.work24.go.kr' },
+    { scope: '전국', tag: '세금', what: '부가세 감면·착한 임대인 세액공제 등', why: '간이과세·신용카드 발행세액공제처럼 신고할 때 챙기는 항목이 있습니다', where: '국세청 국세상담센터', href: 'https://www.nts.go.kr' },
+    { scope: '전국', tag: '에너지', what: '고효율기기 교체 지원 (냉장고·에어컨 등)', why: '오래된 기기를 고효율 제품으로 바꿀 때 일부를 돌려줍니다. 예산이 일찍 소진되니 잔여예산부터 확인하세요', where: '한국전력 에너지효율 지원', href: 'https://online.kepco.co.kr' },
+    { scope: '전국', tag: '교육', what: '소상공인 지식배움터', why: '상권분석·마케팅·세무 온라인 강의를 무료로 듣습니다. 언제든 신청할 수 있습니다', where: '소상공인 지식배움터', href: 'https://edu.sbiz.or.kr' },
+    { scope: '전국', tag: '검색', what: '기업마당 지원사업 검색', why: '중앙부처와 지자체 공고를 한곳에서 지역·업종으로 걸러 봅니다', where: '기업마당', href: 'https://www.bizinfo.go.kr' },
+    { scope: '인천', tag: '자금', what: '인천 소상공인 경영환경 개선 지원', why: '간판·인테리어·노후 설비 교체 같은 매장 환경 개선비 지원 (최근 공고 기준 업체당 최대 250만 원 · 해마다 예산과 기간이 다릅니다)', where: '인천광역시 공고', href: 'https://www.incheon.go.kr' },
+    { scope: '인천', tag: '보증', what: '인천신용보증재단 특례보증', why: '인천 사업장 전용 보증. 시·군·구가 이자 일부를 대신 내주는 상품도 있습니다', where: '인천신용보증재단', href: 'https://www.icsinbo.or.kr' },
+    { scope: '인천', tag: '상담', what: '인천 소상공인·서민금융 상담 창구', why: '자금·채무·폐업 문제를 대면으로 상담합니다. 어떤 제도가 맞는지 모를 때 먼저 가 보는 곳', where: '인천서민금융종합지원센터 (인천신용보증재단)', href: 'https://www.icsinbo.or.kr' },
+    { scope: '가구', tag: '가구', what: '전기요금 대가족·다자녀 할인', why: '주민등록상 5인 이상 가구, 자녀 3명 이상 가구, 태어난 지 3년 안 된 아기가 있는 가구는 주택용 전기요금을 월 30%(월 1만 6천 원 한도) 깎아 줍니다', where: '한국전력 (한전ON · 국번없이 123)', href: 'https://online.kepco.co.kr' },
+    { scope: '가구', tag: '가구', what: '도시가스 요금 경감', why: '자녀가 셋 이상인 가구 등은 도시가스 요금을 경감받습니다. 지역 도시가스사·주민센터·정부24에서 신청합니다', where: '한국가스공사 안내', href: 'https://www.kogas.or.kr/site/koGas/1020408010000' },
+  ];
+  const ASK_OWNER = [
+    '가족이 한집에 5명 이상 살고 계신가요? (전기·도시가스 요금 할인)',
+    '노란우산공제에 들어 계신가요? (폐업 대비 + 소득공제)',
+    '직원 고용보험·국민연금을 넣고 계신가요? (두루누리 지원 대상일 수 있음)',
+    '최근 3년 안에 정책자금이나 보증을 받으신 적이 있나요? (중복·한도 확인)',
+    '냉장고·에어컨 같은 설비를 바꿀 계획이 있으신가요? (고효율기기 지원)',
+  ];
+
+
+  function tableOrderSignals(d) {
+    const hits = ((d && d.tableOrder && d.tableOrder.hits) || []).map((h) => ({ ...h }));
+    const online = state.bundle ? mod(state.bundle, 'online') : { ok: false };
+    let blogCount = 0;
+    if (online.ok) {
+      const posts = [].concat((online.data.blog && online.data.blog.recent) || [], (online.data.cafe && online.data.cafe.recent) || []);
+      for (const r of posts) {
+        const m = String(r.title || '').match(TABLE_ORDER_WORDS);
+        if (!m || r.otherBranch) continue;
+        blogCount += 1;
+        if (hits.length < 6) hits.push({ source: '블로그·카페 제목', term: m[0], date: r.date || '', text: String(r.title || '').slice(0, 90) });
+      }
+    }
+    const reviewCount = (d && d.tableOrder && d.tableOrder.count) || 0;
+    return { count: reviewCount + blogCount, reviewCount, blogCount, hits };
+  }
+
+  function manualItems(s, q) {
+    const enc = encodeURIComponent(q || s.name || '');
+    return [
+      { what: '오픈업 매장 페이지 캡처', why: '추정 매출 범위 · 시간대 · 요일 · 고객 구성', href: 'https://www.openub.com/', btn: '오픈업 열기' },
+      { what: '소상공인365 상세분석 캡처', why: '상권 평균 매출 · 유동인구 · 상권 등급', href: 'https://bigdata.sbiz.or.kr/', btn: '소상공인365 열기' },
+      { what: '인허가일(업력) 확인', why: '일반음식점 인허가일 · 면적 (자동 수집은 다음 버전)', href: 'https://www.localdata.go.kr/', btn: 'LOCALDATA 열기' },
+      { what: '코네스트·타베로그 확인', why: '일본 손님이 보이는 매장만. 구글·카카오 리뷰는 수집기가 함께 가져옵니다', href: `https://www.konest.com/contents/search_result.html?keyword=${enc}`, btn: '코네스트 열기' },
+    ];
+  }
+
+
+  // 리뷰 수집은 2단계에서 붙인다
+  function fetchReviews(){ setMsg(el.copyMsg, '플레이스 리뷰 수집은 다음 단계에서 연결됩니다.', 'warn'); }
+
+
+  /* ══════════ 섹션 렌더러 ══════════
+     각 렌더러는 { html, meta } 를 돌려주거나, 쓸 데이터가 없으면 null 을 돌려준다.
+     null 이면 그 섹션은 통째로 그려지지 않고 장번호도 건너뛴다.
+     "수집은 됐는데 0건"은 정보이므로 null 이 아니다 — 실패만 null 이다. */
+
+  const badge = (kind, text) => `<span class="bdg ${kind}">${esc(text)}</span>`;
+  const failNote = (m) => `<p class="src9">${badge('fail','수집 안 됨')} ${esc(errLine(m))}</p>`;
+  function errLine(m){
+    const show = m && has(m.seconds) && (isSlow(m) || Number(m.seconds) >= 1);
+    return `${(m && m.error) || '수집하지 못했습니다'}${show ? ` (${m.seconds}초)` : ''}`;
+  }
+  const isSlow = (m) => /시간 초과|끊겼|연결 실패/.test(String((m && m.error) || ''));
+  function tbl(pairs){
+    return `<table class="tbl">${pairs.map(([k,v]) => `<tr><th>${esc(k)}</th><td>${v}</td></tr>`).join('')}</table>`;
+  }
+  function linkText(link, title){
+    const t = esc(title || '(제목 없음)');
+    const u = safeHref(link);
+    return u ? `<a href="${esc(u)}" target="_blank" rel="noopener noreferrer">${t}</a>` : t;
+  }
+
+  /* ── 01 매장 ── */
+  function renderStore(b){
+    const s = b.store || {};
+    const R = (b.options && b.options.radius) || 500;
+    const region = mod(b,'region'), comp = mod(b,'competition'), pop = mod(b,'population');
+    const online = mod(b,'online'), notices = mod(b,'notices');
+    const admin = region.ok && region.data.admin;
+    const cd = comp.ok ? comp.data : null;
+    const pd = pop.ok ? pop.data : null;
+    const od = online.ok ? onlineParts(online.data) : null;
+    const blog = od && part(od.blog), cafe = od && part(od.cafe);
+
+    const kpi = (k,v,sub) => `<div class="kpi"><div class="k">${esc(k)}</div>
+      <div class="v">${esc(v)}</div><div class="s">${esc(sub)}</div></div>`;
+    const kpis = '<div class="kpis" data-rule="ht,vc">' + [
+      kpi(`같은 업종 (반경 ${dist(R)})`, cd && cd.matched ? num(cd.sameSmall.count) : '—',
+        cd && cd.matched ? `소분류 ‘${cd.industry.small}’, 이 매장 제외` : comp.ok ? '상가정보에서 매장을 못 찾음' : '수집 안 됨'),
+      kpi('종사자 ÷ 인구', pd && has(pd.workerPerResident) ? String(pd.workerPerResident) : '—',
+        pd ? `${pd.admName} · ${pd.year}년` : '수집 안 됨'),
+      kpi('블로그 · 카페 언급', od ? `${num(blog && blog.total)} · ${num(cafe && cafe.total)}` : '—',
+        od ? '검색 결과 수라 다른 매장 글이 섞일 수 있습니다' : '수집 안 됨'),
+      kpi('지금 되는 지원사업', notices.ok ? num((notices.data.items||[]).length) : '—',
+        notices.ok ? `${notices.data.sido} 기준 · 접수 중` : '수집 안 됨'),
+    ].join('') + '</div>';
+
+    const links = [
+      safeHref(s.placeUrl) ? `<a href="${esc(s.placeUrl)}" target="_blank" rel="noopener">카카오맵</a>` : '',
+      safeHref(s.naverLink) ? `<a href="${esc(s.naverLink)}" target="_blank" rel="noopener">네이버 등록</a>` : '',
+    ].filter(Boolean).join(' · ');
+
+    const info = tbl([
+      ['업종 (카카오)', esc(s.category || '—')],
+      ['업종 (네이버)', esc(s.naverCategory || '—')],
+      ['도로명 주소', esc(s.roadAddress || '—')],
+      ['지번 주소', esc(s.address || '—')],
+      ['전화', esc(s.phone || '—')],
+      ['행정동', region.ok ? esc(admin ? `${admin.name} (코드 ${admin.code})` : '—') : badge('fail','수집 안 됨')],
+      ['링크', links || '—'],
+    ]);
+
+    const html = `<div class="eyebrow">STORE</div>
+      <div class="nm" data-rule="ht,hb,vr">${esc(s.name || '매장')}</div>
+      <div class="meta2">${esc([s.category, s.roadAddress || s.address].filter(Boolean).join(' · ') || '—')}</div>
+      ${kpis}${info}
+      ${(b.notes||[]).map(t => `<p class="src9">${esc(t)}</p>`).join('')}
+      <p class="src9">좌표 ${has(s.x) ? esc(`${Number(s.y).toFixed(6)}, ${Number(s.x).toFixed(6)}`) : '—'}</p>`;
+    return { html, meta: (s.sources||[]).join(' · ').toUpperCase() || 'KAKAO · NAVER' };
+  }
+
+  /* ── 동네 인구·사업체 — 극단적 스케일 대비 ── */
+  function renderPop(b){
+    const pop = mod(b,'population');
+    if (!pop.ok) return null;                         // 수집 실패 → 섹션 자체를 빼고 푸터에 기록
+    const pd = pop.data, cmp = pd.compare || {};
+    const sido = cmp.sido, nation = cmp.nation;
+    const comp = mod(b,'competition');
+    const cd = comp.ok ? comp.data : null;
+
+    const r = has(pd.workerPerResident) ? Number(pd.workerPerResident) : null;
+    let read = '이 동네의 성격을 판단할 값이 없습니다.';
+    if (r !== null) {
+      read = r >= 1
+        ? `사는 사람보다 일하러 오는 사람이 많은 <b>직장가</b>입니다. 평일 점심이 큽니다.`
+        : `일하러 오는 사람보다 사는 사람이 ${(1/r).toFixed(1)}배 많은 <b>주거지</b>입니다. 저녁과 주말에 손님이 몰립니다.`;
+    }
+    const refLine = [
+      sido && has(sido.workerPerResident) ? `${sido.name} ${sido.workerPerResident}` : '',
+      nation && has(nation.workerPerResident) ? `전국 ${nation.workerPerResident}` : '',
+    ].filter(Boolean).join(' · ');
+
+    // 인구를 분모로 돌려 쓸 수 있는 파생 지표 — 단독 인구수보다 영업에 쓰인다
+    let perStore = null;
+    if (cd && cd.matched && has(cd.sameSmall.count) && has(pd.population) && Number(cd.sameSmall.count) > 0) {
+      perStore = Math.round(Number(pd.population) / (Number(cd.sameSmall.count) + 1));
+    }
+
+    const two = `<div class="two">
+      <div><div class="k">인구 ${perStore ? '몇 명당 같은 업종 1곳' : ''}</div>
+        <div class="v">${perStore ? num(perStore) : num(pd.population)}</div>
+        <div class="lead-ref">${perStore ? `명당 1곳 · 인구 ${num(pd.population,'명')} · 같은 업종 ${num(cd.sameSmall.count,'곳')}`
+          : `명 · ${sido ? `${esc(sido.name)} ${num(sido.population,'명')}` : ''}`}</div></div>
+      <div><div class="k">평균 나이</div>
+        <div class="v">${has(pd.avgAge) ? esc(pd.avgAge) : '—'}</div>
+        <div class="lead-ref">세 · ${[sido && has(sido.avgAge) ? `${esc(sido.name)} ${sido.avgAge}` : '',
+          nation && has(nation.avgAge) ? `전국 ${nation.avgAge}` : ''].filter(Boolean).join(' · ') || '비교값 없음'}</div></div>
+    </div>`;
+
+    const restKeys = [['population','인구','명'],['avgHouseholdSize','평균 가구원','명'],
+      ['businesses','사업체','곳'],['workers','종사자','명']];
+    const rest = restKeys.map(([k,label,unit]) => `${label} ${num(pd[k],unit)}`).join(' · ');
+
+    const html = `<div class="k">종사자 ÷ 인구</div>
+      <div class="lead-n" data-rule="hb,vr">${r !== null ? esc(pd.workerPerResident) : '—'}</div>
+      <div class="lead-read">${read}</div>
+      <div class="lead-ref">${refLine ? esc(refLine) + ' &nbsp;|&nbsp; ' : ''}1보다 크면 직장가</div>
+      ${two}
+      <div class="rest">${rest}</div>
+      <div class="src9">${esc(pd.admName)} (SGIS 코드 ${esc(pd.admCd)}) · ${esc(pd.year)}년 기준${
+        pd.compareError ? ` · ${badge('warn','비교값 없음')} ${esc(pd.compareError)}` : ''}</div>`;
+    return { html, meta: srcText(pop).toUpperCase() };
+  }
+
+  /* ── 섹션 목록 ── */
+  const SECTIONS = [
+    { id:'store', title:'매장',            bg:'매장', cls:'hero', render:renderStore },
+    { id:'pop',   title:'동네 인구·사업체',  bg:'동네', render:renderPop },
+  ];
+
+  /* ── 푸터 ── */
+  function renderFoot(b){
+    const failed = failedModules(b);
+    const fails = failed.map(([k,m]) => `<li>${esc(LABEL[k]||k)} — ${esc(errLine(m))}</li>`);
+    const nearby = mod(b,'nearby'), online = mod(b,'online'), news = mod(b,'news');
+    const partial = nearby.ok ? (nearby.data.categories||[]).filter(c=>c.error)
+      .map(c => `<li>주변 시설 ${esc(c.label)} — ${esc(c.error)}</li>`) : [];
+    const od = online.ok ? onlineParts(online.data) : null;
+    if (od) [['blog','블로그'],['waiting','‘웨이팅’ 블로그'],['cafe','카페']].forEach(([k,n]) => {
+      if (od[k] && od[k].error) partial.push(`<li>온라인 언급 ${esc(n)} — ${esc(od[k].error)}</li>`); });
+    if (news.ok) (news.data.queries||[]).filter(x=>x.error)
+      .forEach(x => partial.push(`<li>뉴스 ‘${esc(x.q)}’ — ${esc(x.error)}</li>`));
+    const list = fails.concat(partial);
+    const slow = failed.some(([,m]) => isSlow(m))
+      ? '<p class="src9">서버가 느리거나 연결이 끊겨 못 가져온 항목이 있습니다. 한 번 더 수집하면 대개 채워집니다.</p>' : '';
+    return `<footer class="foot">
+      ${list.length ? `<div style="margin-bottom:13px"><b style="color:var(--ink)">수집하지 못한 항목</b>
+        <ul class="errs" style="margin-top:6px">${list.join('')}</ul>${slow}</div>` : ''}
+      모든 숫자에는 출처와 조회 시각이 붙습니다. 공개 데이터와 추정치이므로 리포트에 쓰기 전에 원본과 한 번 대조해 주세요.<br>
+      수집 ${esc(b.collectedAt||'')} · 반경 ${dist((b.options&&b.options.radius)||500)} · 수집기 ${esc(b.version||'')} / 페이지 ${PAGE_VERSION}
+    </footer>`;
+  }
+
+  /* ── 리포트 조립 — 장번호는 실제로 그려진 섹션에만 순서대로 매긴다 ── */
+  function renderReport(b){
+    let no = 0;
+    const parts = SECTIONS.map((sd) => {
+      let r = null;
+      try { r = sd.render(b); } catch (e) { console.error(sd.id, e); r = null; }
+      if (!r) return '';
+      no += 1;
+      return `<section class="sec ${sd.cls||''}" id="sec-${sd.id}">
+        ${sd.bg ? `<div class="bgw" style="left:${232+((no*59)%128)}px;top:${-84+((no*47)%62)}px;font-size:${238+((no*37)%48)}px">${esc(sd.bg)}</div>` : ''}
+        <div class="hd">
+          <div class="chap" data-rule="hb,vr"><span class="dig">${no}</span><h2>${esc(sd.title)}</h2></div>
+          <span class="meta">${esc(r.meta||'')}</span>
+        </div>
+        ${r.html}
+      </section>`;
+    });
+    return parts.join('') + renderFoot(b);
+  }
+
+
+  /* ══════════ 배관 ══════════
+     리포트는 수집이 끝난 뒤(10~20초) 한 번, 리뷰가 도착한 뒤(1~3분) 또 한 번 그려진다.
+     기준선은 요소의 실측 좌표로, 스크러빙은 섹션의 문서 좌표로 그리므로
+     내용이 바뀔 때마다 둘 다 다시 재야 한다. */
+
+  const reduce = matchMedia('(prefers-reduced-motion:reduce)').matches;
+  const GC='#E4E4E4', GC2='#FAFAFA', GC0='#FFFFFF', EXT=168, LO=-26, HI=616;
+  let _drawing = false;
+
+  function inkRect(e){
+    try { const r=document.createRange(); r.selectNodeContents(e);
+      const b=r.getBoundingClientRect(); if(b.width>4&&b.height>4) return b; } catch(_){}
+    return e.getBoundingClientRect();
+  }
+  function grad(dir, span, fade){
+    const f = fade/span*100;
+    return `linear-gradient(${dir},${GC0} 0%,${GC2} ${(f*.45).toFixed(1)}%,`+
+      `${GC} ${f.toFixed(1)}%,${GC} ${(100-f).toFixed(1)}%,`+
+      `${GC2} ${(100-f*.45).toFixed(1)}%,${GC0} 100%)`;
+  }
+  function drawRules(){
+    _drawing = true;
+    $$('.arule').forEach(n => n.remove());
+    const cnt = new Map();
+    $$('[data-rule]').forEach((e) => {
+      const sec = e.closest('.sec'); if(!sec) return;
+      const a = inkRect(e), b = sec.getBoundingClientRect();
+      const x=a.left-b.left, y=a.top-b.top, w=a.width, h=a.height;
+      e.dataset.rule.split(/\s*,\s*/).forEach((kind) => {
+        const i = document.createElement('i');
+        i.className = 'arule';
+        i.classList.add(kind[0]==='v' ? 'v' : 'h');
+        const rd = cnt.get(sec) || 0; cnt.set(sec, rd+1);
+        if (kind[0]==='v'){
+          const SH=b.height, s0=Math.max(y-EXT,-18), s1=Math.min(y+h+EXT,SH+18), span=s1-s0;
+          const fade=Math.min(EXT, span*.34);
+          const cx = kind==='vl' ? x : kind==='vr' ? x+w : x+w/2;
+          i.style.cssText = `left:${cx.toFixed(1)}px;top:${s0.toFixed(1)}px;width:1px;`+
+            `height:${span.toFixed(1)}px;background:${grad('to bottom',span,fade)}`;
+        } else {
+          const s0=Math.max(x-EXT,LO), s1=Math.min(x+w+EXT,HI), span=s1-s0;
+          const fade=Math.min(EXT, span*.34);
+          const cy = kind==='ht' ? y : y+h;
+          i.style.cssText = `left:${s0.toFixed(1)}px;top:${cy.toFixed(1)}px;height:1px;`+
+            `width:${span.toFixed(1)}px;background:${grad('to right',span,fade)}`;
+        }
+        i.style.setProperty('--rd', (rd*110)+'ms');   // cssText 뒤에 설정해야 살아남는다
+        sec.insertBefore(i, sec.firstChild);
+      });
+    });
+    Promise.resolve().then(() => { _drawing = false; });
+  }
+
+  /* 배경 타이포 스크러빙 — 오른쪽 밖에서 300% 크기로 들어와 제자리로 */
+  let SCRUB = [], _sy = 0, _run = false;
+  function buildScrub(){
+    SCRUB = $$('.bgw').filter(e => !e.closest('.sec.static')).map((e,i) => ({
+      el:e, host:(e.closest('.sec')||e.parentElement), ax:790+((i*67)%170), top:0 }));
+    measure();
+  }
+  function measure(){ const so=window.scrollY; SCRUB.forEach(o => { o.top = o.host.getBoundingClientRect().top + so; }); }
+  function paint(sy){
+    const vh = innerHeight || 900;
+    SCRUB.forEach((o) => {
+      const trig = Math.max(0, o.top - vh);
+      let p = (sy - trig) / (vh*.88); p = p<0?0:p>1?1:p;
+      const k = (1-p)*(1-p);
+      o.el.style.transform = `translate3d(${(o.ax*k).toFixed(2)}px,0,0) scale(${(1+2.00*k).toFixed(4)})`;
+    });
+  }
+  function tick(){
+    const t = window.scrollY;
+    _sy += (t-_sy)*0.11;                 // 휠은 100px씩 튄다 — 부드러운 값을 따로 두고 따라간다
+    if (Math.abs(t-_sy) < 0.3) _sy = t;
+    paint(_sy);
+    if (_sy !== t) requestAnimationFrame(tick); else _run = false;
+  }
+  function kick(){ if(!_run){ _run=true; requestAnimationFrame(tick); } }
+
+  /* 숫자 카운트업 */
+  function countUp(e){
+    const to = parseFloat(e.dataset.n), dec = +(e.dataset.d||0), t0 = performance.now();
+    (function step(t){
+      const k = Math.min((t-t0)/2200, 1), q = 1-Math.pow(1-k,4);
+      e.textContent = (to*q).toLocaleString('ko-KR',{minimumFractionDigits:dec,maximumFractionDigits:dec});
+      if (k<1) requestAnimationFrame(step);
+    })(t0);
+  }
+  function fire(sec){
+    sec.classList.add('on');
+    if (MOTION==='fast' || reduce || sec.classList.contains('static')) return;
+    sec.querySelectorAll('.kpi .v[data-n]').forEach((n,i) => setTimeout(() => countUp(n), i*260));
+  }
+  const io = new IntersectionObserver((es) => es.forEach((e) => {
+    if (e.isIntersecting){ fire(e.target); io.unobserve(e.target); } }), { threshold:.2 });
+
+  /* 상호가 길면 히어로가 칼럼을 넘는다 — 들어갈 때까지 줄인다 */
+  function fitHero(){
+    $$('#report .nm').forEach((n) => {
+      n.style.fontSize = '';
+      const max = n.parentElement.clientWidth || 590;
+      let size = 76;
+      n.style.whiteSpace = 'nowrap';
+      while (size > 30 && n.scrollWidth > max){ size -= 2; n.style.fontSize = size + 'px'; }
+      if (n.scrollWidth > max){ n.style.whiteSpace = 'normal'; n.style.fontSize = '46px'; }
+    });
+  }
+
+  /* 내용이 바뀌면 다시 재고 다시 붙인다 */
+  let _rt = 0;
+  function refresh(){
+    fitHero();
+    drawRules();
+    buildScrub();
+    $$('.sec').forEach((s) => {
+      if (s.classList.contains('static')){ s.classList.add('on'); return; }
+      if (!s.dataset.obs){ s.dataset.obs='1'; io.observe(s); }
+    });
+    paint(_sy);
+  }
+  function scheduleRefresh(){ clearTimeout(_rt); _rt = setTimeout(refresh, 90); }
+
+  new MutationObserver(() => { if(!_drawing) scheduleRefresh(); })
+    .observe(el.result, { childList:true, subtree:true });
+  new ResizeObserver(() => { if(!_drawing) scheduleRefresh(); }).observe(el.result);
+
+  if (!reduce && MOTION!=='fast'){
+    ['scroll','wheel','touchmove','keydown'].forEach(e => addEventListener(e, kick, {passive:true}));
+  }
+  addEventListener('resize', () => { measure(); scheduleRefresh(); }, {passive:true});
+  addEventListener('load', () => scheduleRefresh());
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => scheduleRefresh());
+  addEventListener('beforeprint', () => {
+    SCRUB.forEach(o => { o.el.style.transform='none'; });
+    $$('.sec').forEach(s => s.classList.add('on'));
+    drawRules();
+  });
+
+  /* 입력 구역 스포트라이트 */
+  (() => {
+    const set = (on) => { el.scrim.classList.toggle('on', on); el.tool.classList.toggle('lit', on); };
+    const active = () => el.tool.contains(document.activeElement) || el.tool.matches(':hover');
+    ['mouseenter','focusin'].forEach(e => el.tool.addEventListener(e, () => set(true)));
+    ['mouseleave','focusout'].forEach(e => el.tool.addEventListener(e, () => setTimeout(() => set(active()), 0)));
+  })();
+
+  /* ── 코파일럿용 묶음 ── */
+  function buildMarkdown(b) {
+    const s = b.store || {};
+    const R = (b.options && b.options.radius) || 500;
+    const L = [];
+    const region = mod(b, 'region');
+    const nearby = mod(b, 'nearby');
+    const comp = mod(b, 'competition');
+    const pop = mod(b, 'population');
+    const online = mod(b, 'online');
+    const news = mod(b, 'news');
+    const trend = mod(b, 'trend');
+    const notices = mod(b, 'notices');
+    const events = mod(b, 'events');
+    const o = online.ok ? onlineParts(online.data) : null;
+    const admin = region.ok && region.data.admin;
+    const src = (m) => md(srcText(m));
+    const cnt = (p) => (!p ? '—' : p.error ? `수집 안 됨: ${md(p.error)}` : num(p.total, '건'));
+
+    L.push('# 매장 데이터 묶음 (자동 수집)');
+    L.push(`- 수집: ${b.collectedAt} · 수집기 ${b.version} / 페이지 ${PAGE_VERSION} · 반경 ${dist(R)}`);
+    L.push('- 규칙: 아래 표에 있는 숫자만 쓰고, 없는 숫자는 만들지 마세요. 숫자를 쓸 때는 출처를 함께 적으세요. "—"는 값이 없다는 뜻입니다.');
+    L.push('');
+    L.push('## 1. 매장');
+    L.push('| 항목 | 값 | 출처 |', '|---|---|---|');
+    L.push(`| 상호 | ${md(s.name)} | ${md((s.sources || []).join('·') || '검색')} 검색 결과 |`);
+    L.push(`| 업종(카카오) | ${md(s.category || '—')} | 카카오 로컬 API |`);
+    L.push(`| 업종(네이버) | ${md(s.naverCategory || '—')} | 네이버 지역검색 API |`);
+    L.push(`| 도로명 주소 | ${md(s.roadAddress || '—')} | 검색 결과 |`);
+    L.push(`| 행정동 | ${region.ok ? md(admin ? `${admin.name} (코드 ${admin.code})` : '—') : `수집 안 됨: ${md(region.error)}`} | ${src(region)} |`);
+    if (s.placeUrl) L.push(`| 카카오맵 | ${md(s.placeUrl)} | 카카오 로컬 API |`);
+    (b.notes || []).forEach((t) => L.push(`- 참고: ${md(t)}`));
+    L.push('');
+
+    L.push(`## 2. 주변 시설 (반경 ${dist(R)}, 지하철역은 1km, 대학교는 1.5km)`);
+    if (nearby.ok) {
+      L.push(`출처: ${src(nearby)}`, '', '| 시설 | 곳 수 | 가까운 곳 |', '|---|---|---|');
+      (nearby.data.categories || []).forEach((c) => {
+        const near = (c.nearest || []).map((x) => `${x.name} ${dist(x.distance)}`).join(', ') || '—';
+        L.push(`| ${md(c.label)}${c.radius !== R ? ` (${dist(c.radius)})` : ''} | ${c.error ? `수집 안 됨: ${md(c.error)}` : num(c.count, '곳')} | ${md(near)} |`);
+      });
+      const uni = nearby.data.universities || { list: [] };
+      L.push(`| 대학교 (1.5km) | ${uni.error ? '수집 안 됨' : num((uni.list || []).length, '곳')} | ${md((uni.list || []).map((u) => `${u.name} ${dist(u.distance)}${u.place && u.place !== u.name ? ` (${u.place})` : ''}`).join(', ') || '—')} |`);
+      (nearby.data.notes || []).forEach((t) => L.push(`- 참고: ${md(t)}`));
+    } else {
+      L.push(`수집 안 됨: ${md(nearby.error)}`);
+    }
+    L.push('');
+
+    L.push(`## 3. 같은 업종 점포 (반경 ${dist(R)})`);
+    if (!comp.ok) L.push(`수집 안 됨: ${md(comp.error)}`);
+    else if (!comp.data.matched) {
+      const nb = comp.data.nearby || {};
+      L.push(`출처: ${src(comp)}`, '', `- ${md(comp.data.note)}`);
+      if ((nb.list || []).length) {
+        L.push(`- ${md(nb.from || '주변')}에 등록된 상가(매장 확인용, 경쟁 수치 아님): ${md(nb.list.slice(0, 10).map((x) => `${x.name}(${[x.small || x.large, x.floor ? `${x.floor}층` : ''].filter(Boolean).join(' ')})`).join(', '))}`);
+      }
+    }
+    else {
+      const c = comp.data;
+      const bands = bandText(c.sameSmall.bands, ', ');
+      L.push(`출처: ${src(comp)} · 자료 기준월 ${ym(c.stdrYm)}`, '', '| 항목 | 값 |', '|---|---|');
+      L.push(`| 상가정보 등록 상호 | ${md(c.matchedName)} (좌표 차이 ${dist(c.matchedDistance)}${c.floor ? `, ${md(c.floor)}층` : ''}${c.how ? `, ${md(c.how)}에서 찾음` : ''}) |`);
+      L.push(`| 업종 | ${md([c.industry.large, c.industry.middle, c.industry.small].filter(Boolean).join(' > '))} |`);
+      L.push(`| 같은 소분류, 이 매장 제외 | ${num(c.sameSmall.count, '곳')} (${md(bands)}) |`);
+      L.push(`| 같은 중분류(${md(c.industry.middle)}) | ${num(c.sameMiddle.count, '곳')} |`);
+      L.push(`| ${md(c.industry.large || '대분류')} 전체 | ${num(c.sameLarge.count, '곳')} |`);
+    }
+    L.push('');
+
+    L.push('## 4. 동네 인구·사업체');
+    if (!pop.ok) L.push(`수집 안 됨: ${md(pop.error)}`);
+    else {
+      const p = pop.data;
+      const cmp = p.compare;
+      const sido = cmp && cmp.sido;
+      const nation = cmp && cmp.nation;
+      const rt = (o) => (o && has(o.workerPerResident) ? o.workerPerResident : '—');
+      if (sido || nation) {
+        L.push(`출처: ${src(pop)} · 동네 ${md(p.admName)} · ${p.year}년 기준 · 비교: ${md(sido ? sido.name : '시도')} 전체와 전국(${md((nation && nation.note) || '17개 시도 합산')})`, '');
+        L.push(`| 항목 | 이 동네 | ${md(sido ? sido.name : '시도')} | 전국 |`, '|---|---|---|---|');
+        POP_ROWS.forEach(([k, label, unit]) => L.push(`| ${label} | ${num(p[k], unit)} | ${sido ? num(sido[k], unit) : '—'} | ${nation ? num(nation[k], unit) : '—'} |`));
+        L.push(`| 종사자 ÷ 인구 | ${rt(p)} | ${rt(sido)} | ${rt(nation)} |`);
+        L.push('- 읽는 법: 종사자÷인구가 시도·전국보다 크면 사는 사람보다 일하러 오는 사람이 많은 동네(직장가), 작으면 주거지 성격입니다.');
+      } else {
+        L.push(`출처: ${src(pop)} · ${md(p.admName)} · ${p.year}년 기준`, '', '| 항목 | 값 |', '|---|---|');
+        POP_ROWS.forEach(([k, label, unit]) => L.push(`| ${label} | ${num(p[k], unit)} |`));
+        L.push(`| 종사자 ÷ 인구 | ${rt(p)} (1보다 크면 사는 사람보다 일하러 오는 사람이 많은 동네) |`);
+        if (p.compareError) L.push(`- 참고: ${md(p.compareError)}`);
+      }
+    }
+    L.push('');
+
+    L.push('## 5. 온라인 언급·뉴스 (네이버 검색 결과 수, 다른 가게 글이 섞인 참고치)');
+    if (!o) L.push(`블로그·카페 수집 안 됨: ${md(online.error)}`);
+    else {
+      L.push(`출처: ${src(online)}`);
+      L.push(`- 블로그 "${md(o.query)}": ${cnt(o.blog)}`);
+      L.push(`- 블로그 "${md((o.waiting && o.waiting.query) || `${o.query} 웨이팅`)}": ${cnt(o.waiting)}`);
+      L.push(`- 카페 "${md(o.query)}": ${cnt(o.cafe)}`);
+      const other = (r) => (r.otherBranch ? ` [다른 지점: ${md(r.otherBranch)}]` : '');
+      (part(o.blog) ? o.blog.recent || [] : []).forEach((r) => L.push(`- 최근 블로그 글 ${md(r.date)}${other(r)}: ${md(r.title)} ${md(r.link)}`));
+      (part(o.cafe) ? o.cafe.recent || [] : []).forEach((r) => L.push(`- 최근 카페 글 (${md(r.cafe || '카페 이름 없음')})${other(r)}: ${md(r.title)} ${md(r.link)}`));
+      if (part(o.blog) && o.blog.otherBranchCount) {
+        L.push(`- 주의: 최근 블로그 글 ${(o.blog.recent || []).length}건 중 ${o.blog.otherBranchCount}건이 같은 브랜드의 다른 지점 글이다. 블로그 건수를 이 매장 수치로 단정하지 말 것`);
+      }
+    }
+    L.push('');
+    if (!news.ok) L.push(`뉴스 수집 안 됨: ${md(news.error)}`);
+    else {
+      L.push(`뉴스 출처: ${src(news)} · ${md(news.data.note || '')}`);
+      (news.data.queries || []).forEach((x) => {
+        const label = `${NEWS_LABEL[x.key] || x.key} "${md(x.q)}"`;
+        if (x.error) {
+          L.push(`- ${label}: 수집 안 됨: ${md(x.error)}`);
+          return;
+        }
+        L.push(`- ${label}: ${num(x.total, '건')}${x.filter ? ` (최근 ${x.filter.fetched}건 중 제목에 동네 이름('${md(x.filter.word)}')과 상권 관련 말이 있는 ${x.filter.kept}건만 아래에 적음)` : ''}`);
+        (x.recent || []).forEach((r) => L.push(`  - ${md(r.date || '—')}: ${md(r.title)} ${md(r.link)}`));
+      });
+    }
+    L.push('');
+
+    L.push('## 6. 메뉴 검색 추이 (네이버 검색어트렌드, 월별 상대값)');
+    if (!trend.ok) L.push(`수집 안 됨: ${md(trend.error)}`);
+    else {
+      const t = trend.data;
+      L.push(`출처: ${src(trend)} · ${t.startMonth} ~ ${t.endMonth}${b.options && b.options.keywordsDerived ? ' · 키워드는 업종에서 자동 선택' : ''}${b.options && b.options.keywordsWeak ? ' · 업종 이름이라 범위가 넓음(참고만)' : ''}`);
+      L.push(`- ${md(t.note)}`, '', '| 키워드 | 가장 높은 달 | 가장 낮은 달 | 월별 값 |', '|---|---|---|---|');
+      (t.series || []).forEach((sr) => {
+        const vals = (sr.points || []).map((p) => `${p.month.slice(2)}:${has(p.ratio) ? p.ratio : '—'}`).join(' ');
+        L.push(`| ${md(sr.keyword)} | ${sr.peak ? sr.peak.month : '—'} | ${sr.low ? sr.low.month : '—'} | ${vals} |`);
+      });
+    }
+    L.push('');
+
+    L.push('## 7. 특성 판정에 쓸 신호 (원자료 · 판정은 사람이)');
+    const sw = cat(b, 'SW8');
+    const at = cat(b, 'AT4');
+    const ad = cat(b, 'AD5');
+    const uni = nearby.ok ? nearby.data.universities || { list: [] } : null;
+    L.push(`- 관광·외국인: 반경 ${dist(R)} 관광명소 ${num(at && at.count, '곳')}, 숙박 ${num(ad && ad.count, '곳')}${at && at.nearest && at.nearest.length ? ` (가까운 명소: ${md(at.nearest.map((x) => x.name).join(', '))})` : ''}. 해외 리뷰는 8번에서 사람이 확인`);
+    const cmpTxt = (() => {
+      const c = pop.ok && pop.data.compare;
+      if (!c) return '';
+      const parts = [c.sido && has(c.sido.workerPerResident) ? `${c.sido.name} ${c.sido.workerPerResident}` : '', c.nation && has(c.nation.workerPerResident) ? `전국 ${c.nation.workerPerResident}` : ''].filter(Boolean);
+      return parts.length ? ` (비교: ${md(parts.join(' · '))})` : '';
+    })();
+    L.push(`- 직장·주거: ${pop.ok ? `종사자÷인구 ${has(pop.data.workerPerResident) ? pop.data.workerPerResident : '—'}${cmpTxt}, 평균 가구원 ${num(pop.data.avgHouseholdSize, '명')}, 평균 나이 ${num(pop.data.avgAge, '세')}` : '수집 안 됨'}`);
+    L.push(`- 역세권·대학가: 가장 가까운 역 ${sw && sw.nearest && sw.nearest[0] ? `${md(sw.nearest[0].name)} ${dist(sw.nearest[0].distance)}` : '1km 안에 없음 또는 수집 안 됨'}, 1.5km 안 대학교 ${uni && uni.list && uni.list.length ? md(uni.list.map((u) => u.name).join(', ')) : '없음 또는 수집 안 됨'}`);
+    L.push(`- 경쟁: ${comp.ok && comp.data.matched ? `같은 소분류 ${num(comp.data.sameSmall.count, '곳')}, ${md(comp.data.industry.large)} 전체 ${num(comp.data.sameLarge.count, '곳')}` : '상가정보 미매칭 또는 수집 안 됨'}`);
+    const short = (p) => (!p || p.error ? '수집 안 됨' : num(p.total, '건'));
+    const otherCnt = o && part(o.blog) && o.blog.otherBranchCount ? ` (최근 블로그 ${(o.blog.recent || []).length}건 중 ${o.blog.otherBranchCount}건은 다른 지점 글)` : '';
+    L.push(`- 온라인·웨이팅: ${o ? `블로그 ${short(o.blog)}, '웨이팅' 함께 ${short(o.waiting)}, 카페 ${short(o.cafe)}${otherCnt}` : '수집 안 됨'}`);
+    const cafeNames = o && part(o.cafe) ? [...new Set((o.cafe.recent || []).map((r) => r.cafe).filter(Boolean))] : [];
+    L.push(`- 동네 커뮤니티: ${!o || !part(o.cafe) ? '수집 안 됨' : cafeNames.length ? `최근 글이 올라온 카페 ${md(cafeNames.join(', '))}` : '최근 카페 글 없음'}`);
+    L.push(`- 뉴스: ${news.ok ? (news.data.queries || []).map((x) => `${NEWS_LABEL[x.key] || x.key} "${md(x.q)}" ${x.error ? '수집 안 됨' : num(x.total, '건')}`).join(', ') || '—' : '수집 안 됨'}`);
+    L.push(`- 계절성: ${trend.ok ? (trend.data.series || []).map((sr) => `${md(sr.keyword)} 최고 ${sr.peak ? sr.peak.month : '—'} / 최저 ${sr.low ? sr.low.month : '—'}`).join(', ') || '—' : '수집 안 됨'}`);
+    const rv = state.reviews && state.reviews.data;
+    const srcSum = rv ? Object.values(rv.sources || {}).filter((x) => !x.error).map((x) => `${x.label} ${x.counted}건`).join('·') : '';
+    L.push(`- 손님 불편 신호: ${rv ? `리뷰 ${srcSum || `${rv.counted}건`} 분석, 플레이스 평점 ${rv.place && has(rv.place.rating) ? rv.place.rating : '—'}, 불만 리뷰 ${(rv.complaints || []).length}건 중 하이오더로 보완 가능 ${rv.hiorderCount}건 (9번 참고)` : '아직 리뷰를 가져오지 않음'}`);
+    const toSig = tableOrderSignals(rv);
+    L.push(`- 테이블 주문기 흔적: ${toSig.count ? `${toSig.count}건 (리뷰 ${toSig.reviewCount}건 · 블로그·카페 제목 ${toSig.blogCount}건) — 이미 태블릿 주문을 쓰는 매장일 수 있음, 9번 참고` : rv ? '리뷰·블로그 제목에서 없음' : '리뷰를 가져온 뒤 판정'}`);
+    L.push('');
+
+    L.push('## 8. 사람이 채울 것 (캡처를 이 대화에 첨부)');
+    manualItems(s, '').forEach((m) => L.push(`- [ ] ${m.what} — ${m.why}`));
+    L.push('- [ ] 메뉴판 사진 확인 — 수집기 화면의 참고용 사진으로 대표 메뉴·가격대를 사람이 확인 (사진과 사진 주소는 리포트에 넣지 않음)');
+    L.push('');
+
+    const rvSources = rv ? Object.values(rv.sources || {}) : [];
+    const rvNames = rvSources.filter((x) => !x.error).map((x) => ({ 네이버: '네이버 플레이스', 카카오: '카카오맵', 구글: '구글 지도' })[x.label] || x.label);
+    L.push(`## 9. 손님 불편 신호 (${rvNames.length ? `${rvNames.join(' · ')} 리뷰` : '네이버 플레이스 방문자 리뷰'})`);
+    L.push('- 규칙: ‘하이오더 보완’ 칸이 ○인 항목만 하이오더 개선 사례로 연결하세요. 맛·위생·가격·응대 태도는 하이오더로 해결되지 않으므로 그런 식으로 쓰면 안 됩니다.');
+    L.push('- 규칙: 리포트에 쓸 때는 원문 링크와 작성 시점을 함께 적으세요. 오래된 리뷰를 지금 일처럼 쓰면 안 됩니다.');
+    L.push('- 규칙: 손님이 고른 키워드는 강점 부분에 쓰고, 불만은 개선 제안 부분에 씁니다. 리뷰 문장을 그대로 길게 옮기지 말고 요약하세요.');
+    L.push('- 규칙: 테이블 주문기 흔적이 있으면 이미 다른 태블릿 주문기를 쓰는 매장입니다. ‘주문 불편 해소’ 논리 대신 ‘지금 태블릿으로 되는 것 / 하이오더로만 되는 것’ 비교(A-전환형)로 쓰고, 사장님께 어떤 기기인지 확인하세요.');
+    if (!rv) {
+      L.push('- 아직 가져오지 않았습니다. 수집기 화면에서 ‘플레이스 리뷰 가져오기’를 누른 뒤 다시 복사하세요.');
+    } else {
+      const place = rv.place || {};
+      rvSources.forEach((x) => {
+        if (x.error) {
+          L.push(`- ${md(x.label)}: 수집 안 됨 — ${md(x.error)}`);
+          return;
+        }
+        const pl = x.place || {};
+        const score = has(pl.rating) ? `평점 ${pl.rating}${x.label === '네이버' ? ' (네이버 공식값)' : ''}` : has(x.ratingAvg) ? `별점 평균 ${x.ratingAvg} (분석한 리뷰 기준)` : '';
+        L.push(`- ${md(x.label)}: ${md(pl.name || '—')}${pl.address ? ` (${md(pl.address)})` : ''}${x.matched ? '' : ' ⚠ 우리 매장과 다를 수 있습니다 — 확인 필요'} · 분석 ${x.counted}건${has(pl.total) ? ` (전체 ${num(pl.total, '건')})` : ''}${score ? ` · ${score}` : ''}${x.others ? ` · 검색에 섞인 다른 장소 ${x.others}곳 제외` : ''}${x.label === '네이버' ? ` · 별점 있는 리뷰 ${x.rated ?? '—'}건 / 없는 리뷰 ${x.unrated ?? '—'}건` : ''}`);
+      });
+      L.push(`- 조회: ${md(state.reviews.fetchedAt || b.collectedAt)}`);
+      const rc = rv.ratingCounts || {};
+      if (has(rv.rated) && rv.sources && rv.sources.naver && !rv.sources.naver.error) {
+        L.push(`- 네이버는 2021년부터 별점 대신 키워드로 평가하므로 최근 리뷰에는 별점이 없습니다. 네이버 별점 분포는 옛 리뷰만 센 것이니 대표값으로 쓰지 마세요.${rv.rated ? ` (별점 있는 ${rv.rated}건: ${[5, 4, 3, 2, 1].map((n) => `${n}점 ${Number(rc[n] || 0)}건`).join(', ')})` : ''}`);
+      }
+      if ((rv.keywords || []).length) {
+        L.push(`- 네이버 손님이 고른 키워드: ${md(rv.keywords.map((k) => `${k.word} ${k.count}`).join(', '))}`);
+      }
+      if ((rv.keywordsKakao || []).length) {
+        L.push(`- 카카오 손님이 고른 키워드: ${md(rv.keywordsKakao.map((k) => `${k.word} ${k.count}`).join(', '))}`);
+      }
+      const toSig2 = tableOrderSignals(rv);
+      if (toSig2.count) {
+        L.push(`- 테이블 주문기 사용 흔적 ${toSig2.count}건: ${md(toSig2.hits.map((h) => `${h.source} ${h.date || ''} “${h.text}”`).join(' / '))}`);
+      }
+      const items = rv.complaints || [];
+      const analyzed = has(rv.countedAll) ? rv.countedAll : rv.counted;
+      if (!items.length) L.push(`- 분석한 ${analyzed}건 가운데 불만이 적힌 리뷰가 없습니다. 리뷰가 고르게 긍정적인 매장이므로 이 사실을 강점으로 쓰세요.`);
+      else {
+        L.push('');
+        L.push('| 출처 | 분류 | 하이오더 보완 | 별점 | 날짜 | 리뷰 내용 | 사장님 답글 | 링크 |');
+        L.push('|---|---|---|---|---|---|---|---|');
+        items.forEach((x) => {
+          const c = x.category;
+          L.push(`| ${md(x.source || '네이버')} | ${md(c ? c.label : '분류 안 됨')} | ${c && c.hiorder ? '○' : '×'} | ${has(x.rating) ? x.rating : '없음'} | ${md(x.date || '—')} | ${md(x.text)}${x.lang && x.lang !== 'ko' ? ` (원문 ${md(x.lang)})` : ''} | ${x.reply ? '있음' : '없음'} | ${md(x.link || '—')} |`);
+        });
+        L.push('');
+        const fixes = [...new Set(items.filter((x) => x.category && x.category.hiorder).map((x) => `${x.category.label} → ${x.category.fix}`))];
+        if (fixes.length) {
+          L.push('- 하이오더로 이어 말할 수 있는 것:');
+          fixes.forEach((t) => L.push(`  - ${md(t)}`));
+        }
+      }
+    }
+    L.push('');
+
+    L.push('## 10. 사장님께 알려드릴 지원사업·교육');
+    L.push('- 규칙: 안내만 하고 신청은 사장님이 직접 하십니다. 대신 신청하거나 수수료를 받는 내용은 절대 쓰지 마세요.');
+    L.push('- 규칙: 금액·마감·대상은 바뀝니다. 리포트에는 “공고 원문에서 확인”이라는 말을 함께 넣고, 확정된 금액처럼 쓰지 마세요.');
+    L.push('- 규칙: 정부지원금을 미끼로 접근하는 사칭 업체가 있으니 공식 누리집에서만 신청하시라는 안내를 함께 넣으세요.');
+    const sido = admin ? admin.sido : '';
+    L.push('');
+    if (notices.ok) {
+      const ni = (notices.data.items || []);
+      L.push(`### 지금 접수 중인 공고 (${src(notices)})`);
+      if (!ni.length) L.push(`- ${md(notices.data.note)}`);
+      else {
+        L.push('| 공고 | 소관 | 접수기간 | 대상 | 링크 |');
+        L.push('|---|---|---|---|---|');
+        ni.forEach((x) => L.push(`| ${md(x.title)} | ${md(x.org || '—')} | ${md(x.period || '—')} | ${md(x.target || '—')} | ${md(x.link || '—')} |`));
+      }
+    } else {
+      L.push(`### 지금 접수 중인 공고\n- 수집 안 됨: ${md(errLine(notices))}`);
+    }
+    L.push('');
+    if (events.ok) {
+      const ei = (events.data.items || []);
+      L.push(`### 갈 만한 교육·행사 (${src(events)})`);
+      if (!ei.length) L.push(`- ${md(events.data.note)}`);
+      else {
+        L.push('| 행사 | 종류 | 주관 | 행사기간 | 접수 | 링크 |');
+        L.push('|---|---|---|---|---|---|');
+        ei.forEach((x) => L.push(`| ${md(x.title)} | ${md(x.kind || '—')} | ${md(x.org || '—')} | ${md(x.period || '—')} | ${md(x.apply || '—')} | ${md(x.link || '—')} |`));
+      }
+    } else {
+      L.push(`### 갈 만한 교육·행사\n- 수집 안 됨: ${md(errLine(events))}`);
+    }
+    L.push('');
+    L.push(`### 상시 제도 (${SUPPORT_CHECKED} 확인 · 마감 없는 창구)`);
+    L.push('| 구분 | 제도 | 무엇을 도와주는지 | 창구 | 주소 |');
+    L.push('|---|---|---|---|---|');
+    SUPPORT.filter((x) => x.scope !== '인천' || /인천/.test(String(sido || ''))).forEach((x) => {
+      L.push(`| ${md(x.scope === '가구' ? '사장님 가구' : x.scope)} | ${md(x.what)} | ${md(x.why)} | ${md(x.where)} | ${md(x.href)} |`);
+    });
+    L.push('');
+    L.push('- 사장님께 여쭤볼 것 (대답에 따라 해당 제도가 갈립니다):');
+    ASK_OWNER.forEach((x) => L.push(`  - ${md(x)}`));
+    L.push('');
+
+    const fails = failedModules(b);
+    if (fails.length) {
+      L.push('## 11. 수집하지 못한 항목');
+      fails.forEach(([k, m]) => L.push(`- ${LABEL[k] || k}: ${md(errLine(m))}`));
+    }
+    return L.join('\n');
+  }
+
+  /* ── 복사·저장 ── */
+  async function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      try { await navigator.clipboard.writeText(text); return true; } catch (e) { /* 아래 방식으로 재시도 */ }
+    }
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'absolute';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    ta.remove();
+    return ok;
+  }
+
+  el.copyBtn.addEventListener('click', async () => {
+    if (!state.bundle) return;
+    const ok = await copyText(buildMarkdown(state.bundle));
+    setMsg(el.copyMsg, ok ? '복사했습니다. 코파일럿 에이전트에 붙여넣으세요. 입력창에서 뒤가 잘리면 「묶음 파일 저장」으로 첨부하세요.' : '복사하지 못했습니다. 「묶음 파일 저장」을 이용해 주세요.', ok ? 'ok' : 'err');
+  });
+
+  function fileStem() {
+    const s = state.bundle.store || {};
+    const day = String(state.bundle.collectedAt || '').slice(0, 10);
+    return `${String(s.name || '매장').replace(/[\\/:*?"<>|\s]+/g, '_')}_${day}`;
+  }
+  function downloadFile(name, blob) {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+    setMsg(el.copyMsg, `${name} 파일로 저장했습니다.`, 'ok');
+  }
+
+  // 코파일럿 입력창 글자 한도(표면마다 8,000~10,240자)에 걸리지 않게 파일로 첨부하는 용도. 에이전트 빌더는 .md를 안 받아서 .txt로 저장한다.
+  el.txtBtn.addEventListener('click', () => {
+    if (!state.bundle) return;
+    const name = `매장데이터묶음_${fileStem()}.txt`;
+    downloadFile(name, new Blob([buildMarkdown(state.bundle)], { type: 'text/plain;charset=utf-8' }));
+  });
+
+  el.result.addEventListener('click', (e) => {
+    if (e.target && e.target.id === 'rvBtn') fetchReviews();
+  });
+
+  el.result.addEventListener('click', async (e) => {
+    if (e.target.id !== 'copyNameBtn' || !state.bundle) return;
+    const s = state.bundle.store || {};
+    const ok = await copyText([s.name, s.roadAddress || s.address].filter(Boolean).join(' '));
+    setMsg(el.copyMsg, ok ? '상호와 주소를 복사했습니다.' : '복사하지 못했습니다.', ok ? 'ok' : 'err');
+  });
+
+  // 메뉴판 사진은 화면 참고용이라 저장 파일에는 사진 주소를 빼고 개수만 남긴다
+  function forExport(b) {
+    const copy = JSON.parse(JSON.stringify(b));
+    const im = copy.modules && copy.modules.images;
+    if (im && im.ok && im.data) {
+      im.data.shownOnScreen = (im.data.items || []).length;
+      delete im.data.items;
+    }
+    if (state.reviews && state.reviews.data) {
+      copy.reviews = { fetchedAt: state.reviews.fetchedAt, source: state.reviews.source, data: state.reviews.data };
+    }
+    return copy;
+  }
+
+
+  /* ══════════ 흐름 ══════════ */
+  function setBusy(on){
+    state.busy = on;
+    el.searchSet.disabled = on || !state.pass;
+    el.authBtn.disabled = on;
+  }
+
+  /* 1. 연결 */
+  el.authForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!configured) return setMsg(el.authMsg, '이 파일의 API_BASE 값을 Worker 주소로 바꿔서 올려 주세요.', 'err');
+    const pass = el.pass.value.trim();
+    if (!pass) return;
+    state.pass = pass;
+    setBusy(true);
+    setMsg(el.authMsg, '연결 중…');
+    try {
+      const s = await api('/status', { timeout: 12000 });
+      state.pass = pass;
+      const keys = s.keys || {};
+      el.chips.innerHTML = Object.keys(KEY_LABEL)
+        .map(k => `<span class="chip${keys[k] ? '' : ' off'}">${esc(KEY_LABEL[k])}${keys[k] ? '' : ' 없음'}</span>`).join('');
+      const missing = Object.keys(KEY_LABEL).filter(k => !keys[k]).length;
+      const mismatch = s.version !== PAGE_VERSION;
+      const verNote = mismatch ? ` · 이 페이지는 ${PAGE_VERSION}입니다. worker.js와 sketch.html을 같은 버전으로 올려야 모든 항목이 나옵니다` : '';
+      setMsg(el.authMsg, `연결됨 · 중계 서버 ${s.version || '버전 모름'}${missing ? ` · 키 ${missing}곳이 비어 있어 해당 항목은 빠집니다` : ''}${verNote}`, mismatch ? 'err' : '');
+      setBusy(false);
+      el.searchSet.disabled = false;
+      el.q.focus();
+    } catch (err) { state.pass=''; setBusy(false); showError(err, el.authMsg); }
+  });
+
+  /* 2. 검색 */
+  el.searchForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const q = el.q.value.trim();
+    if (!q || state.busy) return;
+    setBusy(true);
+    setMsg(el.searchMsg, '찾는 중…');
+    el.cands.innerHTML = '';
+    try {
+      const r = await api(`/search?q=${encodeURIComponent(q)}`);
+      state.search = r;
+      renderCandidates(r);
+      setBusy(false);
+    } catch (err) { setBusy(false); showError(err, el.searchMsg); }
+  });
+
+  function renderCandidates(r){
+    const list = r.candidates || [];
+    const notes = (r.notes || []).join(' / ');
+    if (!list.length){ setMsg(el.searchMsg, notes || '찾지 못했습니다. 상호에 동네 이름을 붙여 보세요.', 'err'); return; }
+    setMsg(el.searchMsg, `${list.length}곳 찾았습니다. 맞는 매장을 고르세요.${notes ? ` · ${notes}` : ''}`);
+    el.cands.innerHTML = list.map((c, i) => {
+      const notFood = c.categoryGroupCode && !['FD6','CE7'].includes(c.categoryGroupCode);
+      const tags = (c.sources||[]).map(s => `<span class="bdg info">${esc(s)}</span>`).join(' ')
+        + (notFood ? ` ${badge('warn','음식점 아님')}` : '');
+      const noXY = (c.x===null || c.y===null) ? ' · 좌표 없음(주소로 찾음)' : '';
+      return `<li class="cand"><div><div class="nm">${esc(c.name)} ${tags}</div>
+        <div class="meta">${esc(c.category || c.naverCategory || '업종 정보 없음')} · ${esc(c.roadAddress || c.address || '주소 정보 없음')}${esc(noXY)}</div></div>
+        <button class="pick" type="button" data-i="${i}">이 매장 수집</button></li>`;
+    }).join('');
+  }
+
+  el.cands.addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-i]');
+    if (!btn || state.busy || !state.search) return;
+    collect(state.search.candidates[Number(btn.dataset.i)]);
+  });
+
+  /* 3. 수집 */
+  async function collect(c){
+    setBusy(true);
+    state.reviews = null;
+    el.result.innerHTML = '';
+    el.acts.hidden = true;
+    setMsg(el.copyMsg, '');
+    el.prog.hidden = false;
+    const started = Date.now();
+    const timer = setInterval(() => {
+      el.progText.textContent = `${c.name} 수집 중 · ${Math.round((Date.now()-started)/1000)}초 (보통 10~20초)`;
+    }, 1000);
+    el.progText.textContent = `${c.name} 수집 중`;
+    try {
+      const bundle = await api('/collect', {
+        method: 'POST',
+        body: { store: c, radius: Number(el.radius.value)||500,
+          keywords: el.keywords.value.split(',').map(s=>s.trim()).filter(Boolean) },
+        timeout: 90000,
+      });
+      state.bundle = bundle;
+      el.result.innerHTML = renderReport(bundle);
+      el.acts.hidden = false;
+      setMsg(el.searchMsg, '');
+      el.cands.innerHTML = '';
+      scheduleRefresh();
+    } catch (err) { showError(err, el.searchMsg); }
+    finally { clearInterval(timer); el.prog.hidden = true; setBusy(false); }
+  }
+
+  /* 4. 내보내기 */
+  el.jsonBtn.addEventListener('click', () => {
+    if (!state.bundle) return;
+    downloadFile(`매장데이터_${fileStem()}.json`,
+      new Blob([JSON.stringify(forExport(state.bundle), null, 2)], { type:'application/json' }));
+  });
+  el.printBtn.addEventListener('click', () => {
+    $$('.sec').forEach(s => s.classList.add('on'));
+    setTimeout(() => window.print(), 260);
+  });
+  document.getElementById('replay') && document.getElementById('replay').addEventListener('click', () => {
+    $$('.sec').forEach(s => s.classList.remove('on'));
+    requestAnimationFrame(() => setTimeout(() => $$('.sec').forEach((s,i) => setTimeout(() => fire(s), i*130)), 60));
+  });
+
+  if (!configured) setMsg(el.authMsg, '중계 서버 주소가 설정되지 않았습니다. 이 파일의 API_BASE 값을 바꿔 주세요.', 'err');
+})();
+
+</script>
+</body></html>
