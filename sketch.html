@@ -234,6 +234,9 @@ body{background:var(--paper);color:var(--ink);overflow-x:hidden;
 fieldset{border:0;margin:0;padding:0;min-width:0}
 
 /* ══ 도구 구역 추가 ══ */
+/* 도구 줄이 칸 폭을 다 쓰게 한다 — 안 그러면 내용만큼만 줄어들어 오른쪽에 빈 자리가 남는다
+   (둘째 줄을 뺀 뒤 한 줄만 남으면서 드러난 문제) */
+#searchSet{flex:1 1 auto;min-width:0}
 .trow{display:flex;gap:10px;align-items:flex-end}
 .trow+.trow{margin-top:12px}
 .trow[aria-disabled="true"]{opacity:.42;pointer-events:none}
@@ -875,9 +878,9 @@ svg.trend.rib path.now{stroke:var(--sub)}
 @media (max-width:660px){
   .tool{gap:12px}
   .trow{flex-wrap:wrap;gap:10px}
-  .trow .tf{flex:0 0 100%;width:auto}                    /* 긴 칸은 한 줄을 통째로 */
-  .trow .tf.w96{flex:0 0 calc(50% - 5px);width:auto}     /* 반경 · 테이블 수 · 홀 인력은 두 칸씩 */
-  .trow .tbtn{width:auto;flex:1 1 auto;min-width:110px}
+  .trow .tf{flex:0 0 100%;width:auto}                    /* 상호 칸은 한 줄을 통째로 */
+  .trow .tf.w96{flex:0 0 calc(50% - 5px);width:auto}     /* 둘째 줄에 반경과 검색을 반씩 */
+  .trow .tbtn{width:auto;flex:1 1 calc(50% - 5px);min-width:0;padding:12px 10px}
   .mform{gap:8px}
   .mform input{min-width:0}
   .mform .tbtn{width:auto;flex:none;padding:12px 18px}   /* 「연결」이 입력칸을 덮던 것 */
@@ -1023,14 +1026,6 @@ svg.trend.rib path.now{stroke:var(--sub)}
           </select></div>
         <button class="tbtn" id="searchBtn" type="submit">검색</button>
       </form>
-      <div class="trow">
-        <div class="tf grow"><span class="tl">대표 메뉴 <span style="color:#B4B4B9">선택</span></span>
-          <input id="keywords" type="text" maxlength="80" placeholder="비우면 업종에서 자동으로 고릅니다" aria-label="대표 메뉴 키워드"></div>
-        <div class="tf w96"><span class="tl">테이블 수 <span style="color:#B4B4B9">선택</span></span>
-          <input id="tables" type="number" min="1" max="999" inputmode="numeric" placeholder="실측" aria-label="테이블 수 (실측)" title="방문해서 센 테이블 수. 넣으면 견적 장이 면적 추정 대신 이 값으로 계산됩니다"></div>
-        <div class="tf w96"><span class="tl">홀 인력 <span style="color:#B4B4B9">선택</span></span>
-          <input id="staff" type="number" min="1" max="99" inputmode="numeric" placeholder="실측" aria-label="홀 인력 (명, 실측)" title="피크 시간에 홀에서 일하는 사람 수. 넣으면 견적 장의 인건비 비교가 이 값으로 계산됩니다"></div>
-      </div>
     </fieldset>
   </section>
 
@@ -1043,9 +1038,7 @@ svg.trend.rib path.now{stroke:var(--sub)}
   <div id="report"></div>
 
   <div class="acts" id="acts" hidden>
-    <button class="abtn primary" id="copyBtn" type="button">코파일럿용 복사</button>
-    <button class="abtn" id="txtBtn" type="button">묶음 파일 저장 (.txt)</button>
-    <button class="abtn" id="jsonBtn" type="button">JSON 저장</button>
+    <button class="abtn primary" id="txtBtn" type="button">AI 첨부용 저장 (.txt)</button>
     <button class="abtn" id="printBtn" type="button">인쇄</button>
   </div>
   <p class="msg" id="copyMsg" role="status" aria-live="polite"></p>
@@ -1070,11 +1063,10 @@ svg.trend.rib path.now{stroke:var(--sub)}
     tool: $('#tool'), scrim: $('#scrim'),
     authForm: $('#authForm'), pass: $('#pass'), authBtn: $('#authBtn'), authMsg: $('#authMsg'), chips: $('#keyChips'),
     searchSet: $('#searchSet'), searchForm: $('#searchForm'), q: $('#q'), radius: $('#radius'),
-    keywords: $('#keywords'), tables: $('#tables'), staff: $('#staff'), searchMsg: $('#searchMsg'), cands: $('#cands'),
+    searchMsg: $('#searchMsg'), cands: $('#cands'),
     prog: $('#prog'), progText: $('#progText'), result: $('#report'),
     login: $('#login'), connMsg: $('#connMsg'),
-    acts: $('#acts'), copyBtn: $('#copyBtn'), txtBtn: $('#txtBtn'), jsonBtn: $('#jsonBtn'),
-    printBtn: $('#printBtn'), copyMsg: $('#copyMsg'),
+    acts: $('#acts'), txtBtn: $('#txtBtn'), printBtn: $('#printBtn'), copyMsg: $('#copyMsg'),
   };
   const state = { pass:'', search:null, bundle:null, busy:false, reviews:null, apifyUsage:null,
     reviewOpts:{ kakao:false, google:false }, kwTrend:null, kwTrendPending:'' };
@@ -1319,6 +1311,7 @@ svg.trend.rib path.now{stroke:var(--sub)}
     return [
       { what: '오픈업 매장 페이지 캡처', why: '추정 매출 범위 · 시간대 · 요일 · 고객 구성', href: 'https://www.openub.com/', btn: '오픈업 열기' },
       { what: '소상공인365 상세분석 캡처', why: '상권 평균 매출 · 유동인구 · 상권 등급', href: 'https://bigdata.sbiz.or.kr/', btn: '소상공인365 열기' },
+      { what: '나이스비즈맵 무료 보고서 캡처', why: '업종 비용 구조(식재료·인건비·임차료 %) · 평균/중위/상하위 20% 매출 · 잘 팔리는 메뉴 TOP3 · 시간대별 건수와 금액 — 하루 5회 무료, 로그인 필요', href: 'https://www.nicebizmap.co.kr/', btn: '나이스비즈맵 열기' },
       lic ? null : { what: "인허가일(업력) 확인", why: "일반음식점 인허가일 · 면적", href: "https://www.data.go.kr/data/15154916/openapi.do", btn: "공공데이터포털 열기" },
       { what: '코네스트·타베로그 확인', why: '일본 손님이 보이는 매장만. 구글 리뷰는 5장에서 선택해 가져옵니다 (외국인 손님 신호)', href: `https://www.konest.com/contents/search_result.html?keyword=${enc}`, btn: '코네스트 열기' },
     ].filter(Boolean);
@@ -2378,7 +2371,7 @@ svg.trend.rib path.now{stroke:var(--sub)}
     hall: 0.65,            // 영업장 면적 중 홀 비율 (가정)
     perTable: [3.6, 4.8],  // 4인 테이블 1개당 홀 면적 ㎡ — 테이블 120~140cm + 통로 0.9~1.2m (일반업소 기준)
     notice: 1,             // 알림판 10인치 1대
-    tablesPerStaff: 12,    // 홀 인력 1명이 맡는 테이블 수 (피크 기준 · 팀 가정 · v3.10) — 실측 「홀 인력」 칸이 있으면 무시
+    tablesPerStaff: 12,    // 홀 인력 1명이 맡는 테이블 수 (피크 기준 · 팀 가정 · v3.10)
     bigArea: 330,          // ㎡ · 이보다 크면 면적 추정의 오차가 커서 「실측 필요」 배지 (약 100평)
     calcVer: 'v1.11',   // 비율 기준: v3.00부터 VAT 별도 (ratioVat에 VAT 포함 값 병기)
   };
@@ -2489,14 +2482,15 @@ svg.trend.rib path.now{stroke:var(--sub)}
         <div class="b s7 top">${pills}</div>
         <div class="b s5 top rail"><p class="k">한 달 비용의 크기</p><p class="deck md" style="margin-top:8px">${readCmp}</p>
           <p class="src9">${perTable}</p>
-          <p class="src9">사람을 대신한다는 뜻이 아니라 한 달에 나가는 돈의 크기를 견준 것입니다.${many && E.staffHow !== 'typed' ? ` 홀 인력 수는 팀 가정이라 매장마다 다릅니다 — 방문해서 「홀 인력」 칸에 넣으면 실측으로 다시 계산됩니다.` : ''}</p></div>
+          <p class="src9">사람을 대신한다는 뜻이 아니라 한 달에 나가는 돈의 크기를 견준 것입니다.${many && E.staffHow !== 'typed' ? ` 홀 인력 수는 팀 가정이라 매장마다 다릅니다 — 방문해서 피크 시간에 몇 명이 도는지 세어 그 수로 다시 견주세요.` : ''}</p>
+          <p class="src9">매출 대비로도 견주세요 — 월 이용료 ÷ 업종 평균 매출(나이스비즈맵 무료 보고서 · 12장). 임차료·식재료비 비중 옆에 놓으면 크기가 바로 보입니다.</p></div>
         <div class="b s12 top"><p class="k">계산 과정 <span style="font-weight:400;color:var(--faint)">${chain.length}단계</span></p>
         <ol class="chain quiet" style="margin-top:10px">${chain.map((t,i) => `<li style="--i:${i}"><span>${t}</span></li>`).join('')}</ol>
         ${Q.how === 'typed' && Q.byArea ? `<p class="src9">면적 기준 추정은 ${esc(rngN(Q.byArea.devices,'대'))}였습니다. 실측과 차이가 크면 이 매장은 홀 비율이나 테이블 크기가 일반 기준과 다른 곳입니다.</p>` : ''}
-        ${Q.how === 'area' ? `<p class="src9">추정치입니다. 방문해서 테이블을 세고 화면의 「테이블 수」 칸에 넣으면 이 장이 실측으로 다시 계산됩니다.${P && P.seats ? ` 네이버 플레이스 좌석 정보: ${esc(P.seats)}.` : ''}</p>` : ''}</div>
+        ${Q.how === 'area' ? `<p class="src9">인허가 면적에서 역산한 추정치입니다. 방문해서 테이블을 세면 대수가 달라질 수 있으니 실측 전에는 확정 대수로 쓰지 마세요.${P && P.seats ? ` 네이버 플레이스 좌석 정보: ${esc(P.seats)}.` : ''}</p>` : ''}</div>
       </div>`;
     } else {
-      est = `<p class="lead-read" style="font-size:15px;margin-top:26px">${badge('warn','추정 없음')} 인허가 면적이 없어 이 매장 추정은 비었습니다. 방문해서 테이블을 세고 화면의 「테이블 수」 칸에 넣으면 여기서 계산됩니다.</p>
+      est = `<p class="lead-read" style="font-size:15px;margin-top:26px">${badge('warn','추정 없음')} 인허가 면적이 없어 이 매장 추정은 비었습니다. 방문해서 테이블을 세어 대수를 직접 잡으세요.</p>
         ${P && P.seats ? `<p class="src9">네이버 플레이스 좌석 정보: ${esc(P.seats)}</p>` : ''}`;
     }
 
@@ -2512,7 +2506,7 @@ svg.trend.rib path.now{stroke:var(--sub)}
     return est + `<div class="mz"><div class="b s5 top">${fee}</div><div class="b s7 top rail">${table}</div><div class="b s12">${notes}</div></div>`;
   }
 
-  /* 화면의 「테이블 수」가 바뀌면 이 장만 다시 그린다 — 수집을 다시 하지 않는다 */
+  /* 실측 입력칸이 있던 시절 이 장만 다시 그리던 함수. 칸은 뺐지만(2026-09-21) 되살릴 때 쓰려고 남겨 둔다 */
   function repaintQuote(){
     if (!state.bundle) return;
     const box = document.getElementById('quoteBody');
@@ -2524,7 +2518,8 @@ svg.trend.rib path.now{stroke:var(--sub)}
     const Q = quoteCalc(b), L = [];
     L.push('- 규칙: 아래 요금만 쓰세요. 정책지원금·프로모션·프랜차이즈 전용가는 리포트에 쓰지 마세요. 가격은 "20,000원 (VAT 포함 22,000원)"처럼 VAT 포함가를 병기하세요.');
     L.push('- 규칙: 대수는 면적에서 역산한 추정치입니다. "약 N~M대(추정)"로 쓰고, 실측 전에는 확정 대수처럼 쓰지 마세요.');
-    L.push('- 규칙: 인건비 대비는 비용의 크기를 재는 잣대입니다. 하이오더가 인력을 대체한다고 쓰지 마세요.');
+    L.push('- 규칙: 업종 평균 매출과 비용 구조(나이스비즈맵·소상공인365 캡처)가 있으면 월 이용료를 먼저 "매출의 N%"로 적고, 임차료·식재료비 비중 옆에 놓으세요. 어느 매출(평균/중위)을 기준으로 했는지 밝히세요. 계산식: 월 이용료 ÷ 업종 평균 매출.');
+    L.push('- 규칙: 인건비 대비는 보조 잣대입니다. 비용의 크기를 재는 것이지, 하이오더가 인력을 대체한다고 쓰지 마세요.');
     L.push('', '| 항목 | 값 |', '|---|---|');
     L.push(`| 서비스이용료 (3년 약정) | ${wonV(QUOTE.service)} |`);
     L.push(`| 단말대금 월납 (10인치 · 36개월) | ${wonV(QUOTE.device)} · 36개월 총 ${wonV(QUOTE.device*QUOTE.months)} · 일시납 ${wonV(QUOTE.deviceLump)} |`);
@@ -2545,7 +2540,7 @@ svg.trend.rib path.now{stroke:var(--sub)}
       L.push(`- 테이블 1개 = 하이오더 1대 월 ${won(QUOTE_UNIT)} = 최저임금 ${UNIT_HOURS.toFixed(1)}시간 = 하루 약 ${Math.round(UNIT_MIN_DAY)}분치 (30일 기준 · VAT 별도)`);
       if (Q.how === 'typed' && Q.byArea) L.push(`- 참고: 면적 기준 추정은 ${rngN(Q.byArea.devices,'대')}였습니다 (실측이 우선).`);
     } else {
-      L.push('- 이 매장 추정: 인허가 면적이 없어 비었습니다. 방문 때 테이블을 세어 수집기의 「테이블 수」에 넣으면 계산됩니다.');
+      L.push('- 이 매장 추정: 인허가 면적이 없어 비었습니다. 방문 때 테이블을 세어 대수를 직접 잡으세요. 규칙: 세기 전에는 대수를 쓰지 마세요.');
     }
     L.push('', '| 대수 (알림판 포함) | 월 이용료 (VAT 별도) | VAT 포함 | 홀 인력 1명 인건비 대비 (VAT 별도) |', '|---|---|---|---|');
     [5, 8, 10, 12, 15, 20].forEach(n => L.push(`| ${n}대 | ${won(n*QUOTE_UNIT)} | ${won(n*QUOTE_UNIT*QUOTE.vat)} | ${pct(n*QUOTE_UNIT/QUOTE_WAGE)} |`));
@@ -3587,6 +3582,8 @@ svg.trend.rib path.now{stroke:var(--sub)}
 
     L.push('## 8. 사람이 채울 것 (캡처를 이 대화에 첨부)');
     manualItems(s, '', b).forEach((m) => L.push(`- [ ] ${m.what} — ${m.why}`));
+    L.push('- 규칙: 나이스비즈맵·소상공인365 캡처에서는 숫자만 쓰세요. 사이트가 붙인 서술문("~전략이 중요합니다", "~침체지속", "수익률 집중 필요" 같은 문장·라벨)은 자동 생성이라 틀린 곳이 있으니 인용하지 마세요. 판정은 사람이 합니다.');
+    L.push('- 규칙: 상권 매출은 평균 하나만 쓰지 말고 중위값을 같이 적으세요. 표본이 적은 동네(점포 20곳 미만)에서는 상위·하위 20% 값을 크기 그대로 믿지 말고 방향만 쓰세요. 5~6개월 추이는 계절 효과와 구분되지 않으니 "감소세"로 단정하지 마세요.');
     L.push('- [ ] 메뉴판 사진 확인 — 수집기 화면의 참고용 사진으로 대표 메뉴·가격대를 사람이 확인 (사진과 사진 주소는 리포트에 넣지 않음)');
     L.push('');
 
@@ -3764,12 +3761,6 @@ svg.trend.rib path.now{stroke:var(--sub)}
     return ok;
   }
 
-  el.copyBtn.addEventListener('click', async () => {
-    if (!state.bundle) return;
-    const ok = await copyText(buildMarkdown(state.bundle));
-    setMsg(el.copyMsg, ok ? '복사했습니다. 코파일럿 에이전트에 붙여넣으세요. 입력창에서 뒤가 잘리면 「묶음 파일 저장」으로 첨부하세요.' : '복사하지 못했습니다. 「묶음 파일 저장」을 이용해 주세요.', ok ? 'ok' : 'err');
-  });
-
   function fileStem() {
     const s = state.bundle.store || {};
     const day = String(state.bundle.collectedAt || '').slice(0, 10);
@@ -3863,8 +3854,6 @@ svg.trend.rib path.now{stroke:var(--sub)}
     e.preventDefault();
     const q = el.q.value.trim();
     if (!q || state.busy) return;
-    if (el.tables) el.tables.value = '';   // 다른 매장을 찾는 것이니 실측 테이블 수는 비운다
-    if (el.staff) el.staff.value = '';
     setBusy(true);
     setMsg(el.searchMsg, '찾는 중…');
     el.cands.innerHTML = '';
@@ -3915,7 +3904,7 @@ svg.trend.rib path.now{stroke:var(--sub)}
       const bundle = await api('/collect', {
         method: 'POST',
         body: { store: c, radius: Number(el.radius.value)||500,
-          keywords: el.keywords.value.split(',').map(s=>s.trim()).filter(Boolean) },
+          keywords: el.keywords ? el.keywords.value.split(',').map(s=>s.trim()).filter(Boolean) : [] },
         timeout: 90000,
       });
       state.bundle = bundle; state.kwTrend = null; state.kwTrendPending = '';
@@ -3930,16 +3919,11 @@ svg.trend.rib path.now{stroke:var(--sub)}
     finally { clearInterval(timer); el.prog.hidden = true; setBusy(false); }
   }
 
-  /* 3-1. 실측 테이블 수 — 견적 장만 다시 계산 */
-  if (el.tables) el.tables.addEventListener('input', () => repaintQuote());
-  if (el.staff) el.staff.addEventListener('input', () => repaintQuote());
+  /* 3-1. 실측 테이블 수·홀 인력 입력칸은 뺐다(2026-09-21) — 상호와 반경만 넣는 화면으로.
+     quote.js의 repaintQuote()와 el.tables/el.staff 검사는 그대로 두었으니 칸만 되살리면 다시 돈다. */
 
-  /* 4. 내보내기 */
-  el.jsonBtn.addEventListener('click', () => {
-    if (!state.bundle) return;
-    downloadFile(`매장데이터_${fileStem()}.json`,
-      new Blob([JSON.stringify(forExport(state.bundle), null, 2)], { type:'application/json' }));
-  });
+  /* 4. 내보내기 — JSON 저장 버튼은 뺐다(2026-09-21). forExport()는 남겨 뒀으니
+     파워오토메이트가 붙으면 버튼 한 줄과 처리기 세 줄만 되살리면 된다. */
   el.printBtn.addEventListener('click', () => {
     $$('.sec').forEach(s => s.classList.add('on'));
     $$('.acc.pshow').forEach(d => { d.open = true; });
