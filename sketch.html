@@ -602,6 +602,205 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
   .wedge,.lead-l,.lbl,.bar .col,.bar .n{opacity:1!important}
   .bars{grid-template-columns:repeat(var(--bn,3),1fr)}
 }
+
+/* ══ v3.10 매거진 모자이크 — 장마다 다른 칸 나누기, 차트는 자기 칸을 갖는다 ══ */
+.mz{display:grid;grid-template-columns:repeat(12,1fr);gap:46px 34px;margin-top:30px;align-items:start}
+.mz>.b{min-width:0}
+.mz .s12{grid-column:span 12}.mz .s8{grid-column:span 8}.mz .s7{grid-column:span 7}.mz .s6{grid-column:span 6}
+.mz .s5{grid-column:span 5}.mz .s4{grid-column:span 4}
+.mz .b.rail{padding-left:0}                                   /* 선 대신 여백으로 나눈다 (Neo-minimal) */
+.mz .b.top{border-top:1px solid var(--line);padding-top:28px}
+.mz .b.tight{margin-top:-8px}
+.mz .b>.k:first-child{margin-top:0}
+.mz .v,.kv{font-weight:700;letter-spacing:-.04em;line-height:1;margin-top:5px;font-variant-numeric:tabular-nums}
+.tbl.fee th,.tbl.fee td{padding:7px 4px;font-size:11px;line-height:1.5}
+.deck{font-size:21px;font-weight:700;letter-spacing:-.022em;line-height:1.42;margin:0}
+.deck b{color:var(--accent-ink)}
+.deck.md{font-size:17px;line-height:1.45}
+@media (max-width:660px){.mz>.b{grid-column:1/-1}.mz .b.rail{border-left:0;padding-left:0}.mz .b.top{border-top:0;padding-top:0}}
+
+/* 순위 리스트 */
+.rank{list-style:none;margin:0;padding:0}
+.rank li{display:grid;grid-template-columns:20px 12px 1fr auto;gap:8px;align-items:baseline;padding:7px 0;border-bottom:1px solid var(--line);font-size:12px}
+.rank li:last-child{border-bottom:0}
+.rank .no{font-size:9px;color:var(--faint);font-variant-numeric:tabular-nums}
+.rank i{width:10px;height:10px;border-radius:3px;display:inline-block;position:relative;top:1px}
+.rank .nm{color:var(--ink)}
+.rank .v{font-weight:700;font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.rank .v small{font-weight:500;color:var(--faint);margin-left:5px;font-size:10px}
+.rank li.hot .nm,.rank li.hot .v{color:var(--accent-ink)}
+
+/* 도넛 */
+.donut{position:relative}
+.donut svg{width:100%;height:auto;display:block;overflow:visible}
+.donut .arc{fill:none;opacity:0;transition:opacity 500ms ease var(--dd,0ms)}
+.on .donut .arc{opacity:1}
+.on .donut:hover .arc{opacity:.32}.on .donut .arc:hover{opacity:1}
+.donut .ctr{position:absolute;inset:0;display:grid;place-content:center;text-align:center;pointer-events:none}
+.donut .ctr b{display:block;font-size:46px;font-weight:800;letter-spacing:-.045em;line-height:1}
+.donut .ctr span{display:block;font-size:10px;color:var(--faint);margin-top:5px;letter-spacing:.04em}
+
+/* 긴 그림자 세로 막대 */
+.cols svg{width:100%;height:auto;display:block;overflow:visible}
+.cols .gl{stroke:var(--line);stroke-width:1}
+.cols .bl{stroke:var(--ink);stroke-width:1}
+.cols .colr{transform-box:fill-box;transform-origin:bottom;transform:scaleY(0);transition:transform 900ms cubic-bezier(.2,.8,.2,1) var(--dd,0ms)}
+.cols .shd{opacity:0;transition:opacity 700ms ease calc(var(--dd,0ms) + 500ms)}
+.cols .cap{font-size:22px;font-weight:800;letter-spacing:-.03em;fill:var(--ink);opacity:0;transition:opacity 400ms ease var(--dd,0ms)}
+.cols .cap.hot{fill:var(--accent-ink)}
+.on .cols .colr{transform:scaleY(1)}.on .cols .shd,.on .cols .cap{opacity:1}
+.cols:hover .colr{opacity:.4;transition:opacity 300ms}.cols .colr:hover{opacity:1}
+.legend3{display:grid;gap:16px;margin-top:14px}
+.legend3 .lg{font-size:11px;color:var(--sub);line-height:1.55}
+.legend3 .lg b{display:block;color:var(--ink);font-size:13px;margin-bottom:1px}
+.legend3 .lg i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:6px;position:relative;top:1px;
+  box-shadow:3px 3px 6px rgba(32,30,29,.18)}
+
+/* 산 */
+.mtn svg{width:100%;height:auto;display:block;overflow:visible}
+.mtn .pk{transform-box:fill-box;transform-origin:bottom;transform:scaleY(0);transition:transform 900ms cubic-bezier(.2,.8,.2,1) var(--dd,0ms)}
+.on .mtn .pk{transform:scaleY(1)}
+.mtn .bl{stroke:var(--line);stroke-width:1}
+.mtn .ax{font-size:9px;fill:var(--faint)}
+.mtn .pv{font-size:12px;font-weight:700;fill:var(--ink);opacity:0;transition:opacity 400ms ease var(--dd,0ms)}
+.mtn .tag{opacity:0;transition:opacity 400ms ease var(--dd,0ms)}
+.on .mtn .pv,.on .mtn .tag{opacity:1}
+
+/* 알약 기둥 */
+.pills{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;align-items:end;height:236px;padding:0 8px}
+.pill{position:relative;height:calc(var(--p)*1%);min-height:46px;border-radius:24px;background:var(--panel);
+  box-shadow:10px 12px 22px rgba(32,30,29,.10),-6px -6px 14px rgba(255,255,255,.95),inset 0 0 0 1px rgba(32,30,29,.035);
+  transform-origin:bottom;transform:scaleY(.06);transition:transform 1100ms cubic-bezier(.2,.8,.2,1) var(--dd,0ms)}
+.on .pill{transform:scaleY(1)}
+.pill.hot{background:linear-gradient(180deg,#F25A40 0%,#EC3013 45%,#B21B04 100%);
+  box-shadow:12px 14px 26px rgba(236,48,19,.26),-6px -6px 14px rgba(255,255,255,.95)}
+.pill .pv{position:absolute;left:4px;right:4px;top:15px;text-align:center;font-size:14px;font-weight:800;letter-spacing:-.02em;line-height:1.15;color:var(--ink);
+  opacity:0;transition:opacity 400ms ease calc(var(--dd,0ms) + 700ms)}
+.on .pill .pv{opacity:1}
+.pill.hot .pv{color:#fff}
+.pill .pv small{display:block;font-size:9px;font-weight:600;opacity:.72;margin-top:3px}
+.pill-lb{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;margin-top:18px;text-align:center;font-size:10px;color:var(--sub);line-height:1.5;padding:0 8px}
+.pill-lb b{display:block;color:var(--ink);font-size:12px}
+
+/* 세로 누적 기둥 */
+.vstack{display:flex;flex-direction:column-reverse;width:64px;border-radius:4px;overflow:hidden;gap:2px}
+.vstack i{display:block;width:100%;transform-origin:bottom;transform:scaleY(0);transition:transform 800ms cubic-bezier(.2,.8,.2,1) var(--dd,0ms)}
+.on .vstack i{transform:scaleY(1)}
+.vleg{list-style:none;margin:0;padding:0;font-size:11px;color:var(--sub)}
+.vleg li{display:grid;grid-template-columns:10px 1fr;gap:8px;align-items:baseline;padding:6px 0;border-bottom:1px solid var(--line)}
+.vleg li:last-child{border-bottom:0}
+.vleg i{width:10px;height:10px;border-radius:3px;position:relative;top:1px}
+.vleg b{color:var(--ink);font-size:15px;font-weight:700;margin-right:5px;font-variant-numeric:tabular-nums}
+.vleg small{display:block;font-size:9px;color:var(--faint);line-height:1.5}
+.mixbar.big{height:24px}
+
+@media print{
+  .mz{break-inside:auto}
+  .mz>.b,.donut,.cols,.mtn,.pills,.pill-lb,.vstack,.rank{break-inside:avoid;page-break-inside:avoid}
+  .donut .arc,.cols .colr,.cols .shd,.cols .cap,.mtn .pk,.mtn .pv,.mtn .tag,.pill,.pill .pv,.vstack i{transition:none!important;opacity:1!important;transform:none!important}
+  .pill{box-shadow:none!important;border:1px solid var(--line)}
+  .pill.hot{border:0}
+  .donut:hover .arc,.cols:hover .colr{opacity:1!important}
+}
+
+/* 13장 메뉴판 사진 — 페이지 톤에 맞춰 흑백, 마우스를 올리면 컬러 (v3.10) */
+.thumbs img{filter:grayscale(1) contrast(1.02);transition:filter 420ms ease}
+.thumbs li:hover img{filter:grayscale(0)}
+
+/* 계산 과정·환산표는 접어 둔다 — 화면은 조용하게, 인쇄할 때는 펼친다 */
+.chain.quiet li{font-size:12px;color:var(--sub);padding:9px 0}
+.chain.quiet li b{color:var(--ink)}
+.acc.quiet>summary{font-size:13px;padding:16px 0}
+@media print{ .acc.pshow{display:block!important} }
+
+/* ══ v3.10 — 세로 스탯 레일, 사진, 산 모양 추이 ══ */
+.stats{display:grid}
+.stat{padding:16px 0;border-top:1px solid var(--line)}
+.stat:first-child{border-top:0;padding-top:0}
+.stat .k{margin:0}
+.stat .v{font-size:34px;font-weight:700;letter-spacing:-.035em;line-height:1.05;margin-top:5px;font-variant-numeric:tabular-nums}
+.stat .v.hot{color:var(--accent-ink)}
+.stat .lead-ref{margin-top:4px}
+.stat.big .v{font-size:46px}
+.stat.row{border-top:0;padding:0}
+
+/* 가게 사진 — 채도를 낮춰 지면에 앉히고, 마우스를 올리면 살아난다. 화면 전용 */
+.ph{margin:0;overflow:hidden;border-radius:4px;background:var(--panel);position:relative}
+.ph img{display:block;width:100%;height:100%;object-fit:cover;filter:saturate(.16) contrast(1.05);transition:filter 600ms ease}
+.ph:hover img{filter:none}
+.ph.wide{aspect-ratio:16/10}.ph.tall{aspect-ratio:4/5}.ph.sq{aspect-ratio:1/1}.ph.band{aspect-ratio:21/9}.ph.h220{height:220px}
+.ph figcaption{position:absolute;left:10px;bottom:8px;font-size:9px;color:#fff;opacity:.85;letter-spacing:.04em;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+.phnote{font-size:9px;color:var(--faint);margin-top:6px}
+@media print{.ph,.phnote{display:none!important}}
+
+/* 산 모양 검색 추이 — 선 아래를 옅게 채운다 */
+.trend .area{opacity:0;transition:opacity 700ms ease 300ms}
+.on .trend .area{opacity:1}
+.trend.mtn-line path.ln{stroke-width:2;fill:none;stroke-linejoin:round;stroke-linecap:round}
+
+/* 웨이팅 신호 블록 */
+.wait{padding:22px 0 6px}
+.wait .eyebrow{color:var(--accent-ink)}
+.wait .q{margin-top:10px;font-size:12px;color:var(--sub);line-height:1.75}
+.wait .q b{color:var(--ink)}
+
+/* 뉴스 2단 · 키워드 2단 */
+.mz .b .recent li{grid-template-columns:62px 1fr;gap:10px}
+.kwcol{list-style:none;margin:0;padding:0;font-size:12px}
+.kwcol li{padding:7px 0;border-bottom:1px solid var(--line)}
+.kwcol li:last-child{border-bottom:0}
+.kwcol .why{display:block;font-size:9px;color:var(--faint);margin-top:1px}
+.rank.kwrank li{grid-template-columns:20px 12px 1fr 44px}
+.rank.kwrank .why{display:block;font-size:9px;color:var(--faint);margin-top:1px}
+
+/* 종이 띠 추이 (8장 · 키워드 하나) */
+svg.trend.rib .rv{font-size:22px;font-weight:800;letter-spacing:-.03em;fill:var(--ink)}
+svg.trend.rib .ribbon{opacity:0;transition:opacity 900ms ease 200ms}
+.on svg.trend.rib .ribbon{opacity:1}
+svg.trend.rib path.now{stroke:var(--sub)}
+
+/* ══ 회색 종이 + 광명 (화면 전용 · v3.10) — 요소 색 = 종이 색, 그림자는 어두운 것 + 밝은 것 두 겹 ══ */
+:root{--fill-lo:#E5E5E7}
+@media screen{
+  :root{--paper:#E9E9EC;--panel:#E9E9EC;--line:#D3D3D8;--grid:#DFDFE3;--track:#DBDBE0;--fill-lo:#CDCDD3}
+  body{background:var(--paper)}
+  .bgw{color:#EFEFF2!important}
+  .tool input,.tool select,.mform input,.rvbar input{background:var(--paper);border-color:transparent;
+    box-shadow:inset 4px 4px 10px rgba(32,30,29,.10),inset -4px -4px 10px rgba(255,255,255,.92)}
+  .tool input:hover,.tool select:hover,.rvbar input:hover{background:var(--paper)}
+  .tool input:focus,.tool select:focus,.mform input:focus,.rvbar input:focus{background:var(--paper);border-color:transparent;
+    box-shadow:inset 4px 4px 10px rgba(32,30,29,.12),inset -4px -4px 10px rgba(255,255,255,.92),0 0 0 4px rgba(236,48,19,.14)}
+  .abtn,.cand .pick,.zoomui{background:var(--paper);border-color:transparent;
+    box-shadow:6px 6px 14px rgba(32,30,29,.14),-5px -5px 12px rgba(255,255,255,.92)}
+  .abtn:hover,.cand .pick:hover{box-shadow:8px 8px 18px rgba(32,30,29,.18),-6px -6px 14px rgba(255,255,255,.96)}
+  .cand .pick:hover{background:var(--ink);color:#fff}
+  .abtn.primary{background:var(--ink);box-shadow:6px 6px 14px rgba(32,30,29,.26),-5px -5px 12px rgba(255,255,255,.7)}
+  .kw span{background:var(--track)}
+  .bdg.info{background:#D8D8DD}
+  .dist .db,.mixbar{background:var(--track)}
+  .thumbs a,.ph{background:#DFDFE3}
+  .pill{background:rgba(255,255,255,.26);box-shadow:12px 12px 26px rgba(32,30,29,.16),-10px -10px 24px rgba(255,255,255,.92),inset 1px 1px 0 rgba(255,255,255,.6)}   /* 반투명이라 종이 결이 비친다 */
+  .pill.hot{box-shadow:12px 12px 26px rgba(178,27,4,.28),-10px -10px 24px rgba(255,255,255,.9)}
+  .legend3 .lg i{box-shadow:3px 3px 6px rgba(32,30,29,.22),-2px -2px 5px rgba(255,255,255,.9)}
+  .cols .gl,.mtn .bl{stroke:var(--line)}
+  .mcard{background:var(--paper);box-shadow:16px 16px 40px rgba(32,30,29,.22),-12px -12px 30px rgba(255,255,255,.85)}
+  .tool.lit{background:var(--paper);box-shadow:14px 14px 34px rgba(32,30,29,.18),-10px -10px 28px rgba(255,255,255,.9)}
+  .tbtn{box-shadow:6px 6px 14px rgba(32,30,29,.24),-5px -5px 12px rgba(255,255,255,.7)}
+}
+
+/* ══ 종이 질감 + 유리 (화면 전용 · v3.10) — 대리석처럼 옅게 얼룩진 회색 종이 위에 미세한 알갱이. 인쇄에는 없다 ══ */
+@media screen{
+  body{background-color:var(--paper);background-image:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='720'%20height='720'%3E%3Cfilter%20id='mw'%20x='0'%20y='0'%20width='100%25'%20height='100%25'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='0.0045'%20numOctaves='3'%20seed='3'%20stitchTiles='stitch'/%3E%3CfeComponentTransfer%3E%3CfeFuncA%20type='linear'%20slope='6'%20intercept='-3'/%3E%3C/feComponentTransfer%3E%3CfeColorMatrix%20values='0%200%200%200%201%20%200%200%200%200%201%20%200%200%200%200%201%20%200%200%200%200.55%200'/%3E%3C/filter%3E%3Cfilter%20id='md'%20x='0'%20y='0'%20width='100%25'%20height='100%25'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='0.0045'%20numOctaves='3'%20seed='3'%20stitchTiles='stitch'/%3E%3CfeComponentTransfer%3E%3CfeFuncA%20type='linear'%20slope='-6'%20intercept='3'/%3E%3C/feComponentTransfer%3E%3CfeColorMatrix%20values='0%200%200%200%200.5%20%200%200%200%200%200.5%20%200%200%200%200%200.53%20%200%200%200%200.18%200'/%3E%3C/filter%3E%3Cfilter%20id='vein'%20x='0'%20y='0'%20width='100%25'%20height='100%25'%3E%3CfeTurbulence%20type='turbulence'%20baseFrequency='0.006%200.014'%20numOctaves='2'%20seed='11'%20stitchTiles='stitch'/%3E%3CfeComponentTransfer%3E%3CfeFuncA%20type='linear'%20slope='5'%20intercept='-2.2'/%3E%3C/feComponentTransfer%3E%3CfeColorMatrix%20values='0%200%200%200%201%20%200%200%200%200%201%20%200%200%200%200%201%20%200%200%200%200.3%200'/%3E%3C/filter%3E%3Cfilter%20id='g'%20x='0'%20y='0'%20width='100%25'%20height='100%25'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='0.9'%20numOctaves='2'%20seed='7'%20stitchTiles='stitch'/%3E%3CfeComponentTransfer%3E%3CfeFuncA%20type='linear'%20slope='-5'%20intercept='2.5'/%3E%3C/feComponentTransfer%3E%3CfeColorMatrix%20values='0%200%200%200%200.2%20%200%200%200%200%200.2%20%200%200%200%200%200.23%20%200%200%200%200.08%200'/%3E%3C/filter%3E%3Cfilter%20id='w'%20x='0'%20y='0'%20width='100%25'%20height='100%25'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='0.9'%20numOctaves='2'%20seed='7'%20stitchTiles='stitch'/%3E%3CfeComponentTransfer%3E%3CfeFuncA%20type='linear'%20slope='5'%20intercept='-2.5'/%3E%3C/feComponentTransfer%3E%3CfeColorMatrix%20values='0%200%200%200%201%20%200%200%200%200%201%20%200%200%200%200%201%20%200%200%200%200.22%200'/%3E%3C/filter%3E%3Crect%20width='100%25'%20height='100%25'%20filter='url%28%23mw%29'/%3E%3Crect%20width='100%25'%20height='100%25'%20filter='url%28%23md%29'/%3E%3Crect%20width='100%25'%20height='100%25'%20filter='url%28%23vein%29'/%3E%3Crect%20width='100%25'%20height='100%25'%20filter='url%28%23g%29'/%3E%3Crect%20width='100%25'%20height='100%25'%20filter='url%28%23w%29'/%3E%3C/svg%3E");background-size:720px 720px}
+  /* 유리 — 뒤가 비쳐 흐려지는 반투명 판. 도구 카드·로그인 카드·배율 조절에만 */
+  .tool{background:rgba(255,255,255,.34);-webkit-backdrop-filter:blur(16px) saturate(1.05);backdrop-filter:blur(16px) saturate(1.05);
+    border:1px solid rgba(255,255,255,.72);box-shadow:0 12px 34px rgba(32,30,29,.10),inset 0 1px 0 rgba(255,255,255,.9)}
+  .tool.lit{background:rgba(255,255,255,.46);box-shadow:0 26px 70px rgba(32,30,29,.20),inset 0 1px 0 rgba(255,255,255,.95)}
+  .mcard{background:rgba(255,255,255,.46);-webkit-backdrop-filter:blur(20px) saturate(1.05);backdrop-filter:blur(20px) saturate(1.05);
+    border:1px solid rgba(255,255,255,.75);box-shadow:0 30px 80px rgba(32,30,29,.22),inset 0 1px 0 rgba(255,255,255,.95)}
+  .zoomui{background:rgba(255,255,255,.4);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.7);
+    box-shadow:0 8px 24px rgba(32,30,29,.14),inset 0 1px 0 rgba(255,255,255,.9)}
+  .tool input,.tool select,.rvbar input,.mform input{background:rgba(233,233,236,.9)}
+}
 </style></head>
 <body>
 <div class="modal" id="login">
@@ -643,7 +842,9 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
         <div class="tf grow"><span class="tl">대표 메뉴 <span style="color:#B4B4B9">선택</span></span>
           <input id="keywords" type="text" maxlength="80" placeholder="비우면 업종에서 자동으로 고릅니다" aria-label="대표 메뉴 키워드"></div>
         <div class="tf w96"><span class="tl">테이블 수 <span style="color:#B4B4B9">선택</span></span>
-          <input id="tables" type="number" min="1" max="99" inputmode="numeric" placeholder="실측" aria-label="테이블 수 (실측)" title="방문해서 센 테이블 수. 넣으면 견적 장이 면적 추정 대신 이 값으로 계산됩니다"></div>
+          <input id="tables" type="number" min="1" max="999" inputmode="numeric" placeholder="실측" aria-label="테이블 수 (실측)" title="방문해서 센 테이블 수. 넣으면 견적 장이 면적 추정 대신 이 값으로 계산됩니다"></div>
+        <div class="tf w96"><span class="tl">홀 인력 <span style="color:#B4B4B9">선택</span></span>
+          <input id="staff" type="number" min="1" max="99" inputmode="numeric" placeholder="실측" aria-label="홀 인력 (명, 실측)" title="피크 시간에 홀에서 일하는 사람 수. 넣으면 견적 장의 인건비 비교가 이 값으로 계산됩니다"></div>
       </div>
     </fieldset>
   </section>
@@ -671,8 +872,8 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
 
   // ▼ 배포 후 Cloudflare Worker 주소로 바꾸세요 (끝에 / 없이)
   const API_BASE = 'https://kt.roi0925003.workers.dev';
-  const PAGE_VERSION = 'v3.00';
-  const WORKER_VERSION = 'v1.27';   // 이 페이지와 짝이 되는 worker.js 버전
+  const PAGE_VERSION = 'v3.10';
+  const WORKER_VERSION = 'v1.28';   // 이 페이지와 짝이 되는 worker.js 버전
   // 'show' = 발표 모드(느리고 우아한 연출) / 'fast' = 업무 모드(0.4초, 카운트업 없음)
   const MOTION = 'show';
   document.documentElement.dataset.motion = MOTION;
@@ -683,7 +884,7 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
     tool: $('#tool'), scrim: $('#scrim'),
     authForm: $('#authForm'), pass: $('#pass'), authBtn: $('#authBtn'), authMsg: $('#authMsg'), chips: $('#keyChips'),
     searchSet: $('#searchSet'), searchForm: $('#searchForm'), q: $('#q'), radius: $('#radius'),
-    keywords: $('#keywords'), tables: $('#tables'), searchMsg: $('#searchMsg'), cands: $('#cands'),
+    keywords: $('#keywords'), tables: $('#tables'), staff: $('#staff'), searchMsg: $('#searchMsg'), cands: $('#cands'),
     prog: $('#prog'), progText: $('#progText'), result: $('#report'),
     login: $('#login'), connMsg: $('#connMsg'),
     acts: $('#acts'), copyBtn: $('#copyBtn'), txtBtn: $('#txtBtn'), jsonBtn: $('#jsonBtn'),
@@ -1002,11 +1203,26 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
 
   /* 검색 추이 — 키워드마다 선 하나. 값은 조회기간 최고월을 100으로 둔 상대값 */
   const TREND_COLORS = ['#201E1D','#EC3013','#6E6E73','#A1A1A6','#C7C7CC'];
-  function trendChart(td){
+  /* 점들을 부드러운 곡선으로 — Catmull-Rom → 베지어. 산 모양(면 채움)에 쓴다 */
+  function smoothPath(P){
+    P = P.map(q => [Number(q[0]), Number(q[1])]);
+    if (P.length < 2) return P.length ? `M${P[0][0]},${P[0][1]}` : '';
+    let d = `M${P[0][0]},${P[0][1]}`;
+    for (let i = 0; i < P.length-1; i++){
+      const p0 = P[Math.max(0,i-1)], p1 = P[i], p2 = P[i+1], p3 = P[Math.min(P.length-1,i+2)];
+      const c1x = p1[0] + (p2[0]-p0[0])/6, c1y = p1[1] + (p2[1]-p0[1])/6;
+      const c2x = p2[0] - (p3[0]-p1[0])/6, c2y = p2[1] - (p3[1]-p1[1])/6;
+      d += ` C${c1x.toFixed(1)},${c1y.toFixed(1)} ${c2x.toFixed(1)},${c2y.toFixed(1)} ${p2[0]},${p2[1]}`;
+    }
+    return d;
+  }
+  function trendChart(td, opt){
+    const o = Object.assign({ mountain:false, ribbon:false }, opt||{});
     const series = (td.series||[]).filter(s => (s.points||[]).length);
     if (!series.length) return '';
     const months = series.reduce((a,s) => (s.points.length>a.length ? s.points.map(p=>p.month) : a), []);
-    const n = months.length, W=590, H=250, L=32, R=14, T=20, B=28;
+    const rb = o.ribbon && series.length === 1;
+    const n = months.length, W=590, H=rb?290:250, L=32, R=rb?30:14, T=rb?44:20, B=rb?54:28;
     const iw = W-L-R, ih = H-T-B;
     const x = (i) => L + (n>1 ? (i*iw)/(n-1) : iw/2);
     const y = (v) => T + ih - (Math.max(0, Math.min(100, Number(v)))/100)*ih;
@@ -1019,15 +1235,145 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
       const pts = s.points.map((p,i) => ({...p, i: months.indexOf(p.month)>=0 ? months.indexOf(p.month) : i}));
       const full = pts.filter(p => has(p.ratio) && p.month !== td.endMonth);
       const now = pts.find(p => has(p.ratio) && p.month === td.endMonth);
-      const d = full.map((p,k) => `${k===0?'M':'L'}${f(x(p.i))},${f(y(p.ratio))}`).join(' ');
+      const P = full.map(p => [f(x(p.i)), f(y(p.ratio))]);
+      const d = o.mountain ? smoothPath(P) : P.map((q,k) => `${k===0?'M':'L'}${q[0]},${q[1]}`).join(' ');
       const last = full[full.length-1];
       const nowPath = now && last ? `<path class="now" stroke="${c}" d="M${f(x(last.i))},${f(y(last.ratio))} L${f(x(now.i))},${f(y(now.ratio))}"/>` : '';
+      /* 종이 띠(ribbon) — 한 키워드일 때. 벽에서 떠 있는 접힌 종이처럼: 흐린 그림자 → 옆면 → 윗면, 최고·최저에만 큰 숫자 */
+      if (o.ribbon && series.length === 1 && P.length > 1){
+        const gid = 'rb' + Math.random().toString(36).slice(2,7);
+        const ext = (p) => full.find(q => q === p);
+        const hiP = full.reduce((a,p) => (p.ratio > a.ratio ? p : a), full[0]);
+        const loP = full.reduce((a,p) => (p.ratio < a.ratio ? p : a), full[0]);
+        const lab = (p, above) => `<g class="rlab"><circle cx="${f(x(p.i))}" cy="${f(y(p.ratio))}" r="3.2" fill="var(--ink)"/><text x="${f(x(p.i))}" y="${f(y(p.ratio) + (above ? -22 : 34))}" text-anchor="middle" class="rv">${esc(p.ratio)}</text></g>`;
+        return `<defs><filter id="${gid}" x="-20%" y="-20%" width="140%" height="160%"><feGaussianBlur stdDeviation="7"/></filter>
+            <linearGradient id="${gid}g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#EDEDF0"/></linearGradient></defs>
+          <g class="ribbon">
+            <path class="rsh" d="${d}" transform="translate(12,24)" style="stroke:#201E1D;stroke-opacity:.28;stroke-width:16;fill:none;filter:url(#${gid})"/>
+            <path class="rsd" d="${d}" transform="translate(0,9)" style="stroke:#B5B5BB;stroke-width:13;fill:none;stroke-linejoin:round;stroke-linecap:butt"/>
+            <path class="rtp" d="${d}" style="stroke:url(#${gid}g);stroke-width:13;fill:none;stroke-linejoin:round;stroke-linecap:butt"/>
+            ${nowPath}${lab(hiP, true)}${hiP !== loP ? lab(loP, false) : ''}
+            ${pts.filter(p => has(p.ratio)).map(p => `<circle cx="${f(x(p.i))}" cy="${f(y(p.ratio))}" r="9" fill="transparent"><title>${esc(s.keyword)} ${esc(p.month)}: ${esc(p.ratio)}</title></circle>`).join('')}
+          </g>`;
+      }
+      const area = o.mountain && P.length > 1 ? `<path class="area" style="fill:${c};fill-opacity:${si===0?'.09':'.05'};stroke:none" d="${d} L${P[P.length-1][0]},${f(y(0))} L${P[0][0]},${f(y(0))} Z"/>` : '';
       const dots = pts.filter(p => has(p.ratio)).map(p => `<circle${p.month===td.endMonth?' class="now"':''} cx="${f(x(p.i))}" cy="${f(y(p.ratio))}" r="3" fill="${c}" stroke="${c}"><title>${esc(s.keyword)} ${esc(p.month)}: ${esc(p.ratio)}</title></circle>`).join('');
-      return `<g>${d?`<path stroke="${c}" d="${d}"/>`:''}${nowPath}${dots}</g>`;
+      return `<g>${area}${d?`<path class="ln" stroke="${c}" d="${d}"/>`:''}${nowPath}${dots}</g>`;
     }).join('');
     const legend = series.map((s,si) => `<span class="lg"><i style="background:${TREND_COLORS[si%TREND_COLORS.length]}"></i>${esc(s.keyword)}<small>최고 ${esc(s.peak?`${s.peak.month} (${s.peak.ratio})`:'—')}</small></span>`).join('');
     return `<div class="legend">${legend}</div>
-      <svg class="trend" viewBox="0 0 ${W} ${H}" data-rule="ht,hb" role="img" aria-label="메뉴 검색 추이">${grid}${xl}${lines}</svg>`;
+      <svg class="trend${o.mountain?' mtn-line':''}${rb?' rib':''}" viewBox="0 0 ${W} ${H}" data-rule="ht,hb" role="img" aria-label="검색 추이">${grid}${xl}${lines}</svg>`;
+  }
+
+  /* ══════════ v3.10 매거진 차트 ══════════
+     흑백 5단(순서형) + 강조 주홍 하나. 정체는 색이 아니라 옆의 이름·숫자가 책임진다(순위 리스트·범례·직접 표기). */
+  const RAMP5 = ['#201E1D','#4A4846','#6E6E73','#8E8E93','#A9A9AE'];
+  const FOLD = '#C9C9CE';
+  const f1 = (v) => (Math.round(v*10)/10).toFixed(1);
+
+  /* 도넛 — 각도가 곧 비율. 2px 틈은 종이색으로 조각을 나눈다. 5위까지 진한 순서, 나머지는 한 톤(리스트가 이름을 든다) */
+  function donutSVG(data, centerLabel){
+    const tot = data.reduce((a,d) => a + d.v, 0);
+    if (!tot) return '';
+    const S = 300, cx = 150, cy = 150, r = 108, sw = 40, C = 2*Math.PI*r;
+    let off = 0, arcs = '';
+    data.forEach((d, i) => {
+      const len = d.v/tot*C, gap = len > 6 ? 2 : 0;
+      const col = d.c || (i < RAMP5.length ? RAMP5[i] : FOLD);
+      arcs += `<circle class="arc" cx="${cx}" cy="${cy}" r="${r}" stroke="${col}" stroke-width="${sw}"
+        stroke-dasharray="${f1(Math.max(len-gap, 0.4))} ${f1(C)}" stroke-dashoffset="${f1(-off - gap/2)}" style="--dd:${i*90}ms">
+        <title>${esc(d.nm)} ${esc(num(d.v,'곳'))} · ${f1(d.v/tot*100)}%</title></circle>`;
+      off += len;
+    });
+    return `<div class="donut" data-rule="vc,hb"><svg viewBox="0 0 ${S} ${S}" role="img" aria-label="구성 비율"><g transform="rotate(-90 ${cx} ${cy})">${arcs}</g></svg>
+      <div class="ctr"><b data-n="${tot}">${esc(num(tot))}</b><span>${esc(centerLabel||'')}</span></div></div>`;
+  }
+  function rankList(data, unit){
+    const tot = data.reduce((a,d) => a + d.v, 0) || 1;
+    return `<ol class="rank">${data.map((d,i) => `<li${d.hot?' class="hot"':''}><span class="no">${String(i+1).padStart(2,'0')}</span><i style="background:${d.c || (i < RAMP5.length ? RAMP5[i] : FOLD)}"></i><span class="nm">${esc(d.nm)}</span><span class="v">${esc(num(d.v,unit||''))}<small>${f1(d.v/tot*100)}%</small></span></li>`).join('')}</ol>`;
+  }
+
+  /* 긴 그림자 세로 막대 — 값은 막대 높이가 정직하게 들고, 그림자는 45°로 한 방향(장식이지 값이 아니다) */
+  function columnsSVG(data, opt){
+    const o = Object.assign({ W:590, H:260, cw:64, shadow:150, top:44, bottom:8 }, opt||{});
+    const mx = Math.max(...data.map(d => d.v), 1);
+    const n = data.length, base = o.H - o.bottom, ih = base - o.top;
+    const slot = o.W / n;
+    const gid = 'shd' + Math.random().toString(36).slice(2,7);
+    const ticks = [0.25,0.5,0.75,1].map(k => { const y = base - ih*k; return `<line class="gl" x1="0" x2="${o.W}" y1="${f1(y)}" y2="${f1(y)}"/>`; }).join('');
+    let shadows = '', cols = '', caps = '';
+    data.forEach((d,i) => {
+      const h = Math.max(d.v/mx*ih, 6), x1 = slot*i + (slot-o.cw)/2, x2 = x1 + o.cw, top = base - h;
+      const S = o.shadow;
+      shadows += `<polygon class="shd" points="${f1(x1)},${f1(top)} ${f1(x2)},${f1(top)} ${f1(x2+S)},${f1(top+S)} ${f1(x2+S)},${f1(base)} ${f1(x1)},${f1(base)}" fill="url(#${gid})"/>`;
+      cols += `<rect class="colr" x="${f1(x1)}" y="${f1(top)}" width="${o.cw}" height="${f1(h)}" fill="${d.c||RAMP5[i]}" style="--dd:${i*180}ms"><title>${esc(d.nm)} ${esc(num(d.v))}</title></rect>`;
+      caps += `<text class="cap${d.hot?' hot':''}" x="${f1(x1 + o.cw/2)}" y="${f1(top-12)}" text-anchor="middle" style="--dd:${i*180+500}ms">${esc(num(d.v))}</text>`;
+    });
+    return `<div class="cols" data-rule="hb"><svg viewBox="0 0 ${o.W} ${o.H}" role="img" aria-label="세로 막대">
+      <defs><linearGradient id="${gid}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#201E1D" stop-opacity=".13"/><stop offset=".55" stop-color="#201E1D" stop-opacity=".05"/><stop offset="1" stop-color="#201E1D" stop-opacity="0"/></linearGradient>
+      <clipPath id="${gid}c"><rect x="0" y="0" width="${o.W}" height="${base}"/></clipPath></defs>
+      ${ticks}<g clip-path="url(#${gid}c)">${shadows}</g>${cols}${caps}<line class="bl" x1="0" x2="${o.W}" y1="${base}" y2="${base}"/></svg></div>`;
+  }
+  /* 막대 아래 범례 — 점 하나에 이름·설명 한 칸씩 */
+  function legendCols(data){
+    return `<div class="legend3" style="grid-template-columns:repeat(${data.length},1fr)">${data.map((d,i) =>
+      `<div class="lg"><i style="background:${d.c||RAMP5[i]}"></i><b>${esc(d.nm)}</b>${esc(d.sub||'')}</div>`).join('')}</div>`;
+  }
+
+  /* 산 — 봉우리 높이가 값. 가장 가까운 구간(첫 봉우리)만 주홍, 멀수록 옅어진다 */
+  function mountainSVG(items, opt){
+    const o = Object.assign({ W:320, H:210, top:34, bottom:26, spread:1.45 }, opt||{});
+    const mx = Math.max(...items.map(d => d.v), 1);
+    const n = items.length, base = o.H - o.bottom, ih = base - o.top, half = (o.W / n) * o.spread / 2;
+    const cxOf = (i) => n > 1 ? half + i * (o.W - 2*half) / (n-1) : o.W/2;   // 양 끝 봉우리의 밑변이 칸 밖으로 나가지 않게
+    const greys = ['#6E6E73','#8E8E93','#A9A9AE','#C9C9CE'];
+    let sh = '', pk = '', lb = '', tag = '';
+    items.forEach((d,i) => {
+      const h = Math.max(d.v/mx*ih, 10), cxp = cxOf(i), top = base - h;
+      const pts = `${f1(cxp-half)},${base} ${f1(cxp)},${f1(top)} ${f1(cxp+half)},${base}`;
+      const col = d.hot ? '#EC3013' : greys[Math.min(i, greys.length-1)];
+      sh += `<polygon class="pk sh" points="${pts}" transform="translate(7,0)" fill="#201E1D" fill-opacity=".10" style="--dd:${i*140}ms"/>`;
+      pk += `<polygon class="pk" points="${pts}" fill="${col}" style="--dd:${i*140}ms"><title>${esc(d.nm)} ${esc(num(d.v,'곳'))}</title></polygon>`;
+      lb += `<text class="ax" x="${f1(cxp)}" y="${o.H-6}" text-anchor="middle">${esc(d.nm)}</text>`;
+      if (d.hot){
+        const w = 52, hgt = 20, tx = Math.min(Math.max(cxp - w/2, 0), o.W - w), ty = top - hgt - 10;
+        tag += `<g class="tag" style="--dd:${i*140+600}ms"><rect x="${f1(tx)}" y="${f1(ty)}" width="${w}" height="${hgt}" rx="3" fill="#EC3013"/><polygon points="${f1(cxp-5)},${f1(ty+hgt)} ${f1(cxp+5)},${f1(ty+hgt)} ${f1(cxp)},${f1(ty+hgt+6)}" fill="#EC3013"/><text x="${f1(cxp)}" y="${f1(ty+14)}" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">${esc(num(d.v,'곳'))}</text></g>`;
+      } else {
+        tag += `<text class="pv" x="${f1(cxp)}" y="${f1(top-8)}" text-anchor="middle" style="--dd:${i*140+600}ms">${esc(num(d.v))}</text>`;
+      }
+    });
+    // 뒤 봉우리가 앞 봉우리를 가리지 않게 — 낮은 것부터 그린다? 아니, 왼쪽(가까운 곳)이 앞에 오게 오른쪽부터 그린다
+    return `<div class="mtn" data-rule="hb"><svg viewBox="0 0 ${o.W} ${o.H}" role="img" aria-label="거리별 점포 수">${sh}${pk}<line class="bl" x1="0" x2="${o.W}" y1="${base}" y2="${base}"/>${lb}${tag}</svg></div>`;
+  }
+
+  /* 알약 기둥 — 세 기둥이 한 눈금(가장 큰 값 = 100). 범위가 있는 기둥은 하한을 진하게, 상한까지는 연하게 */
+  function pillsHTML(items){
+    const mx = Math.max(...items.map(d => d.hi), 1);
+    const cols = items.map((d,i) => {
+      const hi = Math.max(d.hi/mx*100, 8), lo = Math.max(d.lo/mx*100, 8);
+      const style = `--p:${f1((hi+lo)/2)};--dd:${i*160}ms`;   // 범위는 가운데 값으로 세우고 숫자가 범위를 말한다
+      const long = String(d.val).replace(/<[^>]+>/g,'').length >= 10;
+      return `<div class="pill${d.hot?' hot':''}" style="${style}" title="${esc(d.title||'')}"><div class="pv"${long?' style="font-size:11px"':''}>${d.val}<small>${esc(d.unit||'')}</small></div></div>`;
+    }).join('');
+    const labels = items.map(d => `<div><b>${esc(d.nm)}</b>${esc(d.sub||'')}</div>`).join('');
+    return `<div class="pills" data-rule="hb">${cols}</div><div class="pill-lb">${labels}</div>`;
+  }
+
+  /* 세로 누적 기둥 — 띠를 세워 놓은 것. 옆에 범례 */
+  function vstackHTML(segs, h){
+    const tot = segs.reduce((a,s) => a + s.v, 0) || 1;
+    return `<div class="vstack" style="height:${h||220}px" data-rule="vl,hb">${segs.map((s,i) =>
+      `<i style="height:${f1(s.v/tot*100)}%;background:${s.c};--dd:${i*160}ms" title="${esc(s.nm)} ${esc(num(s.v,'곳'))}"></i>`).join('')}</div>`;
+  }
+
+  /* 가게 사진 — 플레이스가 맞는 매장일 때만. 화면 전용이라 인쇄·묶음에는 없다 */
+  function placePhotos(b){
+    const p = b && b.modules && b.modules.place;
+    if (!p || !p.ok || !p.data || p.data.matched === false) return [];
+    return (p.data.images||[]).filter(u => safeHref(u));
+  }
+  function photoHTML(src, cls, cap){
+    return `<figure class="ph ${cls||'wide'}"><img src="${esc(src)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">${cap?`<figcaption>${esc(cap)}</figcaption>`:''}</figure>`;
   }
 
 
@@ -1119,10 +1465,13 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
       badge('fail','수집 안 됨') + ` <span class="src9">${esc(ld.error)}</span>`]);
     const info = tbl(rows);
 
+    const ph = placePhotos(b);
+    const photos = ph.length ? `<div class="mz" style="margin-top:34px;gap:16px"><div class="b s7">${photoHTML(ph[0],'h220')}</div>${ph[1] ? `<div class="b s5">${photoHTML(ph[1],'h220')}</div>` : ''}
+      <div class="b s12 tight"><p class="phnote">네이버 플레이스에 가게가 올린 사진 · 화면 전용이라 인쇄물·묶음에는 나오지 않습니다</p></div></div>` : '';
     const html = `<div class="eyebrow">STORE</div>
       <div class="nm" data-rule="ht,hb,vr">${esc(s.name || '매장')}</div>
       <div class="meta2">${esc([s.category, s.roadAddress || s.address].filter(Boolean).join(' · ') || '—')}</div>
-      ${kpis}${info}
+      ${kpis}${photos}${info}
       ${(b.notes||[]).map(t => `<p class="src9">${esc(t)}</p>`).join('')}
       <p class="src9">좌표 ${has(s.x) ? esc(`${Number(s.y).toFixed(6)}, ${Number(s.x).toFixed(6)}`) : '—'}</p>`;
     return { html, meta: (s.sources||[]).join(' · ').toUpperCase() || 'KAKAO · NAVER' };
@@ -1168,29 +1517,26 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
       perStore = Math.round(Number(pd.population) / (Number(cd.sameSmall.count) + (cd.matched ? 1 : 0)));
     }
 
-    const two = `<div class="two">
-      <div><div class="k">인구 ${perStore ? '몇 명당 같은 업종 1곳' : ''}</div>
-        <div class="v" data-n="${perStore ? perStore : (has(pd.population) ? Number(pd.population) : 0)}">${perStore ? num(perStore) : num(pd.population)}</div>
-        <div class="lead-ref">${perStore ? `명당 1곳 · 인구 ${num(pd.population,'명')} · 같은 업종 ${num(cd.sameSmall.count,'곳')}${cd.fallback ? ' (업종 대체)' : ''}`
-          : ['명', sido && has(sido.population) ? `${esc(sido.name)} ${num(sido.population,'명')}` : ''].filter(Boolean).join(' · ')}</div></div>
-      <div><div class="k">평균 나이</div>
-        <div class="v"${has(pd.avgAge) ? ` data-n="${Number(pd.avgAge)}" data-d="${String(pd.avgAge).includes('.') ? String(pd.avgAge).split('.')[1].length : 0}"` : ''}>${has(pd.avgAge) ? esc(pd.avgAge) : '—'}</div>
-        <div class="lead-ref">세 · ${[sido && has(sido.avgAge) ? `${esc(sido.name)} ${sido.avgAge}` : '',
-          nation && has(nation.avgAge) ? `전국 ${nation.avgAge}` : ''].filter(Boolean).join(' · ') || '비교값 없음'}</div></div>
-    </div>`;
-
     const restKeys = [['population','인구','명'],['avgHouseholdSize','평균 가구원','명'],
       ['businesses','사업체','곳'],['workers','종사자','명']];
-    const rest = restKeys.map(([k,label,unit]) => `${label} ${num(pd[k],unit)}`).join(' · ');
+    const rest = restKeys.map(([k,label,unit]) => `<li>${esc(label)} <b>${esc(num(pd[k],unit))}</b></li>`).join('');
+    const avgAgeRef = [sido && has(sido.avgAge) ? `${esc(sido.name)} ${sido.avgAge}` : '', nation && has(nation.avgAge) ? `전국 ${nation.avgAge}` : ''].filter(Boolean).join(' · ') || '비교값 없음';
 
-    const html = `<div class="k">종사자 ÷ 인구</div>
-      <div class="lead-n" data-rule="hb,vr"${r !== null ? ` data-n="${r}" data-d="2"` : ''}>${r !== null ? esc(pd.workerPerResident) : '—'}</div>
-      <div class="lead-read">${read}</div>
-      <div class="lead-ref">${refLine ? esc(refLine) + ' &nbsp;|&nbsp; ' : ''}1보다 크면 직장가${!refLine && pd.compareError ? ` &nbsp;|&nbsp; ${badge('warn','비교값 없음')} 시도·전국 값을 못 받아 이 동네 값만 있습니다` : ''}</div>
-      ${two}
-      <div class="rest">${rest}</div>
-      <div class="src9">${esc(pd.admName)} (SGIS 코드 ${esc(pd.admCd)}) · ${esc(pd.year)}년 기준${
-        pd.compareError ? ` · ${badge('warn','비교값 없음')} ${esc(pd.compareError)}` : ''}</div>`;
+    const html = `<div class="mz">
+      <div class="b s6"><div class="k">종사자 ÷ 인구</div>
+        <div class="lead-n" style="font-size:104px" data-rule="hb,vr"${r !== null ? ` data-n="${r}" data-d="2"` : ''}>${r !== null ? esc(pd.workerPerResident) : '—'}</div>
+        <div class="lead-ref">${refLine ? esc(refLine) + ' &nbsp;|&nbsp; ' : ''}1보다 크면 직장가${!refLine && pd.compareError ? ` &nbsp;|&nbsp; ${badge('warn','비교값 없음')} 시도·전국 값을 못 받아 이 동네 값만 있습니다` : ''}</div></div>
+      <div class="b s6 rail" style="padding-top:30px"><p class="deck md">${read}</p></div>
+      <div class="b s4 top"><div class="stat row"><div class="k">인구 ${perStore ? '몇 명당 같은 업종 1곳' : ''}</div>
+        <div class="v" data-n="${perStore ? perStore : (has(pd.population) ? Number(pd.population) : 0)}">${perStore ? num(perStore) : num(pd.population)}</div>
+        <div class="lead-ref">${perStore ? `명당 1곳 · 같은 업종 ${num(cd.sameSmall.count,'곳')}${cd.fallback ? ' (업종 대체)' : ''}` : ['명', sido && has(sido.population) ? `${esc(sido.name)} ${num(sido.population,'명')}` : ''].filter(Boolean).join(' · ')}</div></div></div>
+      <div class="b s4 top"><div class="stat row"><div class="k">평균 나이</div>
+        <div class="v"${has(pd.avgAge) ? ` data-n="${Number(pd.avgAge)}" data-d="${String(pd.avgAge).includes('.') ? String(pd.avgAge).split('.')[1].length : 0}"` : ''}>${has(pd.avgAge) ? esc(pd.avgAge) : '—'}</div>
+        <div class="lead-ref">세 · ${avgAgeRef}</div></div></div>
+      <div class="b s4 top"><div class="k">${esc(pd.admName)}</div><ul class="kwcol" style="margin-top:6px">${rest}</ul></div>
+      <div class="b s12"><p class="src9">${esc(pd.admName)} (SGIS 코드 ${esc(pd.admCd)}) · ${esc(pd.year)}년 기준${
+        pd.compareError ? ` · ${badge('warn','비교값 없음')} ${esc(pd.compareError)}` : ''}</p></div>
+    </div>`;
     return { html, meta: srcText(pop).toUpperCase() };
   }
 
@@ -1245,6 +1591,20 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
     return `<div class="bgw" data-w="${esc(word)}" data-f="${F}" data-t="${top}" style="left:${left}px;top:${top}px;font-size:${F}px">${esc(word)}</div>`;
   }
 
+  /* 한 장만 다시 그린다 — 장번호·제목은 그대로, 본문과 메타만 바꾼다 */
+  function repaintSection(id){
+    if (!state.bundle) return;
+    const sec = document.getElementById(`sec-${id}`), sd = SECTIONS.find(x => x.id === id);
+    if (!sec || !sd) return;
+    let r = null;
+    try { r = sd.render(state.bundle); } catch (e) { console.error(id, e); }
+    if (!r) return;
+    const hd = sec.querySelector(':scope > .hd'), meta = hd && hd.querySelector('.meta');
+    if (meta) meta.textContent = r.meta || '';
+    [...sec.children].forEach(ch => { if (!ch.classList.contains('hd') && !ch.classList.contains('bgw') && !ch.classList.contains('arule')) ch.remove(); });
+    sec.insertAdjacentHTML('beforeend', r.html);
+  }
+
   /* ── 리포트 조립 — 장번호는 실제로 그려진 섹션에만 순서대로 매긴다 ── */
   function renderReport(b){
     let no = 0;
@@ -1266,7 +1626,7 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
   }
 
 
-  /* ── 주변 시설 (로즈) ── */
+  /* ── 주변 시설 — 도넛 + 순위 리스트 (v3.10 매거진) ── */
   function renderNearby(b){
     const m = mod(b,'nearby');
     if (!m.ok) return null;
@@ -1276,21 +1636,25 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
     const data = cats.map(c => ({ nm:c.label, v:Number(c.count) }));
     if (!uni.error && (uni.list||[]).length) data.push({ nm:'대학교', v:(uni.list||[]).length });
     if (!data.length) return null;                       // 반경 안에 아무것도 없음 → 섹션 생략
+    data.sort((a,c) => c.v - a.v);
     // 숙박이 있으면 관광 상권 신호라 빨강 하나를 여기에 준다
-    const hotIdx = data.findIndex(d => /숙박/.test(d.nm));
-    if (hotIdx >= 0){ data[hotIdx].c = '#EC3013'; data[hotIdx].hot = 1; }
+    const lodge = data.find(d => /숙박/.test(d.nm));
+    if (lodge){ lodge.c = '#EC3013'; lodge.hot = 1; }
     const near = cats.filter(c => (c.nearest||[]).length)
       .map(c => `${esc(c.label)} ${(c.nearest||[]).map(x => `${esc(x.name)} ${esc(dist(x.distance))}`).join(', ')}`).join(' · ');
-    const lodge = data.find(d => /숙박/.test(d.nm));
     const tot = data.reduce((a,d)=>a+d.v,0);
+    const top = data[0];
     const read = lodge && lodge.v/tot >= 0.08
-      ? `숙박 ${lodge.v}곳이 전체의 ${(lodge.v/tot*100).toFixed(1)}%입니다 — 밖에서 오는 손님이 섞이는 상권으로 읽습니다.`
-      : '가까운 시설이 손님이 어디서 오는지를 말해 줍니다.';
-    return { html: roseSVG(data, '곳') +
-      `<p class="lead-read" style="font-size:15px;margin-top:8px">${read}</p>
-       <p class="src9">조각은 같은 각도를 나눠 갖고 개수는 반지름으로 읽습니다. 정확한 값은 옆의 숫자가 책임집니다.
-       ${near ? `<br>가까운 곳 — ${near}` : ''}
-       ${(m.data.notes||[]).map(t=>`<br>${esc(t)}`).join('')}</p>`,
+      ? `숙박 ${lodge.v}곳이 전체의 <b>${(lodge.v/tot*100).toFixed(1)}%</b>입니다 — 밖에서 오는 손님이 섞이는 상권으로 읽습니다.`
+      : `반경 ${dist(R)} 시설 ${num(tot,'곳')} 가운데 <b>${esc(top.nm)} ${num(top.v,'곳')}</b> — 열에 ${Math.round(top.v/tot*10)}은 ${esc(top.nm)}인 동네입니다.`;
+    return { html: `<div class="mz">
+        <div class="b s7">${donutSVG(data, `반경 ${dist(R)} · 곳`)}</div>
+        <div class="b s5 rail"><p class="k">많은 순</p>${rankList(data, '곳')}</div>
+        <div class="b s12 top"><p class="deck">${read}</p>
+          <p class="src9">각도가 비율이고, 정확한 값은 오른쪽 숫자가 책임집니다. 조각은 5위까지 진한 순서, 그 아래는 한 톤입니다.
+          ${near ? `<br>가까운 곳 — ${near}` : ''}
+          ${(m.data.notes||[]).map(t=>`<br>${esc(t)}`).join('')}</p></div>
+      </div>`,
       meta: `${srcText(m).toUpperCase()} · 반경 ${dist(R)}` };
   }
 
@@ -1322,16 +1686,26 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
     const nb = cd.nearby || {};
     const nbList = fb ? (nb.list||[]).slice(0,10).map(x => `${esc(x.name)}<span class="src9"> ${esc([x.small||x.large, x.floor?`${x.floor}층`:''].filter(Boolean).join(' '))}</span>`).join(' · ') : '';
     const fbHead = fb ? `<p class="lead-read" style="font-size:15px">${badge('warn','업종으로 대체')} 상가정보에서 이 매장을 찾지 못해, ${esc(fb.from)} ‘${esc(fb.category)}’로 소분류 <b>${esc(cd.industry.small)}</b>를 골라 셌습니다. 이 매장이 등록돼 있다면 아래 숫자에 1곳이 포함돼 있습니다.</p>` : '';
-    return { html: fbHead + barsHTML(data) +
-      `<p class="lead-read" style="font-size:15px;margin-top:21px">반경 ${dist(R)} 안 ${esc(cd.industry.large||'음식')} ${esc(num(cd.sameLarge.count,'곳'))} 가운데
-        ${esc(cd.industry.middle)} ${esc(num(cd.sameMiddle.count,'곳'))}, 그중 <b>${esc(cd.industry.small)} ${esc(num(cd.sameSmall.count,'곳'))}</b>입니다.</p>`
-      + distHTML(bands, cd.industry.small, R, Number(cd.sameSmall.count)||0)
-      + nearHTML(near)
-      + mixHTML(mix, cd.mixTotal, R)
-      + hoodHTML(licence(b), R)
-      + (fb
-        ? `<p class="src9">${esc(cd.note||'')}${nbList ? `<br>${esc(nb.from||'주변')}에 등록된 상가 (매장 확인용) — ${nbList}` : ''} · 자료 기준월 ${esc(ym(cd.stdrYm))}</p>`
-        : `<p class="src9">상가정보 등록 상호 ‘${esc(cd.matchedName)}’ (좌표 차이 ${esc(dist(cd.matchedDistance))}${cd.floor?`, ${esc(cd.floor)}층`:''})${cd.how?` · ${esc(cd.how)}에서 찾음`:''} · 자료 기준월 ${esc(ym(cd.stdrYm))}${bands.length?'':` · 거리별 — ${esc(bandText(bands,' · '))}`}</p>`),
+    const src = fb
+      ? `${esc(cd.note||'')}${nbList ? `<br>${esc(nb.from||'주변')}에 등록된 상가 (매장 확인용) — ${nbList}` : ''} · 자료 기준월 ${esc(ym(cd.stdrYm))}`
+      : `상가정보 등록 상호 ‘${esc(cd.matchedName)}’ (좌표 차이 ${esc(dist(cd.matchedDistance))}${cd.floor?`, ${esc(cd.floor)}층`:''})${cd.how?` · ${esc(cd.how)}에서 찾음`:''} · 자료 기준월 ${esc(ym(cd.stdrYm))}${bands.length?'':` · 거리별 — ${esc(bandText(bands,' · '))}`}`;
+    const legend = data.map((d,i) => ({ ...d, sub: i === 0 ? '대분류' : d.sub }));
+    const mtn = bands.length ? `<p class="k">거리별 ${esc(cd.industry.small||'같은 업종')} — 가까울수록 같은 손님을 나눕니다</p>
+        ${mountainSVG(bands.map((x,i) => ({ nm:`${x.from ? `${x.from}~` : ''}${x.to}m`, v:Number(x.count)||0, hot:i===0 })))}
+        ${densLine(bands[0], R, Number(cd.sameSmall.count)||0)}` : '';
+    const nearBox = near.length ? `<p class="k">바로 옆 ${esc(num(Math.min(near.length,6),'곳'))}</p><p class="src9" style="margin:2px 0 8px">방문 전에 한 번 보고 가세요</p>
+        <table class="tbl near">${near.slice(0,6).map(x =>
+          `<tr><th>${esc(dist(x.distance))}</th><td>${esc(x.name)}${x.small?` <span class="src9">${esc(x.small)}</span>`:''}</td></tr>`).join('')}</table>` : '';
+    return { html: `<div class="mz">
+        <div class="b s12">${fbHead}${columnsSVG(data)}${legendCols(legend)}</div>
+        <div class="b s12 top"><p class="deck">반경 ${dist(R)} 안 ${esc(cd.industry.large||'음식')} ${esc(num(cd.sameLarge.count,'곳'))} 가운데
+          ${esc(cd.industry.middle)} ${esc(num(cd.sameMiddle.count,'곳'))}, 그중 <b>${esc(cd.industry.small)} ${esc(num(cd.sameSmall.count,'곳'))}</b>입니다.</p></div>
+        ${mtn ? `<div class="b s7">${mtn}</div>` : ''}
+        ${nearBox ? `<div class="b s5${mtn ? ' rail' : ''}">${nearBox}</div>` : ''}
+        ${mix.length >= 2 ? `<div class="b s12 top">${mixHTML(mix, cd.mixTotal, R)}</div>` : ''}
+        ${hoodHTML(licence(b), R)}
+        <div class="b s12"><p class="src9">${src}</p></div>
+      </div>`,
       meta: `${srcText(m).toUpperCase()} · 반경 ${dist(R)}` };
   }
 
@@ -1370,35 +1744,28 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
         `<tr><th>${esc(dist(x.distance))}</th><td>${esc(x.name)}${x.small?` <span class="src9">${esc(x.small)}</span>`:''}</td></tr>`).join('')}</table>`;
   }
 
-  /* 동네 업력 — 인허가 자료로만 나오는 숫자. 새로 여는 곳과 닫은 곳이 경쟁 압력이다 */
+  /* 동네 업력 — 인허가 자료로만 나오는 숫자. 새로 여는 곳과 닫은 곳이 경쟁 압력이다.
+     v3.10: 큰 숫자 두 개(왼쪽) + 세로 누적 기둥(오른쪽). 폐업 누계는 자료가 쌓인 기간 전체라 연하게. */
   function hoodHTML(L, R){
     const h = L && L.hood;
     if (!h || !has(h.active)) return '';
-    const pc = h.active ? (h.newly / h.active * 100) : 0;
-    return `<p class="k" style="margin-top:34px">${esc(h.where)} ${esc(h.kind||'일반음식점')} — 얼마나 자주 바뀌는 동네인가</p>
-      <div class="two" style="margin-top:13px">
-        <div><div class="k">최근 ${esc(h.years)}년 새로 연 곳</div>
-          <div class="v" style="font-size:54px" data-n="${Number(h.newly)||0}">${esc(num(h.newly))}</div>
-          <div class="lead-ref">곳 · 영업 중 ${esc(num(h.active,'곳'))}의 ${pc.toFixed(1)}%</div></div>
-        <div><div class="k">폐업으로 기록된 곳</div>
-          <div class="v" style="font-size:54px" data-n="${Number(h.closed)||0}">${esc(num(h.closed))}</div>
-          <div class="lead-ref">곳 · 자료에 쌓인 누계입니다</div></div>
-      </div>
-      ${hoodBand(h)}
-      <p class="src9">행정동이 아니라 <b>주소에 ‘${esc(h.where)}’가 들어간 곳</b>을 센 값이라, 위의 반경 ${dist(R)} 숫자와 기준이 다릅니다. 같이 놓고 비교하지 마세요.</p>`;
-  }
-  /* 영업 중(신규 강조) 대 폐업 누계를 한 띠로 — 누계는 자료가 쌓인 기간 전체라 연하게 뒤에 깔고, 강조는 2년 신규(회전율)에 둔다 (v3.00) */
-  function hoodBand(h){
-    const active = Number(h.active)||0, newly = Math.min(Number(h.newly)||0, active), closed = Number(h.closed)||0;
-    const tot = active + closed; if (!tot) return '';
-    const pc = (v) => (v/tot*100).toFixed(2);
-    const old = active - newly;
-    return `<div class="mixbar" data-rule="hb" style="margin-top:21px"><i style="width:${pc(newly)}%;background:var(--accent)"></i><i style="width:${pc(old)}%;background:#201E1D"></i><i style="width:${pc(closed)}%;background:#E5E5E7"></i></div>
-      <ul class="mixleg">
-        <li><i style="background:var(--accent)"></i>최근 ${esc(h.years)}년 새로 연 곳 <b>${esc(num(newly,'곳'))}</b><span class="src9">영업 중의 ${active ? (newly/active*100).toFixed(1) : '0'}%</span></li>
-        <li><i style="background:#201E1D"></i>그 전부터 영업 중 <b>${esc(num(old,'곳'))}</b></li>
-        <li><i style="background:#E5E5E7"></i>폐업으로 기록된 곳 <b>${esc(num(closed,'곳'))}</b><span class="src9">자료가 쌓인 기간 전체의 누계 — 지금 영업 중과 같은 기간이 아닙니다</span></li>
-      </ul>`;
+    const active = Number(h.active)||0, newly = Math.min(Number(h.newly)||0, active), closed = Number(h.closed)||0, old = active - newly;
+    const pc = active ? (newly / active * 100) : 0;
+    const segs = [{ nm:`최근 ${h.years}년 새로 연 곳`, v:newly, c:'#EC3013' }, { nm:'그 전부터 영업 중', v:old, c:'#201E1D' }, { nm:'폐업으로 기록된 곳', v:closed, c:'var(--fill-lo)' }];
+    return `<div class="b s7 top"><p class="k">${esc(h.where)} ${esc(h.kind||'일반음식점')} — 얼마나 자주 바뀌는 동네인가</p>
+        <div class="two" style="margin-top:10px;padding-top:0;border-top:0;gap:22px">
+          <div><div class="k">최근 ${esc(h.years)}년 새로 연 곳</div>
+            <div class="v" style="font-size:58px" data-n="${newly}">${esc(num(newly))}</div>
+            <div class="lead-ref">곳 · 영업 중 ${esc(num(active,'곳'))}의 ${pc.toFixed(1)}%</div></div>
+          <div><div class="k">폐업으로 기록된 곳</div>
+            <div class="v" style="font-size:58px" data-n="${closed}">${esc(num(closed))}</div>
+            <div class="lead-ref">곳 · 자료에 쌓인 누계</div></div>
+        </div>
+        <p class="src9">행정동이 아니라 <b>주소에 ‘${esc(h.where)}’가 들어간 곳</b>을 센 값이라, 위의 반경 ${dist(R)} 숫자와 기준이 다릅니다. 같이 놓고 비교하지 마세요.</p></div>
+      <div class="b s5 top rail"><div style="display:grid;grid-template-columns:64px 1fr;gap:16px;align-items:end">
+        ${vstackHTML(segs, 236)}
+        <ul class="vleg">${segs.map((sg,i) => `<li><i style="background:${sg.c}"></i><span><b>${esc(num(sg.v))}</b>${esc(sg.nm)}${i===0?`<small>영업 중의 ${pc.toFixed(1)}%</small>`:''}${i===2?`<small>자료가 쌓인 기간 전체의 누계 — 지금 영업 중과 같은 기간이 아닙니다</small>`:''}</span></li>`).join('')}</ul>
+      </div></div>`;
   }
 
   /* 주변 업종 구성 — 이 골목이 무슨 골목인지 */
@@ -1409,14 +1776,14 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
     const top = mix.slice(0,5);
     const rest = tot - top.reduce((a,x) => a + Number(x.count), 0);
     const pc = (v) => (v/tot*100);
-    return `<p class="k" style="margin-top:34px">반경 ${dist(R)} 음식점 ${esc(num(tot,'곳'))}은 무슨 골목인가</p>
-      <div class="mixbar" data-rule="hb">${top.map((x,i) =>
+    return `<p class="k">반경 ${dist(R)} 음식점 ${esc(num(tot,'곳'))}은 무슨 골목인가</p>
+      <div class="mixbar big" data-rule="hb">${top.map((x,i) =>
         `<i style="width:${pc(x.count).toFixed(2)}%;background:${['#201E1D','#4A4846','#6E6E73','#A1A1A6','#C7C7CC'][i]}"></i>`).join('')}${
-        rest > 0 ? `<i style="width:${pc(rest).toFixed(2)}%;background:#E5E5E7"></i>` : ''}</div>
+        rest > 0 ? `<i style="width:${pc(rest).toFixed(2)}%;background:var(--fill-lo)"></i>` : ''}</div>
       <ul class="mixleg">${top.map((x,i) =>
         `<li><i style="background:${['#201E1D','#4A4846','#6E6E73','#A1A1A6','#C7C7CC'][i]}"></i>${esc(x.small)}
           <b>${esc(num(x.count,'곳'))}</b><span class="src9">${pc(x.count).toFixed(1)}%</span></li>`).join('')}${
-        rest > 0 ? `<li><i style="background:#E5E5E7"></i>그 밖<b>${esc(num(rest,'곳'))}</b><span class="src9">${pc(rest).toFixed(1)}%</span></li>` : ''}</ul>`;
+        rest > 0 ? `<li><i style="background:var(--fill-lo)"></i>그 밖<b>${esc(num(rest,'곳'))}</b><span class="src9">${pc(rest).toFixed(1)}%</span></li>` : ''}</ul>`;
   }
 
   /* ── 손님 불편 신호 (늦게 도착 · 연출 없음) ── */
@@ -1424,46 +1791,71 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
     return { html: '<div id="reviewBox"></div>', meta:'NAVER PLACE · 따로 가져옵니다', static:true };
   }
 
-  /* ── 온라인 언급 ── */
+  /* ── 온라인 언급 — 숫자 셋 · 웨이팅 신호 · 최근 글 (v3.10) ── */
+  const HIORDER_WAIT = '하이오더 웨이팅으로 되는 것 — 입구 태블릿에서 대기번호 발급(현재 대기 팀 수 표시), 연락처·인원 등록, 알림톡으로 등록 안내와 입장 호출(건당 12원 · VAT 포함), 손님이 실시간 대기 확인·취소, 매니저에서 호출·노쇼 취소·착석 처리, 즉시입장·입장마감 화면 (하이오더 매뉴얼 7351·8161·8871 · 2026-09 기준)';
+  function waitingBlock(waiting, blogScanned){
+    const rv = state.reviews && state.reviews.data ? state.reviews.data : null;
+    const rw = rv && rv.waiting ? rv.waiting : null;
+    const blogN = waiting && has(waiting.total) ? Number(waiting.total) : 0;
+    const rvN = rw ? Number(rw.total||0) : 0;
+    const dev = rw && rw.device ? rw.device : null;
+    if (!blogN && !rvN && !(dev && dev.total)) return '';
+    const parts = [];
+    if (blogN) parts.push(`최근 블로그 ${num(blogScanned||100,'건')} 중 <b>${num(blogN,'건')}</b>`);
+    if (rw) parts.push(`리뷰 ${num(rv.counted||0,'건')} 중 <b>${num(rvN,'건')}</b>`);
+    const quotes = [].concat((waiting && waiting.recent || []).slice(0,2).map(r => `${r.date ? `${esc(r.date)} · ` : ''}${linkText(r.link, r.title)}`),
+      (rw && rw.recent || []).slice(0,2).map(r => `${r.date ? `${esc(r.date)} · ` : ''}“${esc(r.text)}” <span class="src9">플레이스 리뷰</span>`));
+    const devLine = dev && dev.total ? `<p class="q">${badge('warn','기존 대기 기기 흔적')} 리뷰 ${num(dev.total,'건')}에 키오스크·웨이팅 기기가 적혀 있습니다 — 이미 기기로 대기를 받는 매장일 수 있으니 ‘웨이팅이 문제’가 아니라 지금 기기로 되는 것과 하이오더 웨이팅으로만 되는 것을 견주는 전환 논리로 쓰세요.${dev.recent.map(h => `<br>${h.date ? `${esc(h.date)} · ` : ''}“${esc(h.text)}”`).join('')}</p>` : '';
+    return `<div class="b s12 top wait"><div class="eyebrow">WAITING</div>
+      <p class="deck">웨이팅 신호 — ${parts.join(', ')}에 웨이팅·대기가 적혀 있습니다.</p>
+      ${quotes.length ? `<p class="q">${quotes.join('<br>')}</p>` : ''}
+      ${devLine}
+      <p class="src9">${esc(HIORDER_WAIT)}${rw ? '' : ' · 리뷰를 가져오면 리뷰 쪽 건수도 더해집니다'}</p></div>`;
+  }
   function renderOnline(b){
     const m = mod(b,'online');
     if (!m.ok) return null;
     const od = onlineParts(m.data);
     const blog = part(od.blog), cafe = part(od.cafe), waiting = part(od.waiting);
-    const cnt = (p) => p ? num(p.total,'건') : badge('fail','실패');
     const otherTag = (r) => r.otherBranch ? `${badge('warn','다른 지점 '+r.otherBranch)} ` : '';
     const row = (list, withDate) => (list||[]).map(r =>
       `<li>${withDate?`<span class="d">${esc(r.date||'')}</span>`:'<span class="d"></span>'}<span>${otherTag(r)}${linkText(r.link, r.title)}${r.cafe?`<span class="by">${esc(r.cafe)}</span>`:''}</span></li>`).join('');
     const others = blog ? (blog.recent||[]).filter(r=>r.otherBranch) : [];
-    const lead = blog ? `블로그 <b>${esc(num(blog.total))}</b>건 · 카페 <b>${esc(cafe?num(cafe.total):'—')}</b>건` : '';
-    const wRecent = waiting && (waiting.recent||[]).length ? waiting.recent : [];
-    return { html: `<p class="lead-read">${lead}${waiting ? (has(waiting.scanned)
-        ? ` · 최근 블로그 ${esc(num(waiting.scanned,'건'))} 중 웨이팅·대기 언급 <b>${esc(num(waiting.total,'건'))}</b>`
-        : ` · ‘웨이팅’이 함께 적힌 글 ${esc(num(waiting.total,'건'))}`) : ''}</p>
-      <p class="src9">블로그·카페 수는 검색 결과 수라서 다른 매장 글이 섞일 수 있습니다. 많고 적음을 보는 참고치로만 씁니다.${waiting && has(waiting.scanned) ? ` 웨이팅 수는 최근 글의 제목·요약에서 센 것이라 본문에만 적힌 것은 빠집니다.` : ''}
-        ${wRecent.length ? `<br>웨이팅 언급 글 — ${wRecent.map(r => `${r.date ? `${esc(r.date)} ` : ''}${linkText(r.link, r.title)}`).join(' · ')}` : ''}
-        ${others.length?`<br>${badge('warn','주의')} 최근 블로그 글 ${(blog.recent||[]).length}건 중 ${others.length}건이 같은 브랜드의 다른 지점(${esc([...new Set(others.map(r=>r.otherBranch))].join(', '))}) 글입니다.`:''}</p>
-      ${row(blog&&blog.recent,true) ? `<p class="k" style="margin-top:26px">최근 블로그 글</p><ul class="recent" data-rule="ht">${row(blog.recent,true)}</ul>` : ''}
-      ${row(cafe&&cafe.recent,false) ? `<p class="k" style="margin-top:26px">최근 카페 글</p><ul class="recent">${row(cafe.recent,false)}</ul>` : ''}`,
-      meta: srcText(m).toUpperCase() };
+    const stat = (k, v, ref, hot) => `<div class="b s4"><div class="stat row"><div class="k">${k}</div><div class="v${hot?' hot':''}"${has(v)&&/^\d+$/.test(String(v))?` data-n="${v}"`:''}>${has(v)?esc(num(v)):'—'}</div><div class="lead-ref">${ref}</div></div></div>`;
+    const waitStat = waiting ? (has(waiting.scanned)
+      ? stat('웨이팅·대기 언급', waiting.total, `최근 블로그 ${esc(num(waiting.scanned,'건'))} 중`, Number(waiting.total) > 0)
+      : stat('‘웨이팅’이 함께 적힌 글', waiting.total, '검색 결과 수', Number(waiting.total) > 0)) : '';
+    const ph = placePhotos(b);
+    const blogList = row(blog&&blog.recent,true), cafeList = row(cafe&&cafe.recent,false);
+    return { html: `<div class="mz">
+      ${stat('블로그 언급', blog ? blog.total : null, blog ? '검색 결과 수 · 다른 매장 글이 섞일 수 있음' : badge('fail','실패'))}
+      ${stat('카페 언급', cafe ? cafe.total : null, cafe ? '검색 결과 수' : badge('fail','실패'))}
+      ${waitStat}
+      ${waitingBlock(waiting, waiting && waiting.scanned)}
+      ${blogList ? `<div class="b s7 top"><p class="k">최근 블로그 글</p><ul class="recent" data-rule="ht">${blogList}</ul></div>` : ''}
+      <div class="b s5 top rail">${cafeList ? `<p class="k">최근 카페 글</p><ul class="recent">${cafeList}</ul>` : ''}${ph[2] ? `<div style="margin-top:${cafeList?'24px':'0'}">${photoHTML(ph[2],'sq')}</div>` : ''}</div>
+      <div class="b s12"><p class="src9">블로그·카페 수는 검색 결과 수라서 다른 매장 글이 섞일 수 있습니다. 많고 적음을 보는 참고치로만 씁니다.${waiting && has(waiting.scanned) ? ' 웨이팅 수는 최근 글의 제목·요약에서 센 것이라 본문에만 적힌 것은 빠집니다.' : ''}
+        ${others.length?`<br>${badge('warn','주의')} 최근 블로그 글 ${(blog.recent||[]).length}건 중 ${others.length}건이 같은 브랜드의 다른 지점(${esc([...new Set(others.map(r=>r.otherBranch))].join(', '))}) 글입니다.`:''}</p></div>
+    </div>`, meta: srcText(m).toUpperCase() };
   }
 
-  /* ── 뉴스 ── */
+  /* ── 뉴스 — 상호 | 동네 상권 2단 (v3.10) ── */
   function renderNews(b){
     const m = mod(b,'news');
     if (!m.ok) return null;
     const qs = (m.data.queries||[]).filter(x => !x.error);
     if (!qs.length) return null;
-    const blocks = qs.map((x) => {
+    const blocks = qs.map((x, i) => {
       const list = (x.recent||[]).map(r => `<li><span class="d">${esc(r.date||'—')}</span>${linkText(r.link, r.title)}</li>`).join('');
       const empty = x.filter && x.filter.kind === 'brand'
         ? `최근 ${x.filter.fetched}건 중 제목·요약에 ${(x.filter.words||[]).map(w=>`‘${w}’`).join('·') || '동네 이름'}이 있는 기사가 없습니다 — 이름이 같은 다른 가게·회사 기사뿐입니다`
         : x.filter ? `최근 ${x.filter.fetched}건 중 제목에 동네 이름(‘${x.filter.word}’)과 상권 관련 말이 함께 있는 기사가 없습니다` : '기사가 없습니다';
-      const kept = x.filter && x.filter.kind === 'brand' && x.filter.kept ? ` <span class="src9">최근 ${x.filter.fetched}건 중 구·동 이름이 있는 ${x.filter.kept}건</span>` : '';
-      return `<p class="k" style="margin-top:21px">${esc(NEWS_LABEL[x.key]||x.key)} ‘${esc(x.q)}’ · ${esc(num(x.total,'건'))}${kept}</p>
-        <ul class="recent">${list || `<li><span class="d"></span><span style="color:var(--faint)">${esc(empty)}</span></li>`}</ul>`;
+      const kept = x.filter && x.filter.kind === 'brand' && x.filter.kept ? `최근 ${x.filter.fetched}건 중 구·동 이름이 있는 ${x.filter.kept}건` : x.filter && x.filter.kind !== 'brand' && has(x.filter.fetched) ? `최근 ${x.filter.fetched}건 중 동네 이름·상권 말이 있는 ${(x.recent||[]).length}건` : '';
+      return `<div class="b s6${i ? ' rail' : ''}"><div class="stat row"><div class="k">${esc(NEWS_LABEL[x.key]||x.key)} ‘${esc(x.q)}’</div>
+        <div class="v" data-n="${Number(x.total)||0}">${esc(num(x.total))}</div><div class="lead-ref">건 · 검색 결과 수${kept ? ` · ${esc(kept)}` : ''}</div></div>
+        <ul class="recent" style="margin-top:18px">${list || `<li><span class="d"></span><span style="color:var(--faint)">${esc(empty)}</span></li>`}</ul></div>`;
     }).join('');
-    return { html: blocks + `<p class="src9">${esc(m.data.note||'')}</p>`, meta: srcText(m).toUpperCase() };
+    return { html: `<div class="mz">${blocks}<div class="b s12"><p class="src9">${esc(m.data.note||'')}</p></div></div>`, meta: srcText(m).toUpperCase() };
   }
 
   /* ── 메뉴 검색 추이 ── */
@@ -1471,12 +1863,17 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
     const m = mod(b,'trend');
     if (!m.ok) return null;
     const td = m.data;
-    const svg = trendChart(td);
+    const one = (td.series||[]).filter(x => (x.points||[]).length).length === 1;
+    const svg = trendChart(td, one ? { ribbon:true } : { mountain:true });   // 키워드 하나면 종이 띠, 여럿이면 산
     if (!svg) return null;
     const o = b.options || {};
-    return { html: svg + `<p class="src9">${esc(td.startMonth)} ~ ${esc(td.endMonth)} 월별 · ${esc(td.note||'')}${o.keywordsDerived?' 키워드는 업종에서 자동으로 골랐습니다.':''}
-      ${o.keywordsWeak?`<br>${badge('warn','범위 넓음')} ‘${esc((o.keywords||[]).join(', '))}’는 업종 이름이라 범위가 넓습니다. 대표 메뉴를 넣고 다시 수집하면 정확해집니다.`:''}</p>`,
+    const peak = (td.series||[]).map(sr => sr.peak && has(sr.peak.ratio) ? `<b>${esc(sr.keyword)}</b> — 가장 많이 검색된 달 ${esc(sr.peak.month)}${sr.low && has(sr.low.ratio) ? `, 가장 적은 달 ${esc(sr.low.month)} (${esc(sr.low.ratio)})` : ''}` : '').filter(Boolean);
+    return { html: `<div class="mz"><div class="b s12">${svg}</div>
+      ${peak.length ? `<div class="b s7"><p class="deck md">${peak.slice(0,2).join('<br>')}</p></div>` : ''}
+      <div class="b ${peak.length ? 's5 rail' : 's12'}"><p class="src9" style="margin-top:0">${esc(td.startMonth)} ~ ${esc(td.endMonth)} 월별 · ${esc(td.note||'')}${o.keywordsDerived?' 키워드는 업종에서 자동으로 골랐습니다.':''}
+      ${o.keywordsWeak?`<br>${badge('warn','범위 넓음')} ‘${esc((o.keywords||[]).join(', '))}’는 업종 이름이라 범위가 넓습니다. 대표 메뉴를 넣고 다시 수집하면 정확해집니다.`:''}</p></div></div>`,
       meta: srcText(m).toUpperCase() };
+
   }
 
   /* ── 지원사업·교육 (3단 아코디언) ── */
@@ -1487,8 +1884,8 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
       <div class="why">${esc(x.why)} · ${esc(x.where)}</div></div>
       <a href="${esc(x.href)}" target="_blank" rel="noopener noreferrer">열기</a></li>`).join('')}</ul>`;
   }
-  function acc(title, count, inner, open){
-    return `<details class="acc"${open?' open':''}><summary>${esc(title)}<span class="cnt">${esc(count)}</span><i class="ico" aria-hidden="true"></i></summary>
+  function acc(title, count, inner, open, cls){
+    return `<details class="acc${cls?' '+cls:''}"${open?' open':''}><summary>${esc(title)}<span class="cnt">${esc(count)}</span><i class="ico" aria-hidden="true"></i></summary>
       <div class="body"><div><div class="inner">${inner}</div></div></div></details>`;
   }
   function renderSupport(b){
@@ -1501,35 +1898,39 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
     const t2 = list.filter(x => SUP_T2.includes(x.what));
     const t3 = list.filter(x => !SUP_T1.includes(x.what) && !SUP_T2.includes(x.what));
 
-    let live = '';
+    let liveN = '', liveE = '';
     if (notices.ok){
       const items = notices.data.items || [];
-      live += `<p class="k" style="margin-top:8px">지금 접수 중인 공고 · ${esc(num(items.length,'건'))}</p>
-        <ul class="recent">${items.length ? items.map(x => `<li><span class="d"></span><span>${linkText(x.link,x.title)}<span class="by">${esc([x.org,x.target?`대상 ${x.target}`:'',x.period,x.contact].filter(Boolean).join(' · '))}</span></span></li>`).join('')
+      liveN = `<div class="stat row"><div class="k">지금 접수 중인 공고</div><div class="v" data-n="${items.length}">${esc(num(items.length))}</div><div class="lead-ref">건 · ${esc(notices.data.sido||'')} 기준</div></div>
+        <ul class="recent" style="margin-top:14px">${items.length ? items.map(x => `<li><span class="d"></span><span>${linkText(x.link,x.title)}<span class="by">${esc([x.org,x.target?`대상 ${x.target}`:'',x.period,x.contact].filter(Boolean).join(' · '))}</span></span></li>`).join('')
           : '<li><span class="d"></span><span style="color:var(--faint)">해당되는 공고가 없습니다</span></li>'}</ul>
         ${notices.data.excluded && notices.data.excluded.special ? `<p class="src9">대상이 정해진 공고(청년·여성·제조업 등)와 다른 구·군 공고 ${esc(num(notices.data.excluded.special,'건'))}은 뺐습니다${(notices.data.excluded.titles||[]).length ? ` — ${esc(notices.data.excluded.titles.slice(0,3).join(' / '))}` : ''}</p>` : ''}`;
     }
     if (events.ok){
       const items = events.data.items || [];
-      live += `<p class="k" style="margin-top:21px">갈 만한 교육·행사 · ${esc(num(items.length,'건'))}</p>
-        <ul class="recent">${items.length ? items.map(x => `<li><span class="d"></span><span>${linkText(x.link,x.title)}<span class="by">${esc([x.kind,x.org,x.period?`행사 ${x.period}`:'',x.apply?`접수 ${x.apply}`:''].filter(Boolean).join(' · '))}</span></span></li>`).join('')
+      liveE = `<div class="stat row"><div class="k">갈 만한 교육·행사</div><div class="v" data-n="${items.length}">${esc(num(items.length))}</div><div class="lead-ref">건</div></div>
+        <ul class="recent" style="margin-top:14px">${items.length ? items.map(x => `<li><span class="d"></span><span>${linkText(x.link,x.title)}<span class="by">${esc([x.kind,x.org,x.period?`행사 ${x.period}`:'',x.apply?`접수 ${x.apply}`:''].filter(Boolean).join(' · '))}</span></span></li>`).join('')
           : '<li><span class="d"></span><span style="color:var(--faint)">지금은 이 지역에 해당되는 행사가 없습니다</span></li>'}</ul>`;
     }
-    if (!live && !list.length) return null;
+    if (!liveN && !liveE && !list.length) return null;
 
-    const html = `<p class="lead-read" style="font-size:15px">주소와 업종으로 <b>확정되는 것</b>만 펼쳐 두었습니다. 나머지는 사장님 사정에 따라 갈립니다.</p>
+    const html = `<div class="mz">
+      <div class="b s12"><p class="deck md">주소와 업종으로 <b>확정되는 것</b>만 펼쳐 두었습니다. 나머지는 사장님 사정에 따라 갈립니다.</p>
       <p class="src9">안내만 하고 신청은 사장님이 직접 하십니다. 대신 신청하거나 수수료를 받는 일은 하지 마세요.
         정부지원금을 미끼로 접근하는 사칭 업체가 있으니 공식 누리집에서만 신청하시라고 함께 알려 드리세요.
-        아래 제도 목록은 ${esc(SUPPORT_CHECKED)} 기준이라 금액과 마감은 반드시 원문에서 다시 확인해야 합니다.</p>
-      <div style="margin-top:21px" data-rule="ht">
-      ${acc('해당됩니다 — 주소·업종으로 확정', `${t1.length}건 + 실시간 공고`, live + supList(t1), true)}
+        아래 제도 목록은 ${esc(SUPPORT_CHECKED)} 기준이라 금액과 마감은 반드시 원문에서 다시 확인해야 합니다.</p></div>
+      ${liveN ? `<div class="b s7 top">${liveN}</div>` : ''}
+      ${liveE ? `<div class="b ${liveN ? 's5 top rail' : 's12 top'}">${liveE}</div>` : ''}
+      <div class="b s12 top" data-rule="ht">
+      ${acc('해당됩니다 — 주소·업종으로 확정', `${t1.length}건`, supList(t1), true)}
       ${t2.length ? acc('해당될 수 있습니다 — 확인 필요', `${t2.length}건`, supList(t2)) : ''}
       ${t3.length ? acc('사장님께 여쭤봐야 압니다', `${t3.length}건`, supList(t3)) : ''}
       </div>
-      <p class="k" style="margin-top:26px">사장님께 여쭤볼 것</p>
+      <div class="b s12"><p class="k">사장님께 여쭤볼 것</p>
       <p class="src9" style="margin-top:2px">대답에 따라 위 제도 해당 여부가 갈립니다. 이 목록은 현장에서 쓰는 것이라 인쇄물에 항상 남습니다.</p>
       <ul class="ask" style="margin-top:11px">${ASK_OWNER.map(q => `<li>${esc(q)}</li>`).join('')}</ul>
-      ${inIncheon ? '' : '<p class="src9">이 매장은 인천이 아니어서 인천시 사업은 숨겼습니다. 기업마당에서 해당 지역으로 검색하세요.</p>'}`;
+      ${inIncheon ? '' : '<p class="src9">이 매장은 인천이 아니어서 인천시 사업은 숨겼습니다. 기업마당에서 해당 지역으로 검색하세요.</p>'}</div>
+    </div>`;
     return { html, meta: (notices.ok ? srcText(notices).toUpperCase() : '기업마당') };
   }
 
@@ -1540,10 +1941,14 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
     const admin = region.ok && region.data.admin;
     const q = [s.name, admin ? admin.dong : ''].filter(Boolean).join(' ');
     const items = manualItems(s, q, b);
-    return { html: `<p class="lead-read" style="font-size:15px">로그인이 필요하거나 아직 자동 수집을 붙이지 않은 곳입니다.</p>
-      <ul class="sup" data-rule="ht">${items.map(m => `<li><div><div class="what">${esc(m.what)}</div><div class="why">${esc(m.why)}</div></div>
+    const ph = placePhotos(b);
+    return { html: `<div class="mz">
+      <div class="b s7"><p class="deck md">로그인이 필요하거나 아직 자동 수집을 붙이지 않은 곳입니다.</p>
+      <ul class="sup" data-rule="ht" style="margin-top:14px">${items.map(m => `<li><div><div class="what">${esc(m.what)}</div><div class="why">${esc(m.why)}</div></div>
         <a href="${esc(m.href)}" target="_blank" rel="noopener noreferrer">${esc(m.btn)}</a></li>`).join('')}</ul>
-      <div class="acts" style="margin-top:16px"><button class="abtn" type="button" id="copyNameBtn">상호·주소 복사</button></div>`,
+      <div class="acts" style="margin-top:16px"><button class="abtn" type="button" id="copyNameBtn">상호·주소 복사</button></div></div>
+      <div class="b s5 rail">${ph[3] ? photoHTML(ph[3],'tall') : ph[0] ? photoHTML(ph[0],'tall') : ''}</div>
+    </div>`,
       meta:'MANUAL' };
   }
 
@@ -1579,6 +1984,8 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
     hall: 0.65,            // 영업장 면적 중 홀 비율 (가정)
     perTable: [3.6, 4.8],  // 4인 테이블 1개당 홀 면적 ㎡ — 테이블 120~140cm + 통로 0.9~1.2m (일반업소 기준)
     notice: 1,             // 알림판 10인치 1대
+    tablesPerStaff: 12,    // 홀 인력 1명이 맡는 테이블 수 (피크 기준 · 팀 가정 · v3.10) — 실측 「홀 인력」 칸이 있으면 무시
+    bigArea: 330,          // ㎡ · 이보다 크면 면적 추정의 오차가 커서 「실측 필요」 배지 (약 100평)
     calcVer: 'v1.11',   // 비율 기준: v3.00부터 VAT 별도 (ratioVat에 VAT 포함 값 병기)
   };
   const QUOTE_UNIT = QUOTE.service + QUOTE.device;   // 대당 월 20,000원 (VAT 별도)
@@ -1596,28 +2003,38 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
 
   /* 대수 → 월 이용료 → 인건비 대비. 비율은 VAT 별도 금액으로 잰다(v3.00 — 큰 숫자를 VAT 별도로 앞세우고, VAT 포함 값은 옆에 병기).
      ratioVat은 VAT 포함으로 잰 값 — 보수적으로 말할 때 쓴다 */
-  function quoteOf(tables){
+  function quoteOf(tables, staffTyped){
     const d = [tables[0] + QUOTE.notice, tables[1] + QUOTE.notice];
-    return { tables, devices: d,
-      monthly: [d[0]*QUOTE_UNIT, d[1]*QUOTE_UNIT],
-      ratio:   [d[0]*QUOTE_UNIT/QUOTE_WAGE, d[1]*QUOTE_UNIT/QUOTE_WAGE],
-      ratioVat:[d[0]*QUOTE_UNIT*QUOTE.vat/QUOTE_WAGE, d[1]*QUOTE_UNIT*QUOTE.vat/QUOTE_WAGE] };
+    /* 홀 인력 — 실측이 있으면 그 값, 없으면 테이블 수 ÷ 가정(올림). 1명이면 "1명"과 같으니 비교 기둥을 둘로 줄인다 */
+    const staff = staffTyped ? [staffTyped, staffTyped]
+      : [Math.max(1, Math.ceil(tables[0] / QUOTE.tablesPerStaff)), Math.max(1, Math.ceil(tables[1] / QUOTE.tablesPerStaff))];
+    const monthly = [d[0]*QUOTE_UNIT, d[1]*QUOTE_UNIT];
+    return { tables, devices: d, monthly,
+      ratio:   [monthly[0]/QUOTE_WAGE, monthly[1]/QUOTE_WAGE],
+      ratioVat:[monthly[0]*QUOTE.vat/QUOTE_WAGE, monthly[1]*QUOTE.vat/QUOTE_WAGE],
+      staff, staffHow: staffTyped ? 'typed' : 'assumed',
+      staffWage: [staff[0]*QUOTE_WAGE, staff[1]*QUOTE_WAGE],
+      ratioStaff: [monthly[0]/(staff[0]*QUOTE_WAGE), monthly[1]/(staff[1]*QUOTE_WAGE)] };
   }
-  const man  = (v) => (Math.round(v/1000)/10).toLocaleString('ko-KR');            // 280000 → '28', 308000 → '30.8' (만 원)
+  /* 테이블 1개 = 하이오더 1대 월 요금을 최저임금 시간으로 — 매장 크기와 상관없는 한 줄 */
+  const UNIT_HOURS = QUOTE_UNIT / QUOTE.wage;                 // 1.94시간
+  const UNIT_MIN_DAY = UNIT_HOURS * 60 / 30;                  // 하루 3.9분 (30일)
+  const man  = (v) => (v >= 10000000 ? Math.round(v/10000) : Math.round(v/1000)/10).toLocaleString('ko-KR');   // 280000 → '28', 308000 → '30.8', 21568800 → '2,157' (만 원)
   const manR = (p) => p[0] === p[1] ? man(p[0]) : `${man(p[0])}~${man(p[1])}`;
   function quoteCalc(b){
     const L = licence(b);
     const area = L && has(L.area) && Number(L.area) >= 10 ? Number(L.area) : 0;
-    const typed = el.tables ? Math.min(99, Math.max(0, Math.floor(Number(el.tables.value) || 0))) : 0;
+    const typed = el.tables ? Math.min(999, Math.max(0, Math.floor(Number(el.tables.value) || 0))) : 0;
+    const staffTyped = el.staff ? Math.min(99, Math.max(0, Math.floor(Number(el.staff.value) || 0))) : 0;
     let byArea = null;
     if (area){
       const hall = area * QUOTE.hall;
       const lo = Math.max(1, Math.floor(hall / QUOTE.perTable[1]));
       const hi = Math.max(lo, Math.round(hall / QUOTE.perTable[0]));
-      byArea = { hall, ...quoteOf([lo, hi]) };
+      byArea = { hall, ...quoteOf([lo, hi], staffTyped) };
     }
-    const est = typed ? quoteOf([typed, typed]) : byArea;
-    return { area, typed, byArea, est, how: typed ? 'typed' : byArea ? 'area' : '' };
+    const est = typed ? quoteOf([typed, typed], staffTyped) : byArea;
+    return { area, typed, staffTyped, byArea, est, how: typed ? 'typed' : byArea ? 'area' : '', big: !typed && area >= QUOTE.bigArea };
   }
 
   function renderQuote(b){
@@ -1627,14 +2044,17 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
   function quoteBodyHTML(b){
     const Q = quoteCalc(b), P = placeInfo(b);
 
-    /* ① 요금 구성 — 두 줄로 풀어 쓴다. 서비스료와 기계값 할부가 따로 보여야 한다 */
-    const fee = `<p class="k">대당 월 요금 — 후불형 · 3년 약정 · 월납</p>` + tbl([
-      ['서비스이용료', esc(wonV(QUOTE.service))],
-      ['단말대금 월납 (10인치 · 36개월)', `${esc(wonV(QUOTE.device))}<span class="tiny"><br>36개월 총 ${esc(wonV(QUOTE.device*QUOTE.months))} · 일시납 ${esc(wonV(QUOTE.deviceLump))}</span>`],
-      ['합계', `<b>${esc(wonV(QUOTE_UNIT))}</b>`],
-    ]).replace('class="tbl"', 'class="tbl fee"') + `<p class="src9">무약정은 서비스이용료 ${esc(wonV(QUOTE.serviceFree))}. 선불형(카드리더기)·15인치 알림판·부가서비스·할인은 견적 계산기에서 따로 계산합니다.</p>`;
+    /* ① 요금 구성 — v3.10: 좁은 칸에 들어가게 큰 숫자 하나 + 구성 두 줄 */
+    const fee = `<p class="k">대당 월 요금 — 후불형 · 3년 약정 · 월납</p>
+      <div class="v kv" style="font-size:40px;margin-top:8px">${esc(wonN(QUOTE_UNIT))}<small style="font-size:16px;font-weight:600;margin-left:3px">원</small></div>
+      <div class="lead-ref">VAT 포함 ${esc(won(QUOTE_UNIT*QUOTE.vat))}</div>
+      <table class="tbl fee" style="margin-top:12px;font-size:11px">
+        <tr><th style="width:42%">서비스이용료</th><td>${esc(won(QUOTE.service))}<span class="tiny"><br>VAT 포함 ${esc(won(QUOTE.service*QUOTE.vat))}</span></td></tr>
+        <tr><th>단말대금 월납<span class="tiny"><br>10인치 · 36개월</span></th><td>${esc(won(QUOTE.device))}<span class="tiny"><br>VAT 포함 ${esc(won(QUOTE.device*QUOTE.vat))}<br>36개월 총 ${esc(wonV(QUOTE.device*QUOTE.months))}<br>일시납 ${esc(wonV(QUOTE.deviceLump))}</span></td></tr>
+      </table>
+      <p class="src9">무약정은 서비스이용료 ${esc(wonV(QUOTE.serviceFree))}. 선불형(카드리더기)·15인치 알림판·부가서비스·할인은 견적 계산기에서 따로 계산합니다.</p>`;
 
-    /* ② 이 매장 추정 */
+    /* ② 이 매장 추정 — v3.10: 큰 숫자 두 개 → 알약 기둥(홀 인력 1명 · 하이오더 · 홀 인력 M명) + 읽기 → 계산 체인 → 요금표·환산표 */
     let est;
     if (Q.est){
       const E = Q.est, chain = [];
@@ -1648,25 +2068,38 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
       chain.push(`테이블당 1대 + 알림판 ${QUOTE.notice}대 → 하이오더 <b>${esc(rngN(E.devices,'대'))}</b>`);
       chain.push(`월 이용료 = ${esc(rngN(E.devices,'대'))} × ${esc(won(QUOTE_UNIT))} = <b>${esc(wonRange(E.monthly))}</b>`);
       chain.push(`홀 인력 1명 월 인건비 ${esc(won(QUOTE_WAGE))} (${QUOTE.wageYear}년 최저임금 ${esc(won(QUOTE.wage))} × ${QUOTE.hours}시간) 대비 <b>${esc(pctRange(E.ratio))}</b> — VAT 별도 기준 (VAT 포함이면 ${esc(pctRange(E.ratioVat))})`);
-      /* 한 달 비용의 크기 — 숫자 두 개를 나란히 두면 "비슷하네"로 읽힌다. 막대로 100 대 14~19를 보인다 (v3.00) */
-      const lo = Math.round(E.ratio[0]*1000)/10, hi = Math.round(E.ratio[1]*1000)/10;
-      const cmp = `<p class="k" style="margin-top:34px">한 달 비용의 크기 — 홀 인력 1명 인건비를 100으로 두면</p>
-        <ul class="dist cmp" data-rule="vl,vr">
-          <li class="ink"><span class="dl">홀 인력 1명</span><span class="db"><i style="width:100%"></i></span><span class="dn">100</span></li>
-          <li class="hot"><span class="dl">하이오더 ${esc(rngN(E.devices,'대'))}</span><span class="db"><i class="lo" style="width:${hi}%"></i><i style="width:${lo}%"></i></span><span class="dn">${esc(lo === hi ? String(lo) : `${lo}~${hi}`)}</span></li>
-        </ul>
-        <p class="src9">인건비 ${esc(won(QUOTE_WAGE))} 대 하이오더 ${esc(wonR(E.monthly))} (VAT 별도) — 사람을 대신한다는 뜻이 아니라 한 달에 나가는 돈의 크기를 견준 것입니다.</p>`;
-      est = `<div class="two" data-rule="ht">
-        <div><div class="k">하이오더 대수 ${Q.how === 'typed' ? '(실측 기준)' : '(추정)'}</div>
-          <div class="v" data-r="${E.devices[0]}~${E.devices[1]}" data-d="0">${esc(rngN(E.devices,''))}</div>
-          <div class="lead-ref">대 · 테이블 ${esc(rngN(E.tables,'개'))} + 알림판 ${QUOTE.notice}대</div></div>
-        <div><div class="k">월 이용료 <span class="tiny">(VAT 별도)</span></div>
-          <div class="v" data-r="${man(E.monthly[0])}~${man(E.monthly[1])}" data-d="${String(man(E.monthly[0])).includes('.') || String(man(E.monthly[1])).includes('.') ? 1 : 0}">${esc(manR(E.monthly))}</div>
-          <div class="lead-ref">만 원 · VAT 포함 ${esc(manR(E.monthly.map(v => v*QUOTE.vat)))}만 원 · 홀 인력 1명 월 인건비의 ${esc(pctRange(E.ratio))}</div></div>
-      </div>
-      <ol class="chain">${chain.map((t,i) => `<li style="--i:${i}"><span>${t}</span></li>`).join('')}</ol>${cmp}
-      ${Q.how === 'typed' && Q.byArea ? `<p class="src9">면적 기준 추정은 ${esc(rngN(Q.byArea.devices,'대'))}였습니다. 실측과 차이가 크면 이 매장은 홀 비율이나 테이블 크기가 일반 기준과 다른 곳입니다.</p>` : ''}
-      ${Q.how === 'area' ? `<p class="src9">추정치입니다. 방문해서 테이블을 세고 화면의 「테이블 수」 칸에 넣으면 이 장이 실측으로 다시 계산됩니다.${P && P.seats ? ` 네이버 플레이스 좌석 정보: ${esc(P.seats)}.` : ''}</p>` : ''}`;
+      const many = E.staff[1] > 1;
+      if (many){
+        chain.push(E.staffHow === 'typed'
+          ? `홀 인력 <b>${E.staff[0]}명</b> — 직접 넣은 값 (실측) → 인건비 ${esc(won(E.staffWage[0]))} → 하이오더는 그 <b>${esc(pctRange(E.ratioStaff))}</b>`
+          : `홀 인력 ${esc(rngN(E.staff,'명'))} — 테이블 ${QUOTE.tablesPerStaff}개당 1명 가정 (피크 기준 · 팀 가정) → 인건비 ${esc(wonR(E.staffWage))} → 하이오더는 그 <b>${esc(pctRange(E.ratioStaff))}</b>`);
+      }
+      /* 알약 기둥 — 세 기둥이 한 눈금. 값은 만 원 */
+      const pillItems = [];
+      if (many) pillItems.push({ nm:'홀 인력 1명', sub:'월 인건비 (최저임금)', lo:QUOTE_WAGE, hi:QUOTE_WAGE, val:`${esc(man(QUOTE_WAGE))}`, unit:'만 원', title:won(QUOTE_WAGE) });
+      pillItems.push({ nm:`하이오더 ${esc(rngN(E.devices,'대'))}`, sub:'월 이용료 (VAT 별도)', lo:E.monthly[0], hi:E.monthly[1], hot:1, val:`${esc(manR(E.monthly))}`, unit:'만 원', title:wonRange(E.monthly) });
+      pillItems.push({ nm: many ? `홀 인력 ${esc(rngN(E.staff,'명'))}` : '홀 인력 1명', sub: many ? (E.staffHow === 'typed' ? '실측 · 월 인건비' : `테이블 ${QUOTE.tablesPerStaff}개당 1명 가정`) : '월 인건비 (최저임금)', lo:E.staffWage[0], hi:E.staffWage[1], val:`${esc(manR(E.staffWage))}`, unit:'만 원', title:wonR(E.staffWage) });
+      const pills = pillsHTML(pillItems);
+      const readCmp = many
+        ? `하이오더 ${esc(rngN(E.devices,'대'))}의 한 달 요금은 홀 인력 1명 인건비의 <b>${esc(pctRange(E.ratio))}</b>, 홀 전체 ${esc(rngN(E.staff,'명'))}${E.staffHow==='typed'?'':'(가정)'} 인건비의 <b>${esc(pctRange(E.ratioStaff))}</b>입니다.`
+        : `하이오더 ${esc(rngN(E.devices,'대'))}의 한 달 요금은 홀 인력 1명 인건비의 <b>${esc(pctRange(E.ratio))}</b>입니다.`;
+      const perTable = `테이블 1개에 하이오더 1대 = 월 ${esc(won(QUOTE_UNIT))} = 최저임금 <b>${UNIT_HOURS.toFixed(1)}시간</b> = 하루 약 ${Math.round(UNIT_MIN_DAY)}분치 (30일 기준 · VAT 별도)`;
+      const bigBadge = Q.big ? ` ${badge('warn','실측 필요')}` : '';
+      est = `<div class="mz">
+        <div class="b s6"><div class="k">하이오더 대수 ${Q.how === 'typed' ? '(실측 기준)' : '(추정)'}${bigBadge}</div>
+          <div class="v" style="font-size:54px" data-r="${E.devices[0]}~${E.devices[1]}" data-d="0">${esc(rngN(E.devices,''))}</div>
+          <div class="lead-ref">대 · 테이블 ${esc(rngN(E.tables,'개'))} + 알림판 ${QUOTE.notice}대${Q.big ? ' · 100평 넘는 매장은 뷔페바·대기 공간이 커 추정 오차가 큽니다' : ''}</div></div>
+        <div class="b s6 rail"><div class="k">월 이용료 <span class="tiny">(VAT 별도)</span></div>
+          <div class="v" style="font-size:54px" data-r="${man(E.monthly[0])}~${man(E.monthly[1])}" data-d="${String(man(E.monthly[0])).includes('.') || String(man(E.monthly[1])).includes('.') ? 1 : 0}">${esc(manR(E.monthly))}</div>
+          <div class="lead-ref">만 원 · VAT 포함 ${esc(manR(E.monthly.map(v => v*QUOTE.vat)))}만 원</div></div>
+        <div class="b s7 top">${pills}</div>
+        <div class="b s5 top rail"><p class="k">한 달 비용의 크기</p><p class="deck md" style="margin-top:8px">${readCmp}</p>
+          <p class="src9">${perTable}</p>
+          <p class="src9">사람을 대신한다는 뜻이 아니라 한 달에 나가는 돈의 크기를 견준 것입니다.${many && E.staffHow !== 'typed' ? ` 홀 인력 수는 팀 가정이라 매장마다 다릅니다 — 방문해서 「홀 인력」 칸에 넣으면 실측으로 다시 계산됩니다.` : ''}</p></div>
+        <div class="b s12 top">${acc('계산 과정', `${chain.length}단계`, `<ol class="chain quiet">${chain.map((t,i) => `<li style="--i:${i}"><span>${t}</span></li>`).join('')}</ol>
+        ${Q.how === 'typed' && Q.byArea ? `<p class="src9">면적 기준 추정은 ${esc(rngN(Q.byArea.devices,'대'))}였습니다. 실측과 차이가 크면 이 매장은 홀 비율이나 테이블 크기가 일반 기준과 다른 곳입니다.</p>` : ''}
+        ${Q.how === 'area' ? `<p class="src9">추정치입니다. 방문해서 테이블을 세고 화면의 「테이블 수」 칸에 넣으면 이 장이 실측으로 다시 계산됩니다.${P && P.seats ? ` 네이버 플레이스 좌석 정보: ${esc(P.seats)}.` : ''}</p>` : ''}`, false, 'quiet pshow')}</div>
+      </div>`;
     } else {
       est = `<p class="lead-read" style="font-size:15px;margin-top:26px">${badge('warn','추정 없음')} 인허가 면적이 없어 이 매장 추정은 비었습니다. 방문해서 테이블을 세고 화면의 「테이블 수」 칸에 넣으면 여기서 계산됩니다.</p>
         ${P && P.seats ? `<p class="src9">네이버 플레이스 좌석 정보: ${esc(P.seats)}</p>` : ''}`;
@@ -1675,13 +2108,13 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
     /* ③ 대수별 환산표 — 면적이 없는 매장, 그리고 종이만 받는 대리점용 */
     const rows = [5, 8, 10, 12, 15, 20].map(n => `<tr><th>${n}대</th><td>${esc(won(n*QUOTE_UNIT))}</td>
       <td>${esc(won(n*QUOTE_UNIT*QUOTE.vat))}</td><td>${esc(pct(n*QUOTE_UNIT/QUOTE_WAGE))}</td></tr>`).join('');
-    const table = `<p class="k" style="margin-top:34px">대수별 환산표 — 알림판 포함 총 대수 기준</p>
-      <table class="tbl qt"><tr class="hd9"><th>대수</th><td>월 이용료 (VAT 별도)</td><td>VAT 포함</td><td>홀 인력 1명 인건비 대비 (VAT 별도)</td></tr>${rows}</table>
-      <p class="src9">가정: 홀 비율 ${Math.round(QUOTE.hall*100)}%, 4인 테이블 1개당 홀 ${QUOTE.perTable[0]}~${QUOTE.perTable[1]}㎡(테이블 120~140cm + 통로 0.9~1.2m), 알림판 10인치 1대 — 시너지영업3팀 일반업소 기준.
+    const table = `<p class="k">대수별 환산표 — 알림판 포함 총 대수 기준</p>
+      <table class="tbl qt"><tr class="hd9"><th>대수</th><td>월 이용료 (VAT 별도)</td><td>VAT 포함</td><td>홀 인력 1명 인건비 대비 (VAT 별도)</td></tr>${rows}</table>`;
+    const notes = `<p class="src9">가정: 홀 비율 ${Math.round(QUOTE.hall*100)}%, 4인 테이블 1개당 홀 ${QUOTE.perTable[0]}~${QUOTE.perTable[1]}㎡(테이블 120~140cm + 통로 0.9~1.2m), 알림판 10인치 1대, 홀 인력 테이블 ${QUOTE.tablesPerStaff}개당 1명(피크 기준) — 시너지영업3팀 일반업소 기준.
         인건비는 ${QUOTE.wageYear}년 최저임금 월 환산액(주휴수당 포함 · 사업주 4대보험 부담 제외)이라 실제 인건비는 이보다 큽니다.
         하이오더가 사람을 대신한다는 뜻이 아니라 비용의 크기를 재는 잣대입니다. 요금표: KT 하이오더 견적 계산기 ${QUOTE.calcVer}.</p>`;
 
-    return fee + est + table;
+    return est + `<div class="mz"><div class="b s5 top">${fee}</div><div class="b s7 top rail">${acc('대수별 환산표', '알림판 포함 총 대수', table.replace('<p class="k">대수별 환산표 — 알림판 포함 총 대수 기준</p>',''), false, 'quiet pshow')}</div><div class="b s12">${notes}</div></div>`;
   }
 
   /* 화면의 「테이블 수」가 바뀌면 이 장만 다시 그린다 — 수집을 다시 하지 않는다 */
@@ -1711,19 +2144,23 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
         : `영업장 면적 ${num(Q.area)}㎡ (약 ${Math.round(Q.area/PYEONG)}평, 인허가 · 주방 포함) → 홀 ${Math.round(QUOTE.hall*100)}% 가정 ${num(Math.round(Q.byArea.hall))}㎡ → 4인 테이블 1개당 ${QUOTE.perTable[0]}~${QUOTE.perTable[1]}㎡ → 테이블 ${rngN(E.tables,'개')}`;
       L.push(`- 이 매장 추정: ${head} → + 알림판 ${QUOTE.notice}대 → 하이오더 ${rngN(E.devices,'대')} → 월 이용료 ${wonRange(E.monthly)} → 홀 인력 1명 인건비 대비 ${pctRange(E.ratio)} (VAT 별도 기준 · VAT 포함이면 ${pctRange(E.ratioVat)})`);
       L.push(`- 한 달 비용의 크기: 홀 인력 1명 인건비 ${won(QUOTE_WAGE)}을 100으로 두면 하이오더 ${rngN(E.devices,'대')}는 ${rng(E.ratio, v => (v*100).toFixed(1))} — 사람을 대신한다는 뜻이 아니라 비용의 크기 비교`);
+      if (E.staff[1] > 1) L.push(E.staffHow === 'typed'
+        ? `- 홀 인력 ${E.staff[0]}명 (실측) 인건비 ${won(E.staffWage[0])} 대비 하이오더 ${pctRange(E.ratioStaff)}`
+        : `- 홀 인력 ${rngN(E.staff,'명')} — 테이블 ${QUOTE.tablesPerStaff}개당 1명 가정(피크 기준 · 팀 가정, 매장마다 다름) → 인건비 ${wonR(E.staffWage)} 대비 하이오더 ${pctRange(E.ratioStaff)}. 규칙: 가정임을 밝히고, 실측이 있으면 실측으로 쓰세요.`);
+      L.push(`- 테이블 1개 = 하이오더 1대 월 ${won(QUOTE_UNIT)} = 최저임금 ${UNIT_HOURS.toFixed(1)}시간 = 하루 약 ${Math.round(UNIT_MIN_DAY)}분치 (30일 기준 · VAT 별도)`);
       if (Q.how === 'typed' && Q.byArea) L.push(`- 참고: 면적 기준 추정은 ${rngN(Q.byArea.devices,'대')}였습니다 (실측이 우선).`);
     } else {
       L.push('- 이 매장 추정: 인허가 면적이 없어 비었습니다. 방문 때 테이블을 세어 수집기의 「테이블 수」에 넣으면 계산됩니다.');
     }
     L.push('', '| 대수 (알림판 포함) | 월 이용료 (VAT 별도) | VAT 포함 | 홀 인력 1명 인건비 대비 (VAT 별도) |', '|---|---|---|---|');
     [5, 8, 10, 12, 15, 20].forEach(n => L.push(`| ${n}대 | ${won(n*QUOTE_UNIT)} | ${won(n*QUOTE_UNIT*QUOTE.vat)} | ${pct(n*QUOTE_UNIT/QUOTE_WAGE)} |`));
-    L.push(`- 가정: 홀 비율 ${Math.round(QUOTE.hall*100)}%, 4인 테이블 1개당 홀 ${QUOTE.perTable[0]}~${QUOTE.perTable[1]}㎡(테이블 120~140cm + 통로 0.9~1.2m), 알림판 10인치 1대 — 시너지영업3팀 일반업소 기준(가정). 요금표: KT 하이오더 견적 계산기 ${QUOTE.calcVer}. 인건비: ${QUOTE.wageYear}년 최저임금 고시.`);
+    L.push(`- 가정: 홀 비율 ${Math.round(QUOTE.hall*100)}%, 4인 테이블 1개당 홀 ${QUOTE.perTable[0]}~${QUOTE.perTable[1]}㎡(테이블 120~140cm + 통로 0.9~1.2m), 알림판 10인치 1대, 홀 인력 테이블 ${QUOTE.tablesPerStaff}개당 1명(피크 기준) — 시너지영업3팀 일반업소 기준(가정). 요금표: KT 하이오더 견적 계산기 ${QUOTE.calcVer}. 인건비: ${QUOTE.wageYear}년 최저임금 고시.`);
     return L;
   }
   function quoteExport(b){
     const Q = quoteCalc(b);
     return { basis: { ...QUOTE, unitMonthly: QUOTE_UNIT, unitMonthlyVat: QUOTE_UNIT*QUOTE.vat, laborMonthly: QUOTE_WAGE },
-      area: Q.area || null, tablesTyped: Q.typed || null, how: Q.how || null,
+      area: Q.area || null, tablesTyped: Q.typed || null, staffTyped: Q.staffTyped || null, how: Q.how || null, bigArea: Boolean(Q.big),
       byArea: Q.byArea, estimate: Q.est,
       note: '정책지원금·프로모션은 넣지 않은 공식 요금표 기준. 대수는 추정치.' };
   }
@@ -1915,28 +2352,28 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
     const seen = [];
     asks.forEach(c => { if (!seen.includes(c.ask)) seen.push(c.ask); });
 
-    const html =
-      `<p class="k">스마트플레이스 대표키워드 5칸에 넣을 후보</p>
+    const half = Math.ceil(K.rest.length / 2);
+    const restCol = (arr) => `<ul class="kwcol">${arr.map(c => `<li>${esc(c.t)}<span class="why">${esc(c.why)}</span></li>`).join('')}</ul>`;
+    const html = `<div class="mz">
+       <div class="b s12"><p class="k">스마트플레이스 대표키워드 5칸에 넣을 후보</p>
        <ol class="kwtop" data-rule="vl,hb">${K.top.map(c =>
          `<li><span class="kt">${esc(c.t)}</span><span class="kw9">${esc(c.why)}</span></li>`).join('')}</ol>
        <p class="src9">지역 이름과 세부 업종을 붙인 형태입니다. ‘맛집’·‘추천’처럼 누구나 쓰는 말은 뺐습니다.
-         아래 검색 추이로 실제로 검색되는 후보인지 확인한 뒤, 다섯 개를 그대로 넣기 전에 사장님과 한 번 읽어 보세요.</p>
-       <div id="kwTrendBox">${kwTrendHTML()}</div>` +
-
-      (K.rest.length ? `<p class="k" style="margin-top:26px">소개글·메뉴명·블로그에 섞어 쓸 후보 ${esc(num(K.rest.length,'개'))}</p>` +
-        tbl(K.rest.map(c => [c.t, `<span class="src9">${esc(c.why)}</span>`])) : '') +
-
-      (seen.length ? `<div class="flag2"><div class="eyebrow">ASK</div>
+         아래 검색 추이로 실제로 검색되는 후보인지 확인한 뒤, 다섯 개를 그대로 넣기 전에 사장님과 한 번 읽어 보세요.</p></div>
+       <div class="b s12 top" id="kwTrendBox">${kwTrendHTML()}</div>
+       ${K.rest.length ? `<div class="b s12 top"><p class="k">소개글·메뉴명·블로그에 섞어 쓸 후보 ${esc(num(K.rest.length,'개'))}</p></div>
+       <div class="b s6 tight">${restCol(K.rest.slice(0, half))}</div><div class="b s6 tight rail">${restCol(K.rest.slice(half))}</div>` : ''}
+       ${seen.length ? `<div class="b s12"><div class="flag2"><div class="eyebrow">ASK</div>
         <div class="lead-read">사장님께 먼저 여쭐 것 — ${esc(seen.join(' / '))}</div>
-        <p class="src9">주변에 주차장이 많다고 우리 가게에 주차가 되는 것은 아닙니다. 확인 못 한 말을 넣으면 손님이 헛걸음합니다.</p></div>` : '') +
-
-      `<p class="k" style="margin-top:26px">키워드만으로는 안 오릅니다</p>
+        <p class="src9">주변에 주차장이 많다고 우리 가게에 주차가 되는 것은 아닙니다. 확인 못 한 말을 넣으면 손님이 헛걸음합니다.</p></div></div>` : ''}
+       <div class="b s12 top"><p class="k">키워드만으로는 안 오릅니다</p>
        <ul class="tips">
          <li><b>편의시설 체크</b>가 따로 잡습니다 — 주차·단체석·예약은 키워드가 아니라 스마트플레이스 편의시설에서 켜세요.</li>
          <li><b>영수증 리뷰</b>가 일반 리뷰보다 무겁게 셉니다 — 실제 방문 증거라서 그렇습니다.</li>
          <li><b>문장형은 검색어가 아닙니다</b> — ‘주차장이 있는 식당’이 아니라 ‘${esc(K.places[0].t)} 주차되는 ${esc(K.kinds[0].t)}’처럼 씁니다.</li>
          <li>소식·사진을 손대지 않으면 키워드를 바꿔도 순위가 잘 움직이지 않습니다.</li>
-       </ul>`;
+       </ul></div>
+    </div>`;
 
     return { html, meta: `조합 규칙 · 후보 ${K.total}개 · 검색 추이는 데이터랩` };
   }
@@ -1961,18 +2398,18 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
     const key = kws.join('|');
     const g = `<a href="${esc(googleTrendsUrl(kws))}" target="_blank" rel="noopener noreferrer">구글 트렌드에서 같은 후보 열기 (지역 필터 · 최근 12개월)</a>`;
     if (!T || T.key !== key){
-      return `<p class="k" style="margin-top:26px">후보 5개의 검색 추이 <span style="font-weight:400;color:var(--faint)">데이터랩 · 최근 12개월</span></p>
+      return `<p class="k">후보 5개의 검색 추이 <span style="font-weight:400;color:var(--faint)">데이터랩 · 최근 12개월</span></p>
         <p class="src9">${state.kwTrendPending === key ? '데이터랩에서 가져오는 중입니다…' : '아직 가져오지 않았습니다.'} ${g}</p>`;
     }
-    if (!T.ok) return `<p class="k" style="margin-top:26px">후보 5개의 검색 추이</p><p class="src9">${badge('fail','수집 안 됨')} ${esc(T.error||'')} · ${g}</p>`;
+    if (!T.ok) return `<p class="k">후보 5개의 검색 추이</p><p class="src9">${badge('fail','수집 안 됨')} ${esc(T.error||'')} · ${g}</p>`;
     const td = T.data || {};
-    const chart = trendChart(td);
+    const chart = trendChart(td, { mountain:true });
     const peak = (sr) => sr.peak && has(sr.peak.ratio) ? Number(sr.peak.ratio) : 0;
     const grade = (v) => v >= 30 ? '검색됩니다' : v >= 5 ? '약하게 검색됩니다' : '거의 검색되지 않습니다 — 소개글·메뉴명용';
-    const rows = (td.series||[]).map(sr => [sr.keyword, `<span class="src9">최고 ${esc(peak(sr))} · ${esc(grade(peak(sr)))}</span>`]);
-    return `<p class="k" style="margin-top:26px">후보 5개의 검색 추이 <span style="font-weight:400;color:var(--faint)">데이터랩 · 가장 많이 검색된 후보를 100으로 둔 상대값</span></p>
+    const rows = (td.series||[]).map((sr,i) => `<li${peak(sr) < 5 ? '' : ''}><span class="no">${String(i+1).padStart(2,'0')}</span><i style="background:${TREND_COLORS[i%TREND_COLORS.length]}"></i><span class="nm">${esc(sr.keyword)}<span class="why">${esc(grade(peak(sr)))}</span></span><span class="v">${esc(peak(sr))}</span></li>`).join('');
+    return `<p class="k">후보 5개의 검색 추이 <span style="font-weight:400;color:var(--faint)">데이터랩 · 가장 많이 검색된 후보를 100으로 둔 상대값</span></p>
       ${chart || '<p class="src9">데이터랩이 값을 주지 않았습니다 — 검색이 거의 없는 말들입니다.</p>'}
-      ${rows.length ? tbl(rows) : ''}
+      ${rows ? `<ol class="rank kwrank" style="margin-top:18px">${rows}</ol>` : ''}
       <p class="src9">절대 검색량이 아니라 다섯 후보 사이의 비율입니다. 0에 붙는 후보는 지금 검색되지 않는 말이니 대표키워드 5칸보다 소개글·메뉴명에 쓰세요. 8장 메뉴 검색 추이와 같은 자료입니다. ${g}</p>`;
   }
   function paintKwTrend(){ const box = document.getElementById('kwTrendBox'); if (box) box.innerHTML = kwTrendHTML(); }
@@ -2076,44 +2513,63 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
 
     const total = d.counted || 0;
     const headline = has(place.rating) ? place.rating : d.ratingAvg;
-    out.push(`<div class="k">${has(place.rating)?'플레이스 평점':'별점 평균'}</div>
+    const lead = `<div class="k">${has(place.rating)?'플레이스 평점':'별점 평균'}</div>
       <div class="lead-n" data-rule="hb,vr">${esc(has(headline)?headline:'—')}</div>
-      <div class="lead-ref">분석한 리뷰 ${esc(num(total,'건'))}${has(place.total)?` / 전체 ${esc(num(place.total,'건'))}`:''}${place.url?` · <a href="${esc(place.url)}" target="_blank" rel="noopener noreferrer">플레이스 열기</a>`:''}</div>`);
+      <div class="lead-ref">분석한 리뷰 ${esc(num(total,'건'))}${has(place.total)?` / 전체 ${esc(num(place.total,'건'))}`:''}${place.url?` · <a href="${esc(place.url)}" target="_blank" rel="noopener noreferrer">플레이스 열기</a>`:''}</div>`;
 
-    /* 리뷰가 쌓이는 속도 (v3.00) — 가져온 최신 리뷰의 날짜로 센 최근 12개월·3개월 건수. 업력 대비 전체 리뷰는 참고 */
+    /* 리뷰가 쌓이는 속도 (v3.00 · v3.10 하한) — 가져온 글이 전부 기간 안이면 ≥로 적고, 월 건수는 실제 덮은 기간으로 나눈다. 답글 비율은 사장님이 리뷰를 보는지의 신호 */
     const V = d.velocity;
+    let rail = '', readV = '';
     if (V && has(V.last12)){
       const lic = state.bundle ? licence(state.bundle) : null;
       const perYear = lic && lic.months >= 12 && has(place.total) ? Math.round(Number(place.total) / (lic.months/12)) : null;
-      out.push(`<div class="two" data-rule="ht" style="margin-top:26px">
-        <div><div class="k">최근 12개월 리뷰</div>
+      const pm = has(V.perMonth) ? V.perMonth : V.perMonth12;
+      const fast = Number(pm) >= 20;
+      rail = `<div class="stats">
+        <div class="stat"><div class="k">최근 12개월 리뷰</div>
           <div class="v"${V.capped ? '' : ` data-n="${Number(V.last12)}"`}>${V.capped ? '≥ ' : ''}${esc(num(V.last12))}</div>
-          <div class="lead-ref">건 · 월 ${esc(V.perMonth12)}건${V.capped ? ' 이상 — 200건 상한에 걸려 실제는 더 많습니다' : ''} · 최근 3개월 ${esc(num(V.last3,'건'))}</div></div>
-        <div><div class="k">업력 대비 전체 리뷰</div>
+          <div class="lead-ref">${V.capped ? `건 이상 · 가져온 ${esc(num(V.dated,'건'))}이 모두 최근 ${esc(V.spanMonths)}개월 안 → 월 약 ${esc(num(Math.round(pm),'건'))}` : `건 · 월 ${esc(pm)}건 · 최근 3개월 ${esc(num(V.last3,'건'))}`}</div></div>
+        <div class="stat"><div class="k">업력 대비 전체 리뷰</div>
           <div class="v"${perYear !== null ? ` data-n="${perYear}"` : ''}>${perYear !== null ? esc(num(perYear)) : '—'}</div>
           <div class="lead-ref">${perYear !== null ? `건/년 · 업력 ${esc(ageText(lic))} · 전체 ${esc(num(place.total,'건'))}` : '인허가일 또는 전체 리뷰 수가 없어 계산하지 않음'}</div></div>
-      </div>
-      <p class="src9">읽는 법: 리뷰가 느리게 쌓이는 매장이면 하이오더 주문내역 화면의 「네이버 플레이스 리뷰」 QR로 영수증 촬영 없이 영수증 리뷰를 남기게 할 수 있습니다 — 현재 <b>OKPOS(20251024 이상) 매장만</b> 되므로 방문 때 포스 제조사를 확인하세요 (하이오더 매뉴얼 10245 · 2026-05 기준). 네이버는 2021년부터 별점 대신 키워드 평가라 옛 리뷰는 적게 보일 수 있습니다.</p>`);
+        ${has(V.replyRate) ? `<div class="stat"><div class="k">사장님 답글</div>
+          <div class="v" data-n="${Number(V.replyRate)}">${esc(V.replyRate)}</div>
+          <div class="lead-ref">% · 가져온 ${esc(num(V.dated,'건'))} 중 ${esc(num(V.replied,'건'))}에 답글</div></div>` : ''}
+      </div>`;
+      readV = fast
+        ? `<p class="src9">읽는 법: 리뷰가 빠르게 쌓이는 매장입니다 — 리뷰 수 대신 <b>답글 비율</b>과 아래 불만 신호를 보세요. 네이버는 2021년부터 별점 대신 키워드 평가라 옛 리뷰는 적게 보일 수 있습니다.</p>`
+        : `<p class="src9">읽는 법: 리뷰가 느리게 쌓이는 매장이면 하이오더 주문내역 화면의 「네이버 플레이스 리뷰」 QR로 영수증 촬영 없이 영수증 리뷰를 남기게 할 수 있습니다 — 현재 <b>OKPOS(20251024 이상) 매장만</b> 되므로 방문 때 포스 제조사를 확인하세요 (하이오더 매뉴얼 10245 · 2026-05 기준). 네이버는 2021년부터 별점 대신 키워드 평가라 옛 리뷰는 적게 보일 수 있습니다.</p>`;
     }
 
     const srcList = Object.values(d.sources||{});
-    if (srcList.length) out.push(`<p class="src9">${srcList.map(x => x.error
+    const srcLine = srcList.length ? `<p class="src9">${srcList.map(x => x.error
       ? `${badge('fail',x.label)} ${esc(x.error)}`
       : `<b>${esc(x.label)}</b> ${esc(num(x.counted,'건'))}${x.place&&has(x.place.total)?` (전체 ${esc(num(x.place.total,'건'))})`:''}${x.place&&has(x.place.rating)?` · 평점 ${esc(x.place.rating)}`:''}${has(x.foreign)?` · 외국어 리뷰 ${esc(num(x.foreign,'건'))}${x.langs?` (${esc(x.langs)})`:''}`:''}${x.matched?'':' · ⚠ 매장 확인'}${x.others?` · 다른 장소 ${esc(x.others)}곳 제외`:''}${has(x.silentLow)&&Number(x.silentLow)>0?` · 글 없이 별점만 낮은 리뷰 ${esc(num(x.silentLow,'건'))}은 목록에서 뺌`:''}${x.label==='구글'&&has(x.low)&&Number(x.low)===0&&Number(x.counted)>0?` · 최신 ${esc(x.counted)}건 모두 4점 이상 — 표본이 작아 ‘불만 없음’의 근거로는 쓰지 마세요`:''}${x.label==='구글'&&x.place&&safeHref(x.place.url)?` · <a href="${esc(x.place.url)}" target="_blank" rel="noopener noreferrer">구글 지도 열기</a>`:''}`).join(' &nbsp;/&nbsp; ')}
-      ${(rv.skipped||[]).map(t=>`<br>${badge('warn','건너뜀')} ${esc(t)}`).join('')}</p>`);
+      ${(rv.skipped||[]).map(t=>`<br>${badge('warn','건너뜀')} ${esc(t)}`).join('')}</p>` : '';
 
+    let dist = '';
     if (d.rated){
       const counts = d.ratingCounts || {};
       const bars = [5,4,3,2,1].map(n => ({ nm:`${n}점`, v:Number(counts[n]||0),
         sub: d.rated ? `${Math.round((Number(counts[n]||0)/d.rated)*100)}%` : '',
-        c: n<=2 ? '#EC3013' : RAMP[5-n], hot: n<=2 }));
-      out.push(barsHTML(bars.filter((x,i)=>i<4 || x.v>0)));
-      if (has(d.unrated)) out.push(`<p class="src9">별점이 있는 리뷰 ${esc(num(d.rated,'건'))}${has(d.ratingAvg)?` (평균 ${esc(d.ratingAvg)})`:''} · 별점 없는 리뷰 ${esc(num(d.unrated,'건'))} — 네이버는 2021년부터 별점 대신 키워드로 평가합니다. 위 막대는 별점이 있는 것만 센 값입니다.</p>`);
+        c: n<=2 ? '#EC3013' : RAMP5[5-n], hot: n<=2 })).filter((x,i)=>i<4 || x.v>0);
+      dist = `<p class="k">별점 분포 <span style="font-weight:400;color:var(--faint)">별점이 있는 ${esc(num(d.rated,'건'))}</span></p>
+        ${columnsSVG(bars, { H:220, cw:56, shadow:110 })}${legendCols(bars)}
+        ${has(d.unrated) ? `<p class="src9">별점 없는 리뷰 ${esc(num(d.unrated,'건'))}${has(d.ratingAvg)?` · 별점 평균 ${esc(d.ratingAvg)}`:''} — 네이버는 2021년부터 별점 대신 키워드로 평가합니다. 위 막대는 별점이 있는 것만 센 값입니다.</p>` : ''}`;
     }
-    if ((d.keywords||[]).length) out.push(`<p class="k" style="margin-top:26px">손님이 고른 키워드 <span style="font-weight:400;color:var(--faint)">리포트의 강점 부분에 씁니다</span></p>
-      <div class="kw">${d.keywords.map(k=>`<span>${esc(k.word)} ${esc(k.count)}</span>`).join('')}</div>`);
-    if ((d.keywordsKakao||[]).length) out.push(`<p class="k" style="margin-top:21px">카카오 손님이 고른 키워드</p>
-      <div class="kw">${d.keywordsKakao.map(k=>`<span>${esc(k.word)} ${esc(k.count)}</span>`).join('')}</div>`);
+    let kws = '';
+    if ((d.keywords||[]).length) kws += `<p class="k">손님이 고른 키워드 <span style="font-weight:400;color:var(--faint)">리포트의 강점 부분에 씁니다</span></p>
+      <div class="kw">${d.keywords.map(k=>`<span>${esc(k.word)} ${esc(k.count)}</span>`).join('')}</div>`;
+    if ((d.keywordsKakao||[]).length) kws += `<p class="k" style="margin-top:21px">카카오 손님이 고른 키워드</p>
+      <div class="kw">${d.keywordsKakao.map(k=>`<span>${esc(k.word)} ${esc(k.count)}</span>`).join('')}</div>`;
+
+    out.push(`<div class="mz">
+      <div class="b ${rail ? 's5' : 's12'}">${lead}</div>
+      ${rail ? `<div class="b s7 rail" style="padding-top:8px">${rail}</div>` : ''}
+      ${readV || srcLine ? `<div class="b s12 tight">${readV}${srcLine}</div>` : ''}
+      ${dist ? `<div class="b s12 top">${dist}</div>` : ''}
+      ${kws ? `<div class="b s12 top">${kws}</div>` : ''}
+    </div>`);
 
     const to = tableOrderSignals(d);
     if (to.count) out.push(`<div class="flag2"><div class="eyebrow">CHECK</div>
@@ -2123,9 +2579,9 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
 
     const items = d.complaints || [];
     if (!items.length){
-      out.push(`<p class="lead-read" style="font-size:15px;margin-top:26px">분석한 ${esc(num(total,'건'))} 가운데 불만이 적힌 리뷰를 찾지 못했습니다. 리뷰가 고르게 긍정적인 매장입니다 — 이건 그대로 리포트의 강점으로 쓰세요.</p>`);
+      out.push(`<p class="lead-read" style="font-size:15px;margin-top:46px">분석한 ${esc(num(total,'건'))} 가운데 불만이 적힌 리뷰를 찾지 못했습니다. 리뷰가 고르게 긍정적인 매장입니다 — 이건 그대로 리포트의 강점으로 쓰세요.</p>`);
     } else {
-      out.push(`<p class="k" style="margin-top:26px">불만이 적힌 리뷰 ${esc(num(items.length,'건'))} 중 ${esc(num(d.hiorderCount,'건'))}은 하이오더로 손볼 수 있습니다</p>
+      out.push(`<p class="k" style="margin-top:46px">불만이 적힌 리뷰 ${esc(num(items.length,'건'))} 중 ${esc(num(d.hiorderCount,'건'))}은 하이오더로 손볼 수 있습니다</p>
         <p class="src9">리포트에 쓸 때는 작성 시점을 함께 적으세요. 맛·위생·가격 불만은 하이오더로 해결되지 않으니 그 말은 쓰지 마세요. ‘기타 불만’은 별점은 낮은데 정해 둔 불만 표현이 없는 글입니다 — 읽고 직접 분류하세요.</p>`);
       out.push(`<ul class="cmp">${items.map((x) => {
         const c = x.category;
@@ -2211,6 +2667,7 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
       if (runs.place && !placeDone) skipped.push('플레이스 정보: 40초 안에 오지 않아 이번에는 뺐습니다. 리뷰를 다시 가져오면 다시 시도합니다');
       state.reviews = { running:false, data:final.data, source:final.source, fetchedAt:final.fetchedAt, skipped };
       paintReviews();
+      repaintSection('online');          // 6장 웨이팅 신호가 리뷰 쪽 건수를 읽는다
     } catch (err) {
       state.reviews = { running:false, error: err && err.message ? err.message : String(err) };
       paintReviews();
@@ -2401,7 +2858,11 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
   addEventListener('resize', () => { measure(); scheduleRefresh(); }, {passive:true});
   addEventListener('load', () => scheduleRefresh());
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => scheduleRefresh());
+  /* 접어 둔 계산 과정·환산표는 종이에는 펼쳐서 낸다 (인쇄가 끝나면 원래대로) */
+  const _pshow = [];
+  addEventListener('afterprint', () => { _pshow.splice(0).forEach(d => { d.open = false; }); });
   addEventListener('beforeprint', () => {
+    $$('.acc.pshow:not([open])').forEach(d => { d.open = true; _pshow.push(d); });
     finishCounts();
     SCRUB.forEach(o => { o.el.style.transform='none'; });
     $$('.sec').forEach(s => s.classList.add('on'));
@@ -2600,6 +3061,7 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
         L.push(`- 블로그 "${md((o.waiting && o.waiting.query) || `${o.query} 웨이팅`)}": ${cnt(o.waiting)}`);
       }
       L.push(`- 카페 "${md(o.query)}": ${cnt(o.cafe)}`);
+      if (o.waiting && !o.waiting.error && Number(o.waiting.total) > 0) L.push('- 하이오더 웨이팅으로 되는 것(매뉴얼 7351·8161·8871 · 2026-09 기준): 입구 태블릿 대기번호 발급(현재 대기 팀 수 표시), 연락처·인원 등록, 알림톡 등록 안내·입장 호출(건당 12원 VAT 포함), 손님의 실시간 대기 확인·취소, 매니저에서 호출·노쇼 취소·착석 처리, 즉시입장·입장마감 화면. 고객 배포물에는 매뉴얼 번호를 빼세요.');
       const other = (r) => (r.otherBranch ? ` [다른 지점: ${md(r.otherBranch)}]` : '');
       (part(o.blog) ? o.blog.recent || [] : []).forEach((r) => L.push(`- 최근 블로그 글 ${md(r.date)}${other(r)}: ${md(r.title)} ${md(r.link)}`));
       (part(o.cafe) ? o.cafe.recent || [] : []).forEach((r) => L.push(`- 최근 카페 글 (${md(r.cafe || '카페 이름 없음')})${other(r)}: ${md(r.title)} ${md(r.link)}`));
@@ -2705,8 +3167,15 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
       if (rv.velocity && has(rv.velocity.last12)) {
         const V = rv.velocity, LIC2 = licence(b);
         const perYear = LIC2 && LIC2.months >= 12 && has(place.total) ? Math.round(Number(place.total) / (LIC2.months / 12)) : null;
-        L.push(`- 리뷰가 쌓이는 속도: 최근 12개월 ${V.capped ? '≥ ' : ''}${V.last12}건 (월 ${V.perMonth12}건${V.capped ? ' 이상 — 200건 상한' : ''}), 최근 3개월 ${V.last3}건${perYear !== null ? ` · 업력 ${ageText(LIC2)} 동안 전체 ${num(place.total, '건')} = 연 ${perYear}건` : ''}`);
-        L.push('- 규칙: 리뷰가 느리게 쌓이는 매장에는 하이오더 주문내역 화면의 네이버 플레이스 리뷰 QR(영수증 촬영 없이 영수증 리뷰)을 제안할 수 있습니다. 단 현재 OKPOS(20251024 이상) 매장만 되므로 포스 제조사를 확인한 뒤에만 쓰세요. "리뷰 관리가 안 된다"고 단정하지 말고 숫자만 적으세요.');
+        const pm = has(V.perMonth) ? V.perMonth : V.perMonth12;
+        L.push(`- 리뷰가 쌓이는 속도: 최근 12개월 ${V.capped ? `≥ ${V.last12}건 (가져온 ${V.dated}건이 모두 최근 ${V.spanMonths}개월 안이라 하한 · 월 약 ${Math.round(pm)}건)` : `${V.last12}건 (월 ${pm}건), 최근 3개월 ${V.last3}건`}${perYear !== null ? ` · 업력 ${ageText(LIC2)} 동안 전체 ${num(place.total, '건')} = 연 ${perYear}건` : ''}${has(V.replyRate) ? ` · 사장님 답글 ${V.replyRate}% (${V.replied}/${V.dated}건)` : ''}`);
+        L.push(Number(pm) >= 20
+          ? '- 규칙: 리뷰가 빠르게 쌓이는 매장입니다. 리뷰 수가 아니라 답글 비율과 불만 신호를 쓰세요. "리뷰 관리가 안 된다"고 단정하지 말고 숫자만 적으세요.'
+          : '- 규칙: 리뷰가 느리게 쌓이는 매장에는 하이오더 주문내역 화면의 네이버 플레이스 리뷰 QR(영수증 촬영 없이 영수증 리뷰)을 제안할 수 있습니다. 단 현재 OKPOS(20251024 이상) 매장만 되므로 포스 제조사를 확인한 뒤에만 쓰세요. "리뷰 관리가 안 된다"고 단정하지 말고 숫자만 적으세요.');
+        if (rv.waiting && (Number(rv.waiting.total) || (rv.waiting.device && Number(rv.waiting.device.total)))) {
+          L.push(`- 웨이팅 신호(리뷰): 가져온 리뷰 중 웨이팅·대기 언급 ${num(rv.waiting.total, '건')}${(rv.waiting.recent || []).length ? ` — ${md(rv.waiting.recent.map((r) => `${r.date || ''} "${r.text}"`).join(' / '))}` : ''}`);
+          if (rv.waiting.device && Number(rv.waiting.device.total)) L.push(`- 기존 대기 기기 흔적: 리뷰 ${num(rv.waiting.device.total, '건')}에 키오스크·웨이팅 기기가 적혀 있음${(rv.waiting.device.recent || []).length ? ` — ${md(rv.waiting.device.recent.map((r) => `${r.date || ''} "${r.text}"`).join(' / '))}` : ''}. 규칙: 이미 기기로 대기를 받는 매장이면 "웨이팅이 문제"가 아니라 지금 기기로 되는 것과 하이오더 웨이팅으로만 되는 것을 견주는 전환 논리로 쓰세요.`);
+        }
       }
       const rc = rv.ratingCounts || {};
       if (has(rv.rated) && rv.sources && rv.sources.naver && !rv.sources.naver.error) {
@@ -2948,6 +3417,7 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
     const q = el.q.value.trim();
     if (!q || state.busy) return;
     if (el.tables) el.tables.value = '';   // 다른 매장을 찾는 것이니 실측 테이블 수는 비운다
+    if (el.staff) el.staff.value = '';
     setBusy(true);
     setMsg(el.searchMsg, '찾는 중…');
     el.cands.innerHTML = '';
@@ -3015,6 +3485,7 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
 
   /* 3-1. 실측 테이블 수 — 견적 장만 다시 계산 */
   if (el.tables) el.tables.addEventListener('input', () => repaintQuote());
+  if (el.staff) el.staff.addEventListener('input', () => repaintQuote());
 
   /* 4. 내보내기 */
   el.jsonBtn.addEventListener('click', () => {
@@ -3024,6 +3495,7 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
   });
   el.printBtn.addEventListener('click', () => {
     $$('.sec').forEach(s => s.classList.add('on'));
+    $$('.acc.pshow').forEach(d => { d.open = true; });
     setTimeout(() => window.print(), 260);
   });
   document.getElementById('replay') && document.getElementById('replay').addEventListener('click', () => {
