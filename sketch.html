@@ -760,9 +760,9 @@ svg.trend.rib .ribbon{opacity:0;transition:opacity 900ms ease 200ms}
 svg.trend.rib path.now{stroke:var(--sub)}
 
 /* ══ 회색 종이 + 광명 (화면 전용 · v3.10) — 요소 색 = 종이 색, 그림자는 어두운 것 + 밝은 것 두 겹 ══ */
-:root{--fill-lo:#E5E5E7}
+:root{--fill-lo:#E5E5E7;--guide:#CFCFD5}
 @media screen{
-  :root{--paper:#E9E9EC;--panel:#E9E9EC;--line:#D3D3D8;--grid:#DFDFE3;--track:#DBDBE0;--fill-lo:#CDCDD3}
+  :root{--paper:#E9E9EC;--panel:#E9E9EC;--line:#D3D3D8;--grid:#DFDFE3;--track:#DBDBE0;--fill-lo:#CDCDD3;--guide:#B9B9C2}
   body{background:var(--paper)}
   .bgw{color:#EFEFF2!important}
   .tool input,.tool select,.mform input,.rvbar input{background:var(--paper);border-color:transparent;
@@ -862,13 +862,14 @@ svg.trend.rib path.now{stroke:var(--sub)}
 @media screen{ .sec{overflow:visible} }
 
 /* 유리판 — 뒤가 비쳐 흐려진다. 종이 결과 배경 타이포(스크롤에 따라 움직인다)가 함께 비친다 */
-.glass{border-radius:14px;padding:18px 20px;margin:-6px -20px}
+/* 종이를 오려 얹은 판 — 색은 없고(거의 투명) 그림자·광명만. 「플레이스 리뷰 가져오기」 버튼과 같은 몸 */
+.relief{border-radius:18px;padding:20px 22px;margin:-6px -14px}
 @media screen{
-  .glass{background:rgba(255,255,255,.32);-webkit-backdrop-filter:blur(14px) saturate(1.04);backdrop-filter:blur(14px) saturate(1.04);
-    border:1px solid rgba(255,255,255,.7);box-shadow:0 10px 28px rgba(32,30,29,.10),inset 0 1px 0 rgba(255,255,255,.9)}
-  .glass .rank li{border-bottom-color:rgba(32,30,29,.08)}
+  .relief{background:linear-gradient(135deg,rgba(255,255,255,.30),rgba(255,255,255,0) 58%);
+    box-shadow:11px 11px 24px rgba(32,30,29,.17),-9px -9px 20px rgba(255,255,255,.96),inset 1px 1px 0 rgba(255,255,255,.7)}
+  .relief .rank li{border-bottom-color:rgba(32,30,29,.07)}
 }
-@media print{ .glass{padding:0;margin:0;border-radius:0} }
+@media print{ .relief{padding:0;margin:0;border-radius:0;background:none;box-shadow:none} }
 
 /* ══ 모바일 (v3.10) — 지면이 곧 화면. 폭을 넘기는 것이 하나라도 있으면 브라우저가 화면 전체를 축소한다 ══ */
 @media (max-width:660px){
@@ -909,7 +910,8 @@ svg.trend.rib path.now{stroke:var(--sub)}
   .rank.kwrank li{grid-template-columns:18px 10px 1fr auto}
   .chap .dig{font-size:56px;width:44px}
   .chap h2{left:22px;font-size:16px}
-  .mtn svg,.cols svg,.donut svg{overflow:hidden!important}   /* 그림자가 장 밖으로 나가면 화면 폭이 늘어난다 */
+  .mtn svg,.cols svg{overflow:hidden!important}
+  .donut svg{overflow:visible}   /* 그림자가 장 밖으로 나가면 화면 폭이 늘어난다 */
   .acc>summary{gap:8px;min-width:0;padding-right:4px}
   .acc>summary .cnt{flex:none}
   .acc .ico{margin-right:4px}
@@ -918,6 +920,65 @@ svg.trend.rib path.now{stroke:var(--sub)}
   .chain li{font-size:12px}
   .kwtop .kt{font-size:20px}
 }
+
+/* ══ 양각 (화면 전용) — 도넛 고리 · 상호 · 장번호를 종이에서 떠올린다 ══ */
+@media screen{
+  .donut .ring{filter:drop-shadow(20px 24px 22px rgba(32,30,29,.30)) drop-shadow(10px 12px 11px rgba(32,30,29,.20)) drop-shadow(-8px -10px 12px rgba(255,255,255,.98))}
+  /* ── 스케치 글자 — 빗금으로 채우고 윤곽을 덧그은 뒤 선을 흔든다 ──
+     --hg: 빗금 간격(글자 크기에 맞춘다) · --sw: 윤곽 두께 */
+  .sk{color:transparent;
+    background-image:
+      repeating-linear-gradient(72deg, rgba(32,30,29,.60) 0 calc(var(--hg) * .21), transparent calc(var(--hg) * .21) var(--hg)),
+      repeating-linear-gradient(66deg, rgba(32,30,29,.30) 0 calc(var(--hg) * .18), transparent calc(var(--hg) * .18) calc(var(--hg) * 2.1));
+    -webkit-background-clip:text;background-clip:text;
+    -webkit-text-stroke:var(--sw) var(--ink);paint-order:stroke fill;
+    filter:url(#skA)}
+  /* 홀로 선 큰 숫자는 SVG(.skv)로 옮겼다. CSS 스케치는 그래프 안에 갇힌 도넛 중앙 값에만 남는다 —
+     여기에 밑선을 그으면 고리 안이 어지러워진다 */
+  .donut .ctr b{--hg:4.4px;--sw:1.2px}
+  /* 34px 값은 스케치를 걷었다 — 빗금이 촘촘해질수록 작은 숫자가 회색 면이 되어 읽히지 않는다.
+     손으로 그린 것은 상호와 홀로 선 큰 숫자까지, 그 아래는 읽는 숫자로 둔다 */
+  .stat .v.sk{color:var(--ink);background-image:none;-webkit-text-stroke:0;filter:none}
+  /* SVG 숫자(막대 위 값)는 패턴으로 직접 채운다 */
+  .cols .cap{fill:url(#hatchInk);stroke:var(--ink);stroke-width:1.2;paint-order:stroke fill;filter:url(#skB)}
+  .cols .cap.hot{fill:var(--accent);stroke:var(--accent-ink)}
+  /* 장번호 — 종이색으로 두고 그림자만. 숫자 모양 그대로 종이에서 솟은 것처럼 보인다 */
+  .chap .dig{color:var(--paper);
+    text-shadow:3px 4px 6px rgba(32,30,29,.30),-2px -3px 4px rgba(255,255,255,.98),1px 1px 0 rgba(255,255,255,.55)}
+}
+@media print{
+  .donut .ring{filter:none!important}
+  .chap .dig{text-shadow:none!important}
+  .sk{color:var(--ink)!important;background-image:none!important;-webkit-text-stroke:0!important;filter:none!important}
+  .cols .cap{fill:var(--ink)!important;stroke:none!important;filter:none!important}
+  .cols .cap.hot{fill:var(--accent-ink)!important}
+}
+
+/* ══ 스케치 글자 (SVG) — 상호 · 각 장의 대표 수치 · 페이지 제목 ══
+   빗금과 흔들린 윤곽, 자로 그은 밑선을 한 덩어리로 그린다.
+   인쇄에는 평범한 잉크 글자(.skp)만 남기고 밑선은 종이에도 함께 찍는다. */
+.skv{display:block;width:100%;height:auto;overflow:visible;font-family:inherit}
+.skv text{font-family:inherit}
+[data-sk]{line-height:1}
+.skp{fill:none}                 /* 화면에서는 색만 뺀다 — 끌어서 복사하고 Ctrl+F로 찾을 수 있게 한 벌은 남긴다 */
+@media print{
+  .skd{display:none}
+  .skp{fill:var(--ink)}
+  .skg line{stroke:var(--guide)}
+}
+
+/* 머리글 제목 — 스케치로 키운다 */
+.mast{align-items:flex-end}
+.mast>div:first-child{flex:1 1 auto;min-width:0}
+.mast .name{font-size:44px;letter-spacing:-.035em;line-height:1}
+.mast .tag{margin-top:9px}
+@media (max-width:660px){
+  .mast .name{font-size:26px}
+  .mast .tag{margin-top:6px}
+}
+
+/* 숫자가 굴러가는 동안은 덧그은 겹을 쉬게 한다 — 필터가 절반으로 준다 */
+.skv[data-roll="1"] .skx{display:none}
 </style></head>
 <body>
 <div class="modal" id="login">
@@ -933,15 +994,19 @@ svg.trend.rib path.now{stroke:var(--sub)}
   </div>
 </div>
 
-<svg width="0" height="0" style="position:absolute;width:0;height:0" aria-hidden="true" focusable="false"><defs>
+<svg id="skDefs" width="0" height="0" style="position:absolute;width:0;height:0" aria-hidden="true" focusable="false"><defs>
   <pattern id="paper" patternUnits="userSpaceOnUse" width="560" height="1000"><image id="paperImg" width="560" height="1000" preserveAspectRatio="none"/></pattern>
+  <!-- 스케치 글자 — 손이 지나간 선처럼 흔든다 (HTML 글자에도 CSS filter:url()로 걸린다) -->
+  <filter id="skA" x="-12%" y="-28%" width="124%" height="156%"><feTurbulence type="fractalNoise" baseFrequency="0.019" numOctaves="3" seed="7" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+  <filter id="skB" x="-12%" y="-28%" width="124%" height="156%"><feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="3" seed="19" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3.2" xChannelSelector="R" yChannelSelector="G"/></filter>
+  <pattern id="hatchInk" width="5.4" height="5.4" patternUnits="userSpaceOnUse" patternTransform="rotate(72)"><line x1="0" y1="0" x2="0" y2="5.4" stroke="#201E1D" stroke-width="1.1" stroke-opacity=".5"/></pattern>
 </defs></svg>
 <main class="page">
   <div id="scrim"></div>
 
   <div class="mast">
     <div>
-      <div class="name">밑그림</div>
+      <div class="name" data-sk="1" data-sk-wide="1">밑그림</div>
       <div class="tag"><span class="en">SKETCH</span><em>밑</em>천이 되는 <em>그림</em></div>
     </div>
     <div class="ver" id="pageVer">v3.10</div>
@@ -1413,8 +1478,8 @@ svg.trend.rib path.now{stroke:var(--sub)}
         <title>${esc(d.nm)} ${esc(num(d.v,'곳'))} · ${f1(d.v/tot*100)}%</title></circle>`;
       off += len;
     });
-    return `<div class="donut" data-rule="vc,hb"><svg viewBox="0 0 ${S} ${S}" role="img" aria-label="구성 비율"><g transform="rotate(-90 ${cx} ${cy})">${arcs}</g></svg>
-      <div class="ctr"><b data-n="${tot}">${esc(num(tot))}</b><span>${esc(centerLabel||'')}</span></div></div>`;
+    return `<div class="donut" data-rule="vc,hb"><svg viewBox="0 0 ${S} ${S}" role="img" aria-label="구성 비율"><g class="ring"><g transform="rotate(-90 ${cx} ${cy})">${arcs}</g></g></svg>
+      <div class="ctr"><b class="sk" data-n="${tot}">${esc(num(tot))}</b><span>${esc(centerLabel||'')}</span></div></div>`;
   }
   function rankList(data, unit){
     const tot = data.reduce((a,d) => a + d.v, 0) || 1;
@@ -1507,6 +1572,201 @@ svg.trend.rib path.now{stroke:var(--sub)}
   }
 
 
+  /* ══════════ 스케치 글자 ══════════
+     손으로 그린 제목을 SVG로 만든다. 빗금은 <pattern>, 윤곽은 세 번 덧긋고,
+     자로 그은 밑선(윗선·밑선·좌우 수선)과 모서리 ✕를 함께 둔다.
+     빗금·흔들기 정의는 문서에 한 벌만 두고 크기별로 골라 쓴다(필터가 무거워서 매번 만들지 않는다).
+     인쇄에는 평범한 잉크 글자 한 벌을 따로 넣고 스케치 쪽을 숨긴다. */
+  const SK = (() => {
+    const NS = 'http://www.w3.org/2000/svg';
+    const mk = (t, a) => { const n = document.createElementNS(NS, t); for (const k in a) n.setAttribute(k, a[k]); return n; };
+
+    const HG = 0.0487;      // 빗금 간격 ÷ 글자 크기 — 76px에서 3.7px (2배 빽빽)
+    const SW = 0.0178;      // 윤곽 두께 ÷ 글자 크기 — 76px에서 1.35px
+    const made = new Set();
+    let defs = null, uid = 0;
+
+    function pool(){
+      if (defs) return defs;
+      const svg = document.getElementById('skDefs');
+      defs = svg ? svg.querySelector('defs') : null;
+      return defs;
+    }
+    /* 빗금 한 겹 — 같은 규격은 한 번만 만든다 */
+    function hatch(gap, w, op, rot){
+      const id = `skh${String(gap.toFixed(2)).replace('.','_')}x${String(w.toFixed(2)).replace('.','_')}r${rot}`;
+      if (!made.has(id) && pool()){
+        made.add(id);
+        const pt = mk('pattern', { id, width:gap, height:gap, patternUnits:'userSpaceOnUse', patternTransform:`rotate(${rot})` });
+        pt.appendChild(mk('line', { x1:0, y1:0, x2:0, y2:gap, stroke:'var(--ink)', 'stroke-width':w, 'stroke-opacity':op }));
+        pool().appendChild(pt);
+      }
+      return id;
+    }
+    /* 흔들기 — 크기를 0.5px 칸으로 묶어 정의 수를 줄인다 */
+    function wob(key, bf, oct, scale){
+      const s = Math.round(scale * 2) / 2;
+      const id = `skw${key}${String(s).replace('.','_')}`;
+      if (!made.has(id) && pool()){
+        made.add(id);
+        const f = mk('filter', { id, x:'-14%', y:'-46%', width:'128%', height:'192%' });
+        f.appendChild(mk('feTurbulence', { type:'fractalNoise', baseFrequency:bf, numOctaves:oct, seed:key.charCodeAt(0)*3, result:'n' }));
+        f.appendChild(mk('feDisplacementMap', { in:'SourceGraphic', in2:'n', scale:s, xChannelSelector:'R', yChannelSelector:'G' }));
+        pool().appendChild(f);
+      }
+      return id;
+    }
+
+    /* 윤곽 — 획을 합친 뒤 그 둘레만 딴다.
+       글자에 그냥 stroke를 걸면 폰트가 자모를 겹쳐 쌓아 둔 자리(가로획이 세로획을 지나가는 곳 등)의
+       숨은 사각형 테두리까지 같이 그어져 속이 겹선으로 지저분해진다.
+       알파를 radius만큼 부풀린 뒤 원본을 빼면 바깥 둘레만 남으므로 이음매가 나오지 않는다. */
+    function ring(key, bf, oct, scale, radius){
+      const s = Math.round(scale*2)/2, r = Math.round(radius*20)/20;
+      const id = `skr${key}${String(s).replace('.','_')}n${String(r).replace('.','_')}`;
+      if (!made.has(id) && pool()){
+        made.add(id);
+        const f = mk('filter', { id, x:'-20%', y:'-50%', width:'140%', height:'200%' });
+        f.appendChild(mk('feMorphology', { operator:'dilate', radius:r, in:'SourceAlpha', result:'d' }));
+        f.appendChild(mk('feComposite', { in:'d', in2:'SourceAlpha', operator:'out', result:'k' }));
+        f.appendChild(mk('feFlood', { 'flood-color':'#201E1D', result:'c' }));
+        f.appendChild(mk('feComposite', { in:'c', in2:'k', operator:'in', result:'o' }));
+        f.appendChild(mk('feTurbulence', { type:'fractalNoise', baseFrequency:bf, numOctaves:oct, seed:key.charCodeAt(0)*3, result:'n' }));
+        f.appendChild(mk('feDisplacementMap', { in:'o', in2:'n', scale:s, xChannelSelector:'R', yChannelSelector:'G' }));
+        pool().appendChild(f);
+      }
+      return id;
+    }
+
+    /* host 안을 비우고 스케치 글자를 그린다. host의 폭을 재서 밑선을 칼럼 끝까지 늘인다. */
+    function draw(host, txt, opt){
+      const o = Object.assign({ size:76, min:26 }, opt || {});
+      if (txt === '—' || txt === '-') { host.textContent = txt; return null; }   // 셀 것이 없는 칸은 빗금 친 줄표가 되어 어색하다
+      const size = o.size;
+      const hg = o.hg != null ? o.hg : size * HG;
+      const sw = o.sw != null ? o.sw : Math.max(0.85, size * SW);
+      const padX = o.padX != null ? o.padX : size * 0.30;
+      const padY = o.padY != null ? o.padY : size * 0.28;
+      if (!txt) return;
+
+      host.textContent = '';
+      const svg = mk('svg', { role:'img', 'aria-label':txt, focusable:'false' });
+      svg.classList.add('skv');
+      host.appendChild(svg);
+
+      const ls = o.ls != null ? o.ls : -(size*0.035);
+      const common = { x:0, y:size, 'font-size':size, 'font-weight':800, 'letter-spacing':ls };
+
+      /* 글자 폭을 먼저 잰다 */
+      const probe = mk('text', Object.assign({}, common, { fill:'none' }));
+      probe.textContent = txt; svg.appendChild(probe);
+      let bb; try { bb = probe.getBBox(); } catch(_) { bb = { x:0, width:txt.length*size*0.9 }; }
+      svg.removeChild(probe);
+
+      const capTop = size - size*0.725, base = size;
+      const L = bb.x, R = bb.x + bb.width;
+      /* 큰 제목(wide)의 밑선은 칼럼 끝까지 늘여 지면을 가로지르고, 숫자는 글자 폭에만 긋는다 */
+      const hostW = o.wide
+        ? ((o.width != null ? o.width : (host.clientWidth || (host.parentElement && host.parentElement.clientWidth) || 0)) || (R + padX*2))
+        : (R + padX*2);
+      const VBW = Math.max(hostW, R + padX*2);
+      const VBH = (base - capTop) + padY*2;
+      svg.setAttribute('viewBox', `${-padX} ${capTop-padY} ${VBW} ${VBH}`);
+      svg.setAttribute('preserveAspectRatio', 'xMinYMid meet');
+      svg.style.maxWidth = VBW + 'px';        // 짧은 상호가 칸을 채우려 커지지 않게 — 줄어들기만 한다
+      const GL = -padX, GR = VBW - padX;
+
+      /* 1. 자로 그은 밑선 — 흔들지 않는다 */
+      const g = mk('g', { class:'skg', fill:'none', stroke:'var(--guide)', 'stroke-width':Math.max(.6, size*0.0118) });
+      [capTop, base].forEach((y) => g.appendChild(mk('line', { x1:GL, y1:y, x2:GR, y2:y })));
+      [L, R].forEach((x) => g.appendChild(mk('line', { x1:x, y1:capTop-padY*0.72, x2:x, y2:base+padY*0.72 })));
+      const s = size*0.055;
+      [[L,capTop],[R,capTop],[L,base],[R,base]].forEach(([x,y]) => {
+        g.appendChild(mk('line', { x1:x-s, y1:y-s, x2:x+s, y2:y+s }));
+        g.appendChild(mk('line', { x1:x-s, y1:y+s, x2:x+s, y2:y-s }));
+      });
+      svg.appendChild(g);
+
+      /* 글자는 한 벌만 둔다 — 빗금과 윤곽은 이것을 <use>로 다섯 번 되쓴다.
+         복사하거나 Ctrl+F로 찾을 때 같은 이름이 여러 번 잡히지 않게 하기 위함.
+         <defs>에 넣으면 크롬이 innerText에 한 번 더 세므로 그냥 두고, 색을 감싼 <g>에서 뺀다.
+         (색을 글자에 직접 걸면 <use>로 복제된 쪽까지 같은 규칙에 걸려 빗금이 지워진다) */
+      const src = 'skt' + (++uid);
+      const wrap = mk('g', { class:'skp' });
+      const master = mk('text', Object.assign({}, common, { id:src }));
+      master.textContent = txt; wrap.appendChild(master); svg.appendChild(wrap);
+
+      /* 2. 빗금 채움 — 촘촘한 겹과 성긴 겹 */
+      const fill = mk('g', { class:'skd', filter:`url(#${wob('f', .016, 3, size*0.035)})` });
+      [[hg, sw*0.76, .5, 72, ''], [hg*2.1, sw*0.68, .28, 66, 'skx']].forEach(([gap, w, op, rot, cls]) => {
+        fill.appendChild(mk('use', { href:`#${src}`, class:cls, fill:`url(#${hatch(gap, w, op, rot)})` }));
+      });
+      svg.appendChild(fill);
+
+      /* 3. 세 번 덧그은 윤곽 — <use>의 x·y는 밀어 놓는 값이다 */
+      const out = mk('g', { class:'skd', fill:'#201E1D' });
+      [['a', -size*0.012,  size*0.008, sw*0.62, .45, .013, 3, size*0.062, 'skx'],
+       ['b',  size*0.008, -size*0.008, sw*0.62, .50, .018, 3, size*0.041, 'skx'],
+       ['c',  0,           0,          sw*0.80, .86, .022, 2, size*0.027, '' ]].forEach(([k, dx, dy, r, op, bf, oc, sc, cls]) => {
+        out.appendChild(mk('use', { href:`#${src}`, class:cls, x:dx, y:dy, opacity:op, filter:`url(#${ring(k, bf, oc, sc, r)})` }));
+      });
+      svg.appendChild(out);
+
+
+      host.dataset.skDone = '1';
+      return master;            // 굴러가는 동안 글자만 갈아 끼우라고 원본을 돌려준다
+    }
+
+    /* 크기와 자간은 CSS에서 읽는다 — 화면 폭에 따른 본문의 단계(76 → 64 → 44 …)를 그대로 따라간다 */
+    function optFor(e){
+      const cs = getComputedStyle(e);
+      const size = parseFloat(cs.fontSize) || 76;
+      const ls = parseFloat(cs.letterSpacing);
+      return { size, ls: Number.isFinite(ls) ? ls : -(size*0.035),
+               wide: e.dataset.skWide === '1' };
+    }
+    /* data-sk가 붙은 것을 모아 그린다. 카운트업이 걸린 숫자는 굴러가는 동안 건너뛴다. */
+    function paintAll(root){
+      (root || document).querySelectorAll('[data-sk]').forEach((e) => {
+        if (e.dataset.skWait === '1' || e.dataset.skLive === '1') return;   // 아직 차례가 아니거나 굴러가는 중
+        const txt = e.dataset.skTxt != null ? e.dataset.skTxt : (e.dataset.skTxt = e.textContent.trim());
+        draw(e, txt, optFor(e));
+      });
+    }
+    /* 굴러가기 전에 미리 그려 둔다 — 칸(밑선·모서리 ✕)은 마지막 값 기준으로 한 번만 재고,
+       그 안에서 글자만 바꾼다. <use> 다섯 벌이 원본을 따라가므로 DOM은 한 군데만 건드린다.
+       돌려주는 함수로 매 프레임 값을 넣는다. 못 그리면 null. */
+    function paintLive(e, finalTxt){
+      if (!e || !e.dataset.sk) return null;
+      const master = draw(e, String(finalTxt).trim(), optFor(e));
+      if (!master) return null;
+      e.dataset.skTxt = String(finalTxt).trim();
+      const svg = e.querySelector('svg.skv');
+      /* 굴러가는 동안은 덧그은 겹(.skx)을 쉬게 한다 — 필터 네 개가 두 개로 준다.
+         멎는 순간 다시 켜지므로 선이 한 번 더 눌리는 것처럼 보인다 */
+      if (svg) svg.dataset.roll = '1';
+      e.dataset.skLive = '1';                 // 다시 그리기(paintAll)가 굴러가는 값을 덮지 않게
+      /* 글자 마디만 갈아 끼운다 — textContent를 다시 넣으면 자식이 바뀌어 페이지가 매번 다시 재려 든다 */
+      const tn = master.firstChild || master.appendChild(document.createTextNode(''));
+      return (v, last) => {
+        if (!master.isConnected) return;
+        tn.nodeValue = v;
+        if (last){ e.dataset.skLive = '0'; if (svg) svg.removeAttribute('data-roll'); }
+      };
+    }
+
+    /* 카운트업이 끝난 숫자 하나를 그린다 */
+    function paintOne(e){
+      if (!e || !e.dataset.sk) return;
+      const o = optFor(e);                                     // 글자를 지우기 전에 재야 한다
+      e.dataset.skWait = '0';
+      const txt = e.dataset.skTxt = (e.dataset.final != null ? e.dataset.final : e.textContent).trim();
+      draw(e, txt, o);
+    }
+    return { draw, paintAll, paintOne, paintLive };
+  })();
+
+
   /* ══════════ 섹션 렌더러 ══════════
      각 렌더러는 { html, meta } 를 돌려주거나, 쓸 데이터가 없으면 null 을 돌려준다.
      null 이면 그 섹션은 통째로 그려지지 않고 장번호도 건너뛴다.
@@ -1543,9 +1803,13 @@ svg.trend.rib path.now{stroke:var(--sub)}
     /* 숫자 하나짜리 값에는 data-n을 달아 카운트업이 굴러가게 한다 ("486 · 5" 같은 쌍은 그대로) */
     const kpi = (k,v,sub) => {
       const raw = String(v).replace(/,/g,''), ok = /^\d+(\.\d+)?$/.test(raw);
-      const d = ok && raw.includes('.') ? raw.split('.')[1].length : 0;
+      /* "238 · 47"처럼 두 값을 가운뎃점으로 이어 붙인 칸도 같이 굴린다 — 혼자만 멈춰 있으면 눈에 걸린다 */
+      const pair = !ok && /^\d+(\.\d+)? · \d+(\.\d+)?$/.test(raw) ? raw.split(' · ') : null;
+      const dOf = (x) => (String(x).includes('.') ? String(x).split('.')[1].length : 0);
+      const roll = ok ? ` data-n="${raw}" data-d="${dOf(raw)}" data-sk-wait="1"`
+        : pair ? ` data-r="${pair.join('~')}" data-sep=" · " data-d="${Math.max(...pair.map(dOf))}" data-sk-wait="1"` : '';
       return `<div class="kpi"><div class="k">${esc(k)}</div>
-      <div class="v"${ok ? ` data-n="${raw}" data-d="${d}"` : ''}>${esc(v)}</div><div class="s">${esc(sub)}</div></div>`;
+      <div class="v" data-sk="1"${roll}>${esc(v)}</div><div class="s">${esc(sub)}</div></div>`;
     };
     const kpis = '<div class="kpis" data-rule="ht,vc">' + [
       kpi(`같은 업종 (반경 ${dist(R)})`, cd && (cd.matched || cd.fallback) ? num(cd.sameSmall.count) : '—',
@@ -1599,7 +1863,7 @@ svg.trend.rib path.now{stroke:var(--sub)}
     const photos = ph.length ? `<div class="mz" style="margin-top:34px;gap:16px"><div class="b s7">${photoHTML(ph[0],'h220')}</div>${ph[1] ? `<div class="b s5">${photoHTML(ph[1],'h220')}</div>` : ''}
       <div class="b s12 tight"><p class="phnote">네이버 플레이스에 가게가 올린 사진 · 화면 전용이라 인쇄물·묶음에는 나오지 않습니다</p></div></div>` : '';
     const html = `<div class="eyebrow">STORE</div>
-      <div class="nm" data-rule="ht,hb,vr">${esc(s.name || '매장')}</div>
+      <div class="nm" data-sk="1" data-sk-wide="1">${esc(s.name || '매장')}</div>
       <div class="meta2">${esc([s.category, s.roadAddress || s.address].filter(Boolean).join(' · ') || '—')}</div>
       ${kpis}${photos}${info}
       ${(b.notes||[]).map(t => `<p class="src9">${esc(t)}</p>`).join('')}
@@ -1654,14 +1918,14 @@ svg.trend.rib path.now{stroke:var(--sub)}
 
     const html = `<div class="mz">
       <div class="b s6"><div class="k">종사자 ÷ 인구</div>
-        <div class="lead-n" style="font-size:104px" data-rule="hb,vr"${r !== null ? ` data-n="${r}" data-d="2"` : ''}>${r !== null ? esc(pd.workerPerResident) : '—'}</div>
+        <div class="lead-n" style="font-size:104px" data-sk="1" data-sk-wide="1"${r !== null ? ` data-n="${r}" data-d="2" data-sk-wait="1"` : ''}>${r !== null ? esc(pd.workerPerResident) : '—'}</div>
         <div class="lead-ref">${refLine ? esc(refLine) + ' &nbsp;|&nbsp; ' : ''}1보다 크면 직장가${!refLine && pd.compareError ? ` &nbsp;|&nbsp; ${badge('warn','비교값 없음')} 시도·전국 값을 못 받아 이 동네 값만 있습니다` : ''}</div></div>
-      <div class="b s6 rail" style="padding-top:30px"><p class="deck md">${read}</p></div>
+      <div class="b s6 rail" style="padding-top:24px"><div class="relief"><p class="deck md">${read}</p></div></div>
       <div class="b s4 top"><div class="stat row"><div class="k">인구 ${perStore ? '몇 명당 같은 업종 1곳' : ''}</div>
-        <div class="v" data-n="${perStore ? perStore : (has(pd.population) ? Number(pd.population) : 0)}">${perStore ? num(perStore) : num(pd.population)}</div>
+        <div class="v sk" data-n="${perStore ? perStore : (has(pd.population) ? Number(pd.population) : 0)}">${perStore ? num(perStore) : num(pd.population)}</div>
         <div class="lead-ref">${perStore ? `명당 1곳 · 같은 업종 ${num(cd.sameSmall.count,'곳')}${cd.fallback ? ' (업종 대체)' : ''}` : ['명', sido && has(sido.population) ? `${esc(sido.name)} ${num(sido.population,'명')}` : ''].filter(Boolean).join(' · ')}</div></div></div>
       <div class="b s4 top"><div class="stat row"><div class="k">평균 나이</div>
-        <div class="v"${has(pd.avgAge) ? ` data-n="${Number(pd.avgAge)}" data-d="${String(pd.avgAge).includes('.') ? String(pd.avgAge).split('.')[1].length : 0}"` : ''}>${has(pd.avgAge) ? esc(pd.avgAge) : '—'}</div>
+        <div class="v sk"${has(pd.avgAge) ? ` data-n="${Number(pd.avgAge)}" data-d="${String(pd.avgAge).includes('.') ? String(pd.avgAge).split('.')[1].length : 0}"` : ''}>${has(pd.avgAge) ? esc(pd.avgAge) : '—'}</div>
         <div class="lead-ref">세 · ${avgAgeRef}</div></div></div>
       <div class="b s4 top"><div class="k">${esc(pd.admName)}</div><ul class="kwcol" style="margin-top:6px">${rest}</ul></div>
       <div class="b s12"><p class="src9">${esc(pd.admName)} (SGIS 코드 ${esc(pd.admCd)}) · ${esc(pd.year)}년 기준${
@@ -1779,7 +2043,7 @@ svg.trend.rib path.now{stroke:var(--sub)}
       : `반경 ${dist(R)} 시설 ${num(tot,'곳')} 가운데 <b>${esc(top.nm)} ${num(top.v,'곳')}</b> — 열에 ${Math.round(top.v/tot*10)}은 ${esc(top.nm)}인 동네입니다.`;
     return { html: `<div class="mz">
         <div class="b s7">${donutSVG(data, `반경 ${dist(R)} · 곳`)}</div>
-        <div class="b s5 rail"><div class="glass"><p class="k">많은 순</p>${rankList(data, '곳')}</div></div>
+        <div class="b s5 rail"><div class="relief"><p class="k">많은 순</p>${rankList(data, '곳')}</div></div>
         <div class="b s12 top"><p class="deck">${read}</p>
           <p class="src9">각도가 비율이고, 정확한 값은 오른쪽 숫자가 책임집니다. 조각은 5위까지 진한 순서, 그 아래는 한 톤입니다.
           ${near ? `<br>가까운 곳 — ${near}` : ''}
@@ -1885,10 +2149,10 @@ svg.trend.rib path.now{stroke:var(--sub)}
     return `<div class="b s7 top"><p class="k">${esc(h.where)} ${esc(h.kind||'일반음식점')} — 얼마나 자주 바뀌는 동네인가</p>
         <div class="two" style="margin-top:10px;padding-top:0;border-top:0;gap:22px">
           <div><div class="k">최근 ${esc(h.years)}년 새로 연 곳</div>
-            <div class="v" style="font-size:58px" data-n="${newly}">${esc(num(newly))}</div>
+            <div class="v" style="font-size:58px" data-sk="1" data-sk-wait="1" data-n="${newly}">${esc(num(newly))}</div>
             <div class="lead-ref">곳 · 영업 중 ${esc(num(active,'곳'))}의 ${pc.toFixed(1)}%</div></div>
           <div><div class="k">폐업으로 기록된 곳</div>
-            <div class="v" style="font-size:58px" data-n="${closed}">${esc(num(closed))}</div>
+            <div class="v" style="font-size:58px" data-sk="1" data-sk-wait="1" data-n="${closed}">${esc(num(closed))}</div>
             <div class="lead-ref">곳 · 자료에 쌓인 누계</div></div>
         </div>
         <p class="src9">행정동이 아니라 <b>주소에 ‘${esc(h.where)}’가 들어간 곳</b>을 센 값이라, 위의 반경 ${dist(R)} 숫자와 기준이 다릅니다. 같이 놓고 비교하지 마세요.</p></div>
@@ -1951,7 +2215,7 @@ svg.trend.rib path.now{stroke:var(--sub)}
     const row = (list, withDate) => (list||[]).map(r =>
       `<li>${withDate?`<span class="d">${esc(r.date||'')}</span>`:'<span class="d"></span>'}<span>${otherTag(r)}${linkText(r.link, r.title)}${r.cafe?`<span class="by">${esc(r.cafe)}</span>`:''}</span></li>`).join('');
     const others = blog ? (blog.recent||[]).filter(r=>r.otherBranch) : [];
-    const stat = (k, v, ref, hot) => `<div class="b s4"><div class="stat row"><div class="k">${k}</div><div class="v${hot?' hot':''}"${has(v)&&/^\d+$/.test(String(v))?` data-n="${v}"`:''}>${has(v)?esc(num(v)):'—'}</div><div class="lead-ref">${ref}</div></div></div>`;
+    const stat = (k, v, ref, hot) => `<div class="b s4"><div class="stat row"><div class="k">${k}</div><div class="v sk${hot?' hot':''}"${has(v)&&/^\d+$/.test(String(v))?` data-n="${v}"`:''}>${has(v)?esc(num(v)):'—'}</div><div class="lead-ref">${ref}</div></div></div>`;
     const waitStat = waiting ? (has(waiting.scanned)
       ? stat('웨이팅·대기 언급', waiting.total, `최근 블로그 ${esc(num(waiting.scanned,'건'))} 중`, Number(waiting.total) > 0)
       : stat('‘웨이팅’이 함께 적힌 글', waiting.total, '검색 결과 수', Number(waiting.total) > 0)) : '';
@@ -1982,7 +2246,7 @@ svg.trend.rib path.now{stroke:var(--sub)}
         : x.filter ? `최근 ${x.filter.fetched}건 중 제목에 동네 이름(‘${x.filter.word}’)과 상권 관련 말이 함께 있는 기사가 없습니다` : '기사가 없습니다';
       const kept = x.filter && x.filter.kind === 'brand' && x.filter.kept ? `최근 ${x.filter.fetched}건 중 구·동 이름이 있는 ${x.filter.kept}건` : x.filter && x.filter.kind !== 'brand' && has(x.filter.fetched) ? `최근 ${x.filter.fetched}건 중 동네 이름·상권 말이 있는 ${(x.recent||[]).length}건` : '';
       return `<div class="b s6${i ? ' rail' : ''}"><div class="stat row"><div class="k">${esc(NEWS_LABEL[x.key]||x.key)} ‘${esc(x.q)}’</div>
-        <div class="v" data-n="${Number(x.total)||0}">${esc(num(x.total))}</div><div class="lead-ref">건 · 검색 결과 수${kept ? ` · ${esc(kept)}` : ''}</div></div>
+        <div class="v sk" data-n="${Number(x.total)||0}">${esc(num(x.total))}</div><div class="lead-ref">건 · 검색 결과 수${kept ? ` · ${esc(kept)}` : ''}</div></div>
         <ul class="recent" style="margin-top:18px">${list || `<li><span class="d"></span><span style="color:var(--faint)">${esc(empty)}</span></li>`}</ul></div>`;
     }).join('');
     return { html: `<div class="mz">${blocks}<div class="b s12"><p class="src9">${esc(m.data.note||'')}</p></div></div>`, meta: srcText(m).toUpperCase() };
@@ -2031,14 +2295,14 @@ svg.trend.rib path.now{stroke:var(--sub)}
     let liveN = '', liveE = '';
     if (notices.ok){
       const items = notices.data.items || [];
-      liveN = `<div class="stat row"><div class="k">지금 접수 중인 공고</div><div class="v" data-n="${items.length}">${esc(num(items.length))}</div><div class="lead-ref">건 · ${esc(notices.data.sido||'')} 기준</div></div>
+      liveN = `<div class="stat row"><div class="k">지금 접수 중인 공고</div><div class="v sk" data-n="${items.length}">${esc(num(items.length))}</div><div class="lead-ref">건 · ${esc(notices.data.sido||'')} 기준</div></div>
         <ul class="recent" style="margin-top:14px">${items.length ? items.map(x => `<li><span class="d"></span><span>${linkText(x.link,x.title)}<span class="by">${esc([x.org,x.target?`대상 ${x.target}`:'',x.period,x.contact].filter(Boolean).join(' · '))}</span></span></li>`).join('')
           : '<li><span class="d"></span><span style="color:var(--faint)">해당되는 공고가 없습니다</span></li>'}</ul>
         ${notices.data.excluded && notices.data.excluded.special ? `<p class="src9">대상이 정해진 공고(청년·여성·제조업 등)와 다른 구·군 공고 ${esc(num(notices.data.excluded.special,'건'))}은 뺐습니다${(notices.data.excluded.titles||[]).length ? ` — ${esc(notices.data.excluded.titles.slice(0,3).join(' / '))}` : ''}</p>` : ''}`;
     }
     if (events.ok){
       const items = events.data.items || [];
-      liveE = `<div class="stat row"><div class="k">갈 만한 교육·행사</div><div class="v" data-n="${items.length}">${esc(num(items.length))}</div><div class="lead-ref">건</div></div>
+      liveE = `<div class="stat row"><div class="k">갈 만한 교육·행사</div><div class="v sk" data-n="${items.length}">${esc(num(items.length))}</div><div class="lead-ref">건</div></div>
         <ul class="recent" style="margin-top:14px">${items.length ? items.map(x => `<li><span class="d"></span><span>${linkText(x.link,x.title)}<span class="by">${esc([x.kind,x.org,x.period?`행사 ${x.period}`:'',x.apply?`접수 ${x.apply}`:''].filter(Boolean).join(' · '))}</span></span></li>`).join('')
           : '<li><span class="d"></span><span style="color:var(--faint)">지금은 이 지역에 해당되는 행사가 없습니다</span></li>'}</ul>`;
     }
@@ -2217,10 +2481,10 @@ svg.trend.rib path.now{stroke:var(--sub)}
       const bigBadge = Q.big ? ` ${badge('warn','실측 필요')}` : '';
       est = `<div class="mz">
         <div class="b s6"><div class="k">하이오더 대수 ${Q.how === 'typed' ? '(실측 기준)' : '(추정)'}${bigBadge}</div>
-          <div class="v" style="font-size:54px" data-r="${E.devices[0]}~${E.devices[1]}" data-d="0">${esc(rngN(E.devices,''))}</div>
+          <div class="v" style="font-size:54px" data-sk="1" data-sk-wait="1" data-r="${E.devices[0]}~${E.devices[1]}" data-d="0">${esc(rngN(E.devices,''))}</div>
           <div class="lead-ref">대 · 테이블 ${esc(rngN(E.tables,'개'))} + 알림판 ${QUOTE.notice}대${Q.big ? ' · 100평 넘는 매장은 뷔페바·대기 공간이 커 추정 오차가 큽니다' : ''}</div></div>
         <div class="b s6 rail"><div class="k">월 이용료 <span class="tiny">(VAT 별도)</span></div>
-          <div class="v" style="font-size:54px" data-r="${man(E.monthly[0])}~${man(E.monthly[1])}" data-d="${String(man(E.monthly[0])).includes('.') || String(man(E.monthly[1])).includes('.') ? 1 : 0}">${esc(manR(E.monthly))}</div>
+          <div class="v" style="font-size:54px" data-sk="1" data-sk-wait="1" data-r="${man(E.monthly[0])}~${man(E.monthly[1])}" data-d="${String(man(E.monthly[0])).includes('.') || String(man(E.monthly[1])).includes('.') ? 1 : 0}">${esc(manR(E.monthly))}</div>
           <div class="lead-ref">만 원 · VAT 포함 ${esc(manR(E.monthly.map(v => v*QUOTE.vat)))}만 원</div></div>
         <div class="b s7 top">${pills}</div>
         <div class="b s5 top rail"><p class="k">한 달 비용의 크기</p><p class="deck md" style="margin-top:8px">${readCmp}</p>
@@ -2646,7 +2910,7 @@ svg.trend.rib path.now{stroke:var(--sub)}
     const total = d.counted || 0;
     const headline = has(place.rating) ? place.rating : d.ratingAvg;
     const lead = `<div class="k">${has(place.rating)?'플레이스 평점':'별점 평균'}</div>
-      <div class="lead-n" data-rule="hb,vr">${esc(has(headline)?headline:'—')}</div>
+      <div class="lead-n" data-sk="1" data-sk-wide="1"${has(headline) ? ` data-n="${Number(headline)}" data-d="${String(headline).includes('.') ? String(headline).split('.')[1].length : 0}" data-sk-wait="1"` : ''}>${esc(has(headline)?headline:'—')}</div>
       <div class="lead-ref">분석한 리뷰 ${esc(num(total,'건'))}${has(place.total)?` / 전체 ${esc(num(place.total,'건'))}`:''}${place.url?` · <a href="${esc(place.url)}" target="_blank" rel="noopener noreferrer">플레이스 열기</a>`:''}</div>`;
 
     /* 리뷰가 쌓이는 속도 (v3.00 · v3.10 하한) — 가져온 글이 전부 기간 안이면 ≥로 적고, 월 건수는 실제 덮은 기간으로 나눈다. 답글 비율은 사장님이 리뷰를 보는지의 신호 */
@@ -2659,13 +2923,13 @@ svg.trend.rib path.now{stroke:var(--sub)}
       const fast = Number(pm) >= 20;
       rail = `<div class="stats">
         <div class="stat"><div class="k">최근 12개월 리뷰</div>
-          <div class="v"${V.capped ? '' : ` data-n="${Number(V.last12)}"`}>${V.capped ? '≥ ' : ''}${esc(num(V.last12))}</div>
+          <div class="v sk"${V.capped ? '' : ` data-n="${Number(V.last12)}"`}>${V.capped ? '≥ ' : ''}${esc(num(V.last12))}</div>
           <div class="lead-ref">${V.capped ? `건 이상 · 가져온 ${esc(num(V.dated,'건'))}이 모두 최근 ${esc(V.spanMonths)}개월 안 → 월 약 ${esc(num(Math.round(pm),'건'))}` : `건 · 월 ${esc(pm)}건 · 최근 3개월 ${esc(num(V.last3,'건'))}`}</div></div>
         <div class="stat"><div class="k">업력 대비 전체 리뷰</div>
-          <div class="v"${perYear !== null ? ` data-n="${perYear}"` : ''}>${perYear !== null ? esc(num(perYear)) : '—'}</div>
+          <div class="v sk"${perYear !== null ? ` data-n="${perYear}"` : ''}>${perYear !== null ? esc(num(perYear)) : '—'}</div>
           <div class="lead-ref">${perYear !== null ? `건/년 · 업력 ${esc(ageText(lic))} · 전체 ${esc(num(place.total,'건'))}` : '인허가일 또는 전체 리뷰 수가 없어 계산하지 않음'}</div></div>
         ${has(V.replyRate) ? `<div class="stat"><div class="k">사장님 답글</div>
-          <div class="v" data-n="${Number(V.replyRate)}">${esc(V.replyRate)}</div>
+          <div class="v sk" data-n="${Number(V.replyRate)}">${esc(V.replyRate)}</div>
           <div class="lead-ref">% · 가져온 ${esc(num(V.dated,'건'))} 중 ${esc(num(V.replied,'건'))}에 답글</div></div>` : ''}
       </div>`;
       readV = fast
@@ -2931,46 +3195,85 @@ svg.trend.rib path.now{stroke:var(--sub)}
   }
   function kick(){ if(!_run){ _run=true; requestAnimationFrame(tick); } }
 
-  /* 숫자 카운트업 — data-n 하나짜리도, data-r "18~25" 범위도 굴린다. 끝값은 원래 글자를 그대로 되돌린다 */
-  function countUp(e){
-    if (e.dataset.final) return;                                   // 이미 굴렸다
-    const dec = +(e.dataset.d||0), t0 = performance.now();
+  /* 숫자 카운트업 — data-n 하나짜리도, data-r "18~25"·"238~47" 여러 값도 굴린다.
+     스케치 숫자는 장이 보이는 순간 칸(밑선·모서리 ✕)을 먼저 긋고 비워 둔 뒤, 제 차례가 오면
+     그 안에서 글자만 바뀐다. 자로 칸을 잡고 숫자를 채워 넣는 순서다. */
+  const _cnt = new WeakMap();
+  function prep(e){
+    if (_cnt.has(e)) return _cnt.get(e);
     const R = e.dataset.r ? e.dataset.r.split('~').map(Number) : [parseFloat(e.dataset.n)];
-    if (R.some(v => !Number.isFinite(v))) return;
-    const final = e.textContent; e.dataset.final = final;
-    const fmt = (x) => x.toLocaleString('ko-KR',{minimumFractionDigits:dec,maximumFractionDigits:dec});
+    if (R.some(v => !Number.isFinite(v))) return null;             // 굴릴 수 없는 값은 건드리지 않는다
+    const final = e.textContent.trim();
+    e.dataset.final = final;
+    let put = (v) => { e.textContent = v; }, every = 0;
+    if (e.dataset.sk){
+      /* 스케치 한 벌을 다시 그리는 데 필터가 돈다. 60번/초로 갈면 한 장에서 네 칸이 겹칠 때 프레임이 밀린다
+         — 숫자는 초당 22번만 바꾼다(그 속도면 이미 읽을 수 없이 빠르다). */
+      const live = SK.paintLive(e, final);
+      if (live){ put = live; every = 45; }
+      e.dataset.skWait = '0';                                      // 그리지 못했더라도 다시 집어 들지 않게
+    }
+    const st = { R, final, put, every, dec:+(e.dataset.d||0), sep:e.dataset.sep||'~', run:false };
+    _cnt.set(e, st);
+    return st;
+  }
+  /* 칸만 긋고 비워 둔다 — 제 차례를 기다리는 동안 혼자 완성된 숫자로 서 있지 않게 */
+  function prime(e){ const st = prep(e); if (st && st.every) st.put('', false); }
+  function countUp(e){
+    const st = prep(e);
+    if (!st || st.run) return;
+    st.run = true;
+    const t0 = performance.now(); let _last = -1e9;
+    const fmt = (x) => x.toLocaleString('ko-KR',{minimumFractionDigits:st.dec,maximumFractionDigits:st.dec});
     (function step(t){
       const k = Math.min((t-t0)/2800, 1), q = 1-Math.pow(1-k,4);
-      e.textContent = k >= 1 ? final : R.map(v => fmt(v*q)).join('~');
+      if (k >= 1) st.put(st.final, true);
+      else if (t - _last >= st.every){ _last = t; st.put(st.R.map(v => fmt(v*q)).join(st.sep), false); }
       if (k<1) requestAnimationFrame(step);
     })(t0);
   }
-  function finishCounts(){ $$('[data-final]').forEach(e => { e.textContent = e.dataset.final; }); }
+  function finishCounts(){
+    $$('[data-final]').forEach(e => {
+      const t = e.querySelector('svg.skv text');                   // 스케치는 안쪽 글자만 되돌린다
+      if (t) t.textContent = e.dataset.final; else e.textContent = e.dataset.final;
+    });
+  }
   function fire(sec){
     sec.classList.add('on');
-    if (MOTION==='fast' || reduce || sec.classList.contains('static')) return;
-    sec.querySelectorAll('[data-n],[data-r]').forEach((n,i) => setTimeout(() => countUp(n), 400 + i*300));
+    if (MOTION==='fast' || reduce || sec.classList.contains('static')){
+      sec.querySelectorAll('[data-sk-wait="1"]').forEach(n => SK.paintOne(n));
+      return;
+    }
+    run(sec, [...sec.querySelectorAll('[data-n],[data-r]')], 400);
+  }
+  function run(sec, nums, lead){
+    nums.forEach(prime);                                           // 칸을 먼저 전부 긋고
+    nums.forEach((n,i) => setTimeout(() => countUp(n), lead + i*300));   // 하나씩 채워 넣는다
+  }
+  /* 리뷰가 도착하면 5·6·12장은 다시 그려진다. 그 장은 이미 한 번 나타났다고 표시돼 있어
+     관찰자가 다시 부르지 않으므로, 새로 생긴 숫자는 여기서 챙긴다(없으면 평범한 글자로 남는다). */
+  function catchUp(){
+    $$('.sec.on').forEach((sec) => {
+      const pend = [...sec.querySelectorAll('[data-sk-wait="1"]')];
+      if (!pend.length) return;
+      if (MOTION==='fast' || reduce || sec.classList.contains('static')){ pend.forEach(n => SK.paintOne(n)); return; }
+      const nums = [], rest = [];
+      pend.forEach(n => (n.dataset.n != null || n.dataset.r != null ? nums : rest).push(n));
+      rest.forEach(n => SK.paintOne(n));
+      run(sec, nums, 200);
+    });
   }
   /* 장이 화면 아래 140px 안쪽까지 들어와야 시작한다 — 가장자리에서 시작하면 보기 전에 끝난다 */
   const io = new IntersectionObserver((es) => es.forEach((e) => {
     if (e.isIntersecting){ fire(e.target); io.unobserve(e.target); } }), { threshold:.2, rootMargin:'0px 0px -140px 0px' });
 
-  /* 상호가 길면 히어로가 칼럼을 넘는다 — 들어갈 때까지 줄인다 */
-  function fitHero(){
-    $$('#report .nm').forEach((n) => {
-      n.style.fontSize = '';
-      const max = n.parentElement.clientWidth || 590;
-      let size = 76;
-      n.style.whiteSpace = 'nowrap';
-      while (size > 30 && n.scrollWidth > max){ size -= 2; n.style.fontSize = size + 'px'; }
-      if (n.scrollWidth > max){ n.style.whiteSpace = 'normal'; n.style.fontSize = '46px'; }
-    });
-  }
+  /* 상호를 글자 크기로 줄이던 fitHero는 뺐다 — SVG 스케치가 칼럼 폭에 맞춰 스스로 줄어든다 */
 
   /* 내용이 바뀌면 다시 재고 다시 붙인다 */
   let _rt = 0;
   function refresh(){
-    fitHero();
+    _drawing = true;              // paintAll이 DOM을 건드려 관찰자를 다시 깨우지 않게 (drawRules가 끝나며 풀어 준다)
+    SK.paintAll();
     fitBg();
     drawRules();
     buildScrub();
@@ -2978,6 +3281,7 @@ svg.trend.rib path.now{stroke:var(--sub)}
       if (s.classList.contains('static')){ s.classList.add('on'); return; }
       if (!s.dataset.obs){ s.dataset.obs='1'; io.observe(s); }
     });
+    catchUp();
     paint(_sy);
   }
   function scheduleRefresh(){ clearTimeout(_rt); _rt = setTimeout(refresh, 90); }
@@ -3004,6 +3308,7 @@ svg.trend.rib path.now{stroke:var(--sub)}
   addEventListener('beforeprint', () => {
     $$('.acc.pshow:not([open])').forEach(d => { d.open = true; _pshow.push(d); });
     finishCounts();
+    $$('[data-sk-wait="1"]').forEach(n => SK.paintOne(n));   // 굴러가던 중에 인쇄를 눌러도 빠지지 않게
     SCRUB.forEach(o => { o.el.style.transform='none'; });
     $$('.sec').forEach(s => s.classList.add('on'));
     drawRules();
