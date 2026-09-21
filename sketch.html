@@ -982,6 +982,15 @@ svg.trend.rib path.now{stroke:var(--sub)}
 
 /* 숫자가 굴러가는 동안은 덧그은 겹을 쉬게 한다 — 필터가 절반으로 준다 */
 .skv[data-roll="1"] .skx{display:none}
+
+/* 오늘 남은 수집 횟수 */
+.usage{margin:6px 0 0;font-size:12.5px;letter-spacing:-.01em;color:var(--dim,#6E6E73)}
+.usage:empty{display:none}
+.usage::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;
+  background:#2FA36B;margin-right:7px;vertical-align:1px}
+.usage.low{color:var(--accent,#EC3013);font-weight:600}
+.usage.low::before{background:currentColor}
+@media print{.usage{display:none}}
 </style></head>
 <body>
 <div class="modal" id="login">
@@ -994,6 +1003,19 @@ svg.trend.rib path.now{stroke:var(--sub)}
     </form>
     <p class="msg" id="authMsg" role="status" aria-live="polite"></p>
     <div class="chips" id="keyChips" aria-label="중계 서버 키 상태"></div>
+  </div>
+</div>
+
+<div class="modal done" id="rvLogin">
+  <div class="mcard">
+    <div class="mname">리뷰 가져오기</div>
+    <div class="mtag">네이버 플레이스 리뷰는 <em>돈이 나가는</em> 수집입니다 · 매장당 약 $0.20</div>
+    <form class="mform" id="rvForm" autocomplete="off">
+      <input id="rvPassInput" type="password" placeholder="리뷰 비밀번호" aria-label="리뷰 비밀번호" required>
+      <button class="tbtn" id="rvPassBtn" type="submit">확인</button>
+    </form>
+    <p class="msg" id="rvPassMsg" role="status" aria-live="polite">한 번 넣으면 이 컴퓨터에서는 다시 묻지 않습니다.</p>
+    <p class="msg"><button type="button" id="rvCancel" style="background:none;border:0;padding:0;color:inherit;text-decoration:underline;cursor:pointer;font:inherit">닫기</button></p>
   </div>
 </div>
 
@@ -1030,6 +1052,7 @@ svg.trend.rib path.now{stroke:var(--sub)}
   </section>
 
   <p class="msg" id="connMsg"></p>
+  <p class="usage" id="usageNote" role="status" aria-live="polite"></p>
   <p class="msg" id="searchMsg" role="status" aria-live="polite"></p>
   <ul class="cands" id="cands"></ul>
   <div class="prog" id="prog" role="status" aria-live="polite" hidden>
@@ -1050,8 +1073,12 @@ svg.trend.rib path.now{stroke:var(--sub)}
 
   // ▼ 배포 후 Cloudflare Worker 주소로 바꾸세요 (끝에 / 없이)
   const API_BASE = 'https://kt.roi0925003.workers.dev';
-  const PAGE_VERSION = 'v3.10';
-  const WORKER_VERSION = 'v1.28';   // 이 페이지와 짝이 되는 worker.js 버전
+  const PAGE_VERSION = 'v3.11';
+  const WORKER_VERSION = 'v1.29';   // 이 페이지와 짝이 되는 worker.js 버전
+  /* 직원 공개용 토큰 — 비밀번호가 아닙니다. 소스 보기로 누구나 볼 수 있습니다.
+     중계 서버의 PUBLIC_PASS와 같은 값이어야 하고, 남이 긁는 게 보이면
+     양쪽을 같이 바꿔서 다시 올리면 됩니다. 리뷰는 이 토큰으로 부를 수 없습니다. */
+  const PUBLIC_PASS = 'sk-bbwkqqcpjx4yty';
   // 'show' = 발표 모드(느리고 우아한 연출) / 'fast' = 업무 모드(0.4초, 카운트업 없음)
   const MOTION = 'show';
   document.documentElement.dataset.motion = MOTION;
@@ -1068,8 +1095,12 @@ svg.trend.rib path.now{stroke:var(--sub)}
     login: $('#login'), connMsg: $('#connMsg'),
     acts: $('#acts'), txtBtn: $('#txtBtn'), printBtn: $('#printBtn'), copyMsg: $('#copyMsg'),
   };
-  const state = { pass:'', search:null, bundle:null, busy:false, reviews:null, apifyUsage:null,
+  const state = { pass:'', rvPass:'', usage:null, apiCalls:null, search:null, bundle:null, busy:false, reviews:null, apifyUsage:null,
     reviewOpts:{ kakao:false, google:false }, kwTrend:null, kwTrendPending:'' };
+
+  /* 리뷰 비밀번호는 이 브라우저에만 남는다 — 한 번 넣으면 그 PC에서는 다시 묻지 않는다 */
+  const RVKEY = 'sketch.rv.pass';
+  try { state.rvPass = (localStorage.getItem(RVKEY) || '').trim(); } catch (_) { state.rvPass = ''; }
 
   const RV_LABEL = { naver:'네이버', kakao:'카카오', google:'구글', place:'플레이스 정보' };
   const KEY_LABEL = { kakao:'카카오', naver:'네이버', dataGoKr:'공공데이터포털', sgis:'SGIS',
@@ -1139,7 +1170,10 @@ svg.trend.rib path.now{stroke:var(--sub)}
     try {
       res = await fetch(API_BASE + path, {
         method,
-        headers: Object.assign({ 'X-Team-Pass': state.pass }, body ? { 'Content-Type': 'application/json' } : {}),
+        headers: Object.assign(
+          { 'X-Team-Pass': state.pass },
+          (state.rvPass && path.indexOf('/reviews') === 0) ? { 'X-Review-Pass': state.rvPass } : {},
+          body ? { 'Content-Type': 'application/json' } : {}),
         body: body ? JSON.stringify(body) : undefined,
         signal: ctrl.signal,
         cache: 'no-store',
@@ -1158,6 +1192,7 @@ svg.trend.rib path.now{stroke:var(--sub)}
       const detail = data && data.detail ? ` — ${data.detail}` : '';
       const err = new Error(`${base}${detail}`);
       err.status = res.status;
+      if (data && data.needReviewPass) err.needReviewPass = true;
       throw err;
     }
     return data;
@@ -3011,6 +3046,7 @@ svg.trend.rib path.now{stroke:var(--sub)}
   const PLACE_EXTRA_POLLS = 8;               // 리뷰가 먼저 끝나면 기본정보를 5초 × 8 = 40초까지만 더 기다린다
   async function fetchReviews(){
     if (!state.bundle || (state.reviews && state.reviews.running)) return;
+    if (!(await ensureReviewPass())) return;
     const urlInput = $('#rvUrl');
     const placeUrl = urlInput ? urlInput.value.trim() : '';
     const g = $('#rvGoogle');
@@ -3062,7 +3098,16 @@ svg.trend.rib path.now{stroke:var(--sub)}
     } catch (err) {
       state.reviews = { running:false, error: err && err.message ? err.message : String(err) };
       paintReviews();
-      if (err && err.status === 401) lockAuth('비밀번호가 바뀌었거나 맞지 않습니다. 다시 연결해 주세요.');
+      if (err && err.status === 401) {
+        if (err.needReviewPass) {
+          state.rvPass = '';
+          try { localStorage.removeItem(RVKEY); } catch (_) {}
+          state.reviews = { running:false, error:'리뷰 비밀번호가 맞지 않습니다. 「리뷰 가져오기」를 다시 눌러 주세요.' };
+          paintReviews();
+        } else {
+          lockAuth('연결이 끊겼습니다. 팀 비밀번호로 다시 연결해 주세요.');
+        }
+      }
     }
   }
 
@@ -3841,13 +3886,89 @@ svg.trend.rib path.now{stroke:var(--sub)}
       const mismatch = s.version !== WORKER_VERSION;
       const verNote = mismatch ? ` · 이 페이지(${PAGE_VERSION})는 worker.js ${WORKER_VERSION}와 짝입니다. worker.js를 ${WORKER_VERSION}로 올려야 모든 항목이 나옵니다` : '';
       setMsg(el.authMsg, '');
-      setMsg(el.connMsg, `연결됨 · 중계 서버 ${s.version || '버전 모름'}${missing ? ` · 키 ${missing}곳이 비어 있어 해당 항목은 빠집니다 (공공데이터포털은 키가 있어도 데이터셋별로 활용신청이 따로입니다)` : ''}${verNote}`, mismatch ? 'warn' : '');
+      state.usage = s.usage || null;
+      paintUsage();
+      setMsg(el.connMsg, `연결됨 · 중계 서버 ${s.version || '버전 모름'}${usageText(s.usage)}${missing ? ` · 키 ${missing}곳이 비어 있어 해당 항목은 빠집니다 (공공데이터포털은 키가 있어도 데이터셋별로 활용신청이 따로입니다)` : ''}${verNote}`, mismatch ? 'warn' : '');
       el.login.classList.add('done');          // 팝업은 처음 한 번만
       setBusy(false);
       el.searchSet.disabled = false;
       setTimeout(() => el.q.focus(), 420);
-    } catch (err) { state.pass=''; setBusy(false); showError(err, el.authMsg); }
+    } catch (err) {
+      state.pass = ''; setBusy(false);
+      const _lg = document.getElementById('login'); if (_lg) _lg.classList.remove('done');
+      const wasAuto = (pass === PUBLIC_PASS);
+      if (wasAuto) { el.pass.value = ''; el.pass.focus(); }
+      showError(err, el.authMsg);
+    }
   });
+
+  /* 1-b. 자동 연결 — 직원은 비밀번호를 넣지 않는다.
+     페이지에 적어 둔 공개 토큰으로 바로 연결하고, 실패하면 팝업이 열려
+     팀 비밀번호로 직접 들어갈 수 있다. */
+  (function autoConnect(){
+    if (!configured || !PUBLIC_PASS) return;
+    const lg = document.getElementById('login');
+    if (lg) lg.classList.add('done');          // 팝업이 깜빡이지 않게 먼저 숨긴다
+    el.pass.value = PUBLIC_PASS;
+    setTimeout(() => {
+      if (el.authForm.requestSubmit) el.authForm.requestSubmit();
+      else el.authForm.dispatchEvent(new Event('submit', { cancelable:true }));
+    }, 40);
+  })();
+
+  /* 오늘 남은 횟수 — 중계 서버가 KV로 세고 있을 때만 나온다 */
+  function usageText(u){
+    if (!u) return ' · 한도 셈 꺼짐(중계 서버에 KV 미연결)';
+    const c = u.collect || {};
+    const left = Math.max(0, (c.limit || 0) - (c.used || 0));
+    let t = ` · 오늘 남은 수집 ${left}회 / ${c.limit || 0}`;
+    if (u.reviews) {
+      const rvLeft = Math.max(0, (u.reviews.limit || 0) - (u.reviews.used || 0));
+      t += ` · 리뷰 ${rvLeft}회 남음`;
+    }
+    return t;
+  }
+  function paintUsage(){
+    const node = document.getElementById('usageNote');
+    if (!node) return;
+    const u = state.usage;
+    if (!u) { node.textContent = ''; return; }
+    const c = u.collect || {};
+    const left = Math.max(0, (c.limit || 0) - (c.used || 0));
+    let t = `오늘 남은 수집 ${left}회 / ${c.limit || 0}`;
+    const calls = state.apiCalls;
+    if (calls && calls.byHost) {
+      const gov = calls.byHost['apis.data.go.kr'] || 0;
+      if (gov) t += ` · 방금 수집에 공공데이터포털 ${gov}건 (하루 한도는 data.go.kr 마이페이지에서 확인)`;
+    }
+    node.textContent = t;
+    node.classList.toggle('low', left <= 20);
+  }
+
+  /* 리뷰 비밀번호를 한 번 받아 둔다 — 없으면 팝업, 닫으면 수집을 하지 않는다 */
+  function ensureReviewPass(){
+    if (state.rvPass) return Promise.resolve(true);
+    const m = document.getElementById('rvLogin');
+    if (!m) return Promise.resolve(true);
+    const f = document.getElementById('rvForm');
+    const inp = document.getElementById('rvPassInput');
+    const cancel = document.getElementById('rvCancel');
+    return new Promise((resolve) => {
+      const close = (ok) => { m.classList.add('done'); f.onsubmit = null; cancel.onclick = null; resolve(ok); };
+      inp.value = '';
+      m.classList.remove('done');
+      setTimeout(() => inp.focus(), 80);
+      f.onsubmit = (e) => {
+        e.preventDefault();
+        const v = inp.value.trim();
+        if (!v) return;
+        state.rvPass = v;
+        try { localStorage.setItem(RVKEY, v); } catch (_) {}
+        close(true);
+      };
+      cancel.onclick = () => close(false);
+    });
+  }
 
   /* 2. 검색 */
   el.searchForm.addEventListener('submit', async (e) => {
@@ -3908,6 +4029,11 @@ svg.trend.rib path.now{stroke:var(--sub)}
         timeout: 90000,
       });
       state.bundle = bundle; state.kwTrend = null; state.kwTrendPending = '';
+      state.apiCalls = bundle.apiCalls || null;
+      if (bundle.usage && bundle.usage.collect) {
+        state.usage = Object.assign({}, state.usage || {}, { collect: bundle.usage.collect });
+      }
+      paintUsage();
       el.result.innerHTML = renderReport(bundle);
       paintReviews();                    // 리뷰 칸은 비어 있어도 버튼은 나와야 한다
       fetchKwTrend();                    // 10장 후보 5개의 검색 추이 — 후보가 정해진 뒤에만 부를 수 있다
