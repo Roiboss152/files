@@ -260,6 +260,18 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
 
 /* 후보 목록 */
 .cands{list-style:none;margin:21px 0 0;padding:0}
+/* v3.20 최근 수집 · 불러오기 · 진행 세 칸 */
+.recent{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:12px;font-size:12.5px;color:var(--dim,#6E6E73)}
+.recent[hidden]{display:none}
+.recent button{font:inherit;font-size:12.5px;padding:4px 10px;border:1px solid var(--line);border-radius:999px;background:var(--paper);color:var(--ink)}
+.recent button.load{border-style:dashed;color:var(--dim,#6E6E73)}
+.recent button:hover{border-color:var(--ink)}
+body.dropping::after{content:'묶음(.json)을 놓으면 그 매장이 열립니다';position:fixed;inset:14px;border:2px dashed var(--accent);border-radius:16px;display:grid;place-items:center;font-size:18px;font-weight:700;color:var(--accent);background:rgba(233,233,236,.86);z-index:70;pointer-events:none}
+.track{display:inline-flex;gap:6px;align-items:center;margin-left:auto;font-size:12.5px;color:var(--dim,#6E6E73)}
+.track button{font:inherit;font-size:12.5px;padding:5px 10px;border:1px solid var(--line);border-radius:999px;background:var(--paper);color:var(--ink)}
+.track button.on{border-color:var(--ink);font-weight:600}
+.track button.diag{border-style:dotted;cursor:default}
+@media print{.recent,.track{display:none!important}}
 .cands:empty{display:none}
 .cand{display:flex;justify-content:space-between;align-items:center;gap:16px;
   padding:16px 0;border-bottom:1px solid var(--line)}
@@ -271,7 +283,15 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
 .cand .pick:hover{background:var(--ink);border-color:var(--ink);color:#fff;transform:translateY(-2px)}
 
 /* 진행 */
-.prog{display:flex;align-items:center;gap:12px;margin-top:21px;font-size:12px;color:var(--sub)}
+.prog{display:flex;align-items:center;gap:18px;margin-top:21px;font-size:12px;color:var(--sub)}
+/* v3.20 수집 진행 — 밑그림이 채워진다. 30장 스프라이트(6×5)를 진행률로 넘긴다 */
+.pfr{flex:none;width:300px;height:188px;background:url(sketch_prog.webp) 0 0/600% 500% no-repeat;mix-blend-mode:multiply}
+.ptx{min-width:0}.psub{margin-top:6px;font-size:11.5px;color:var(--dim,#6E6E73)}
+@media (max-width:560px){.prog{flex-direction:column;align-items:flex-start}.pfr{width:100%;height:auto;aspect-ratio:8/5}}
+.hero{margin:4px 0 22px;max-height:600px;overflow:hidden;transition:max-height .55s ease,opacity .4s ease,margin .55s ease}
+.hero video{display:block;width:100%;height:auto;mix-blend-mode:multiply;background:transparent}
+.hero.away{max-height:0;opacity:0;margin:0}
+@media print{.hero{display:none!important}}
 .prog[hidden]{display:none}
 .spin{width:15px;height:15px;border-radius:50%;border:2px solid var(--line);border-top-color:var(--accent);
   animation:sp .9s linear infinite;flex:none}
@@ -288,6 +308,17 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
 .lead-n{font-size:112px;font-weight:800;letter-spacing:-.05em;line-height:.92;margin-top:6px;
   font-variant-numeric:tabular-nums}
 .lead-read{font-size:17px;font-weight:600;letter-spacing:-.015em;line-height:1.45;margin-top:11px}
+/* v3.20 0장 요약 */
+.sumlead{margin-top:10px}.sumlead b{color:var(--ink)}
+.sumlist{list-style:none;margin:10px 0 0;padding:0}
+.sumlist li{position:relative;padding:9px 0 9px 52px;border-top:1px solid var(--rule,#DCDCE1);font-size:15px;line-height:1.5}
+.sumlist li:first-child{border-top:0}
+.sumlist li>a[data-sec]:not(.sl){position:absolute;left:0;top:11px;font-size:11px;font-weight:700;letter-spacing:.02em;color:var(--accent);text-decoration:none;border:1px solid var(--accent);border-radius:999px;padding:1px 7px;line-height:16px}
+.sumlist li>a[data-sec]:not(.sl):empty{display:none}
+.sumlist li.muted{color:var(--dim,#6E6E73)}
+.sumlist.look li{padding-left:0}
+.sumlist.look a{color:var(--ink);text-decoration:none;font-weight:600;border-bottom:1.5px solid var(--accent)}
+.sumlist.look a:hover{color:var(--accent)}
 .lead-ref{font-size:11px;color:var(--faint);margin-top:8px;font-variant-numeric:tabular-nums}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:34px;margin-top:26px;padding-top:21px;border-top:1px solid var(--line)}
 .two .v{font-size:46px;font-weight:700;letter-spacing:-.04em;line-height:1;margin-top:5px;font-variant-numeric:tabular-nums}
@@ -361,7 +392,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
 .sec.static .bgw{display:none}
 
 @media print{
-  .tool,.chips,.cands,.prog,.acts,.msg,#scrim{display:none!important}
+  .tool,.chips,.cands,.prog,.acts,.msg,.recent,#scrim{display:none!important}
   .acc:not([open]){display:none!important}          /* 접힌 건 인쇄하지 않는다 */
   .acc>summary .ico{display:none}
   .acc[open]>.body{grid-template-rows:1fr}
@@ -983,6 +1014,45 @@ svg.trend.rib path.now{stroke:var(--sub)}
 /* 숫자가 굴러가는 동안은 덧그은 겹을 쉬게 한다 — 필터가 절반으로 준다 */
 .skv[data-roll="1"] .skx{display:none}
 
+/* 1장 지도 — 바탕 타일만 흑백으로 누르고, 매장과 반경 원은 색을 남긴다.
+   상자 전체에 filter를 걸면 그 안의 마커까지 같이 흑백이 되므로 타일만 고른다. */
+.mapwrap{margin-top:42px}
+.mapbox{width:100%;height:460px;background:var(--fill-lo)}
+.mapbox img,
+.mapbox div[style*="background-image"]{filter:grayscale(1) contrast(.9) brightness(1.12) opacity(.72)}
+.mapbox .skpin,.mapbox .skpin.n{filter:none}
+.skpin.n{width:22px;height:22px;border-radius:50%;background:#fff;border:1.6px solid #201E1D;color:#201E1D;
+  font:700 12px/19px "Pretendard Variable",Pretendard,sans-serif;text-align:center;box-shadow:0 1px 4px rgba(32,30,29,.28)}
+.maprow{position:relative}
+.maplines{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible;z-index:3}
+.maplines line{stroke:#201E1D;stroke-width:1;stroke-opacity:.55}
+.maplines circle{fill:#201E1D;fill-opacity:.55}
+.nlist{list-style:none;margin:6px 0 0;padding:0}
+.nlist li{display:flex;align-items:baseline;gap:10px;padding:7px 0;border-bottom:1px solid var(--rule,#DCDCE1);font-size:14px}
+.nlist li:last-child{border-bottom:0}
+.nlist .no{flex:none;width:22px;height:22px;border-radius:50%;border:1.6px solid #201E1D;font-size:12px;font-weight:700;line-height:19px;text-align:center;align-self:center}
+.nlist .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nlist .d{flex:none;font-size:12.5px;color:var(--dim,#6E6E73)}
+.nlist .d.bld{color:var(--accent,#EC3013);font-weight:600}
+.mapbox{cursor:pointer}
+@media print{.maplines{display:none}#skRow .b.s5{grid-column:1/-1;border-left:0;padding-left:0}}
+#skRow .mapbox{height:400px}
+.skpin{width:15px;height:15px;border-radius:50%;background:#EC3013;
+  border:3px solid #fff;box-shadow:0 1px 6px rgba(32,30,29,.45)}
+.mapcap{margin:12px 0 0;font-size:12.5px;letter-spacing:-.01em;color:var(--dim,#6E6E73)}
+@media print{.mapwrap{display:none}}
+@media print{.int{display:none!important}}
+/* ══ v3.20 연필 — 마우스가 있는 환경에서만. 종이 위에서는 연필, 입력칸·버튼은 원래 커서 ══ */
+@media (hover:hover) and (pointer:fine){
+  body{cursor:-webkit-image-set(url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAESElEQVR4nOyXe2xTZRjGn3Pade1gYR3bcM0ujGGQxCwsdJ2JZjELTnGgbO26TYJMWNAYHWSJGhIMxEQ0zKAxyzYNbAwSbEYHBBIxEvGP1YRBOrcYM0CMTXts10sUO+no3fdr1uaAnXajy/zDN2na9zvfOc/vfb5bjxRLHFIscfwP8N8EEATBcvHC+ewNlRvtarX6F6lU6qRm9nHNfo9wHGdHGoJL1tjX2zv1weH3V7HfsowMVFdroNZUo6pKgw2VleNZWVk2ujRIEMNYDIDr165d1zdp1TkrstG+YxsEhwvm8Uncum0FiSInZwWMw+eia8rLX6LcgHQDhEIhw+PrH2ve39mGxq21iXaLzYF973TBanchV5mLM8bhaHFJyUNB8MkaJRLJHQ3Z7nB6Em1O12/Y/cZ7+P0PH768dBmlpWXQN+k4wWY7HY1GW5BOAIqpKs0TME/ciiV2hxutu/cjEuHR3XsccrkCRz/5FCUlq9Gk08YhXkZ6ATSY+OEGrMIUWkg8FOEwNHwehYWr4HS6CSbyIMSJhUDMBXCnoqJiNBAIol6/F7xEhu6eYzQ0UtAKwMqVyqQQDodjkCBeQRoAvlMoFB5lTg5kMhkMQ2ehUj0Cl8sNv98fg8jLy70PomxNOfQ6LQiifz4QSQFoVrN1fvDU6S98BQUFOHTwQAyEiT4IwXIG0fXRxwRZNG8I7p8u0kOq7Xb7N81NumWlq8twpOsogsEQPB4PCgrykZmZiZmZe4mc53l07uuA3S5giJZoYWFhGxVzcsEAIohvCUKxGBD/CjAL8RRBfJ0MIi8vDwqFPAHBcqlUkjJESgAiiMvahm3y8rWPJiDcbjfy8/MTEPE8VQg+VQC62aRSqeqHzhj9P9/+CW+/1YmMDGlMjIkycQYRz0OhcGx1sImpa2zgTCZT0n0iZQdETtTarNZLtA3LxE7MNRw+313oXtyCQMAPAzmxUa2+z4mUHRA5cYUOoAZyIih2gk1AJhp3guUWiwVvvtaOEkkYNdIQWunsGB8bY5vVzgU7IHJiK22/52gHlKxbtx6HPzyCcDgc2xdY5aziV3fthMIloEfuhZyU9ngVuEH/ga6av7+rVCqzqZjovB0QOXGxqLhYS0dy+ObNyZgTdIomKt/TtgMKt4Be+TSW8xwmQhL8GObwZM3TIPF+Jv5QDoiceIGcOMucYHPiwLuH8Hp7G5a7f0W3/E8soxKvBjnsnZajpnYT+gcGjHRbCwGE0wIwC6EjCIO2sUEy4/WijAuS7dMx25l4h1eOZ5+vR09f3wXq3hgXZ7HgIRAHPdBIw9EycGIw4qex54NB8NEoRvw8OqYT4l9RV61YPHYv0hjkxPYxs/lkq1bLr5WEMEnVb6qrw+fHjl+hy5tJPPA3eKQ5GMTo6Oip7c16ru65zaxyEzU/Q+L3kvVPO8AsxC67IHymKioaoXQLifvm6rsoAPOJJX81+wsAAP//qr/GoQAAAAZJREFUAwBLwzkdBBx9KAAAAABJRU5ErkJggg==") 1x,url("data:image/png;base64,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") 2x) 2 2,auto;
+       cursor:image-set(url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAESElEQVR4nOyXe2xTZRjGn3Pade1gYR3bcM0ujGGQxCwsdJ2JZjELTnGgbO26TYJMWNAYHWSJGhIMxEQ0zKAxyzYNbAwSbEYHBBIxEvGP1YRBOrcYM0CMTXts10sUO+no3fdr1uaAnXajy/zDN2na9zvfOc/vfb5bjxRLHFIscfwP8N8EEATBcvHC+ewNlRvtarX6F6lU6qRm9nHNfo9wHGdHGoJL1tjX2zv1weH3V7HfsowMVFdroNZUo6pKgw2VleNZWVk2ujRIEMNYDIDr165d1zdp1TkrstG+YxsEhwvm8Uncum0FiSInZwWMw+eia8rLX6LcgHQDhEIhw+PrH2ve39mGxq21iXaLzYF973TBanchV5mLM8bhaHFJyUNB8MkaJRLJHQ3Z7nB6Em1O12/Y/cZ7+P0PH768dBmlpWXQN+k4wWY7HY1GW5BOAIqpKs0TME/ciiV2hxutu/cjEuHR3XsccrkCRz/5FCUlq9Gk08YhXkZ6ATSY+OEGrMIUWkg8FOEwNHwehYWr4HS6CSbyIMSJhUDMBXCnoqJiNBAIol6/F7xEhu6eYzQ0UtAKwMqVyqQQDodjkCBeQRoAvlMoFB5lTg5kMhkMQ2ehUj0Cl8sNv98fg8jLy70PomxNOfQ6LQiifz4QSQFoVrN1fvDU6S98BQUFOHTwQAyEiT4IwXIG0fXRxwRZNG8I7p8u0kOq7Xb7N81NumWlq8twpOsogsEQPB4PCgrykZmZiZmZe4mc53l07uuA3S5giJZoYWFhGxVzcsEAIohvCUKxGBD/CjAL8RRBfJ0MIi8vDwqFPAHBcqlUkjJESgAiiMvahm3y8rWPJiDcbjfy8/MTEPE8VQg+VQC62aRSqeqHzhj9P9/+CW+/1YmMDGlMjIkycQYRz0OhcGx1sImpa2zgTCZT0n0iZQdETtTarNZLtA3LxE7MNRw+313oXtyCQMAPAzmxUa2+z4mUHRA5cYUOoAZyIih2gk1AJhp3guUWiwVvvtaOEkkYNdIQWunsGB8bY5vVzgU7IHJiK22/52gHlKxbtx6HPzyCcDgc2xdY5aziV3fthMIloEfuhZyU9ngVuEH/ga6av7+rVCqzqZjovB0QOXGxqLhYS0dy+ObNyZgTdIomKt/TtgMKt4Be+TSW8xwmQhL8GObwZM3TIPF+Jv5QDoiceIGcOMucYHPiwLuH8Hp7G5a7f0W3/E8soxKvBjnsnZajpnYT+gcGjHRbCwGE0wIwC6EjCIO2sUEy4/WijAuS7dMx25l4h1eOZ5+vR09f3wXq3hgXZ7HgIRAHPdBIw9EycGIw4qex54NB8NEoRvw8OqYT4l9RV61YPHYv0hjkxPYxs/lkq1bLr5WEMEnVb6qrw+fHjl+hy5tJPPA3eKQ5GMTo6Oip7c16ru65zaxyEzU/Q+L3kvVPO8AsxC67IHymKioaoXQLifvm6rsoAPOJJX81+wsAAP//qr/GoQAAAAZJREFUAwBLwzkdBBx9KAAAAABJRU5ErkJggg==") 1x,url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAH5ElEQVR4nOybWVBTZxTHTwICHSkIKqEsQms7UKDVyq629kGxiA/a6UMf6qhhUZxptToj6FhXrLiLTllDUKcPPtsZ7MB0WmrVqgWduqDWBQIUwhLAjTWh53w3CZdAQi4kJCn8Zz7uzXe/5N7/755z77kLzjDJ5QyTXFMAYJJrCgBMck0BgEmuKQAwyWU2gIGBgWqcuGFTYmvWTvnz/D6VSCQaAAeQkAh4tfmbr0MvlZYGz5//EUTHxEBUVBSburu7G45VI7AWGArmDkI5AnYmkbkD0dDPYaEhy7u6XuM87wdEIggLD4fo6GhYsCAS4uPjYbaPj+HXCUI5tl5sGfidFrATCQFwdu2ar9ZWVFQw07x+7kd4ff7+/rAgMhKhxNBUFR4eToZDtIufYFuCv9EAdiAhKdAUGRUNvyMAvuIiI2DGDA+4eeseqNqfs76GhgbWfrp4kT56e3p6ekskvhAYGAgyuXwu9l1BcAsRwr9gYwkB0BEbGwsU/SLKAdzjq1Z+Cgd2pusHPH6qgJtV1QzGjb/uQueLV6y/s7OTtYcPH8C2rd/C8RMng7D7KkL4BCEowIYSkgLrenp6SiLC3of+vj74IPxd+LEwC8RisbHx8OiJAs4UXICKK1X6PpI0ORl279lLs5QGC20JQSxgbJOrqyt8OG8ei4JZM2cYNU+i40R9vRL++PM2tyIc6+8fwPpL5HI4mHWAuv2Bi4Q5YCMJAdBBf2LwtEcmqm4/MDn4l99uwNZdJ0Gt1oCTkxMUl5wDWfFZCAgIZMtlRUWwf99emrUpBMEA6MhOovx++qx+xIE68xqNBihqikvOQ1hYBMycNQsKi+R6CBQJh7MP0azNIAhKAfoTGxenPw1W/j08Cvjm3dzc4PSZfDxLzMT817DlhhDy8/JsCsFsAGiaIqBn+vTpEBoayvoqb1UPGcM374Q5n5dfBD54+sODJzQ1tdglBCERQOLSIIZLg+tV9/QLLpVfGWK+SI5hHx4Bvr4+4OLiYrcQhALg0iA2jn1obW2HRmUrM799z2l92BfJzwJWf9wKEIY9QxgTALwIatR1HD19npkn0QHv6LEc8PDwhj6sFfQrsWMIY0mBWh+JZCAoKIh1lP96nU25nJdB4JwgPPWp0WSzpSBQ2fw2WElCAZBbOTY/L29vfSeX8+cgPIJyfjaLBAtCCMB22VqRIAgAnglO4qSd5kNCuIs7Km/pSO/n568dI7YohJxTtErrpYPZ1wJ84YZQDe93MCsLigoLWF0QFBQMBbjxXl5e2jEaZo5MUiXo6yuBadMGr73ogElwent7GSyCRvBIba2tkJYqxVK6jn3enpEJ6Zs20SytdzGurwYspLECoJy8hk0iLy6GA/v3sX5TEJydnUEi8bEUBItdQAk9BjDhyp/hJB6bkq7saONItbU1sAE3ur29XTtuMB36+/tBqaR06B9cuYB0OHI4G/Jyc2nWoukwJgAkPgTaM44KYcwASP8HCOMCQHJ0COMGQHJkCBYBQHJUCBYDQBoPBCqa9BslEAKdimEQgqCyeUx1wGji1wm0h2gjSabqBKoPqFiiokknIXXCd7v3sJutwD2FitfujFFl0QjQyTASNm/ZwvpNRQKlQVOTcsyRQMWYNhIk2K6ZGwlWiQCd+JFAFzZU25OsFQl01335Z8uhoLCIFpkVCVYFQJooCNJ1a6CxqZFdlyQkJOBvy2jRqBCskgJ88dMhI3MHbEznniRZMh0ISl9/n/5mbVlZGf52Cs2Omg5WjwCdrBUJfX3dkL4hFW/PtYALPrKZK9ZAtYYbv2xZAhTKTEeC1SNAJ+3KF2FrtFQkKBQ1kJq8jpl3RfM57j1Q6NkDoU7c+PLyIZFAd5aCDLdrwgCQEAI9GicI404HtboHdu/KhI6ODpiG5k+h+WgXDbyBMZ3/ZjcEi7n04KXDW9iyDbdpQgGQtJGwGFszQUhPZ9f4DMLGNCmoVCrtuJEgcKbq6hS456XMvDOaP6Y1r5O7WATZ2KcTQbhUWkqzX2IUuPG3Z8IBkBDCY5zQvXXl9sxMfSTU1BCEZKORQBWjQlELaSkULSq250+g0UU886RmDJZtL131nxNXrGANdQHX3c0faxMAJMNIWC+Vsn5T6VBXV8tyXqVqAyc86R9H8wtHMJ/8wg0aNJw1Mp6bl88WYdthuB02A0DiRwK9L2AKglrdrc95Mn/kTePmG4ebp9tocSPdS5yw06ApaU+Rl7H50yNzempM0p0iX79+CSnS9WzPi9H8UTS/xMB8I5pPM27e6D1EuwBA0l7KXgUDCH5+ftDV1cWigcx/j2G/1HW4eelzN2gZGGa+FpvJ13DsBgDJEIJcXgzsdUus8Oi9pEMjmK9H86nGzY/6IpZdASDxIXzx+SqorOTeLwoUqeEcFjkevKNWrVoEac9doU1rfkVSEvyQyyrMp9g+NuctNLsDQOJDSEpMhPv3ucfw72BxI/PoZhBozyfjnteZX716NZw4lUOzZJ7K3mZz1mWXAEh8CCtxz967e4f1E4SM6b2w86WL3nxiIoZ9Pgv7h8DlvFnmSXYLgGQsEvji7XkyvwjNt4EA2TUAEh/CsqVL4fE/j/TLeOaJzBKh5kl2D4A0EgQD84u17zAJlkMAIPEhyAoLISUtjbrHZZ7kMABICCEYJ2XY3gMORtJ4zJMcCoBOCGI+Gr8NFpBDArCkpv5pCia5/gMAAP//60GDdQAAAAZJREFUAwAIksgDF2sj4wAAAABJRU5ErkJggg==") 2x) 2 2,auto}
+  input,textarea,select{cursor:text} button,a,label,summary,.pick,.abtn,.tbtn,.zoomui *,.cand button{cursor:pointer} select{cursor:pointer}
+}
+#ink{position:absolute;left:0;top:0;pointer-events:none;z-index:35}
+#inkui{position:fixed;left:20px;bottom:20px;z-index:31;display:none;gap:6px}
+#inkui button{font:inherit;font-size:12.5px;padding:7px 11px;border:1px solid #C9C9CE;border-radius:999px;background:#fff;color:var(--ink)}
+@media print{#ink,#inkui{display:none!important}}
+
 /* 오늘 남은 수집 횟수 */
 .usage{margin:6px 0 0;font-size:12.5px;letter-spacing:-.01em;color:var(--dim,#6E6E73)}
 .usage:empty{display:none}
@@ -1029,6 +1099,11 @@ svg.trend.rib path.now{stroke:var(--sub)}
 <main class="page">
   <div id="scrim"></div>
 
+  <!-- v3.20 첫 화면 그림 — 흰 바탕 영상을 페이지 종이 위에 곱한다(mix-blend-mode). 소리 없음, 한 번만, 인쇄 제외 -->
+  <div class="hero" id="hero" aria-hidden="true">
+    <video id="heroVid" muted playsinline preload="auto" poster="sketch_hero.webp"><source src="sketch_hero.mp4" type="video/mp4"></video>
+  </div>
+
   <div class="mast">
     <div>
       <div class="name" data-sk="1" data-sk-wide="1">밑그림</div>
@@ -1046,26 +1121,36 @@ svg.trend.rib path.now{stroke:var(--sub)}
           <select id="radius" aria-label="조사 반경">
             <option value="300">300m</option><option value="500" selected>500m</option><option value="1000">1km</option>
           </select></div>
+        <div class="tf w96"><span class="tl">범위</span>
+          <select id="region" aria-label="검색 범위"><option value="incheon" selected>인천</option><option value="all">전국</option></select></div>
         <button class="tbtn" id="searchBtn" type="submit">검색</button>
       </form>
     </fieldset>
   </section>
+  <div class="recent" id="recent" hidden></div>
+  <input type="file" id="loadFile" accept=".json,application/json" hidden>
 
   <p class="msg" id="connMsg"></p>
   <p class="usage" id="usageNote" role="status" aria-live="polite"></p>
   <p class="msg" id="searchMsg" role="status" aria-live="polite"></p>
   <ul class="cands" id="cands"></ul>
   <div class="prog" id="prog" role="status" aria-live="polite" hidden>
-    <span class="spin" aria-hidden="true"></span><span id="progText">수집 중</span></div>
+    <div class="pfr" id="progFrame" aria-hidden="true"></div>
+    <div class="ptx"><div><span class="spin" aria-hidden="true"></span><span id="progText">수집 중</span></div>
+      <div class="psub" id="progSub"></div></div></div>
 
   <div id="report"></div>
 
   <div class="acts" id="acts" hidden>
     <button class="abtn primary" id="txtBtn" type="button">AI 첨부용 저장 (.txt)</button>
+    <button class="abtn" id="jsonBtn" type="button">묶음 저장 (.json)</button>
     <button class="abtn" id="printBtn" type="button">인쇄</button>
+    <span class="track" id="track" aria-label="이 매장 진행"></span>
   </div>
   <p class="msg" id="copyMsg" role="status" aria-live="polite"></p>
 </main>
+<canvas id="ink" aria-hidden="true"></canvas>
+<div id="inkui" aria-label="연필 표시"><button type="button" id="inkUndo">획 취소</button><button type="button" id="inkClear">지우기</button></div>
 
 <script>
 (() => {
@@ -1073,11 +1158,16 @@ svg.trend.rib path.now{stroke:var(--sub)}
 
   // ▼ 배포 후 Cloudflare Worker 주소로 바꾸세요 (끝에 / 없이)
   const API_BASE = 'https://kt.roi0925003.workers.dev';
-  const PAGE_VERSION = 'v3.11';
-  const WORKER_VERSION = 'v1.29';   // 이 페이지와 짝이 되는 worker.js 버전
+  const PAGE_VERSION = 'v3.20';
+  const WORKER_VERSION = 'v1.30';   // 이 페이지와 짝이 되는 worker.js 버전
   /* 직원 공개용 토큰 — 비밀번호가 아닙니다. 소스 보기로 누구나 볼 수 있습니다.
      중계 서버의 PUBLIC_PASS와 같은 값이어야 하고, 남이 긁는 게 보이면
      양쪽을 같이 바꿔서 다시 올리면 됩니다. 리뷰는 이 토큰으로 부를 수 없습니다. */
+  /* 네이버 지도 Client ID — 네이버 클라우드 콘솔 > AI·NAVER API > Application > 인증 정보.
+     비워 두면 1장에 지도가 그려지지 않습니다(다른 항목은 그대로). 이 값은 페이지 소스에 보이며,
+     Application의 Web 서비스 URL에 등록한 도메인에서만 동작합니다. */
+  const NAVER_MAP_KEY = 'wwyjv4w62s';
+
   const PUBLIC_PASS = 'sk-bbwkqqcpjx4yty';
   // 'show' = 발표 모드(느리고 우아한 연출) / 'fast' = 업무 모드(0.4초, 카운트업 없음)
   const MOTION = 'show';
@@ -1089,9 +1179,9 @@ svg.trend.rib path.now{stroke:var(--sub)}
   const el = {
     tool: $('#tool'), scrim: $('#scrim'),
     authForm: $('#authForm'), pass: $('#pass'), authBtn: $('#authBtn'), authMsg: $('#authMsg'), chips: $('#keyChips'),
-    searchSet: $('#searchSet'), searchForm: $('#searchForm'), q: $('#q'), radius: $('#radius'),
+    searchSet: $('#searchSet'), searchForm: $('#searchForm'), q: $('#q'), radius: $('#radius'), region: $('#region'), recent: $('#recent'), loadFile: $('#loadFile'), jsonBtn: $('#jsonBtn'), track: $('#track'),
     searchMsg: $('#searchMsg'), cands: $('#cands'),
-    prog: $('#prog'), progText: $('#progText'), result: $('#report'),
+    prog: $('#prog'), progText: $('#progText'), progFrame: $('#progFrame'), progSub: $('#progSub'), hero: $('#hero'), heroVid: $('#heroVid'), result: $('#report'),
     login: $('#login'), connMsg: $('#connMsg'),
     acts: $('#acts'), txtBtn: $('#txtBtn'), printBtn: $('#printBtn'), copyMsg: $('#copyMsg'),
   };
@@ -1844,8 +1934,8 @@ svg.trend.rib path.now{stroke:var(--sub)}
         cd && cd.matched ? `소분류 ‘${cd.industry.small}’, 이 매장 제외`
           : cd && cd.fallback ? `소분류 ‘${cd.industry.small}’ — ${cd.fallback.from}으로 대체, 이 매장 포함될 수 있음`
           : comp.ok ? '상가정보에서 매장을 못 찾음' : '수집 안 됨'),
-      kpi('종사자 ÷ 인구', pd && has(pd.workerPerResident) ? String(pd.workerPerResident) : '—',
-        pd ? `${pd.admName} · ${pd.year}년` : '수집 안 됨'),
+      kpi('낮 인구 배율', pd && has(pd.workerPerResident) ? String(pd.workerPerResident) : '—',
+        pd && has(pd.workerPerResident) ? `사는 사람 100명당 일하는 사람 ${Math.round(Number(pd.workerPerResident)*100)}명 · ${dayType(pd.workerPerResident)} · ${pd.year}년` : (pd ? `${pd.admName} · ${pd.year}년` : '수집 안 됨')),
       kpi('블로그 · 카페 언급', od ? `${num(blog && blog.total)} · ${num(cafe && cafe.total)}` : '—',
         od ? '검색 결과 수라 다른 매장 글이 섞일 수 있습니다' : '수집 안 됨'),
       kpi('지금 되는 지원사업', notices.ok ? num((notices.data.items||[]).length) : '—',
@@ -1894,9 +1984,91 @@ svg.trend.rib path.now{stroke:var(--sub)}
       <div class="nm" data-sk="1" data-sk-wide="1">${esc(s.name || '매장')}</div>
       <div class="meta2">${esc([s.category, s.roadAddress || s.address].filter(Boolean).join(' · ') || '—')}</div>
       ${kpis}${photos}${info}
-      ${(b.notes||[]).map(t => `<p class="src9">${esc(t)}</p>`).join('')}
-      <p class="src9">좌표 ${has(s.x) ? esc(`${Number(s.y).toFixed(6)}, ${Number(s.x).toFixed(6)}`) : '—'}</p>`;
+      ${(b.notes||[]).map(t => `<p class="src9 int">${esc(t)}</p>`).join('')}
+      <p class="src9 int">좌표 ${has(s.x) ? esc(`${Number(s.y).toFixed(6)}, ${Number(s.x).toFixed(6)}`) : '—'} · 만든 사람 메모는 인쇄·묶음에 안 나갑니다</p>`;
+    /* v3.20: 지도는 3장(같은 업종)으로 옮겼다 — 옆 가게에 번호를 달아 보여주는 자리가 거기다 */
     return { html, meta: (s.sources||[]).join(' · ').toUpperCase() || 'KAKAO · NAVER' };
+  }
+
+  /* ══ 0장 요약 (v3.20) — 13장을 다 보기 전에 결론. 이 매장은 어떤 곳 → 무엇이 걸리나 → 어디를 보라.
+     규칙으로만 쓴다(AI 없음). 자료가 없는 항목은 말없이 건너뛰고, 리뷰는 5장에서 가져오면 그때 다시 채운다. ══ */
+  function dayType(r){ r = Number(r); return r >= 1.2 ? '직장 중심 동네' : r >= 0.6 ? '주거·직장이 섞인 동네' : '주거 중심 동네'; }
+  function pyeong(m2){ const p = Number(m2) / 3.3058; return p >= 10 ? Math.round(p) : Math.round(p*10)/10; }
+  function summaryModel(b){
+    const s = b.store || {};
+    const L = licence(b);
+    const comp = mod(b,'competition'); const cd = comp.ok ? comp.data : null;
+    const pop = mod(b,'population'); const pd = pop.ok ? pop.data : null;
+    const on = mod(b,'online'); const od = on.ok ? on.data : null;
+    const reg = mod(b,'region'); const dong = reg.ok && reg.data.admin ? reg.data.admin.dong : '';
+    const R = (b.options && b.options.radius) || 500;
+    const near = cd ? (cd.neighbors || []).filter(x => x && x.name) : [];
+    const small = cd && cd.industry ? cd.industry.small : '';
+    const rv = state.reviews && state.reviews.data ? state.reviews.data : null;
+
+    /* 1) 이 매장은 — 사실만, 숫자는 굵게 */
+    const facts = [];
+    facts.push(`${dong ? `<b>${esc(dong)}</b>의 ` : ''}${small ? `<b>${esc(small)}</b> 가게` : (s.category ? esc(String(s.category).split('>').pop().trim()) : '가게')}`);
+    if (L) facts.push(L.state && !/정상/.test(L.state) ? `인허가 기준 <b>${esc(ageText(L))}째</b>, 상태 <b>${esc(L.state)}</b>` : `인허가 기준 <b>${esc(ageText(L))}째</b>`);
+    if (L && has(L.area) && Number(L.area) > 0) facts.push(`영업장 <b>${esc(num(Number(L.area)))}㎡</b> (약 ${esc(String(pyeong(L.area)))}평)`);
+    if (cd && (cd.matched || cd.fallback) && has(cd.sameSmall && cd.sameSmall.count)) {
+      const sameB = near.filter(x => x.sameBldg).length;
+      facts.push(`반경 ${dist(R)} 안 같은 업종 <b>${esc(num(cd.sameSmall.count,'곳'))}</b>${near[0] ? (sameB ? `, 그중 <b>같은 건물에 ${sameB}곳</b>` : `, 가장 가까운 곳 <b>${esc(dist(near[0].distance))}</b>`) : ''}`);
+    }
+    if (pd && has(pd.population)) facts.push(`동네 인구 <b>${esc(num(pd.population))}명</b>${has(pd.workerPerResident) ? `, ${esc(dayType(pd.workerPerResident))}` : ''}`);
+
+    /* 2) 걸리는 것 — 중요한 순. 각 항목은 어느 장을 보라는지 안다 */
+    const issues = [];
+    if (rv) {
+      const items = rv.complaints || [];
+      const byCat = {};
+      items.forEach(x => { const c = x.category; const k = c ? c.label : '기타 불만'; byCat[k] = byCat[k] || { n:0, hi: Boolean(c && c.hiorder) }; byCat[k].n += 1; });
+      Object.entries(byCat).sort((a,b) => b[1].n - a[1].n).slice(0,3).forEach(([k,v]) =>
+        issues.push({ w: 3 + v.n + (v.hi ? 2 : 0), sec:'reviews', text:`리뷰에 <b>${esc(k)} ${esc(num(v.n,'건'))}</b>${v.hi ? ' — 하이오더로 보완되는 종류' : ''}` }));
+      if (rv.waiting && Number(rv.waiting.total)) issues.push({ w: 5, sec:'reviews', text:`리뷰 <b>${esc(num(rv.waiting.total,'건'))}</b>에 웨이팅·대기 — 기다리다 돌아간 손님이 있다는 뜻` });
+      if (!items.length && has(rv.counted) && Number(rv.counted) > 0) issues.push({ w: 1, sec:'reviews', text:`리뷰 ${esc(num(rv.counted,'건'))} 가운데 불만이 적힌 글이 없음 — 이건 강점` });
+    } else {
+      issues.push({ w: 0, sec:'reviews', muted:true, text:`리뷰 신호는 아직 안 읽음 — 손님 불편 신호 장에서 「리뷰 가져오기」를 누르면 여기가 채워집니다` });
+    }
+    if (od && od.waiting && Number(od.waiting.total)) issues.push({ w: 4, sec:'online', text:`블로그 글에 웨이팅·대기 <b>${esc(num(od.waiting.total,'건'))}</b>` });
+    const toSig = tableOrderSignals(rv); if (toSig.count) issues.push({ w: 6, sec:'reviews', text:`이미 <b>태블릿 주문 흔적 ${esc(num(toSig.count,'건'))}</b> — 전환 영업인지 먼저 확인` });
+    if (near[0] && (near[0].sameBldg || Number(near[0].distance) <= 30)) {
+      const n = near.filter(x => x.sameBldg || Number(x.distance) <= 30).length;
+      issues.push({ w: 4, sec:'comp', text:`<b>${near[0].sameBldg ? '같은 건물' : '30m 안'}에 같은 업종 ${esc(num(n,'곳'))}</b> — 손님이 문 앞에서 갈리는 자리` });
+    }
+    if (L && has(L.area) && Number(L.area) >= 100) issues.push({ w: 3, sec:'quote', text:`홀이 <b>약 ${esc(String(pyeong(L.area)))}평</b> — 주문받고 나르는 동선이 긴 규모` });
+    if (L && L.months < 12) issues.push({ w: 2, sec:'store', text:`연 지 <b>${esc(ageText(L))}</b> — 자리 잡는 중이라 초기 운영 습관이 굳기 전` });
+    if (L && L.hood && has(L.hood.newly) && has(L.hood.active) && Number(L.hood.newly) / Math.max(1, Number(L.hood.active)) >= 0.15)
+      issues.push({ w: 2, sec:'comp', text:`이 동네 ${esc(L.hood.kind||'음식점')}은 최근 ${esc(String(L.hood.years||2))}년 새 <b>${esc(num(L.hood.newly,'곳'))}</b>이 새로 열림 — 손님을 나눠 갖는 압력` });
+    issues.sort((a,b) => b.w - a.w);
+
+    /* 3) 먼저 볼 곳 — 걸린 것의 장 + 기본 셋 */
+    const secs = []; const push = (id, why) => { if (!secs.find(x => x.id === id)) secs.push({ id, why }); };
+    issues.filter(x => !x.muted).slice(0,3).forEach(x => push(x.sec, ''));
+    push('comp', ''); push('reviews', ''); push('quote', '');
+    return { facts, issues: issues.slice(0,4), look: secs.slice(0,4) };
+  }
+  const SEC_TITLE = (id) => { const sd = SECTIONS.find(x => x.id === id); return sd ? sd.title : id; };
+  function renderSummary(b){
+    if (!b || !b.store) return null;
+    const m = summaryModel(b);
+    const lead = `이 매장은 ${m.facts.join(', ')}입니다.`;
+    const issues = m.issues.map(x => `<li class="${x.muted ? 'muted' : ''}"><a href="#sec-${x.sec}" data-sec="${x.sec}"></a>${x.text}</li>`).join('');
+    const look = m.look.map(x => `<li><a href="#sec-${x.id}" data-sec="${x.id}" class="sl">${esc(SEC_TITLE(x.id))}</a></li>`).join('');
+    return { html: `<p class="deck sumlead">${lead}</p>
+      <div class="mz">
+        <div class="b s7"><div class="eyebrow">걸리는 것</div><ul class="sumlist">${issues || '<li class="muted">눈에 띄는 신호가 없습니다</li>'}</ul></div>
+        <div class="b s5 rail"><div class="eyebrow">먼저 볼 곳</div><ul class="sumlist look">${look}</ul></div>
+      </div>`, meta: '수집 자료 요약 · 리뷰를 가져오면 갱신' };
+  }
+  /* 요약의 장 링크에 실제 장 번호를 붙인다 — 어느 장이 빠졌든 화면의 번호를 따른다 */
+  function numberSumLinks(){
+    $$('#sec-summary a[data-sec]').forEach(a => {
+      const dig = document.querySelector(`#sec-${a.dataset.sec} .dig`);
+      const n = dig ? dig.textContent.trim() : '';
+      if (a.classList.contains('sl')) a.textContent = n ? `${n}장 ${SEC_TITLE(a.dataset.sec)}` : SEC_TITLE(a.dataset.sec);
+      else a.textContent = n ? `${n}장` : '';
+    });
   }
 
   /* ── 동네 인구·사업체 — 극단적 스케일 대비 ── */
@@ -1964,6 +2136,7 @@ svg.trend.rib path.now{stroke:var(--sub)}
 
   /* ── 섹션 목록 ── */
   const SECTIONS = [
+    { id:'summary', title:'요약',                    bg:'요약', dig:'0', render:renderSummary },   // v3.20 두괄식 — 결론부터
     { id:'store',   title:'매장',                    bg:'매장', cls:'hero', render:renderStore },
     { id:'nearby',  title:'주변 시설 구성',            bg:'주변', render:renderNearby },
     { id:'comp',    title:'같은 업종 점포',            bg:'업종', render:renderComp },
@@ -2034,21 +2207,105 @@ svg.trend.rib path.now{stroke:var(--sub)}
       let r = null;
       try { r = sd.render(b); } catch (e) { console.error(sd.id, e); r = null; }
       if (!r) return '';
-      no += 1;
+      const label = sd.dig != null ? sd.dig : String(++no);           // 요약은 0, 나머지는 1부터
       return `<section class="sec ${sd.cls||''}${r.static?' static':''}${r.screenOnly?' screen-only':''}" id="sec-${sd.id}">
-        ${sd.bg ? `<i class="bgwrap">${bgWord(sd.bg, no)}</i>` : ''}
+        ${sd.bg ? `<i class="bgwrap">${bgWord(sd.bg, sd.dig != null ? 0 : no)}</i>` : ''}
         <div class="hd">
-          <div class="chap" data-rule="hb,vr"><span class="dig">${no}</span><h2>${esc(sd.title)}</h2></div>
+          <div class="chap" data-rule="hb,vr"><span class="dig">${esc(label)}</span><h2>${esc(sd.title)}</h2></div>
           <span class="meta">${esc(r.meta||'')}</span>
         </div>
         ${r.html}
       </section>`;
     });
+    setTimeout(() => { mountMap(b); numberSumLinks(); window.dispatchEvent(new Event('sketch:rendered')); }, 0);          // innerHTML이 들어간 다음에 올린다
     return parts.join('') + renderFoot(b);
   }
 
+  /* ── 1장 지도 (네이버 Dynamic Map) ──
+     키가 없거나 좌표가 없으면 위에서 상자를 아예 만들지 않으므로 여기도 조용히 지나간다. */
+  let _mapSdk = null;
+  function loadMapSdk(){
+    if (window.naver && window.naver.maps) return Promise.resolve(true);
+    if (_mapSdk) return _mapSdk;
+    _mapSdk = new Promise((resolve) => {
+      const el = document.createElement('script');
+      el.src = 'https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=' + encodeURIComponent(NAVER_MAP_KEY);
+      el.onload = () => resolve(Boolean(window.naver && window.naver.maps));
+      el.onerror = () => resolve(false);
+      document.head.appendChild(el);
+    });
+    return _mapSdk;
+  }
+  async function mountMap(b){
+    const box = document.getElementById('skMap');
+    if (!box || box.dataset.done === '1') return;
+    const s = (b && b.store) || {};
+    if (!NAVER_MAP_KEY || !has(s.x) || !has(s.y)) return;
+    box.dataset.done = '1';
+    const ok = await loadMapSdk();
+    if (!ok){                                  // 키가 틀렸거나 도메인 미등록 — 자리를 남기지 않는다
+      const wrap = box.closest('.mapwrap'); if (wrap) wrap.remove();
+      const row = document.getElementById('skRow'); if (row){ const l = row.querySelector('.b.s5'); if (l){ l.classList.remove('s5','rail'); l.classList.add('s12'); } }
+      return;
+    }
+    try {
+      const M = naver.maps;
+      const at = new M.LatLng(Number(s.y), Number(s.x));
+      const R = Number((b.options && b.options.radius) || 500);
+      const map = new M.Map(box, {
+        center: at, zoom: R >= 1000 ? 14 : (R >= 500 ? 15 : 16),
+        mapDataControl: false, scaleControl: true, zoomControl: true,
+        zoomControlOptions: { position: M.Position.TOP_RIGHT },
+      });
+      /* 반경 밖은 어둡게 — 큰 사각형에 원 모양 구멍을 낸 다각형 */
+      const dLat = R / 111320, dLng = R / (111320 * Math.cos(Number(s.y) * Math.PI / 180) || 1);
+      const outer = [[-0.08,-0.08],[-0.08,0.08],[0.08,0.08],[0.08,-0.08]].map(([a,o]) => new M.LatLng(Number(s.y)+a, Number(s.x)+o));
+      const hole = []; for (let i = 0; i < 72; i++){ const t = i/72*Math.PI*2; hole.push(new M.LatLng(Number(s.y) + dLat*Math.sin(t), Number(s.x) + dLng*Math.cos(t))); }
+      new M.Polygon({ map, paths: [outer, hole], fillColor: '#201E1D', fillOpacity: .16, strokeWeight: 0, clickable: false });
+      new M.Circle({ map, center: at, radius: R, strokeColor: '#EC3013', strokeOpacity: .6, strokeWeight: 1.4, fillOpacity: 0, clickable: false });
+      new M.Marker({ map, position: at, title: s.name || '', icon: { content: '<div class="skpin"></div>', anchor: new M.Point(7, 7) }, zIndex: 20 });
+      /* 옆 가게 번호 핀 — 중계 서버 v1.30부터 좌표가 온다. 없으면 목록만 남는다 */
+      const cd = ((b.modules||{}).competition||{}).data || {};
+      const near = (cd.neighbors || []).filter(x => x && x.name).slice(0, 6);
+      const pins = near.map((x, i) => (has(x.x) && has(x.y))
+        ? new M.Marker({ map, position: new M.LatLng(Number(x.y), Number(x.x)), title: x.name,
+            icon: { content: `<div class="skpin n">${i+1}</div>`, anchor: new M.Point(11, 11) }, zIndex: 15 })
+        : null);
+      map.fitBounds(new M.LatLngBounds(new M.LatLng(Number(s.y)-dLat, Number(s.x)-dLng), new M.LatLng(Number(s.y)+dLat, Number(s.x)+dLng)),
+        { top: 20, right: 20, bottom: 20, left: 20 });
+      /* 지도 클릭 → 네이버 지도 새 창 */
+      const nav = `https://map.naver.com/p/search/${encodeURIComponent([s.name, s.roadAddress || s.address].filter(Boolean).join(' '))}`;
+      M.Event.addListener(map, 'click', () => window.open(nav, '_blank', 'noopener'));
+      /* 지시선 — 핀에서 목록 번호까지. 지도가 움직이거나 창이 바뀌면 다시 긋는다 */
+      const row = document.getElementById('skRow'), svg = document.getElementById('skLines'), list = document.getElementById('skNear');
+      const drawLines = () => {
+        if (!row || !svg || !list) return;
+        const rb = row.getBoundingClientRect(), bb = box.getBoundingClientRect();
+        const proj = map.getProjection && map.getProjection();
+        svg.setAttribute('viewBox', `0 0 ${rb.width} ${rb.height}`);
+        let out = '';
+        pins.forEach((pin, i) => {
+          if (!pin || !proj) return;
+          const li = list.querySelector(`li[data-i="${i}"] .no`); if (!li) return;
+          const o = proj.fromCoordToOffset(pin.getPosition());
+          const px = bb.left - rb.left + o.x, py = bb.top - rb.top + o.y;
+          if (px < bb.left - rb.left || px > bb.right - rb.left || py < bb.top - rb.top || py > bb.bottom - rb.top) return;   // 화면 밖 핀은 선을 안 긋는다
+          const lb = li.getBoundingClientRect();
+          const tx = lb.left - rb.left, ty = lb.top - rb.top + lb.height/2;
+          const mx = bb.right - rb.left + 6;                                             // 지도 오른쪽 가장자리에서 한 번 꺾는다
+          out += `<polyline points="${px.toFixed(1)},${py.toFixed(1)} ${mx.toFixed(1)},${py.toFixed(1)} ${mx.toFixed(1)},${ty.toFixed(1)} ${(tx-4).toFixed(1)},${ty.toFixed(1)}" fill="none" stroke="#201E1D" stroke-width="1" stroke-opacity=".5"/>`;
+        });
+        svg.innerHTML = out;
+      };
+      M.Event.addListener(map, 'idle', drawLines);
+      window.addEventListener('resize', drawLines);
+      setTimeout(drawLines, 400);
+    } catch (e) {
+      console.error('map', e);
+      const wrap = box.closest('.mapwrap'); if (wrap) wrap.remove();
+    }
+  }
 
-  /* ── 주변 시설 — 도넛 + 순위 리스트 (v3.10 매거진) ── */
   function renderNearby(b){
     const m = mod(b,'nearby');
     if (!m.ok) return null;
@@ -2073,7 +2330,7 @@ svg.trend.rib path.now{stroke:var(--sub)}
         <div class="b s7">${donutSVG(data, `반경 ${dist(R)} · 곳`)}</div>
         <div class="b s5 rail"><div class="relief"><p class="k">많은 순</p>${rankList(data, '곳')}</div></div>
         <div class="b s12 top"><p class="deck">${read}</p>
-          <p class="src9">각도가 비율이고, 정확한 값은 오른쪽 숫자가 책임집니다. 조각은 5위까지 진한 순서, 그 아래는 한 톤입니다.
+          <p class="src9 int">각도가 비율이고, 정확한 값은 오른쪽 숫자가 책임집니다. 조각은 5위까지 진한 순서, 그 아래는 한 톤입니다.
           ${near ? `<br>가까운 곳 — ${near}` : ''}
           ${(m.data.notes||[]).map(t=>`<br>${esc(t)}`).join('')}</p></div>
       </div>`,
@@ -2115,15 +2372,23 @@ svg.trend.rib path.now{stroke:var(--sub)}
     const mtn = bands.length ? `<p class="k">거리별 ${esc(cd.industry.small||'같은 업종')} — 가까울수록 같은 손님을 나눕니다</p>
         ${mountainSVG(bands.map((x,i) => ({ nm:`${x.from ? `${x.from}~` : ''}${x.to}m`, v:Number(x.count)||0, hot:i===0 })))}
         ${densLine(bands[0], R, Number(cd.sameSmall.count)||0)}` : '';
-    const nearBox = near.length ? `<p class="k">바로 옆 ${esc(num(Math.min(near.length,6),'곳'))}</p><p class="src9" style="margin:2px 0 8px">방문 전에 한 번 보고 가세요</p>
-        <table class="tbl near">${near.slice(0,6).map(x =>
-          `<tr><th>${esc(dist(x.distance))}</th><td>${esc(x.name)}${x.small?` <span class="src9">${esc(x.small)}</span>`:''}</td></tr>`).join('')}</table>` : '';
+    /* v3.20: 지도(왼쪽) + 가까운 순 번호 목록(오른쪽). 같은 건물이면 거리 대신 '같은 건물'. 지도는 mountMap이 뒤에 올린다 */
+    const nearList = near.slice(0,6).map((x, i) => `<li data-i="${i}"><span class="no">${i+1}</span><span class="nm">${esc(x.name)}${x.small?` <span class="src9">${esc(x.small)}</span>`:''}</span>
+          <span class="d${x.sameBldg ? ' bld' : ''}">${x.sameBldg ? `같은 건물${x.floor ? ` ${esc(x.floor)}층` : ''}` : esc(dist(x.distance))}</span></li>`).join('');
+    const mapOk = Boolean(NAVER_MAP_KEY && has(b.store && b.store.x) && has(b.store && b.store.y));
+    const nearBox = near.length ? `<div class="mz maprow" id="skRow">
+        ${mapOk ? `<div class="b s7"><div class="mapwrap" style="margin-top:0"><div class="mapbox" id="skMap"></div>
+          <p class="mapcap">빨간 점이 이 매장 · 원이 반경 ${dist(R)} · 번호는 가까운 순 · 지도를 누르면 네이버 지도가 열립니다</p></div></div>` : ''}
+        <div class="b ${mapOk ? 's5 rail' : 's12'}"><p class="k">바로 옆 ${esc(num(Math.min(near.length,6),'곳'))}</p><p class="src9" style="margin:2px 0 4px">방문 전에 한 번 보고 가세요</p>
+          <ol class="nlist" id="skNear">${nearList}</ol></div>
+        <svg class="maplines" id="skLines" aria-hidden="true"></svg>
+      </div>` : '';
     return { html: `<div class="mz">
         <div class="b s12">${fbHead}${columnsSVG(data)}${legendCols(legend)}</div>
         <div class="b s12 top"><p class="deck">반경 ${dist(R)} 안 ${esc(cd.industry.large||'음식')} ${esc(num(cd.sameLarge.count,'곳'))} 가운데
           ${esc(cd.industry.middle)} ${esc(num(cd.sameMiddle.count,'곳'))}, 그중 <b>${esc(cd.industry.small)} ${esc(num(cd.sameSmall.count,'곳'))}</b>입니다.</p></div>
-        ${mtn ? `<div class="b s7">${mtn}</div>` : ''}
-        ${nearBox ? `<div class="b s5${mtn ? ' rail' : ''}">${nearBox}</div>` : ''}
+        ${nearBox ? `<div class="b s12 top">${nearBox}</div>` : ''}
+        ${mtn ? `<div class="b s12 top">${mtn}</div>` : ''}
         ${mix.length >= 2 ? `<div class="b s12 top">${mixHTML(mix, cd.mixTotal, R)}</div>` : ''}
         ${hoodHTML(licence(b), R)}
         <div class="b s12"><p class="src9">${src}</p></div>
@@ -3025,7 +3290,8 @@ svg.trend.rib path.now{stroke:var(--sub)}
     return out.join('');
   }
 
-  function paintReviews(){ const box = document.getElementById('reviewBox'); if (box) box.innerHTML = renderReviews(); }
+  function paintReviews(){ const box = document.getElementById('reviewBox'); if (box) box.innerHTML = renderReviews();
+    if (state.reviews && !state.reviews.running) { repaintSection('summary'); numberSumLinks(); if (state.reviews.data && state.bundle) rememberBundle(state.bundle); } }
 
   /* 리뷰 결과에 딸려 온 플레이스 기본정보를 묶음에 합치고 리포트를 다시 그린다.
      1장(영업일·주차·편의시설)·4장·9장·10장이 이 값을 읽으므로 통째로 다시 그리되, 보던 자리는 지킨다. */
@@ -3828,6 +4094,79 @@ svg.trend.rib path.now{stroke:var(--sub)}
     downloadFile(name, new Blob([buildMarkdown(state.bundle)], { type: 'text/plain;charset=utf-8' }));
   });
 
+  /* ══ v3.20 묶음 저장(.json) · 불러오기 · 최근 5건 · 진단→방문→수주 세 칸 ══
+     최근 5건은 이 브라우저 안(localStorage)에만 남는다. 다른 PC로 옮기려면 .json 저장 → 불러오기. */
+  const RECENT_KEY = 'sketch.recent', TRACK_KEY = 'sketch.track';
+  const storeKey = (b) => { const s = (b && b.store) || {}; return s.kakaoId ? `k${s.kakaoId}` : `${s.name || ''}@${s.roadAddress || s.address || ''}`; };
+  function packBundle(){ const rv = state.reviews && !state.reviews.running && state.reviews.data ? state.reviews : null;
+    return { kind: 'sketch-bundle', version: PAGE_VERSION, savedAt: new Date().toISOString(), bundle: state.bundle, reviews: rv }; }
+  function readRecent(){ try { const v = JSON.parse(localStorage.getItem(RECENT_KEY) || '[]'); return Array.isArray(v) ? v : []; } catch (_) { return []; } }
+  function rememberBundle(bundle){
+    if (!bundle || !bundle.store) return;
+    const key = storeKey(bundle), list = readRecent().filter(x => x.key !== key);
+    const rv = state.reviews && !state.reviews.running && state.reviews.data ? state.reviews : null;
+    list.unshift({ key, name: bundle.store.name || '매장', addr: bundle.store.roadAddress || bundle.store.address || '', at: bundle.collectedAt || '', bundle, reviews: rv });
+    try { localStorage.setItem(RECENT_KEY, JSON.stringify(list.slice(0, 5))); } catch (_) { /* 저장 공간이 없으면 조용히 */ }
+    paintRecent();
+  }
+  function paintRecent(){
+    const list = readRecent();
+    if (!el.recent) return;
+    el.recent.hidden = false;
+    el.recent.innerHTML = (list.length ? `<span>최근</span>${list.map((x, i) => `<button type="button" data-recent="${i}" title="${esc(x.addr)} · ${esc(String(x.at||'').slice(0,16))}">${esc(x.name)}</button>`).join('')}` : '')
+      + `<button type="button" class="load" id="loadBtn">묶음 불러오기 (.json)</button>`;
+  }
+  el.recent.addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b || state.busy) return;
+    if (b.id === 'loadBtn'){ el.loadFile.click(); return; }
+    const x = readRecent()[Number(b.dataset.recent)]; if (x && x.bundle) openBundle({ bundle: x.bundle, reviews: x.reviews });
+  });
+  function openBundle(pack){
+    if (!pack || !pack.bundle || !pack.bundle.store){ setMsg(el.searchMsg, '밑그림 묶음(.json)이 아닙니다.', 'err'); return; }
+    state.bundle = pack.bundle; state.kwTrend = null; state.kwTrendPending = '';
+    state.reviews = pack.reviews && pack.reviews.data ? { running:false, data: pack.reviews.data, source: pack.reviews.source, fetchedAt: pack.reviews.fetchedAt } : null;
+    state.apiCalls = null;
+    heroAway();
+    el.result.innerHTML = renderReport(state.bundle);
+    paintReviews(); fetchKwTrend();
+    el.acts.hidden = false; setMsg(el.searchMsg, `저장된 묶음을 열었습니다 — 수집 ${esc(String(state.bundle.collectedAt||'').slice(0,16))} · 다시 수집하지 않았습니다`);
+    el.cands.innerHTML = ''; paintTrack(); scheduleRefresh();
+  }
+  el.loadFile.addEventListener('change', async () => {
+    const f = el.loadFile.files && el.loadFile.files[0]; el.loadFile.value = ''; if (!f) return;
+    try { openBundle(JSON.parse(await f.text())); } catch (_) { setMsg(el.searchMsg, '파일을 읽지 못했습니다. 밑그림에서 저장한 .json이어야 합니다.', 'err'); }
+  });
+  el.jsonBtn.addEventListener('click', () => { if (!state.bundle) return; downloadFile(`밑그림묶음_${fileStem()}.json`, new Blob([JSON.stringify(packBundle())], { type: 'application/json' })); });
+  /* 끌어다 놓기 — 페이지 아무 데나 */
+  let dragN = 0;
+  document.addEventListener('dragenter', (e) => { if ([...(e.dataTransfer && e.dataTransfer.types || [])].includes('Files')){ dragN++; document.body.classList.add('dropping'); } });
+  document.addEventListener('dragleave', () => { if (--dragN <= 0){ dragN = 0; document.body.classList.remove('dropping'); } });
+  document.addEventListener('dragover', (e) => { if (document.body.classList.contains('dropping')) e.preventDefault(); });
+  document.addEventListener('drop', async (e) => {
+    if (!document.body.classList.contains('dropping')) return;
+    e.preventDefault(); dragN = 0; document.body.classList.remove('dropping');
+    const f = e.dataTransfer.files && e.dataTransfer.files[0]; if (!f) return;
+    try { openBundle(JSON.parse(await f.text())); } catch (_) { setMsg(el.searchMsg, '밑그림에서 저장한 .json만 열 수 있습니다.', 'err'); }
+  });
+  /* 세 칸: 진단은 수집일, 방문·수주는 눌러서 오늘 날짜를 찍는다(다시 누르면 지움) */
+  function readTrack(){ try { return JSON.parse(localStorage.getItem(TRACK_KEY) || '{}') || {}; } catch (_) { return {}; } }
+  function paintTrack(){
+    if (!el.track || !state.bundle) return;
+    const key = storeKey(state.bundle), t = readTrack()[key] || {};
+    const d = (v) => v ? String(v).slice(5, 10).replace('-', '/') : '—';
+    el.track.innerHTML = `<button type="button" class="diag on" disabled>진단 ${esc(d(state.bundle.collectedAt))}</button>
+      <button type="button" data-k="visit" class="${t.visit ? 'on' : ''}">방문 ${esc(d(t.visit))}</button>
+      <button type="button" data-k="won" class="${t.won ? 'on' : ''}">수주 ${esc(d(t.won))}</button>`;
+  }
+  el.track.addEventListener('click', (e) => {
+    const b = e.target.closest('button[data-k]'); if (!b || !state.bundle) return;
+    const all = readTrack(), key = storeKey(state.bundle), t = all[key] || {};
+    t[b.dataset.k] = t[b.dataset.k] ? '' : new Date().toISOString().slice(0, 10);
+    all[key] = t; try { localStorage.setItem(TRACK_KEY, JSON.stringify(all)); } catch (_) {}
+    paintTrack();
+  });
+  paintRecent();
+
   el.result.addEventListener('click', (e) => {
     if (e.target && e.target.id === 'rvBtn') fetchReviews();
   });
@@ -3896,9 +4235,24 @@ svg.trend.rib path.now{stroke:var(--sub)}
     } catch (err) {
       state.pass = ''; setBusy(false);
       const _lg = document.getElementById('login'); if (_lg) _lg.classList.remove('done');
-      const wasAuto = (pass === PUBLIC_PASS);
-      if (wasAuto) { el.pass.value = ''; el.pass.focus(); }
-      showError(err, el.authMsg);
+      if (pass !== PUBLIC_PASS) { showError(err, el.authMsg); return; }
+      /* 자동 연결이 막힌 것이다 — 원인을 짚어 준다. 공개 토큰이 거부되는 경우가 대부분이고,
+         그건 중계 서버가 아직 옛 버전이거나 PUBLIC_PASS가 없다는 뜻이다. */
+      el.pass.value = '';
+      let note = (err && err.message) ? err.message : String(err);
+      if (err && err.status === 401) {
+        let wv = '';
+        try {
+          const r = await fetch(API_BASE + '/', { cache: 'no-store' });
+          wv = String(await r.text() || '').trim().slice(0, 80);
+        } catch (_) { /* 버전을 못 읽어도 아래 안내는 그대로 쓴다 */ }
+        note = (wv && wv.indexOf(WORKER_VERSION) < 0)
+          ? `중계 서버가 아직 옛 버전입니다 — ${wv}. worker.js를 ${WORKER_VERSION}로 올린 뒤 PUBLIC_PASS를 넣어 주세요.`
+          : `중계 서버에 PUBLIC_PASS가 없거나 값이 다릅니다. Workers → Settings → Variables and Secrets에서 PUBLIC_PASS를 ${PUBLIC_PASS} 로 넣고 Deploy 해 주세요.`;
+        note += ' 그 전까지는 팀 비밀번호로 들어가시면 됩니다.';
+      }
+      setMsg(el.authMsg, note, 'err');
+      el.pass.focus();
     }
   });
 
@@ -3917,16 +4271,20 @@ svg.trend.rib path.now{stroke:var(--sub)}
   })();
 
   /* 오늘 남은 횟수 — 중계 서버가 KV로 세고 있을 때만 나온다 */
+  /* v3.20: 남은 횟수는 ● 줄(paintUsage) 한 곳에서만 보인다. 연결 줄에는 한도 셈이 꺼진 경우만 적는다 */
+  /* ── v3.20 첫 화면 그림: 한 번 재생, 글자를 치기 시작하거나 수집이 시작되면 물러난다 ── */
+  function heroAway(){ if (el.hero && !el.hero.classList.contains('away')) el.hero.classList.add('away'); }
+  function heroBack(){ if (el.hero) el.hero.classList.remove('away'); }
+  (function heroInit(){
+    const v = el.heroVid; if (!v) return;
+    v.addEventListener('error', () => { el.hero.classList.add('away'); }, { once: true });   // 파일이 없으면 자리를 남기지 않는다
+    const p = v.play(); if (p && p.catch) p.catch(() => {});                                // 자동재생이 막히면 포스터가 남는다
+    el.q.addEventListener('input', () => { if (el.q.value.trim()) heroAway(); });
+  })();
+
   function usageText(u){
     if (!u) return ' · 한도 셈 꺼짐(중계 서버에 KV 미연결)';
-    const c = u.collect || {};
-    const left = Math.max(0, (c.limit || 0) - (c.used || 0));
-    let t = ` · 오늘 남은 수집 ${left}회 / ${c.limit || 0}`;
-    if (u.reviews) {
-      const rvLeft = Math.max(0, (u.reviews.limit || 0) - (u.reviews.used || 0));
-      t += ` · 리뷰 ${rvLeft}회 남음`;
-    }
-    return t;
+    return '';
   }
   function paintUsage(){
     const node = document.getElementById('usageNote');
@@ -3936,10 +4294,13 @@ svg.trend.rib path.now{stroke:var(--sub)}
     const c = u.collect || {};
     const left = Math.max(0, (c.limit || 0) - (c.used || 0));
     let t = `오늘 남은 수집 ${left}회 / ${c.limit || 0}`;
+    if (u.reviews) t += ` · 리뷰 ${Math.max(0, (u.reviews.limit || 0) - (u.reviews.used || 0))}회`;
     const calls = state.apiCalls;
     if (calls && calls.byHost) {
-      const gov = calls.byHost['apis.data.go.kr'] || 0;
-      if (gov) t += ` · 방금 수집에 공공데이터포털 ${gov}건 (하루 한도는 data.go.kr 마이페이지에서 확인)`;
+      const H = calls.byHost, n = (k) => H[k] || 0;
+      const parts = [['카카오', n('dapi.kakao.com')], ['네이버', n('naverapihub.apigw.ntruss.com') + n('search.naver.com')], ['공공데이터', n('apis.data.go.kr')],
+                     ['통계청', n('sgisapi.mods.go.kr')], ['기업마당', n('www.bizinfo.go.kr')]].filter(x => x[1]);
+      if (parts.length) t += ` · 방금 수집 ${parts.map(x => `${x[0]} ${x[1]}`).join(' · ')}건`;
     }
     node.textContent = t;
     node.classList.toggle('low', left <= 20);
@@ -3973,10 +4334,11 @@ svg.trend.rib path.now{stroke:var(--sub)}
   /* 2. 검색 */
   el.searchForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const q = el.q.value.trim();
-    if (!q || state.busy) return;
+    const raw = el.q.value.trim();
+    if (!raw || state.busy) return;
+    const q = regionQuery(raw);
     setBusy(true);
-    setMsg(el.searchMsg, '찾는 중…');
+    setMsg(el.searchMsg, q === raw ? '찾는 중…' : `「${q}」로 찾는 중… (전국으로 바꾸려면 범위를 바꾸세요)`);
     el.cands.innerHTML = '';
     try {
       const r = await api(`/search?q=${encodeURIComponent(q)}`);
@@ -3985,6 +4347,16 @@ svg.trend.rib path.now{stroke:var(--sub)}
       setBusy(false);
     } catch (err) { setBusy(false); showError(err, el.searchMsg); }
   });
+
+  /* v3.20 검색 범위 — 인천지사 도구라 기본은 인천. 상호에 지역 이름이 이미 있으면 그대로 둔다 */
+  const REGION_WORDS = /인천|서울|경기|부산|대구|광주|대전|울산|세종|강원|충북|충남|전북|전남|경북|경남|제주|부천|부평|계양|남동|미추홀|연수|강화|옹진|김포|시흥|안산|수원|성남|고양|용인|화성|평택|안양|의정부|남양주|파주|광명|구리|하남|오산|군포|의왕|이천|양주|안성|포천|여주|동두천|과천|가평|양평|연천/;
+  function regionQuery(raw){
+    const mode = el.region ? el.region.value : 'incheon';
+    if (mode !== 'incheon' || REGION_WORDS.test(raw)) return raw;
+    return `인천 ${raw}`;
+  }
+  try { const m = localStorage.getItem('sketch.region'); if (m && el.region) el.region.value = m; } catch (_) {}
+  if (el.region) el.region.addEventListener('change', () => { try { localStorage.setItem('sketch.region', el.region.value); } catch (_) {} });
 
   function renderCandidates(r){
     const list = r.candidates || [];
@@ -4016,11 +4388,23 @@ svg.trend.rib path.now{stroke:var(--sub)}
     el.acts.hidden = true;
     setMsg(el.copyMsg, '');
     el.prog.hidden = false;
+    heroAway();
     const started = Date.now();
+    const JOBS = ['카카오 지도에서 주변 시설을 세는 중', '상가정보에서 같은 업종을 찾는 중', '통계청에서 동네 인구를 읽는 중',
+                  '네이버에서 언급과 뉴스를 모으는 중', '공공데이터포털에서 인허가를 읽는 중', '기업마당에서 지원사업을 고르는 중'];
+    /* 밑그림이 채워지는 진행 표시 — 서버가 한 번에 답하므로 시간으로 채우되 95%에서 멈추고, 답이 오면 100%. 문구는 3초마다 바뀐다 */
+    const EXPECT = 18000;
+    const progAt = (p) => { const i = Math.max(0, Math.min(29, Math.round(p*29))); el.progFrame.style.backgroundPosition = `${(i%6)/5*100}% ${Math.floor(i/6)/4*100}%`; };
+    progAt(0);
     const timer = setInterval(() => {
-      el.progText.textContent = `${c.name} 수집 중 · ${Math.round((Date.now()-started)/1000)}초 (보통 10~20초)`;
-    }, 1000);
+      const t = Date.now()-started, sec = Math.round(t/1000);
+      const p = Math.min(0.95, 1 - Math.pow(1 - Math.min(1, t/EXPECT), 2.2));
+      progAt(p);
+      el.progText.textContent = `${c.name} 수집 중 · ${sec}초 (보통 10~20초)`;
+      el.progSub.textContent = JOBS[Math.floor(t/3000) % JOBS.length] + '…';
+    }, 250);
     el.progText.textContent = `${c.name} 수집 중`;
+    el.progSub.textContent = JOBS[0] + '…';
     try {
       const bundle = await api('/collect', {
         method: 'POST',
@@ -4030,6 +4414,9 @@ svg.trend.rib path.now{stroke:var(--sub)}
       });
       state.bundle = bundle; state.kwTrend = null; state.kwTrendPending = '';
       state.apiCalls = bundle.apiCalls || null;
+      clearInterval(timer); progAt(1); el.progSub.textContent = '다 됐습니다';
+      await new Promise(r => setTimeout(r, 420));              // 마지막 프레임을 잠깐 보여 준다
+      rememberBundle(bundle);                                    // 최근 5건 (브라우저 안)
       if (bundle.usage && bundle.usage.collect) {
         state.usage = Object.assign({}, state.usage || {}, { collect: bundle.usage.collect });
       }
@@ -4040,6 +4427,7 @@ svg.trend.rib path.now{stroke:var(--sub)}
       el.acts.hidden = false;
       setMsg(el.searchMsg, '');
       el.cands.innerHTML = '';
+      paintTrack();
       scheduleRefresh();
     } catch (err) { showError(err, el.searchMsg); }
     finally { clearInterval(timer); el.prog.hidden = true; setBusy(false); }
@@ -4059,6 +4447,165 @@ svg.trend.rib path.now{stroke:var(--sub)}
     $$('.sec').forEach(s => s.classList.remove('on'));
     requestAnimationFrame(() => setTimeout(() => $$('.sec').forEach((s,i) => setTimeout(() => fire(s), i*130)), 60));
   });
+
+
+  /* ══ v3.20 연필 — 끌면 4B 연필(왼쪽 검정·오른쪽 빨강), 낱말 클릭 = 동그라미, 가운데 클릭 = 그 줄 빨간 밑줄.
+     마우스가 있는 환경에서만 켠다. 문서 좌표에 붙어 스크롤을 따라가고, 인쇄·묶음·저장에는 들어가지 않는다. ══ */
+  (() => {
+    const cv = document.getElementById('ink'), ui = document.getElementById('inkui');
+    if (!cv || !ui) return;
+    const ctx = cv.getContext('2d'); const dpr = Math.max(1, window.devicePixelRatio || 1);
+    let strokes = [], cur = null, PAT_INK = null, PAT_RED = null;
+    function toothPattern(r, g, b){
+      const N = 128, t = document.createElement('canvas'); t.width = t.height = N;
+      const c = t.getContext('2d'), img = c.createImageData(N, N), d = img.data;
+      const n = new Float32Array(N*N); for (let i = 0; i < n.length; i++) n[i] = Math.random();
+      const m = new Float32Array(N*N);
+      for (let y = 0; y < N; y++) for (let x = 0; x < N; x++){ let s = 0;
+        for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) s += n[((y+dy+N)%N)*N + (x+dx+N)%N];
+        m[y*N+x] = s/9; }
+      for (let i = 0; i < N*N; i++){ const v = (m[i]-0.5)*4.2 + 0.74 + (n[i]-0.5)*0.5;
+        const a = Math.max(0, Math.min(1, v)) * (0.7 + 0.3*n[i]);
+        d[i*4] = r; d[i*4+1] = g; d[i*4+2] = b; d[i*4+3] = Math.round(a*255); }
+      c.putImageData(img, 0, 0); return ctx.createPattern(t, 'repeat');
+    }
+    const pat = (red) => red ? (PAT_RED ||= toothPattern(214, 40, 16)) : (PAT_INK ||= toothPattern(38, 36, 34));
+    const widthFor = (v, red) => Math.max(2.1, (red ? 4.4 : 4.2) - 1.3*Math.min(v, 1.6));
+    const alphaFor = (v) => Math.max(0.58, 1.0 - 0.3*Math.min(v, 1.4));
+    function ribbon(s, dx, dy, passAlpha, wmul = 1){
+      const P = s.pts; if (P.length < 2) return;
+      const n = P.length, L = new Array(n), R = new Array(n);
+      for (let i = 0; i < n; i++){
+        const a = P[Math.max(0,i-1)], b = P[Math.min(n-1,i+1)];
+        let nx = -(b[1]-a[1]), ny = (b[0]-a[0]); const len = Math.hypot(nx, ny) || 1; nx /= len; ny /= len;
+        const taper = Math.min(1, (i+1)/3, (n-i)/3);
+        const w = P[i][2] * wmul * (0.35 + 0.65*taper) / 2;
+        L[i] = [P[i][0] + nx*w + dx, P[i][1] + ny*w + dy]; R[i] = [P[i][0] - nx*w + dx, P[i][1] - ny*w + dy];
+      }
+      ctx.fillStyle = pat(s.red);
+      for (let i = 0; i < n-1; i++){
+        ctx.globalAlpha = passAlpha * P[i][3];
+        ctx.beginPath(); ctx.moveTo(L[i][0], L[i][1]); ctx.lineTo(L[i+1][0], L[i+1][1]); ctx.lineTo(R[i+1][0], R[i+1][1]); ctx.lineTo(R[i][0], R[i][1]); ctx.closePath(); ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    }
+    function drawStroke(s){ const J = s.jit; ribbon(s, 0, 0, 0.80); ribbon(s, J[0], J[1], 0.42); ribbon(s, J[2], J[3], 0.32); ribbon(s, J[4], J[5], 0.16, 0.7); ribbon(s, 0, 0, 0.09, 2.1); }
+    function redraw(){ ctx.clearRect(0,0,cv.width,cv.height); strokes.forEach(drawStroke); ui.style.display = strokes.length ? 'flex' : 'none'; }
+    function fit(){ const w = document.documentElement.scrollWidth, h = Math.max(document.documentElement.scrollHeight, innerHeight);
+      if (cv.width === Math.round(w*dpr) && cv.height === Math.round(h*dpr)) return;
+      cv.style.width = w+'px'; cv.style.height = h+'px'; cv.width = Math.round(w*dpr); cv.height = Math.round(h*dpr); ctx.setTransform(dpr,0,0,dpr,0,0);
+      PAT_INK = PAT_RED = null; redraw(); }
+    function addPoint(s, x, y, t){
+      const P = s.pts, last = P[P.length-1];
+      if (P.length === 1 && Math.hypot(x-s.x0, y-s.y0) < 3) return;
+      if (last){ const d = Math.hypot(x-last[0], y-last[1]); if (d < 1.2) return;
+        const v = d / Math.max(1, t - s.t); s.v = s.v == null ? v : s.v*0.6 + v*0.4;
+        if (P.length >= 2){ const p2 = P[P.length-2]; last[0] = (p2[0] + last[0]*2 + x)/4; last[1] = (p2[1] + last[1]*2 + y)/4; } }
+      s.t = t; P.push([x, y, widthFor(s.v || 0, s.red) * (0.8 + 0.4*Math.random()), alphaFor(s.v || 0) * (Math.random() < 0.12 ? 0.45 : 1)]);
+    }
+    const isCtl = (e) => !!(e && e.closest && e.closest('input,textarea,button,a,select,label,summary,[role=button],#inkui,.zoomui,.modal,.mapbox,video'));
+    const newStroke = (red, x0, y0) => { const r = () => (Math.random()-0.5)*2.2, r2 = () => (Math.random()-0.5)*3.4;
+      return { red, pts: [], t: 0, v: null, jit: [r(), r(), r(), r(), r2(), r2()], x0, y0 }; };
+    /* 낱말 찾기 → 동그라미 */
+    function wordAt(x, y){
+      let node, off;
+      if (document.caretPositionFromPoint){ const c = document.caretPositionFromPoint(x, y); if (!c) return null; node = c.offsetNode; off = c.offset; }
+      else if (document.caretRangeFromPoint){ const r = document.caretRangeFromPoint(x, y); if (!r) return null; node = r.startContainer; off = r.startOffset; }
+      if (!node || node.nodeType !== 3) return null;
+      const t = node.textContent; const isW = (ch) => ch && !/\s/.test(ch);
+      if (!isW(t[off]) && !isW(t[off-1])) return null;
+      let a = off, b = off; while (a > 0 && isW(t[a-1])) a--; while (b < t.length && isW(t[b])) b++;
+      if (b - a === 0) return null;
+      const rg = document.createRange(); rg.setStart(node, a); rg.setEnd(node, b);
+      const rects = [...rg.getClientRects()]; if (!rects.length) return null;
+      let L = Infinity, T = Infinity, R = -Infinity, B = -Infinity;
+      rects.forEach(r => { L = Math.min(L, r.left); T = Math.min(T, r.top); R = Math.max(R, r.right); B = Math.max(B, r.bottom); });
+      if (L > x + 4 || R < x - 4 || T > y + 4 || B < y - 4) return null;
+      return { x: (L+R)/2 + scrollX, y: (T+B)/2 + scrollY, w: R-L, h: B-T, key: t.slice(a,b) + '@' + Math.round(L+scrollX) + ',' + Math.round(T+scrollY) };
+    }
+    function circleStroke(wd, red){
+      const rx = wd.w/2 + Math.max(9, wd.h*0.28), ry = wd.h/2 + Math.max(7, wd.h*0.22);
+      const s = newStroke(red, wd.x, wd.y); s.circle = wd.key;
+      const tilt = (Math.random()-0.5)*0.18, start = -0.55 + (Math.random()-0.5)*0.4, turns = 1.12 + Math.random()*0.08;
+      const n = Math.max(36, Math.round((rx+ry)*0.9));
+      for (let i = 0; i <= n; i++){
+        const a = start + (i/n)*Math.PI*2*turns, wob = 1 + (Math.random()-0.5)*0.05 + 0.03*Math.sin(i*0.7);
+        const ex = rx*wob*Math.cos(a), ey = ry*wob*Math.sin(a);
+        s.pts.push([wd.x + ex*Math.cos(tilt) - ey*Math.sin(tilt), wd.y + ex*Math.sin(tilt) + ey*Math.cos(tilt), widthFor(0.35, red)*(0.85+0.3*Math.random()), alphaFor(0.35)*(Math.random()<0.12?0.45:1)]);
+      }
+      return s;
+    }
+    /* 줄 찾기 → 빨간 밑줄 */
+    function lineAt(x, y){
+      let node;
+      if (document.caretPositionFromPoint){ const c = document.caretPositionFromPoint(x, y); if (!c) return null; node = c.offsetNode; }
+      else if (document.caretRangeFromPoint){ const r = document.caretRangeFromPoint(x, y); if (!r) return null; node = r.startContainer; }
+      if (!node) return null;
+      let blk = node.nodeType === 3 ? node.parentElement : node;
+      while (blk && blk !== document.body && getComputedStyle(blk).display.startsWith('inline')) blk = blk.parentElement;
+      if (!blk || blk === document.body || isCtl(blk)) return null;
+      const rg = document.createRange(); rg.selectNodeContents(blk);
+      const rects = [...rg.getClientRects()].filter(r => r.width > 0 && r.height > 0);
+      const hit = rects.filter(r => r.top - 2 <= y && r.bottom + 2 >= y); if (!hit.length) return null;
+      const T = Math.min(...hit.map(r => r.top)), B = Math.max(...hit.map(r => r.bottom));
+      const line = rects.filter(r => r.top < B && r.bottom > T);
+      const L = Math.min(...line.map(r => r.left)), R = Math.max(...line.map(r => r.right));
+      if (x < L - 6 || x > R + 6) return null;
+      const fs = parseFloat(getComputedStyle(node.nodeType === 3 ? node.parentElement : node).fontSize) || 16;
+      const base = (T + B)/2 + fs*0.53;
+      return { L: L + scrollX, R: R + scrollX, y: Math.min(base, B + 2) + scrollY, fs, key: 'ul@' + Math.round(L + scrollX) + ',' + Math.round(B + scrollY) };
+    }
+    function underlineStroke(ln){
+      const s = newStroke(true, ln.L, ln.y); s.circle = ln.key;
+      const y0 = ln.y, W = ln.R - ln.L + 8, n = Math.max(24, Math.round(W/5));
+      const amp = Math.max(1.0, ln.fs*0.05), ph = Math.random()*6.28, drift = (Math.random()-0.5)*ln.fs*0.08;
+      for (let i = 0; i <= n; i++){ const t = i/n;
+        s.pts.push([ln.L - 4 + W*t, y0 + drift*t + Math.sin(t*6.28*1.4 + ph)*amp + (Math.random()-0.5)*0.7, widthFor(0.5, true)*(0.85+0.3*Math.random()), alphaFor(0.5)*(Math.random()<0.12?0.45:1)]); }
+      return s;
+    }
+    function animate(s){ const all = s.pts, total = all.length, t0 = performance.now();
+      const step = (now) => { const k = Math.min(1, (now - t0)/300); s.pts = all.slice(0, Math.max(2, Math.round(total*k)));
+        ctx.clearRect(0,0,cv.width,cv.height); strokes.forEach(drawStroke); if (k < 1) requestAnimationFrame(step); else { s.pts = all; redraw(); } };
+      requestAnimationFrame(step); }
+    function toggle(key, make){ const i = strokes.findIndex(s => s.circle === key); if (i >= 0){ strokes.splice(i, 1); redraw(); return; } const s = make(); strokes.push(s); animate(s); }
+    function clickAt(x, y, red){ const wd = wordAt(x - scrollX, y - scrollY); if (wd) toggle(wd.key, () => circleStroke(wd, red)); }
+    function middleAt(x, y){ const ln = lineAt(x - scrollX, y - scrollY); if (ln) toggle(ln.key, () => underlineStroke(ln)); }
+
+    const mq = matchMedia('(hover: hover) and (pointer: fine)');
+    let ac = null;
+    function enable(){
+      if (ac) return; ac = new AbortController(); const o = { signal: ac.signal }; cv.style.display = ''; fit();
+      document.addEventListener('pointerdown', (e) => {
+        if ((e.pointerType !== 'mouse' && e.pointerType !== 'pen') || isCtl(e.target)) return;
+        if (e.button === 1){ e.preventDefault(); fit(); middleAt(e.pageX, e.pageY); return; }
+        if (e.button !== 0 && e.button !== 2) return;
+        e.preventDefault(); fit();
+        cur = newStroke(e.button === 2, e.pageX, e.pageY); cur.t = e.timeStamp; addPoint(cur, e.pageX, e.pageY, e.timeStamp); strokes.push(cur);
+      }, o);
+      document.addEventListener('pointermove', (e) => { if (!cur) return;
+        const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
+        for (const ev of evs) addPoint(cur, ev.pageX, ev.pageY, ev.timeStamp);
+        ctx.clearRect(0,0,cv.width,cv.height); strokes.forEach(drawStroke); }, o);
+      const end = () => { if (cur && cur.pts.length < 2){ const c = cur; strokes.pop(); cur = null; clickAt(c.x0, c.y0, c.red); return; } cur = null; redraw(); };
+      document.addEventListener('pointerup', end, o); document.addEventListener('pointercancel', end, o);
+      document.addEventListener('contextmenu', (e) => { if (!isCtl(e.target)) e.preventDefault(); }, o);
+      document.addEventListener('mousedown', (e) => { if (e.button === 1 && !isCtl(e.target)) e.preventDefault(); }, o);
+      document.addEventListener('auxclick', (e) => { if (e.button === 1 && !isCtl(e.target)) e.preventDefault(); }, o);
+      document.addEventListener('keydown', (e) => {
+        if (e.target && (e.target.matches('input,textarea,select') )) return;
+        if (e.key === 'Escape'){ strokes = []; redraw(); }
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z'){ strokes.pop(); redraw(); e.preventDefault(); } }, o);
+      window.addEventListener('resize', fit, o);
+      document.getElementById('inkUndo').addEventListener('click', () => { strokes.pop(); redraw(); }, o);
+      document.getElementById('inkClear').addEventListener('click', () => { strokes = []; redraw(); }, o);
+    }
+    function disable(){ if (ac){ ac.abort(); ac = null; } cur = null; strokes = []; redraw(); cv.style.display = 'none'; ui.style.display = 'none'; }
+    const apply = () => mq.matches ? enable() : disable();
+    mq.addEventListener ? mq.addEventListener('change', apply) : mq.addListener(apply);
+    apply();
+    /* 리포트가 새로 그려지면 표시는 뜻을 잃는다 — 지운다 */
+    window.addEventListener('sketch:rendered', () => { strokes = []; redraw(); fit(); });
+  })();
 
   if (!configured) setMsg(el.authMsg, '중계 서버 주소가 설정되지 않았습니다. 이 파일의 API_BASE 값을 바꿔 주세요.', 'err');
 })();
