@@ -1162,6 +1162,15 @@ svg.trend.rib path.now{stroke:var(--sub)}
 .inkp{display:none;position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible;pointer-events:none;z-index:9}
 .inkw{position:relative}
 #inkdefs{position:absolute;width:0;height:0;overflow:hidden}
+/* v3.31: 고객용 진단서 — 제안 칸·하이오더 보완·영업 메모(.sale)·CHECK 상자·강약점의 할 일 줄을 숨기고 진단만. 견적·키워드·뉴스·사람이 채울 것 장은 그리지 않는다 */
+.custonly{display:none}
+body.cust .custonly{display:revert}
+body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body.cust .inkp.inka,body.cust #txtBtn,body.cust #jsonBtn{display:none!important}
+.custhead{margin:6px 0 34px;padding-bottom:18px;border-bottom:1px solid var(--line,#E4E4E4)}
+.custhead .deck{font-size:30px;margin-top:6px}
+.custhead .src9{margin-top:8px}
+#custBtn.on{background:var(--ink,#1D1D1F);color:#fff;border-color:var(--ink,#1D1D1F)}
+@media print{body.cust .mast{display:none!important}}   /* 고객용 인쇄물은 '매장 진단서'로 시작 — 도구 이름(밑그림)은 빼고 */
 /* v3.30: 리뷰 불만 낱말 자동 동그라미 — 글자 안에 붙은 SVG 라 스크롤·배치가 바뀌어도 글자를 따라간다 */
 .inkp.inka{display:block;clip-path:inset(-120px calc(100% + 120px) -120px -120px)}
 .inkp.inka.go{animation:inkWipe .5s cubic-bezier(.3,.6,.4,1) forwards;animation-delay:var(--d,0ms)}
@@ -1280,6 +1289,7 @@ svg.trend.rib path.now{stroke:var(--sub)}
   <div class="acts" id="acts" hidden>
     <button class="abtn primary" id="txtBtn" type="button">AI 첨부용 저장 (.txt)</button>
     <button class="abtn" id="jsonBtn" type="button">묶음 저장 (.json)</button>
+    <button class="abtn" id="custBtn" type="button" title="제안·영업 메모·견적을 빼고 진단만 보여 줍니다 — 이 상태로 인쇄하면 사장님께 드릴 진단서">고객용 진단서</button>
     <button class="abtn" id="printBtn" type="button">인쇄</button>
     <span class="track" id="track" aria-label="이 매장 진행"></span>
   </div>
@@ -1294,8 +1304,8 @@ svg.trend.rib path.now{stroke:var(--sub)}
 
   // ▼ 배포 후 Cloudflare Worker 주소로 바꾸세요 (끝에 / 없이)
   const API_BASE = 'https://kt.roi0925003.workers.dev';
-  const PAGE_VERSION = 'v3.30';
-  const WORKER_VERSION = 'v1.38';   // 이 페이지와 짝이 되는 worker.js 버전 (이보다 낮으면 경고)
+  const PAGE_VERSION = 'v3.31';
+  const WORKER_VERSION = 'v1.39';   // 이 페이지와 짝이 되는 worker.js 버전 (이보다 낮으면 경고)
   /* 직원 공개용 토큰 — 비밀번호가 아닙니다. 소스 보기로 누구나 볼 수 있습니다.
      중계 서버의 PUBLIC_PASS와 같은 값이어야 하고, 남이 긁는 게 보이면
      양쪽을 같이 바꿔서 다시 올리면 됩니다. 리뷰는 이 토큰으로 부를 수 없습니다. */
@@ -1319,7 +1329,7 @@ svg.trend.rib path.now{stroke:var(--sub)}
     searchMsg: $('#searchMsg'), cands: $('#cands'),
     prog: $('#prog'), progText: $('#progText'), progFrame: $('#progFrame'), progSub: $('#progSub'), progList: $('#progList'), hero: $('#hero'), heroVid: $('#heroVid'), result: $('#report'),
     login: $('#login'), connMsg: $('#connMsg'),
-    acts: $('#acts'), txtBtn: $('#txtBtn'), printBtn: $('#printBtn'), copyMsg: $('#copyMsg'),
+    acts: $('#acts'), txtBtn: $('#txtBtn'), printBtn: $('#printBtn'), custBtn: $('#custBtn'), copyMsg: $('#copyMsg'),
   };
   const state = { pass:'', rvPass:'', usage:null, apiCalls:null, search:null, bundle:null, busy:false, reviews:null, apifyUsage:null,
     reviewOpts:{ kakao:false, google:false }, kwTrend:null, kwTrendPending:'' };
@@ -1521,7 +1531,9 @@ svg.trend.rib path.now{stroke:var(--sub)}
       openDays: DAYS.filter(x => closed.indexOf(x) < 0),
       source: (m.source && m.source.name) || '네이버 플레이스',
       info: d.naverInfo || null,                                         // v3.30: 네이버 정보 탭 (수집 서버 v1.38)
-      blog: d.blog && !d.blog.error ? d.blog : null, blogError: d.blog && d.blog.error ? String(d.blog.error) : '',
+      naverIntro: String(d.naverIntro || ''),                            // v3.31: 네이버 소개글 (수집 서버 v1.39 · 카카오 소개가 먼저 차 있어도 읽게)
+      blog: blogOwn(d.blog, b && b.store && b.store.name, d.name) ? d.blog : null, blogError: d.blog && d.blog.error ? String(d.blog.error) : '',
+      blogOff: Boolean(d.blog && !d.blog.error && !blogOwn(d.blog, b && b.store && b.store.name, d.name)),
     };
   }
   /* v3.21 (#94): 메뉴에서 단가·주류·코스를 읽어 회전 유형을 추정한다 (가정: 단품 1.2만 원 미만 = 빠른 회전, 2.5만 원 이상·고기·코스 = 긴 체류) */
@@ -1547,6 +1559,34 @@ svg.trend.rib path.now{stroke:var(--sub)}
       alcohol, course, meat, type, label, updated: (P && P.menuUpdated) || '', source: P.menuSource, kakaoMenus: P.kakaoMenus };
   }
   function s_cat(b){ const s = b.store || {}; return [s.category, s.naverCategory].filter(Boolean).join(' '); }
+  /* v3.31: 이 블로그가 이 가게(브랜드) 것인가 — 블로그 제목·소개에 가게 이름 낱말이 있어야 한다 (수집 서버 v1.39와 같은 규칙).
+     네이버에 등록된 가게 링크(via:'link')면 그대로 믿는다. 우대포 실물: 리뷰를 쓴 손님 블로그가 가게 블로그로 잡혔다 */
+  const NAME_GENERIC = /^(카페|식당|맛집|고기|고기집|치킨|커피|본점|한식|중식|일식|양식|분식|레스토랑|주점|포차|횟집|갈비|삼겹살|국밥|국수|족발|보쌈|피자|베이커리|빵집|술집|이자카야|bar|cafe|restaurant|pub)$/i;
+  function nameTokens(...names){
+    const out = new Set();
+    for (const n of names) {
+      const parts = String(n || '').split(/[\s()[\]·,/&+]+/).map(t => t.replace(/[^가-힣A-Za-z0-9]/g, '').toLowerCase()).filter(Boolean);
+      for (const s of parts) {
+        if (s.length < 2 || NAME_GENERIC.test(s)) continue;
+        if (/점$/.test(s)) { if (parts.length === 1 && s.length >= 5) out.add(s.replace(/점$/, '')); continue; }
+        out.add(s);
+      }
+    }
+    return [...out];
+  }
+  function blogOwn(B, ...names){
+    if (!B || B.error || B.skipped) return false;
+    if (B.via === 'link') return true;
+    const hay = `${B.name || ''} ${B.desc || ''}`.replace(/[^가-힣A-Za-z0-9]/g, '').toLowerCase();
+    return nameTokens(...names).some(t => hay.includes(t));
+  }
+  const POST_URL_RE = /blog\.naver\.com\/[^/?#]+\/\d{6,}|[?&]logNo=|PostView\.naver|instagram\.com\/(p|reel|reels|stories|tv)\/|youtube\.com\/(watch|shorts)|youtu\.be\//i;
+  /* SNS 칸 — 같은 주소·글 하나 주소는 빼고, 가게 것이 아닌 블로그는 뺀다 */
+  function snsList(P){
+    const list = (P && P.info && P.info.sns) || [];
+    return list.filter((x, i, a) => x && x.url && a.findIndex(y => y && y.url === x.url) === i)
+      .filter(x => !POST_URL_RE.test(x.url)).filter(x => !(P.blogOff && x.type === '블로그')).slice(0, 4);
+  }
   const noEmoji = (t) => String(t || '').replace(/\p{Extended_Pictographic}|\uFE0F|\u200D/gu, '').replace(/\s{2,}/g, ' ').trim();
   /* v3.30: 편의시설 — 네이버 정보 탭과 카카오 태그를 합친다 (주차는 따로 줄) */
   function mergeAmen(P){
@@ -1570,12 +1610,12 @@ svg.trend.rib path.now{stroke:var(--sub)}
     if (kind) lines.push(`<span class="src9">최근 글 갈래 — ${esc(kind)}</span>`);
     const pick = [].concat(B.pay || [], B.menus || []).filter(p => !(B.active || []).some(a => a.link === p.link)).filter((p, i, a) => a.findIndex(x => x.link === p.link) === i).slice(0, 2);
     if (pick.length) lines.push(pick.map(t).join(' / '));
-    return lines.join('<br>') + (B.brand ? `<p class="src9" style="margin-top:4px">본사(브랜드) 블로그는 가맹점 모두의 소식입니다 — 이 매장만의 사정과 나눠 읽으세요.</p>` : '');
+    return lines.join('<br>') + (B.brand ? `<p class="src9 sale" style="margin-top:4px">본사(브랜드) 블로그는 가맹점 모두의 소식입니다 — 이 매장만의 사정과 나눠 읽으세요.</p>` : '');
   }
   function feedHTML(feed){
     const last = feed[0] && feed[0].date ? String(feed[0].date).slice(0, 10) : '';
     const items = feed.slice(0, 3).map(f => `<li><span class="d">${esc(String(f.date||'').slice(0, 10) || '—')}</span><span>${f.type ? `<span class="bdg info">${esc(f.type)}</span> ` : ''}${esc(noEmoji(f.title) || noEmoji(f.text).slice(0, 40))}${f.text && f.title ? `<span class="by">${esc(noEmoji(f.text).slice(0, 90))}</span>` : ''}</span></li>`).join('');
-    return `<ul class="recent" style="margin:0">${items}</ul><p class="src9" style="margin-top:6px">사장님이 직접 올린 글 ${esc(num(feed.length,'건'))}${last ? ` · 마지막 ${esc(last)}` : ''} — 알림·이벤트를 스스로 올리는 매장은 알림톡·쿠폰 제안이 통합니다</p>`;
+    return `<ul class="recent" style="margin:0">${items}</ul><p class="src9" style="margin-top:6px">사장님이 직접 올린 글 ${esc(num(feed.length,'건'))}${last ? ` · 마지막 ${esc(last)}` : ''} <span class="sale"> — 알림·이벤트를 스스로 올리는 매장은 알림톡·쿠폰 제안이 통합니다</span></p>`;
   }
   function menuTableHTML(MP, b){
     const rows = MP.items.map(m => `<tr><td>${esc(m.name)}${m.recommend ? ' <span class="bdg info">추천</span>' : ''}</td><td class="n">${has(m.price) && Number(m.price) > 0 ? esc(num(m.price,'원')) : '—'}</td></tr>`).join('');
@@ -1924,9 +1964,9 @@ svg.trend.rib path.now{stroke:var(--sub)}
     const add = (u, kind, rid) => { const h = imgHref(u); if (!h) return; const k = photoKey(h); if (seen.has(k)) return; seen.add(k); out.push({ src:h, kind, rid: rid || '' }); };
     const typed = Array.isArray(d.photos) ? d.photos : [];
     const np = Array.isArray(d.naverPhotos) ? d.naverPhotos : [];
+    np.filter(x => x && x.kind === '가게').forEach(x => add(x.url, '가게 (네이버)'));      // v3.31: 사장님이 고른 사진이 먼저 — 고객용 진단서에도 이 사진이 들어간다
     ((rvData && rvData.photos && rvData.photos.naver) || []).forEach(u => add(u, '네이버 리뷰'));
     typed.filter(x => x && x.type === 'KMAPREVIEW').forEach(x => add(x.url, '카카오 후기', x.rid));
-    np.filter(x => x && x.kind === '가게').forEach(x => add(x.url, '가게 (네이버)'));
     np.filter(x => x && x.kind === '네이버 리뷰').forEach(x => add(x.url, '네이버 리뷰'));
     typed.filter(x => x && x.type && x.type !== 'KMAPREVIEW' && x.type !== 'BLOG').forEach(x => add(x.url, '가게', x.rid));
     const byRid = new Map();
@@ -2275,7 +2315,8 @@ svg.trend.rib path.now{stroke:var(--sub)}
     const payFlags = [rvD && rvD.nPay && !hasNpayTxt ? 'N pay 표시' : '', rvD && rvD.booking ? '네이버 예약' : ''].filter(Boolean);
     if (pays.length || payFlags.length) rows.push(['결제 · 예약', esc(pays.concat(payFlags).join(' · '))]);
     if (NI && NI.hygiene) rows.push(['위생', esc(NI.hygiene)]);
-    if (NI && NI.sns && NI.sns.length) rows.push(['SNS', NI.sns.map(x => linkText(x.url, x.type)).join(' · ')]);
+    const SNS = snsList(P);
+    if (SNS.length) rows.push(['SNS', SNS.map(x => linkText(x.url, x.type)).join(' · ')]);
     if (P && (P.blog || P.blogError)) rows.push(['블로그', blogHTML(P.blog, P.blogError)]);
     /* v3.23: 네이버 소식 — 사장님이 직접 올리는 글. 최근 글 3건의 제목·날짜 (홍보 습관·이벤트 여부를 읽는다) */
     if (P && P.feed.length) rows.push(['네이버 소식', feedHTML(P.feed)]);
@@ -2535,9 +2576,9 @@ svg.trend.rib path.now{stroke:var(--sub)}
     const XO = rv.extraOrder;
     if (XO && XO.count >= 2) head.push(rxLine(`추가 주문 언급 <b>${num(XO.count,'건')}</b>${XO.withCall ? ` · 직원을 불러야 했던 글 ${num(XO.withCall,'건')}` : ''}`, '추가 주문을 자리에서 바로 — 직원을 부르지 않아도 한 판 더 시킵니다'));
     /* 네이버 대기 시간 태그는 '바로 입장 · 10분 이내 · 30분 이내 · 1시간 이내 · 1시간 이상' — 30분 넘게 기다린 것은 '1시간 이내'와 '1시간 이상' */
-    const WT = rv.visitTags && (rv.visitTags.cats || []).find(cc => /대기/.test(cc.name));
-    if (WT) { const long = WT.keywords.filter(k => /1\s?시간|시간\s?이상/.test(k.name)).reduce((a, k) => a + k.n, 0);
-      if (long >= 3) head.push(rxLine(`대기 시간 태그 — 30분 넘게 기다린 글 <b>${num(long,'건')}</b> (태그 단 리뷰 ${num(WT.n,'건')} 중)`, '줄이 긴 매장 — 웨이팅 서비스로 줄을 받고 차례가 오면 알림톡으로')); }
+    const WT = rv.visitTags && vtCats(rv.visitTags).find(cc => /대기/.test(cc.name));
+    if (WT) { const long = WT.keywords.filter(k => LONG_WAIT.test(k.name)).reduce((a, k) => a + k.n, 0);
+      if (long >= 3) head.push(rxLine(`대기 시간 태그 — 30분 이상 기다린 글 <b>${num(long,'건')}</b> (태그 단 리뷰 ${num(WT.n,'건')} 중)`, '줄이 긴 매장 — 웨이팅 서비스로 줄을 받고 차례가 오면 알림톡으로')); }
     const RVS = rv.revisit;
     if (RVS && RVS.withCount >= 10) head.push(rxLine(`두 번 이상 온 손님 <b>${RVS.pct}%</b> (리뷰 ${num(RVS.withCount,'건')} 중)`, RVS.pct >= 25 ? '단골이 받쳐 주는 매장 — 스탬프 적립으로 단골을 붙잡기' : '처음 온 손님이 많은 매장 — 스탬프·쿠폰으로 두 번째 방문을 만들기'));
     const VS = rv.visitors && rv.visitors.segments && rv.visitors.segments[0];
@@ -2628,7 +2669,11 @@ svg.trend.rib path.now{stroke:var(--sub)}
     const P = placeInfo(b); if (!P) return [];
     const NI = P.info || {}, fac = mergeAmen(P).join(' '), out = [];
     const seats = `${(NI.seats || []).join(' ')} ${P.seats || ''}`;
-    if (/무한\s?리필/.test(`${fac} ${P.intro || ''}`)) out.push(rxLine('편의시설 <b>무한 리필</b>', '리필 요청이 곧 주문입니다 — 손님이 자리에서 바로 리필을 시키면 직원을 부르는 일이 줄어듭니다'));
+    /* v3.31: 소개글의 '이용시간 평일 120분 / 주말, 공휴일 100분' — 시간이 정해진 가게는 주문을 기다리는 시간이 곧 손님이 먹을 시간이다 */
+    const introAll = `${P.naverIntro || ''} ${P.intro || ''}`, refill = /무한\s?리필/.test(`${fac} ${introAll}`);
+    const limit = useLimit(introAll);
+    if (limit) out.push(rxLine(`${refill ? '무한 리필 · ' : ''}이용 시간 <b>${esc(limit)}</b>`, '정해진 시간 안에 먹는 가게 — 주문·리필을 기다리는 시간이 곧 손님이 먹을 시간입니다. 앉자마자 자리에서 시키고, 추가 주문도 부르지 않고 바로'));
+    else if (refill) out.push(rxLine('편의시설 <b>무한 리필</b>', '리필 요청이 곧 주문입니다 — 손님이 자리에서 바로 리필을 시키면 직원을 부르는 일이 줄어듭니다'));
     const grp = /단체석[^·]*?(\d+)\s?명/.exec(seats);
     if (grp || /단체\s?(이용|석)/.test(`${fac} ${seats}`)) out.push(rxLine(grp ? `단체석 <b>${esc(grp[1])}명</b> 이하` : '<b>단체 이용</b> 가능', '테이블마다 주문 내역이 따로 남아 단체석 추가 주문이 섞이지 않습니다 — 모임 손님이 부르지 않고 더 시킵니다'));
     if (/좌식|룸|개별\s?공간|프라이빗/.test(`${seats} ${fac}`)) out.push(rxLine(`좌석 <b>${/좌식/.test(`${seats} ${fac}`) ? '좌식' : '룸'}</b>`, '손 들고 부르기 어려운 자리 — 호출과 추가 주문을 자리에서 받습니다'));
@@ -2636,11 +2681,21 @@ svg.trend.rib path.now{stroke:var(--sub)}
     if (B && (ek >= 2 || (B.active || []).length)) out.push(rxLine(`블로그 이벤트·제휴 글 <b>${num(ek,'건')}</b>${(B.active || []).length ? ' · 지금 진행 중' : ''}`, `이벤트에 익숙한 ${B.brand ? '브랜드' : '매장'} — 스탬프·쿠폰·알림톡 같은 손님 관리 기능 이야기가 잘 통합니다`));
     if (B && B.brand) out.push(rxLine('블로그가 <b>본사(브랜드)</b> 것으로 보임', '가맹 브랜드 — 매장이 따로 정하는지, 본사 단위로 정하는지 먼저 확인하세요'));
     if (/무선\s?인터넷|와이파이|wi-?fi/i.test(fac)) out.push(rxLine('<b>무선 인터넷</b> 있음', '첫 방문 명분 — 손님용 Wi-Fi QR을 먼저 드리고 관계를 엽니다 (kt-synergy.com Wi-Fi QR)'));
-    return out.slice(0, 4);
+    return out.slice(0, 5);
+  }
+  /* '이용시간 평일 120분(2시간) / 주말, 공휴일 100분' → '평일 120분 · 주말·공휴일 100분'. 60분 미만 숫자('1시간 40분'의 40)는 버린다 */
+  function useLimit(t){
+    const m = /이용\s?시간/.exec(String(t || '')); if (!m) return '';
+    const seg = String(t).slice(m.index, m.index + 90);
+    const mins = [...seg.matchAll(/(평일|주말\s?[,·/및]?\s?공휴일|주말|공휴일)?\s*(\d{2,3})\s?분/g)].filter(x => Number(x[2]) >= 60)
+      .slice(0, 2).map(x => `${x[1] ? x[1].replace(/\s?[,·/및]\s?/, '·') + ' ' : ''}${x[2]}분`);
+    if (mins.length) return mins.join(' · ');
+    const h = /(\d)\s?시간/.exec(seg); return h ? `${h[1]}시간` : '';
   }
   const RX = { store: rxStore, reviews: rxReviews, comp: rxComp, nearby: rxNearby, pop: rxPop };
   function rxItems(id, b){ const f = RX[id]; if (!f || !b) return []; try { return f(b) || []; } catch (e) { console.error('rx', id, e); return []; } }
   function rxFor(id, b){
+    if (state.cust) return '';                      // v3.31: 고객용 진단서에는 제안 칸이 없다
     const items = rxItems(id, b); if (!items.length) return '';
     return `<div class="rx" id="rx-${id}"><div class="rx-h"><b>제안</b><span>이 장에서 읽은 것 → 할 일 · 규칙으로 판정</span></div>
       <ol>${items.map(x => `<li><span class="rd">${x.d}</span><span class="rp">→ ${x.p}</span></li>`).join('')}</ol></div>`;
@@ -2725,11 +2780,11 @@ svg.trend.rib path.now{stroke:var(--sub)}
     });
     if (rv && rv.questions && Number(rv.questions.hiorder) >= 3) weaknesses.push({ sec:'reviews', text:`코네스트 방문 전 질문 ${esc(num(rv.questions.total,'건'))} 중 <b>주문 규칙·메뉴 ${esc(num(rv.questions.hiorder,'건'))}</b> — 일본인 손님이 헷갈리는 곳`, lever:'첫 주문 최소 수량 안내·번역된 메뉴 설명', w: 4 });
     if (K.pm3 !== null && K.pm12 !== null && K.pm12 >= 2 && K.pm3 < K.pm12 * 0.6) weaknesses.push({ sec:'reviews', text:`최근 3개월 리뷰 월 <b>${K.pm3}건</b> — 12개월 평균 월 ${K.pm12}건의 ${Math.round(K.pm3/K.pm12*100)}%`, lever:'재방문 유도 (스탬프·쿠폰·리뷰 QR)', w:4 });
-    if (rv && rv.velocity && has(rv.velocity.replyRate) && Number(rv.velocity.replyRate) < 20 && counted >= 20) weaknesses.push({ sec:'reviews', text:`사장님 답글 <b>${rv.velocity.replyRate}%</b> — 리뷰를 안 보는 편`, lever:'하이오더 네이버 리뷰 기능 (답글 습관)', w:2 });
+    if (rv && rv.velocity && has(rv.velocity.replyRate) && Number(rv.velocity.replyRate) < 20 && counted >= 20) weaknesses.push({ sec:'reviews', text:`사장님 답글 <b>${rv.velocity.replyRate}%</b> — 리뷰를 안 보는 편`, lever:'하이오더 네이버 리뷰 기능 (답글 습관)', w:2, sale:true });
     if (A.comp.sameBld || A.comp.n100 >= 2) weaknesses.push({ sec:'comp', text:`<b>${A.comp.sameBld ? `같은 건물 ${A.comp.sameBld}곳` : `100m 안 ${A.comp.n100}곳`}</b>이 같은 업종 — 문 앞에서 손님이 갈림`, lever:'주문 속도·회전으로 차별', w:3 });
     if (A.comp.newlyRatio !== null && A.comp.newlyRatio >= 0.15) weaknesses.push({ sec:'comp', text:`동네 ${esc(L.hood.kind||'음식점')} 최근 ${esc(String(L.hood.years||2))}년 새 <b>${esc(num(L.hood.newly,'곳'))}</b> 개업 (영업 중의 ${Math.round(A.comp.newlyRatio*100)}%)`, lever:'재방문 유도 (스탬프·쿠폰)', w:2 });
     if (L && has(L.area) && Number(L.area) >= 100) weaknesses.push({ sec:'quote', text:`홀 <b>약 ${esc(String(pyeong(L.area)))}평</b>${Q.floors > 1 ? ` · ${Q.floors}개 층` : ''} — 주문받으러 다니는 동선`, lever:`테이블 주문·호출 (${Q.est ? rngN(Q.est.devices,'대') : '대수 추정'})`, w:3 });
-    if (L && L.months < 12) weaknesses.push({ sec:'store', text:`연 지 <b>${esc(ageText(L))}</b> — 운영 습관이 굳기 전`, lever:'처음부터 태블릿 주문으로', w:2 });
+    if (L && L.months < 12) weaknesses.push({ sec:'store', text:`연 지 <b>${esc(ageText(L))}</b> — 운영 습관이 굳기 전`, lever:'처음부터 태블릿 주문으로', w:2, sale:true });
     weaknesses.sort((a,b) => b.w - a.w);
     const S = strengths.slice(0,3), W = weaknesses.slice(0,3);
 
@@ -2807,8 +2862,9 @@ svg.trend.rib path.now{stroke:var(--sub)}
     const photo = ph.length ? `<div class="b s5 sumph">${photoHTML(ph[4] || ph[0],'tall','',4,b)}</div>` : '';   // v3.22: 0장은 4번 칸 — 1장(0·1번)과 다른 사진
     const li = (x, kind) => `<li><a href="#sec-${x.sec}" data-sec="${x.sec}"></a><div class="t">${x.text}</div><div class="so ${kind}">${kind === 'w' ? '→ ' : '· '}${esc(kind === 'w' ? x.lever : x.keep)}</div></li>`;
     const S = m.strengths.map(x => li(x,'s')).join('') || '<li class="muted">뚜렷한 강점 신호가 아직 없습니다 — 리뷰가 쌓이면 다시 읽힙니다</li>';
-    const W = m.weaknesses.map(x => li(x,'w')).join('') || '<li class="muted">눈에 띄는 약점 신호가 없습니다</li>';
-    const look = m.look.map(x => `<li><a href="#sec-${x.id}" data-sec="${x.id}" class="sl">${esc(SEC_TITLE(x.id))}</a></li>`).join('');
+    const C = state.cust;
+    const W = m.weaknesses.filter(x => !(C && (x.sale || CUST_SKIP.has(x.sec)))).map(x => li(x,'w')).join('') || '<li class="muted">눈에 띄는 약점 신호가 없습니다</li>';
+    const look = m.look.filter(x => !(C && CUST_SKIP.has(x.id))).map(x => `<li><a href="#sec-${x.id}" data-sec="${x.id}" class="sl">${esc(SEC_TITLE(x.id))}</a></li>`).join('');
     const axes = Object.values(m.axes).filter(a => a.level >= 1).map(a => `<span class="ax l${a.level}" title="${esc(a.why.join(' · '))}">${esc(a.label)}${a.level >= 2 ? ' ●' : ' ○'}</span>`).join('');
     return { html: `<div class="mz sumtop">
         ${photo}
@@ -2827,12 +2883,12 @@ svg.trend.rib path.now{stroke:var(--sub)}
       </div>
       <div class="mz" style="margin-top:22px">
         <div class="b s6"><div class="eyebrow swh"><b>강점</b> — 지킬 것</div><ul class="sumlist sw">${S}</ul></div>
-        <div class="b s6 rail"><div class="eyebrow swh"><b class="w">약점</b> — 그래서 하이오더로</div><ul class="sumlist sw">${W}</ul></div>
+        <div class="b s6 rail"><div class="eyebrow swh">${C ? '<b class="w">아쉬운 점</b>' : '<b class="w">약점</b> — 그래서 하이오더로'}</div><ul class="sumlist sw">${W}</ul></div>
       </div>
       <div class="mz" style="margin-top:22px">
-        <div class="b s7 first"><div class="eyebrow">첫 제안</div><p class="deck">${esc(m.proposal.title)}</p>${m.proposal.warn ? `<p class="src9" style="margin-top:6px">${badge('warn','확인')} ${esc(m.proposal.warn)}</p>` : ''}${m.proposal.net ? `<p class="price">월 <b>${esc(m.proposal.net)}</b><span class="vat">VAT 포함 ${esc(m.proposal.vat)}</span></p>` : ''}<p class="src9">${esc(m.proposal.note)}${m.proposal.daily ? ` · 하루로 나누면 약 ${esc(m.proposal.daily)} (VAT 포함 ÷ 30일)` : ''} · 자세한 계산은 견적 장</p>
-          ${m.brandLine ? `<p class="src9 int">${m.brandLine}</p>` : ''}</div>
-        <div class="b s5 rail"><div class="eyebrow">먼저 볼 곳</div><ul class="sumlist look">${look}</ul></div>
+        ${C ? '' : `<div class="b s7 first"><div class="eyebrow">첫 제안</div><p class="deck">${esc(m.proposal.title)}</p>${m.proposal.warn ? `<p class="src9" style="margin-top:6px">${badge('warn','확인')} ${esc(m.proposal.warn)}</p>` : ''}${m.proposal.net ? `<p class="price">월 <b>${esc(m.proposal.net)}</b><span class="vat">VAT 포함 ${esc(m.proposal.vat)}</span></p>` : ''}<p class="src9">${esc(m.proposal.note)}${m.proposal.daily ? ` · 하루로 나누면 약 ${esc(m.proposal.daily)} (VAT 포함 ÷ 30일)` : ''} · 자세한 계산은 견적 장</p>
+          ${m.brandLine ? `<p class="src9 int">${m.brandLine}</p>` : ''}</div>`}
+        <div class="b ${C ? 's12' : 's5 rail'}"><div class="eyebrow">먼저 볼 곳</div><ul class="sumlist look">${look}</ul></div>
       </div>`, meta: '진단서 · 규칙으로 판정' };
   }
   /* 요약의 장 링크에 실제 장 번호를 붙인다 — 어느 장이 빠졌든 화면의 번호를 따른다 */
@@ -3043,9 +3099,9 @@ ${GUARD}`,
     const slow = failed.some(([,m]) => isSlow(m))
       ? '<p class="src9">서버가 느리거나 연결이 끊겨 못 가져온 항목이 있습니다. 한 번 더 수집하면 대개 채워집니다.</p>' : '';
     return `<footer class="foot">
-      ${list.length ? `<div style="margin-bottom:13px"><b style="color:var(--ink)">수집하지 못한 항목</b>
+      ${list.length ? `<div class="sale" style="margin-bottom:13px"><b style="color:var(--ink)">수집하지 못한 항목</b>
         <ul class="errs" style="margin-top:6px">${list.join('')}</ul>${slow}</div>` : ''}
-      모든 숫자에는 출처와 조회 시각이 붙습니다. 공개 데이터와 추정치이므로 리포트에 쓰기 전에 원본과 한 번 대조해 주세요.<br>
+      모든 숫자에는 출처와 조회 시각이 붙습니다. 공개 데이터와 추정치<span class="sale">이므로 리포트에 쓰기 전에 원본과 한 번 대조해 주세요</span><span class="custonly">입니다</span>.<br>
       수집 ${esc(b.collectedAt||'')} · 반경 ${dist((b.options&&b.options.radius)||500)} · 수집기 ${esc(b.version||'')} / 페이지 ${PAGE_VERSION}
     </footer>`;
   }
@@ -3076,9 +3132,11 @@ ${GUARD}`,
   }
 
   /* ── 리포트 조립 — 장번호는 실제로 그려진 섹션에만 순서대로 매긴다 ── */
+  const CUST_SKIP = new Set(['quote', 'keyword', 'news', 'manual']);   // v3.31: 고객용 진단서에서 빼는 장 — 견적·키워드 후보는 제안서 몫, 뉴스는 부정 기사가 섞일 수 있다
   function renderReport(b){
     let no = 0;
     const parts = SECTIONS.map((sd) => {
+      if (state.cust && CUST_SKIP.has(sd.id)) return '';
       let r = null;
       try { r = sd.render(b); } catch (e) { console.error(sd.id, e); r = null; }
       if (!r) return '';
@@ -3093,7 +3151,13 @@ ${GUARD}`,
       </section>`;
     });
     setTimeout(() => { mountMap(b); numberSumLinks(); window.dispatchEvent(new Event('sketch:rendered')); }, 0);          // innerHTML이 들어간 다음에 올린다
-    return parts.join('') + renderFoot(b);
+    return custHeadHTML(b) + parts.join('') + renderFoot(b);
+  }
+  function custHeadHTML(b){
+    if (!state.cust || !b || !b.store) return '';
+    const day = String(b.collectedAt || '').slice(0, 10);
+    return `<div class="custhead"><div class="eyebrow">매장 진단서</div><p class="deck">${esc(b.store.name || '')}</p>
+      <p class="src9">${day ? `${esc(day)} 기준 · ` : ''}공개 자료와 손님 리뷰로 만든 진단입니다 · 판정은 정해 둔 규칙으로만 합니다</p></div>`;
   }
 
   /* ── 1장 지도 (네이버 Dynamic Map) ──
@@ -3382,12 +3446,12 @@ ${GUARD}`,
     if (rw) parts.push(`리뷰 ${num(rv.counted||0,'건')} 중 <b>${num(rvN,'건')}</b>`);
     const quotes = [].concat((waiting && waiting.recent || []).slice(0,2).map(r => `${r.date ? `${esc(r.date)} · ` : ''}${linkText(r.link, r.title)}`),
       (rw && rw.recent || []).slice(0,2).map(r => `${r.date ? `${esc(r.date)} · ` : ''}“${esc(r.text)}” <span class="src9">플레이스 리뷰</span>`));
-    const devLine = dev && dev.total ? `<p class="q">${badge('warn','기존 대기 기기 흔적')} 리뷰 ${num(dev.total,'건')}에 웨이팅 기기(대기 등록기·줄서기 앱)가 적혀 있습니다 — 이미 기기로 대기를 받는 매장일 수 있으니 ‘웨이팅이 문제’가 아니라 지금 기기로 되는 것과 하이오더 웨이팅으로만 되는 것을 견주는 전환 논리로 쓰세요.${dev.recent.map(h => `<br>${h.date ? `${esc(h.date)} · ` : ''}“${esc(h.text)}”`).join('')}</p>` : '';
+    const devLine = dev && dev.total ? `<p class="q sale">${badge('warn','기존 대기 기기 흔적')} 리뷰 ${num(dev.total,'건')}에 웨이팅 기기(대기 등록기·줄서기 앱)가 적혀 있습니다 — 이미 기기로 대기를 받는 매장일 수 있으니 ‘웨이팅이 문제’가 아니라 지금 기기로 되는 것과 하이오더 웨이팅으로만 되는 것을 견주는 전환 논리로 쓰세요.${dev.recent.map(h => `<br>${h.date ? `${esc(h.date)} · ` : ''}“${esc(h.text)}”`).join('')}</p>` : '';
     return `<div class="b s12 top wait"><div class="eyebrow">WAITING</div>
       <p class="deck">웨이팅 신호 — ${parts.join(', ')}에 웨이팅·대기가 적혀 있습니다.</p>
       ${quotes.length ? `<p class="q">${quotes.join('<br>')}</p>` : ''}
       ${devLine}
-      <p class="src9">${esc(HIORDER_WAIT)}${rw ? '' : ' · 리뷰를 가져오면 리뷰 쪽 건수도 더해집니다'}</p></div>`;
+      <p class="src9 sale">${esc(HIORDER_WAIT)}${rw ? '' : ' · 리뷰를 가져오면 리뷰 쪽 건수도 더해집니다'}</p></div>`;
   }
   function renderOnline(b){
     const m = mod(b,'online');
@@ -3501,9 +3565,9 @@ ${GUARD}`,
       <div class="b s12 top" data-rule="ht">
       ${acc('해당됩니다 — 주소·업종으로 확정', `${t1.length}건`, supList(t1), true)}
       ${t2.length ? acc('해당될 수 있습니다 — 확인 필요', `${t2.length}건`, supList(t2)) : ''}
-      ${t3.length ? acc('사장님께 여쭤봐야 압니다', `${t3.length}건`, supList(t3)) : ''}
+      ${t3.length ? acc(state.cust ? '사장님 상황에 따라 해당될 수 있습니다' : '사장님께 여쭤봐야 압니다', `${t3.length}건`, supList(t3)) : ''}
       </div>
-      <div class="b s12"><p class="k">사장님께 여쭤볼 것</p>
+      <div class="b s12 sale"><p class="k">사장님께 여쭤볼 것</p>
       <p class="src9" style="margin-top:2px">대답에 따라 위 제도 해당 여부가 갈립니다. 이 목록은 현장에서 쓰는 것이라 인쇄물에 항상 남습니다.</p>
       <ul class="ask" style="margin-top:11px">${ASK_OWNER.map(q => `<li>${esc(q)}</li>`).join('')}</ul>
       ${inIncheon ? '' : '<p class="src9">이 매장은 인천이 아니어서 인천시 사업은 숨겼습니다. 기업마당에서 해당 지역으로 검색하세요.</p>'}</div>
@@ -4106,8 +4170,8 @@ ${GUARD}`,
     const VT = d.stats && d.stats.voted ? d.stats.voted : null;
     const srcN = (p) => Object.entries(p.bySource||{}).map(([k,v]) => `${k} ${v}`).join(' · ');
     const used = new Set();
-    return `<p class="deck cmphead praise" style="margin-top:46px">칭찬이 적힌 리뷰 <b>${esc(num(P.withPraise,'건'))}</b> 중 <b>${esc(num(P.hiorder,'건'))}</b>은 하이오더로 더 살릴 수 있습니다</p>
-      <p class="src9">손님이 이미 칭찬하는 것 중 하이오더가 키워 줄 수 있는 것만 셉니다 (별점 1~2점 글 제외)${P.foreignScanned ? ` · 외국어 글 ${esc(num(P.foreignScanned,'건'))} 중 칭찬 ${esc(num(P.foreignPraise,'건'))}` : ''}${VT ? ` · 「」 안의 표 수는 네이버 전체 리뷰 ${esc(num(VT.reviews,'건'))}의 키워드 투표입니다` : ''}.</p>
+    return `<p class="deck cmphead praise" style="margin-top:46px">${state.cust ? `손님이 칭찬한 점 — 칭찬이 적힌 리뷰 <b>${esc(num(P.withPraise,'건'))}</b>` : `칭찬이 적힌 리뷰 <b>${esc(num(P.withPraise,'건'))}</b> 중 <b>${esc(num(P.hiorder,'건'))}</b>은 하이오더로 더 살릴 수 있습니다`}</p>
+      <p class="src9"><span class="sale">손님이 이미 칭찬하는 것 중 하이오더가 키워 줄 수 있는 것만 셉니다 </span>(별점 1~2점 글 제외)${P.foreignScanned ? ` · 외국어 글 ${esc(num(P.foreignScanned,'건'))} 중 칭찬 ${esc(num(P.foreignPraise,'건'))}` : ''}${VT ? ` · 「」 안의 표 수는 네이버 전체 리뷰 ${esc(num(VT.reviews,'건'))}의 키워드 투표입니다` : ''}.</p>
       ${burstHTML(d)}
       <ul class="cmp praise">${items.map(p => { const s = (p.samples||[]).find(x => !used.has(x.text)) || (p.samples||[])[0]; if (s) used.add(s.text);
         return `<li><div class="top">${badge('ok', p.label)} <b>${esc(num(p.n,'건'))}</b>${p.voted ? ` · 네이버 ${p.voted.map(v => `「${esc(v.name)}」 ${esc(num(v.count,'표'))}`).join(' · ')}` : ''}${srcN(p) ? ` <span class="also">${esc(srcN(p))}</span>` : ''}</div>
@@ -4123,6 +4187,24 @@ ${GUARD}`,
       <p class="src9">체험단·리뷰 이벤트 글일 수 있습니다. 목록에서 지우지는 않았습니다${ex ? ` — 이 구간을 빼고 보면 칭찬 리뷰 ${esc(num(ex.withPraise,'건'))} 중 ${esc(num(ex.hiorder,'건'))}이 하이오더로 더 살릴 칭찬입니다` : ''}. 리뷰 속도(최근 12개월)에도 이 구간이 들어 있습니다.</p></div>`;
   }
   /* v3.28: 코네스트 질문 — 일본인 손님이 가기 전에 묻는 것. 주문 규칙·메뉴 질문은 매장 안에서도 직원에게 되풀이된다 */
+  /* v3.31: 방문 태그 갈래 이름이 코드로 온다(실측 v_no_reservation·v_with_reservation) — 우리말로 바꾸고 같은 이름끼리 합친다 */
+  const VT_CAT = [['예약', /reserv|예약/i], ['대기 시간', /wait|대기|입장|\d+\s?분/i],
+    ['방문 목적', /purpose|일상|데이트|회식|친목|여행|기념일|나들이|모임|출장|비즈니스/i], ['동행', /companion|친구|연인|배우자|가족|아이|혼자|동료|지인|부모|반려|아기|어르신/i]];
+  function vtCats(VT){
+    const m = new Map();
+    for (const cc of (VT && VT.cats) || []) {
+      const kws = (cc.keywords || []).filter(k => k && k.name);
+      let name = String(cc.name || '');
+      if (!name || /^[A-Za-z0-9_\-\s]+$/.test(name)) {        // 코드 이름으로 먼저, 안 되면 낱말로 (목적을 동행보다 먼저 — '가족모임'은 목적)
+        const hit = (name && VT_CAT.find(([, re]) => re.test(name))) || VT_CAT.find(([, re]) => re.test(kws.map(k => k.name).join(' ')));
+        name = hit ? hit[0] : (name || '기타'); }
+      const cur = m.get(name) || { name, n: 0, kw: new Map() };
+      cur.n += Number(cc.n) || 0; kws.forEach(k => cur.kw.set(k.name, (cur.kw.get(k.name) || 0) + (Number(k.n) || 0)));
+      m.set(name, cur);
+    }
+    return [...m.values()].map(c => ({ name: c.name, n: c.n, keywords: [...c.kw.entries()].sort((a, b) => b[1] - a[1]).map(([name, n]) => ({ name, n })) })).sort((a, b) => b.n - a.n);
+  }
+  const LONG_WAIT = /30\s?분\s?이상|1\s?시간|시간\s?이상/;          // 네이버 선택지: 바로 입장 · 10분 이내 · 30분 이내 · 30분 이상
   /* v3.30: 리뷰에서 더 읽은 것 — 추가 주문·누가 오나·실제 재방문·방문 태그·방문 요일·붐비는 때 (수집 서버 v1.38) */
   function reviewMoreHTML(d){
     const X = d.extraOrder, V = d.visitors, RVS = d.revisit, VT = d.visitTags, BZ = d.busy, rows = [];
@@ -4130,7 +4212,7 @@ ${GUARD}`,
     if (X && X.count) rows.push(['추가 주문', `리뷰에 <b>${esc(num(X.count,'건'))}</b>${X.withCall ? ` · 그중 직원을 불러야 했던 글 <b>${esc(num(X.withCall,'건'))}</b>` : ''}${smp(X.recent && X.recent[0])}`]);
     if (V && (V.segments || []).length) rows.push(['누가 오나', `${V.segments.map(s => `${esc(s.label)} <b>${esc(num(s.n))}</b>`).join(' · ')} <span class="src9">— 글 ${esc(num(V.scanned,'건'))} 중 적힌 글</span>${smp(V.segments[0].sample)}`]);
     if (RVS && RVS.withCount) rows.push(['실제 재방문', `네이버 리뷰 ${esc(num(RVS.withCount,'건'))} 중 두 번 이상 온 손님 <b>${esc(String(RVS.pct))}%</b> (${esc(num(RVS.repeat,'건'))})${RVS.heavy ? ` · 다섯 번 이상 ${esc(num(RVS.heavy,'건'))}` : ''} <span class="src9">— 리뷰 카드의 ‘N번째 방문’</span>`]);
-    if (VT && (VT.cats || []).length) VT.cats.slice(0, 3).forEach(cc => rows.push([cc.name, `${cc.keywords.map(k => `${esc(k.name)} <b>${esc(num(k.n))}</b>`).join(' · ')} <span class="src9">— 태그 단 리뷰 ${esc(num(cc.n,'건'))}</span>`]));
+    if (VT && (VT.cats || []).length) vtCats(VT).slice(0, 5).forEach(cc => rows.push([cc.name, `${cc.keywords.map(k => `${esc(k.name)} <b>${esc(num(k.n))}</b>`).join(' · ')} <span class="src9">— 태그 단 리뷰 ${esc(num(cc.n,'건'))}</span>`]));
     if (BZ && BZ.days && BZ.dayN >= 10) { const D = ['월','화','수','목','금','토','일'];
       rows.push(['방문 요일', `${D.map((w, i) => `${w} <b>${esc(String(BZ.days[i]))}</b>`).join(' · ')} — 주말 <b>${esc(String(BZ.weekendPct))}%</b> <span class="src9">— 네이버 리뷰 방문일 ${esc(num(BZ.dayN,'건'))}</span>`]); }
     if (BZ && (BZ.peaks || []).length) rows.push(['붐빈다는 글', `${BZ.peaks.map(p => `${esc(p.label)} <b>${esc(num(p.n,'건'))}</b>`).join(' · ')}${smp(BZ.peaks[0].sample)}`]);
@@ -4201,8 +4283,8 @@ ${GUARD}`,
           <div class="lead-ref">% · 가져온 ${esc(num(V.dated,'건'))} 중 ${esc(num(V.replied,'건'))}에 답글</div></div>` : ''}
       </div>`;
       readV = fast
-        ? `<p class="src9">읽는 법: 리뷰가 빠르게 쌓이는 매장입니다 — 리뷰 수 대신 <b>답글 비율</b>과 아래 불만 신호를 보세요. 네이버는 2021년부터 별점 대신 키워드 평가라 옛 리뷰는 적게 보일 수 있습니다.</p>`
-        : `<p class="src9">읽는 법: 리뷰가 느리게 쌓이는 매장이면 하이오더 주문내역 화면의 「네이버 플레이스 리뷰」 QR로 영수증 촬영 없이 영수증 리뷰를 남기게 할 수 있습니다 — 현재 <b>OKPOS(20251024 이상) 매장만</b> 되므로 방문 때 포스 제조사를 확인하세요 (하이오더 매뉴얼 10245 · 2026-05 기준). 네이버는 2021년부터 별점 대신 키워드 평가라 옛 리뷰는 적게 보일 수 있습니다.</p>`;
+        ? `<p class="src9 sale">읽는 법: 리뷰가 빠르게 쌓이는 매장입니다 — 리뷰 수 대신 <b>답글 비율</b>과 아래 불만 신호를 보세요. 네이버는 2021년부터 별점 대신 키워드 평가라 옛 리뷰는 적게 보일 수 있습니다.</p>`
+        : `<p class="src9 sale">읽는 법: 리뷰가 느리게 쌓이는 매장이면 하이오더 주문내역 화면의 「네이버 플레이스 리뷰」 QR로 영수증 촬영 없이 영수증 리뷰를 남기게 할 수 있습니다 — 현재 <b>OKPOS(20251024 이상) 매장만</b> 되므로 방문 때 포스 제조사를 확인하세요 (하이오더 매뉴얼 10245 · 2026-05 기준). 네이버는 2021년부터 별점 대신 키워드 평가라 옛 리뷰는 적게 보일 수 있습니다.</p>`;
     }
 
     const srcList = Object.values(d.sources||{});
@@ -4261,8 +4343,8 @@ ${GUARD}`,
     if (!items.length){
       out.push(`<p class="lead-read" style="font-size:15px;margin-top:46px">분석한 ${esc(num(scTotal,'건'))}${scLine ? ` (${esc(scLine)})` : ''} 가운데 불만이 적힌 리뷰를 찾지 못했습니다. 리뷰가 고르게 긍정적인 매장입니다 — 이건 그대로 리포트의 강점으로 쓰세요.</p>`);
     } else {
-      out.push(`<p class="deck cmphead" style="margin-top:46px">불만이 적힌 리뷰 <b>${esc(num(nC,'건'))}</b> 중 <b>${esc(num(d.hiorderCount,'건'))}</b>은 하이오더로 개선할 수 있습니다</p>
-        <p class="src9">${scLine ? `읽은 글 ${esc(num(scTotal,'건'))} — ${esc(scLine)}. ` : ''}리포트에 쓸 때는 작성 시점을 함께 적으세요. 맛·위생·가격 불만은 하이오더로 해결되지 않으니 그 말은 쓰지 마세요. 한 글에 여러 불만이 섞이면 하이오더로 손볼 갈래를 앞에 두고 나머지는 ‘함께’로 적었습니다. ‘기타 불만’은 별점은 낮은데 정해 둔 불만 표현이 없는 글입니다 — 읽고 직접 분류하세요.</p>`);
+      out.push(`<p class="deck cmphead" style="margin-top:46px">${state.cust ? `손님이 아쉬움을 적은 리뷰 <b>${esc(num(nC,'건'))}</b>` : `불만이 적힌 리뷰 <b>${esc(num(nC,'건'))}</b> 중 <b>${esc(num(d.hiorderCount,'건'))}</b>은 하이오더로 개선할 수 있습니다`}</p>
+        <p class="src9">${scLine ? `읽은 글 ${esc(num(scTotal,'건'))} — ${esc(scLine)}. ` : ''}<span class="sale">리포트에 쓸 때는 작성 시점을 함께 적으세요. 맛·위생·가격 불만은 하이오더로 해결되지 않으니 그 말은 쓰지 마세요. 한 글에 여러 불만이 섞이면 하이오더로 손볼 갈래를 앞에 두고 나머지는 ‘함께’로 적었습니다. ‘기타 불만’은 별점은 낮은데 정해 둔 불만 표현이 없는 글입니다 — 읽고 직접 분류하세요.</span></p>`);
       out.push(`<ul class="cmp">${items.map((x) => {
         const c = x.category;
         const tag = c ? badge('info', c.label) : badge('info','기타 불만');
@@ -4277,7 +4359,7 @@ ${GUARD}`,
     out.push(praiseHTML(d));
     out.push(questionsHTML(d));
     out.push(reviewMoreHTML(d));
-    out.push(`<p class="src9">${esc(d.note||'')}</p>`);
+    out.push(`<p class="src9 sale">${esc(d.note||'')}</p>`);
     out.push(`<div class="rvbar int" style="margin-top:21px"><input id="rvUrl" type="url" maxlength="300" aria-label="네이버 지도 주소"
       placeholder="매장이 다르면 네이버 지도 주소를 넣으세요 (Apify로 다시 가져옵니다)">
       <button type="button" class="abtn" id="rvBtn"${blocked?' disabled':''}>이 주소로 다시</button></div>${usageLine()}`);
@@ -4777,7 +4859,8 @@ ${GUARD}`,
     if (NI2 && NI2.parking) L.push(`| 주차(네이버) | ${md(NI2.parking)} | 네이버 플레이스 정보 |`);
     if (NI2 && (NI2.payments || []).length) L.push(`| 결제수단 | ${md(NI2.payments.join(' · '))} | 네이버 플레이스 정보 |`);
     if (NI2 && NI2.hygiene) L.push(`| 위생 | ${md(NI2.hygiene)} | 네이버 플레이스 정보 |`);
-    if (NI2 && (NI2.sns || []).length) L.push(`| SNS | ${md(NI2.sns.map((x) => `${x.type} ${x.url}`).join(', '))} | 네이버 플레이스 정보 |`);
+    const SNS2 = PL ? snsList(PL) : [];
+    if (SNS2.length) L.push(`| SNS | ${md(SNS2.map((x) => `${x.type} ${x.url}`).join(', '))} | 네이버 플레이스 정보 |`);
     const MP2 = menuProfile(b);
     if (MP2) L.push(`| 메뉴 가격대 | ${md(`${MP2.count}개${MP2.minP !== null ? ` · ${num(MP2.minP,'원')}~${num(MP2.maxP,'원')}` : ''}${MP2.median !== null ? ` · 가운데 값 ${num(MP2.median,'원')}` : ''}${MP2.rec ? ` · 추천 ${MP2.rec.name} ${num(MP2.rec.price,'원')}` : ''} · ${MP2.label}`)} | ${md(MP2.source)} |`);
     const BL = PL && PL.blog;
@@ -4999,7 +5082,7 @@ ${GUARD}`,
       if (XO2 && XO2.count) L.push(`- 추가 주문 언급: ${XO2.count}건${XO2.withCall ? ` (직원을 불러야 했던 글 ${XO2.withCall}건)` : ''}${(XO2.recent || []).length ? ` — ${md(XO2.recent.map((r) => `${r.date || ''} "${r.text}"`).join(' / '))}` : ''}`);
       if (VS2 && (VS2.segments || []).length) L.push(`- 리뷰에 적힌 손님 구성: ${md(VS2.segments.map((s) => `${s.label} ${s.n}`).join(', '))} (글 ${VS2.scanned}건 중 적힌 글 — 한 글이 여러 갈래일 수 있음)`);
       if (RV2) L.push(`- 실제 재방문(네이버 리뷰 카드 'N번째 방문'): ${RV2.withCount}건 중 두 번 이상 ${RV2.repeat}건 (${RV2.pct}%)${RV2.heavy ? `, 다섯 번 이상 ${RV2.heavy}건` : ''}`);
-      if (VT2 && (VT2.cats || []).length) L.push(`- 네이버 방문 태그(태그 단 리뷰 ${VT2.reviews}건): ${md(VT2.cats.map((cc) => `${cc.name} — ${cc.keywords.map((k) => `${k.name} ${k.n}`).join(', ')}`).join(' / '))} (대기 시간 '30분 이내'는 30분 안쪽, 30분 넘게는 '1시간 이내'·'1시간 이상')`);
+      if (VT2 && (VT2.cats || []).length) L.push(`- 네이버 방문 태그(태그 단 리뷰 ${VT2.reviews}건): ${md(vtCats(VT2).map((cc) => `${cc.name} — ${cc.keywords.map((k) => `${k.name} ${k.n}`).join(', ')}`).join(' / '))} (대기 시간의 '30분 이내'는 30분 안쪽이고, 30분 넘게 기다린 글은 '30분 이상'입니다)`);
       if (BZ2 && BZ2.days && BZ2.dayN >= 10) L.push(`- 방문 요일(네이버 리뷰 방문일 ${BZ2.dayN}건): ${['월','화','수','목','금','토','일'].map((w, i) => `${w} ${BZ2.days[i]}`).join(', ')} · 주말 ${BZ2.weekendPct}%${(BZ2.peaks || []).length ? ` · 붐빈다는 글: ${BZ2.peaks.map((p) => `${p.label} ${p.n}`).join(', ')}` : ''}`);
       if ((XO2 && XO2.count) || (VS2 && (VS2.segments || []).length) || RV2 || (BZ2 && BZ2.dayN >= 10)) L.push('- 규칙: 추가 주문·손님 구성·재방문·요일은 리뷰를 쓴 손님 기준입니다. 전체 손님 비율처럼 쓰지 말고 "리뷰에 적힌 기준"이라고 밝히세요.');
       const rc = rv.ratingCounts || {};
@@ -5218,6 +5301,7 @@ ${GUARD}`,
     state.reviews = pack.reviews && pack.reviews.data ? { running:false, data: pack.reviews.data, source: pack.reviews.source, fetchedAt: pack.reviews.fetchedAt, mode: pack.reviews.mode || 'apify', cached: pack.reviews.cached, cachedAt: pack.reviews.cachedAt, seconds: pack.reviews.seconds } : null;
     if (!state.reviews) adoptDirectReviews(state.bundle);       // v3.21: 수집에 딸려 온 리뷰 (묶음 안 modules.reviews)
     state.autoFallback = false;                                 // 저장본을 열 때는 Apify를 자동으로 돌리지 않는다
+    setCust(false, false);
     state.apiCalls = null;
     heroAway();
     el.result.innerHTML = renderReport(state.bundle);
@@ -5537,6 +5621,7 @@ ${GUARD}`,
   }
   async function collect(c){
     setBusy(true);
+    setCust(false, false);                  // v3.31: 새 매장은 영업용 화면으로 시작
     state.reviews = null;
     el.result.innerHTML = '';
     el.acts.hidden = true;
@@ -5625,6 +5710,19 @@ ${GUARD}`,
 
   /* 4. 내보내기 — JSON 저장 버튼은 뺐다(2026-09-21). forExport()는 남겨 뒀으니
      파워오토메이트가 붙으면 버튼 한 줄과 처리기 세 줄만 되살리면 된다. */
+  /* v3.31: 고객용 진단서 보기 — 다시 그리고 리포트 맨 위로 */
+  function setCust(on, rerender = true){
+    state.cust = Boolean(on);
+    document.body.classList.toggle('cust', state.cust);
+    if (el.custBtn) { el.custBtn.textContent = state.cust ? '영업용 화면으로' : '고객용 진단서'; el.custBtn.classList.toggle('on', state.cust); }
+    if (!rerender || !state.bundle) return;
+    el.result.innerHTML = renderReport(state.bundle);
+    $$('.sec').forEach(sec => sec.classList.add('on'));
+    paintReviews();
+    if (!state.cust) fetchKwTrend();
+    requestAnimationFrame(() => { try { el.result.scrollIntoView({ block: 'start' }); } catch (_) {} });
+  }
+  if (el.custBtn) el.custBtn.addEventListener('click', () => setCust(!state.cust));
   el.printBtn.addEventListener('click', () => {
     $$('.sec').forEach(s => s.classList.add('on'));
     $$('.acc.pshow').forEach(d => { d.open = true; });
@@ -5945,7 +6043,7 @@ ${GUARD}`,
     }
     function autoInk(){
       clearAuto();
-      if (!ac || autoOff){ redraw(); return; }
+      if (!ac || autoOff || document.body.classList.contains('cust')){ redraw(); return; }
       const ems = [...document.querySelectorAll('#sec-reviews .cmp .sn em.neg')];
       const lis = new Set();
       for (const em of ems){
