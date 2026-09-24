@@ -267,10 +267,13 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
 .recent button.load{border-style:dashed;color:var(--dim,#6E6E73)}
 .recent button:hover{border-color:var(--ink)}
 body.dropping::after{content:'묶음(.json)을 놓으면 그 매장이 열립니다';position:fixed;inset:14px;border:2px dashed var(--accent);border-radius:16px;display:grid;place-items:center;font-size:18px;font-weight:700;color:var(--accent);background:rgba(233,233,236,.86);z-index:70;pointer-events:none}
-.track{display:inline-flex;gap:6px;align-items:center;margin-left:auto;font-size:12.5px;color:var(--dim,#6E6E73)}
-.track button{font:inherit;font-size:12.5px;padding:5px 10px;border:1px solid var(--line);border-radius:999px;background:var(--paper);color:var(--ink)}
-.track button.on{border-color:var(--ink);font-weight:600}
-.track button.diag{border-style:dotted;cursor:default}
+.track{display:inline-flex;gap:6px;align-items:center;margin-left:auto;font-size:12.5px;color:var(--dim,#6E6E73);flex-wrap:wrap}
+.track .tl{font-size:11px;letter-spacing:.06em;color:var(--sub);margin-right:2px}
+.track button{font:inherit;font-size:12.5px;padding:5px 11px;border:1.4px solid var(--ink);border-radius:999px;background:var(--paper);color:var(--ink);cursor:pointer;box-shadow:0 1px 0 rgba(32,30,29,.25)}
+.track button:hover{background:var(--panel)}
+.track button.on{background:var(--ink);color:#fff;font-weight:600}
+.track button.diag{border-style:dotted;cursor:default;box-shadow:none;background:transparent;color:var(--ink)}
+.track .src9{flex-basis:100%;margin-top:2px}
 @media print{.recent,.track{display:none!important}}
 .cands:empty{display:none}
 .cand{display:flex;justify-content:space-between;align-items:center;gap:16px;
@@ -315,13 +318,14 @@ body.dropping::after{content:'묶음(.json)을 놓으면 그 매장이 열립니
 .axes{margin-top:12px;display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center}
 .ax{font-size:11px;font-weight:700;letter-spacing:.02em;border:1px solid var(--ink);border-radius:999px;padding:2px 9px;cursor:help}
 .ax.l2{background:var(--ink);color:#fff}
-.gauges{margin-top:14px;border-top:1px solid var(--rule,#DCDCE1)}
+.glegend{margin-top:14px;font-size:11px;color:var(--sub);display:flex;gap:6px;align-items:center}
+.glegend i{display:inline-block}.glegend i.bar{width:22px;height:9px;background:var(--accent,#EC3013);border-radius:2px}.glegend i.ref{width:2px;height:13px;background:var(--ink);margin-left:8px}
+.gauges{margin-top:6px;border-top:1px solid var(--rule,#DCDCE1)}
 .gauge{display:grid;grid-template-columns:1.3fr 1fr 1.1fr;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule,#DCDCE1);font-size:12px}
 .gauge .gl{color:var(--sub)}.gauge .gl b{color:var(--ink)}
-.gauge .gt{position:relative;height:14px;background:linear-gradient(to right,transparent 0,transparent calc(50% - .5px),rgba(32,30,29,.0) 50%),none;border-bottom:1.4px solid var(--ink)}
-.gauge .gt i{position:absolute;bottom:-1px;transform:translateX(-50%)}
-.gauge .gt i.me{width:11px;height:11px;border-radius:50%;background:var(--accent,#EC3013);bottom:-6px}
-.gauge .gt i.ref{width:2px;height:14px;background:var(--ink)}
+.gauge .gt{position:relative;height:10px;background:var(--panel,#E9E9EC);border-radius:2px}
+.gauge .gt i.bar{position:absolute;left:0;top:0;bottom:0;background:var(--accent,#EC3013);border-radius:2px}
+.gauge .gt i.ref{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--ink);transform:translateX(-50%)}
 .gauge .gv{font-variant-numeric:tabular-nums;white-space:nowrap}
 .sumlist.sw li{padding-left:44px;font-size:14px}
 .sumlist.sw .so{font-size:12px;color:var(--sub);margin-top:3px}.sumlist.sw .so.w{color:var(--accent-ink,#B8250E);font-weight:600}
@@ -484,6 +488,12 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
 .thumbs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;list-style:none;margin:13px 0 0;padding:0}
 .thumbs a{display:block;aspect-ratio:1/1;border-radius:10px;overflow:hidden;background:var(--panel)}
 .thumbs img{width:100%;height:100%;object-fit:contain;display:block}
+.menuwrap{display:flex;gap:12px;align-items:flex-start}
+.menutbl{flex:1;min-width:0}
+.thumbs.mini{grid-template-columns:1fr 1fr;gap:4px;width:96px;flex:none;margin:0;perspective:none}
+.thumbs.mini a{border-radius:3px;background:#fff;border:1px solid rgba(32,30,29,.12);transform:none!important}
+.thumbs.mini img{object-fit:cover}
+@media print{.thumbs.mini{display:none}}
 /* ══ 거리별 밀도 · 주변 업종 구성 (3장) ══ */
 .dist{list-style:none;margin:13px 0 0;padding:0}
 .dist li{display:flex;align-items:center;gap:13px;padding:7px 0}
@@ -1078,7 +1088,7 @@ svg.trend.rib path.now{stroke:var(--sub)}
        cursor:image-set(url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAESElEQVR4nOyXe2xTZRjGn3Pade1gYR3bcM0ujGGQxCwsdJ2JZjELTnGgbO26TYJMWNAYHWSJGhIMxEQ0zKAxyzYNbAwSbEYHBBIxEvGP1YRBOrcYM0CMTXts10sUO+no3fdr1uaAnXajy/zDN2na9zvfOc/vfb5bjxRLHFIscfwP8N8EEATBcvHC+ewNlRvtarX6F6lU6qRm9nHNfo9wHGdHGoJL1tjX2zv1weH3V7HfsowMVFdroNZUo6pKgw2VleNZWVk2ujRIEMNYDIDr165d1zdp1TkrstG+YxsEhwvm8Uncum0FiSInZwWMw+eia8rLX6LcgHQDhEIhw+PrH2ve39mGxq21iXaLzYF973TBanchV5mLM8bhaHFJyUNB8MkaJRLJHQ3Z7nB6Em1O12/Y/cZ7+P0PH768dBmlpWXQN+k4wWY7HY1GW5BOAIqpKs0TME/ciiV2hxutu/cjEuHR3XsccrkCRz/5FCUlq9Gk08YhXkZ6ATSY+OEGrMIUWkg8FOEwNHwehYWr4HS6CSbyIMSJhUDMBXCnoqJiNBAIol6/F7xEhu6eYzQ0UtAKwMqVyqQQDodjkCBeQRoAvlMoFB5lTg5kMhkMQ2ehUj0Cl8sNv98fg8jLy70PomxNOfQ6LQiifz4QSQFoVrN1fvDU6S98BQUFOHTwQAyEiT4IwXIG0fXRxwRZNG8I7p8u0kOq7Xb7N81NumWlq8twpOsogsEQPB4PCgrykZmZiZmZe4mc53l07uuA3S5giJZoYWFhGxVzcsEAIohvCUKxGBD/CjAL8RRBfJ0MIi8vDwqFPAHBcqlUkjJESgAiiMvahm3y8rWPJiDcbjfy8/MTEPE8VQg+VQC62aRSqeqHzhj9P9/+CW+/1YmMDGlMjIkycQYRz0OhcGx1sImpa2zgTCZT0n0iZQdETtTarNZLtA3LxE7MNRw+313oXtyCQMAPAzmxUa2+z4mUHRA5cYUOoAZyIih2gk1AJhp3guUWiwVvvtaOEkkYNdIQWunsGB8bY5vVzgU7IHJiK22/52gHlKxbtx6HPzyCcDgc2xdY5aziV3fthMIloEfuhZyU9ngVuEH/ga6av7+rVCqzqZjovB0QOXGxqLhYS0dy+ObNyZgTdIomKt/TtgMKt4Be+TSW8xwmQhL8GObwZM3TIPF+Jv5QDoiceIGcOMucYHPiwLuH8Hp7G5a7f0W3/E8soxKvBjnsnZajpnYT+gcGjHRbCwGE0wIwC6EjCIO2sUEy4/WijAuS7dMx25l4h1eOZ5+vR09f3wXq3hgXZ7HgIRAHPdBIw9EycGIw4qex54NB8NEoRvw8OqYT4l9RV61YPHYv0hjkxPYxs/lkq1bLr5WEMEnVb6qrw+fHjl+hy5tJPPA3eKQ5GMTo6Oip7c16ru65zaxyEzU/Q+L3kvVPO8AsxC67IHymKioaoXQLifvm6rsoAPOJJX81+wsAAP//qr/GoQAAAAZJREFUAwBLwzkdBBx9KAAAAABJRU5ErkJggg==") 1x,url("data:image/png;base64,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") 2x) 2 2,auto}
   input,textarea,select{cursor:text} button,a,label,summary,.pick,.abtn,.tbtn,.zoomui *,.cand button{cursor:pointer} select{cursor:pointer}
 }
-#ink{position:absolute;left:0;top:0;pointer-events:none;z-index:35}
+#ink{position:fixed;left:0;top:0;pointer-events:none;z-index:35}
 #inkui{position:fixed;left:20px;bottom:20px;z-index:31;display:none;gap:6px}
 #inkui button{font:inherit;font-size:12.5px;padding:7px 11px;border:1px solid #C9C9CE;border-radius:999px;background:#fff;color:var(--ink)}
 @media print{#ink,#inkui{display:none!important}}
@@ -1196,7 +1206,7 @@ svg.trend.rib path.now{stroke:var(--sub)}
 
   // ▼ 배포 후 Cloudflare Worker 주소로 바꾸세요 (끝에 / 없이)
   const API_BASE = 'https://kt.roi0925003.workers.dev';
-  const PAGE_VERSION = 'v3.21';
+  const PAGE_VERSION = 'v3.22';
   const WORKER_VERSION = 'v1.31';   // 이 페이지와 짝이 되는 worker.js 버전
   /* 직원 공개용 토큰 — 비밀번호가 아닙니다. 소스 보기로 누구나 볼 수 있습니다.
      중계 서버의 PUBLIC_PASS와 같은 값이어야 하고, 남이 긁는 게 보이면
@@ -1402,7 +1412,8 @@ svg.trend.rib path.now{stroke:var(--sub)}
     const hours = (d.hours || []).filter(h => h && h.day);
     const am = (d.amenities || []).map(String).filter(Boolean);
     const pk = d.parking || null;
-    const menus = (d.menus || []).filter(x => x && x.name);
+    const naverMenus = (d.naverMenus || []).filter(x => x && x.name);
+    const menus = naverMenus.length ? naverMenus : (d.menus || []).filter(x => x && x.name);
     const has_ = closed.length || hours.length || am.length || pk || d.intro || menus.length;
     if (!has_) return null;
     return {
@@ -1411,8 +1422,10 @@ svg.trend.rib path.now{stroke:var(--sub)}
       intro: String(d.intro || ''), seats: String(d.seats || ''),
       menus, reviewMenus: (d.reviewMenus || []).map(String).filter(Boolean),
       themes: (d.themes || []).filter(x => x && x.word),
-      name: String(d.name || ''), address: String(d.address || ''), url: safeHref(d.url), phone: String(d.phone || ''),
-      menuUpdated: String(d.menuUpdated || ''),
+      name: String(d.name || ''), address: String(d.address || ''), url: safeHref(d.url), phone: String(d.phone || ''), phoneSource: String(d.phoneSource || ''),
+      menuUpdated: naverMenus.length ? '' : String(d.menuUpdated || ''),
+      menuSource: naverMenus.length ? '네이버 플레이스' : ((m.source && m.source.name) || '카카오맵').replace(/ \(.*$/, ''),
+      kakaoMenus: naverMenus.length ? (d.menus || []).filter(x => x && x.name).length : 0,
       matched: d.matched === false ? false : true,
       weekendOff: closed.indexOf('토') >= 0 || closed.indexOf('일') >= 0,
       openDays: DAYS.filter(x => closed.indexOf(x) < 0),
@@ -1435,13 +1448,18 @@ svg.trend.rib path.now{stroke:var(--sub)}
     if (/고기|육류|구이|횟집|회$|한정식|코스|오마카세|일식|스테이크|양식|주점|호프|술집|이자카야|샤브/.test(cat) || course || (median !== null && median >= 25000)) { type = 'slow'; label = '긴 체류 (고기·코스·주류)'; }
     else if (/분식|김밥|국밥|칼국수|국수|치킨|카페|커피|햄버거|피자|패스트|도시락|죽|백반|샌드위치|토스트|떡볶이/.test(cat) || (median !== null && median < 12000 && !meat)) { type = 'fast'; label = '회전 빠른 단품형'; }
     const pick = items.slice().sort((a,b) => (Number(b.recommend)-Number(a.recommend)) || 0).slice(0, 10);
-    return { items: pick, count: items.length, median, alcohol, course, meat, type, label, updated: (P && P.menuUpdated) || '' };
+    return { items: pick, count: items.length, median, alcohol, course, meat, type, label, updated: (P && P.menuUpdated) || '', source: P.menuSource, kakaoMenus: P.kakaoMenus };
   }
   function s_cat(b){ const s = b.store || {}; return [s.category, s.naverCategory].filter(Boolean).join(' '); }
-  function menuTableHTML(MP){
+  function menuTableHTML(MP, b){
     const rows = MP.items.map(m => `<tr><td>${esc(m.name)}${m.recommend ? ' <span class="bdg info">추천</span>' : ''}</td><td class="n">${has(m.price) && Number(m.price) > 0 ? esc(num(m.price,'원')) : '—'}</td></tr>`).join('');
     const line = `주력 단가 <b>${MP.median !== null ? esc(num(MP.median,'원')) : '—'}</b> · ${esc(MP.label)}${MP.alcohol ? ' · <b>주류 있음</b> — 저녁 체류가 길어집니다' : ''}${MP.count > MP.items.length ? ` · 외 ${MP.count-MP.items.length}개` : ''}`;
-    return `<table class="tbl menu"><tbody>${rows}</tbody></table><p class="deck" style="margin-top:6px">${line}</p><p class="src9">회전 유형은 업종과 메뉴 단가·주류·코스로 추정한 값입니다 (분식·국밥·카페 = 빠른 회전 / 고기·횟집·코스·주점 = 긴 체류)</p>`;
+    const src = MP.updated ? `${esc(MP.source)} 메뉴 · ${esc(MP.updated)} 갱신 — 가격은 매장에서 확인` : `${esc(MP.source)} 메뉴${MP.kakaoMenus ? ` (카카오맵 메뉴 ${MP.kakaoMenus}개는 갱신이 늦어 안 씀)` : ''}`;
+    /* v3.22: 메뉴판 사진(네이버 이미지 검색, 화면 전용)을 표 왼쪽에 작게 — 13장을 없애고 여기로 옮겼다 */
+    const im = b ? mod(b,'images') : { ok:false };
+    const shots = im.ok && im.data ? (im.data.items||[]).filter(it => imgHref(it.thumbnail)).slice(0, 6) : [];
+    const thumbs = shots.length ? `<ul class="thumbs mini" title="메뉴판 사진 (네이버 이미지 검색 · 참고용 · 화면 전용)">${shots.map((it,i) => `<li><a href="${esc(safeHref(it.image)||safeHref(im.data.searchUrl)||'#')}" target="_blank" rel="noopener noreferrer"><img src="${esc(imgHref(it.thumbnail))}" alt="${esc(it.title||`메뉴판 사진 ${i+1}`)}" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a></li>`).join('')}</ul>` : '';
+    return `<div class="menuwrap">${thumbs}<div class="menutbl"><table class="tbl menu"><tbody>${rows}</tbody></table><p class="deck" style="margin-top:6px">${line}</p><p class="src9">${src} · 회전 유형은 업종과 메뉴 단가·주류·코스로 추정한 값입니다 (분식·국밥·카페 = 빠른 회전 / 고기·횟집·코스·주점 = 긴 체류)${shots.length ? ' · 왼쪽 메뉴판 사진은 네이버 이미지 검색 결과라 참고만 하고, 인쇄·묶음에는 안 나갑니다' : ''}</p></div></div>`;
   }
 
   /* 요일별 시간을 '월~금 11:00~22:00 · 토 11:00~21:00'처럼 묶는다. 다 같으면 시간만 적는다. */
@@ -1759,21 +1777,44 @@ svg.trend.rib path.now{stroke:var(--sub)}
      v3.21 (#99): 사진 후보를 한 풀로 모으고(손님 리뷰 사진 → 블로그 사진 → 가게 사진 순), 칸을 클릭하면 다음 후보로 바뀐다.
      고른 사진은 매장별로 브라우저에 기억한다. 흑백+빨강만 남기는 SVG 필터가 걸리고, 마우스를 올리면 원본 색이 보인다. */
   const PHOTO_KEY = 'sketch.photo';
+  /* v3.22: 같은 사진이 주소만 다르게 오던 것을 막는다(물음표 뒤·크기 꼬리를 떼고, 파일 이름이 길면 이름으로 본다).
+     블로그 글 하나에서 비슷한 사진이 여러 장 오므로 글마다 2장까지만, 글을 번갈아 넣는다. 네이버 업체 사진(사장님이 올린 것)은 중계 서버 v1.32부터 온다. */
+  const photoKey = (h) => { const base = h.split('?')[0].replace(/\/(\d{2,4}x\d{2,4}|w\d{2,4})$/, ''); const fn = (base.split('/').pop() || '').toLowerCase(); return fn.length >= 14 ? fn : base; };
+  let photoCache = { b: null, rv: null, pool: [] };
   function photoPool(b){
     const p = b && b.modules && b.modules.place;
     if (!p || !p.ok || !p.data || p.data.matched === false) return [];
+    const rvData = state.reviews && state.reviews.data;
+    if (photoCache.b === b && photoCache.rv === rvData) return photoCache.pool;
     const d = p.data;
     const seen = new Set(); const out = [];
-    const add = (u, kind) => { const h = imgHref(u); if (!h) return; const k = h.split('?')[0]; if (seen.has(k)) return; seen.add(k); out.push({ src:h, kind }); };
+    const add = (u, kind, rid) => { const h = imgHref(u); if (!h) return; const k = photoKey(h); if (seen.has(k)) return; seen.add(k); out.push({ src:h, kind, rid: rid || '' }); };
     const typed = Array.isArray(d.photos) ? d.photos : [];
-    const rvData = state.reviews && state.reviews.data;
+    const np = Array.isArray(d.naverPhotos) ? d.naverPhotos : [];
     ((rvData && rvData.photos && rvData.photos.naver) || []).forEach(u => add(u, '네이버 리뷰'));
-    typed.filter(x => x && x.type === 'KMAPREVIEW').forEach(x => add(x.url, '카카오 후기'));
-    typed.filter(x => x && x.type === 'BLOG').forEach(x => add(x.url, '블로그'));
-    typed.filter(x => x && x.type && x.type !== 'KMAPREVIEW' && x.type !== 'BLOG').forEach(x => add(x.url, '가게'));
+    typed.filter(x => x && x.type === 'KMAPREVIEW').forEach(x => add(x.url, '카카오 후기', x.rid));
+    np.filter(x => x && x.kind === '가게').forEach(x => add(x.url, '가게 (네이버)'));
+    np.filter(x => x && x.kind === '네이버 리뷰').forEach(x => add(x.url, '네이버 리뷰'));
+    typed.filter(x => x && x.type && x.type !== 'KMAPREVIEW' && x.type !== 'BLOG').forEach(x => add(x.url, '가게', x.rid));
+    const byRid = new Map();
+    typed.filter(x => x && x.type === 'BLOG').forEach((x, i) => { const r = x.rid || ('b' + i); if (!byRid.has(r)) byRid.set(r, []); byRid.get(r).push(x); });
+    for (let round = 0; round < 2; round++) byRid.forEach((arr, r) => { if (arr[round]) add(arr[round].url, '블로그', r); });
+    np.filter(x => x && x.kind !== '가게' && x.kind !== '네이버 리뷰').forEach(x => add(x.url, x.kind || '블로그'));
     (d.images || []).forEach(u => add(u, typed.length ? '가게' : '플레이스'));
+    photoCache = { b, rv: rvData, pool: out };
     return out;
   }
+  /* 안 열리는 사진(주소가 만료됐거나 밖에서 못 여는 것)은 자동으로 다음 사진으로 넘긴다 — 풀 크기만큼만 시도한다 */
+  const badPhotos = new Set();
+  document.addEventListener('error', (e) => {
+    const img = e.target; if (!img || img.tagName !== 'IMG') return;
+    const f = img.closest && img.closest('figure.ph[data-slot]'); if (!f || !state.bundle) return;
+    badPhotos.add(img.getAttribute('src') || '');
+    const pool = photoPool(state.bundle);
+    if (pool.every(x => badPhotos.has(x.src))) return;
+    photoStep(f, 1, true);
+  }, true);
+  function photoUsed(except){ const used = new Set(); $$('figure.ph[data-slot]').forEach(f => { if (f !== except && f.dataset.idx) used.add(Number(f.dataset.idx)); }); return used; }
   function placePhotos(b){ return photoPool(b).map(x => x.src); }
   function photoPick(){ try { return JSON.parse(localStorage.getItem(PHOTO_KEY) || '{}'); } catch (_) { return {}; } }
   function photoSlotIndex(b, slot, fallback){
@@ -1798,9 +1839,13 @@ svg.trend.rib path.now{stroke:var(--sub)}
     const f = e.target && e.target.closest && e.target.closest('figure.ph[data-slot]'); if (!f || !state.bundle) return;
     e.preventDefault(); photoStep(f, -1);
   });
-  function photoStep(f, dir){
+  /* 칸을 넘길 때 다른 칸이 보여 주는 사진과 안 열린 사진은 건너뛴다 (v3.22) — 3·9·10을 다른 칸이 쓰면 4→5→…처럼 */
+  function photoStep(f, dir, auto){
     const pool = photoPool(state.bundle); if (pool.length < 2) return;
-    const slot = Number(f.dataset.slot); let idx = (Number(f.dataset.idx) + dir + pool.length) % pool.length;
+    const slot = Number(f.dataset.slot); const used = photoUsed(f);
+    let idx = Number(f.dataset.idx) || 0;
+    for (let i = 0; i < pool.length; i++) { idx = (idx + dir + pool.length) % pool.length; if (!used.has(idx) && !badPhotos.has(pool[idx].src)) break; }
+    if (auto && badPhotos.has(pool[idx].src)) return;
     f.dataset.idx = String(idx);
     const img = f.querySelector('img'); if (img) img.src = pool[idx].src;
     const pk = f.querySelector('.pk'); if (pk) pk.textContent = pool[idx].kind;
@@ -2068,7 +2113,7 @@ svg.trend.rib path.now{stroke:var(--sub)}
       safeHref(s.naverLink) ? `<a href="${esc(s.naverLink)}" target="_blank" rel="noopener">네이버 등록</a>` : '',
     ].filter(Boolean).join(' · ');
     /* 전화 — 검색 결과에 없으면 플레이스 번호(가상번호일 수 있음)를 쓴다 */
-    const phone = s.phone ? esc(s.phone) : P && P.phone ? `${esc(P.phone)} <span class="src9">플레이스</span>` : '—';
+    const phone = s.phone ? esc(s.phone) : P && P.phone ? `${esc(P.phone)} <span class="src9">${esc(P.phoneSource || '플레이스')}</span>` : '—';
     const ld = mod(b,'localdata');
     const rows = [
       ['업종 (카카오)', esc(s.category || '—')],
@@ -2087,7 +2132,7 @@ svg.trend.rib path.now{stroke:var(--sub)}
     if (P && P.seats) rows.push(['좌석 · 공간', esc(P.seats)]);
     /* v3.21 (#94): 메뉴는 표로 — 대표 10개 + 주력 단가 + 회전 유형. 영업하는 사람은 메뉴만 봐도 회전을 읽는다 */
     const MP = menuProfile(b);
-    if (MP) rows.push(['메뉴 (' + esc(P.source.replace(/ \(.*$/, '')) + ')', menuTableHTML(MP)]);
+    if (MP) rows.push(['메뉴 (' + esc(MP.source) + ')', menuTableHTML(MP, b)]);
     const plc = b.modules && b.modules.place;                 // 리뷰를 가져오기 전에는 항목 자체가 없다 — 그때는 줄을 만들지 않는다
     if (!P && plc && plc.ok === false && plc.error) rows.push(['영업일 · 편의시설', badge('fail','수집 안 됨') + ` <span class="src9">${esc(plc.error)}</span>`]);
     if (lic) rows.push(['인허가일 (업력)', esc(`${lic.ymd} · ${ageText(lic)}`) +
@@ -2101,7 +2146,7 @@ svg.trend.rib path.now{stroke:var(--sub)}
 
     const ph = placePhotos(b);
     const photos = ph.length ? `<div class="mz" style="margin-top:34px;gap:16px"><div class="b s7">${photoHTML(ph[0],'h220','',0,b)}</div>${ph[1] ? `<div class="b s5">${photoHTML(ph[1],'h220','',1,b)}</div>` : ''}
-      <div class="b s12 tight"><p class="phnote">손님 리뷰·블로그·가게 사진 ${esc(num(ph.length,'장'))} · 사진을 클릭하면 다음 사진으로 바뀝니다 · 화면 전용이라 인쇄물·묶음에는 나오지 않습니다</p></div></div>` : '';
+      <div class="b s12 tight"><p class="phnote">손님 리뷰·블로그·가게 사진 ${esc(num(ph.length,'장'))} · 사진을 클릭하면 다음 사진, 오른쪽 클릭은 이전 사진 — 다른 칸이 쓰는 사진과 안 열리는 사진은 건너뜁니다 · 화면 전용이라 인쇄물·묶음에는 나오지 않습니다</p></div></div>` : '';
     const html = `<div class="eyebrow">STORE</div>
       <div class="nm" data-sk="1" data-sk-wide="1">${esc(s.name || '매장')}</div>
       <div class="meta2">${esc([s.category, s.roadAddress || s.address].filter(Boolean).join(' · ') || '—')}</div>
@@ -2159,14 +2204,20 @@ svg.trend.rib path.now{stroke:var(--sub)}
       const share = counted ? foreign / counted : 0;
       const g = rv && rv.sources && rv.sources.google; const gForeign = g && has(g.foreign) ? Number(g.foreign) : 0;
       const tz = inTouristZone(b); const tourN = tour ? Number(tour.total)||0 : 0; const sights = catCount('AT4'), lodging = catCount('AD5');
+      const duty = tour ? Number(((tour.list||[]).find(x => x.word === '면세점')||{}).count)||0 : 0;
+      /* v3.22 (#104): 외국인은 네이버가 아니라 구글에 리뷰를 쓴다 — 구글 리뷰 총수가 네이버의 1.5배면 신호, 3배면 강한 신호 (우대포 명동점 713 vs 248) */
+      const gTotal = g && g.place && has(g.place.total) ? Number(g.place.total) : 0;
+      const nTotal = rv && rv.sources && rv.sources.naver && rv.sources.naver.place && has(rv.sources.naver.place.total) ? Number(rv.sources.naver.place.total) : 0;
+      const ratio = gTotal && nTotal ? gTotal / nTotal : 0;
       let level = 0; const why = [];
       if (counted) why.push(`외국어 리뷰 ${foreign}건/${counted}건 (${Math.round(share*100)}%)`);
       if (gForeign) why.push(`구글 최신 리뷰 ${g.counted}건 중 외국어 ${gForeign}건`);
-      if (tourN) why.push(`반경 안 환전소·게스트하우스·관광안내소·면세점 ${tourN}곳`);
+      if (ratio >= 1.5) why.push(`구글 리뷰 ${num(gTotal,'건')} vs 네이버 ${num(nTotal,'건')} — 구글이 ${ratio.toFixed(1)}배 (외국인은 구글에 씁니다)`);
+      if (tourN) why.push(`반경 안 환전소·게스트하우스·관광안내소 ${tourN}곳${duty ? ` (면세점 ${duty}곳은 합계에서 뺌)` : ''}`);
       if (tz) why.push('관광특구 안');
-      if (share >= 0.2 || gForeign >= 3 || (tz && share >= 0.05)) level = 2;
-      else if (share >= 0.08 || tourN >= 8 || tz || (sights >= 15 && lodging >= 10)) level = 1;
-      A.foreign = { key:'foreign', label:'외국인 손님', level, why, share, foreign, tourN, tz, langs: rv && rv.langs ? rv.langs : null }; }
+      if (share >= 0.2 || gForeign >= 3 || ratio >= 3 || (tz && share >= 0.05) || (tz && ratio >= 1.5)) level = 2;
+      else if (share >= 0.08 || ratio >= 1.5 || tourN >= 6 || tz || (sights >= 15 && lodging >= 10)) level = 1;
+      A.foreign = { key:'foreign', label:'외국인 손님', level, why, share, foreign, tourN, tz, ratio, gTotal, nTotal, langs: rv && rv.langs ? rv.langs : null }; }
 
     /* 직장인 */
     { const r = pd && has(pd.workerPerResident) ? Number(pd.workerPerResident) : null;
@@ -2276,11 +2327,13 @@ svg.trend.rib path.now{stroke:var(--sub)}
   }
 
   /* 눈금 한 줄 — 이 매장(빨간 점)과 기준(검은 눈금) */
-  function gaugeHTML(label, val, ref, max, fmt, note){
-    const pct = (v) => Math.max(2, Math.min(98, (Number(v)/Math.max(1e-9, max))*100));
-    const me = has(val) ? `<i class="me" style="left:${pct(val).toFixed(1)}%" title="이 매장"></i>` : '';
+  /* v3.21: 막대 눈금 — 빨간 막대가 이 매장, 검은 눈금이 기준. min을 주면 그 값부터 잰다 (평점은 3.5~5) */
+  function gaugeHTML(label, val, ref, max, fmt, note, min){
+    min = Number(min) || 0;
+    const pct = (v) => Math.max(1.5, Math.min(100, ((Number(v) - min)/Math.max(1e-9, max - min))*100));
+    const bar = has(val) ? `<i class="bar" style="width:${pct(val).toFixed(1)}%" title="이 매장"></i>` : '';
     const rf = has(ref) ? `<i class="ref" style="left:${pct(ref).toFixed(1)}%" title="기준"></i>` : '';
-    return `<div class="gauge"><div class="gl">${label}</div><div class="gt">${rf}${me}</div><div class="gv">${has(val) ? `<b>${esc(fmt(val))}</b>` : '—'}${has(ref) ? ` <span class="src9">기준 ${esc(fmt(ref))}</span>` : ''}${note ? ` <span class="src9">${note}</span>` : ''}</div></div>`;
+    return `<div class="gauge"><div class="gl">${label}</div><div class="gt">${bar}${rf}</div><div class="gv">${has(val) ? `<b>${esc(fmt(val))}</b>` : '—'}${has(ref) ? ` <span class="src9">기준 ${esc(fmt(ref))}</span>` : ''}${note ? ` <span class="src9">${note}</span>` : ''}</div></div>`;
   }
 
   function summaryModel(b){
@@ -2315,13 +2368,13 @@ svg.trend.rib path.now{stroke:var(--sub)}
     else if (has(K.myScore) && has(K.avgScore) && K.myScore < K.avgScore - 0.05) weaknesses.push({ sec:'reviews', text:`평점 <b>${esc(String(K.myScore))}</b> — 옆 가게 ${K.list.length}곳 평균 ${esc(String(K.avgScore))} 아래`, lever:'불만 상위 항목부터 (아래)', w:4 });
     if (K.pos === 1 && K.n >= 3) strengths.push({ sec:'comp', text:`리뷰 <b>${esc(num(K.mine,'건'))}</b> — 옆 가게 ${K.n-1}곳보다 많음 (1위)`, keep:'손님이 먼저 찾는 집' });
     else if (K.pos >= 1 && K.n >= 3 && K.pos >= K.n - 1) weaknesses.push({ sec:'comp', text:`리뷰 <b>${esc(num(K.mine,'건'))}</b> — 옆 가게 ${K.n-1}곳 중 ${K.pos}위 (1위 ${esc(num(K.maxReviews,'건'))})`, lever:'영수증 리뷰 QR·하이오더 리뷰 유도', w:3 });
-    if (A.manner.kind >= Math.max(5, counted*0.3)) strengths.push({ sec:'reviews', text:`「친절해요」 <b>${A.manner.kind}건</b>/${counted}건 — 직원의 응대가 자산`, keep:'접점을 줄여 친절이 닳지 않게' });
-    if (A.foreign.level >= 2) strengths.push({ sec:'reviews', text:`외국어 리뷰 <b>${Math.round(A.foreign.share*100)}%</b>${A.foreign.tourN ? ` · 반경 안 관광 시설 ${A.foreign.tourN}곳` : ''} — 관광 수요를 이미 받고 있음`, keep:'다국어 메뉴판으로 굳히기' });
+    if (A.manner.kind >= Math.max(5, counted*0.3)) strengths.push({ sec:'reviews', text:`「친절해요」 <b>${A.manner.kind}건</b>/${counted}건 — 직원의 응대가 자산`, keep:'접점을 줄여 직원 스트레스를 줄이고, 친절이 오래 가게' });
+    if (A.foreign.level >= 2) strengths.push({ sec:'reviews', text:(A.foreign.ratio >= 1.5 ? `구글 리뷰 <b>${esc(num(A.foreign.gTotal,'건'))}</b> — 네이버 ${esc(num(A.foreign.nTotal,'건'))}의 ${A.foreign.ratio.toFixed(1)}배` : `외국어 리뷰 <b>${Math.round(A.foreign.share*100)}%</b>`) + `${A.foreign.tourN ? ` · 반경 안 관광 시설 ${A.foreign.tourN}곳` : ''} — 관광 수요를 이미 받고 있음`, keep:'다국어 메뉴판으로 굳히기' });
     if (rv && rv.velocity && has(rv.velocity.replyRate) && Number(rv.velocity.replyRate) >= 50) strengths.push({ sec:'reviews', text:`사장님 답글 <b>${rv.velocity.replyRate}%</b> — 리뷰를 보는 사장님`, keep:'리뷰 관리 습관이 있음' });
     if (A.waiting.booking) strengths.push({ sec:'reviews', text:`네이버 예약 <b>사용 중</b> — 디지털 채널에 익숙`, keep:'도입 저항이 낮은 편' });
 
     const cats = {}; if (rv) (rv.complaints||[]).forEach(x => { const c = x.category; const k = c ? c.label : '기타 불만'; cats[k] = cats[k] || { n:0, hi: Boolean(c && c.hiorder), fix: c ? c.fix : '' }; cats[k].n += 1; });
-    const LEVER = { '주문·직원 호출이 늦음':'테이블 주문·직원 호출', '주문 누락·착오':'주문이 포스·주방으로 바로 (누락 0)', '웨이팅·대기 안내':'웨이팅 서비스 (대기번호·알림톡)', '메뉴 설명·외국어':'사진·다국어 메뉴판', '응대 태도':'주문·호출·계산 접점을 태블릿이 맡아 감정 소모를 줄임 (#89)' };
+    const LEVER = { '주문·직원 호출이 늦음':'테이블 주문·직원 호출', '주문 누락·착오':'주문이 포스·주방으로 바로 (누락 0)', '웨이팅·대기 안내':'웨이팅 서비스 (대기번호·알림톡)', '메뉴 설명·외국어':'사진·다국어 메뉴판', '응대 태도':'주문·호출·계산 접점을 태블릿이 맡아 감정 소모를 줄임', '간·먹는 법 안내':'주문 전 상품 안내 — 간 세기·맛있게 먹는 법을 메뉴판에' };
     Object.entries(cats).sort((a,b) => b[1].n - a[1].n).forEach(([k,v]) => {
       if (v.n >= 1 && (v.hi || /응대/.test(k))) weaknesses.push({ sec:'reviews', text:`리뷰에 <b>${esc(k)} ${esc(num(v.n,'건'))}</b>/${counted}건`, lever: LEVER[k] || v.fix || '하이오더', w: 5 + v.n });
       else if (v.n >= 2) weaknesses.push({ sec:'reviews', text:`리뷰에 <b>${esc(k)} ${esc(num(v.n,'건'))}</b>/${counted}건`, lever:'하이오더 밖의 문제 — 방문 때 확인', w: 1 + v.n, plain:true });
@@ -2367,7 +2420,7 @@ svg.trend.rib path.now{stroke:var(--sub)}
     /* 5) 눈금 4개 */
     const gauges = [];
     if (K.mine !== null && K.n >= 2) gauges.push(gaugeHTML(`리뷰 수 — 옆 가게 ${K.n-1}곳 중 <b>${K.pos}위</b>`, K.mine, K.maxReviews !== K.mine ? K.maxReviews : null, Math.max(K.maxReviews||1, K.mine), v => num(v,'건'), K.maxReviews !== K.mine ? '기준 = 1위' : '이 매장이 1위'));
-    if (has(K.myScore)) gauges.push(gaugeHTML('평점', K.myScore, K.avgScore, 5, v => String(v), has(K.avgScore) ? '기준 = 옆 가게 평균' : ''));
+    if (has(K.myScore)) gauges.push(gaugeHTML('평점 (3.5~5)', K.myScore, K.avgScore, 5, v => String(v), has(K.avgScore) ? '기준 = 옆 가게 평균' : '', 3.5));
     if (K.pm3 !== null && K.pm12 !== null) gauges.push(gaugeHTML('최근 3개월 리뷰 (월)', K.pm3, K.pm12, Math.max(K.pm3, K.pm12, 1)*1.25, v => `${v}건`, '기준 = 12개월 평균'));
     if (pd && has(pd.workerPerResident)) gauges.push(gaugeHTML('낮 인구 배율', Number(pd.workerPerResident), DAYPOP_REF, Math.max(Number(pd.workerPerResident), DAYPOP_REF)*1.2, v => `${v}배`, '기준 = 전국 평균 어림'));
     if (cd && cd.sameSmall && has(cd.sameSmall.count)) gauges.push(gaugeHTML(`같은 업종 100m 안 / ${dist(R)} 안`, A.comp.n100, null, Math.max(1, Number(cd.sameSmall.count)), v => `${v}곳`, `${dist(R)} 안 ${num(cd.sameSmall.count,'곳')}`));
@@ -2383,7 +2436,7 @@ svg.trend.rib path.now{stroke:var(--sub)}
     if (bd && bd.total >= 2) {
       const mine = (bd.list||[]).filter(x => /인천|부천|김포/.test(String(x.address||''))).length;
       const mou = bd.total >= 10;
-      brandLine = `브랜드 「${esc(bd.brand)}」 지점 ${esc(num(bd.total,'곳'))} (네이버 목록 기준${bd.sampled >= 50 ? ', 50곳까지만 셈' : ''})${mine ? ` · 인천·부천·김포 ${mine}곳` : ''}${mou ? ` · <b>MOU 대상</b> — 10곳 이상 하이오더 1,000원 할인${bd.total >= 30 ? ', 30곳 이상 2,000원' : ''}` : ' · 10곳 미만이라 MOU 대상 아님'} · 본사 보유 브랜드 합계는 공정위 정보공개서에서 확인`;
+      brandLine = `브랜드 「${esc(bd.brand)}」 지점 ${esc(num(bd.total,'곳'))}${bd.more ? '+' : ''} (${esc(bd.basis || '네이버 목록')} 기준${bd.more ? ', 45곳까지만 셈' : ''})${mine ? ` · 인천·부천·김포 ${mine}곳` : ''}${mou ? ` · <b>MOU 대상</b> — 10곳 이상 하이오더 1,000원 할인${bd.total >= 30 ? ', 30곳 이상 2,000원' : ''}` : ' · 10곳 미만이라 MOU 대상 아님'} · 본사 보유 브랜드 합계는 공정위 정보공개서에서 확인`;
     }
 
     /* 8) 먼저 볼 곳 */
@@ -2397,7 +2450,7 @@ svg.trend.rib path.now{stroke:var(--sub)}
     const m = summaryModel(b);
     const lead = `이 매장은 ${m.facts.join(', ')}입니다.`;
     const ph = placePhotos(b);
-    const photo = ph.length ? `<div class="b s5 sumph">${photoHTML(ph[0],'tall','',0,b)}</div>` : '';
+    const photo = ph.length ? `<div class="b s5 sumph">${photoHTML(ph[4] || ph[0],'tall','',4,b)}</div>` : '';   // v3.22: 0장은 4번 칸 — 1장(0·1번)과 다른 사진
     const li = (x, kind) => `<li><a href="#sec-${x.sec}" data-sec="${x.sec}"></a><div class="t">${x.text}</div><div class="so ${kind}">${kind === 'w' ? '→ ' : '· '}${esc(kind === 'w' ? x.lever : x.keep)}</div></li>`;
     const S = m.strengths.map(x => li(x,'s')).join('') || '<li class="muted">뚜렷한 강점 신호가 아직 없습니다 — 리뷰가 쌓이면 다시 읽힙니다</li>';
     const W = m.weaknesses.map(x => li(x,'w')).join('') || '<li class="muted">눈에 띄는 약점 신호가 없습니다</li>';
@@ -2409,7 +2462,7 @@ svg.trend.rib path.now{stroke:var(--sub)}
           <p class="deck verdict">${esc(m.verdict)}</p>
           <p class="deck md sumlead">${lead}</p>
           ${axes ? `<div class="axes">${axes}<span class="src9">● 강함 ○ 보임 — 축에 마우스를 올리면 근거</span></div>` : ''}
-          <div class="gauges">${m.gauges.join('')}</div>
+          ${m.gauges.length ? `<div class="glegend"><i class="bar"></i> 이 매장 <i class="ref"></i> 기준</div><div class="gauges">${m.gauges.join('')}</div>` : ''}
           <p class="src9">${esc(m.evidence)} · 판정은 규칙으로만 만듭니다 (AI 없음)</p>
         </div>
       </div>
@@ -2612,7 +2665,7 @@ ${GUARD}`,
     { id:'keyword', title:'플레이스 노출 키워드 후보',   bg:'검색', render:renderKeyword },
     { id:'support', title:'사장님께 알려드릴 지원사업·교육', bg:'지원', render:renderSupport },
     { id:'manual',  title:'사람이 채울 것',            bg:'현장', render:renderManual },
-    { id:'images',  title:'메뉴판 사진',               bg:'메뉴', render:renderImages },
+    // v3.22: '메뉴판 사진' 장은 없앴다 — 1장 메뉴 표 왼쪽의 작은 사진으로 옮김 (renderImages 는 남겨 둔다)
   ];
 
   /* ── 푸터 ── */
@@ -2759,8 +2812,8 @@ ${GUARD}`,
           if (px < bb.left - rb.left || px > bb.right - rb.left || py < bb.top - rb.top || py > bb.bottom - rb.top) return;   // 화면 밖 핀은 선을 안 긋는다
           const lb = li.getBoundingClientRect();
           const tx = lb.left - rb.left, ty = lb.top - rb.top + lb.height/2;
-          const mx = bb.right - rb.left + 6;                                             // 지도 오른쪽 가장자리에서 한 번 꺾는다
-          out += `<polyline points="${px.toFixed(1)},${py.toFixed(1)} ${mx.toFixed(1)},${py.toFixed(1)} ${mx.toFixed(1)},${ty.toFixed(1)} ${(tx-4).toFixed(1)},${ty.toFixed(1)}" fill="none" stroke="#201E1D" stroke-width="1" stroke-opacity=".5"/>`;
+          /* v3.22: 꺾지 않고 핀에서 번호까지 사선 한 줄 — 번호 쪽 끝에 작은 점 */
+          out += `<line x1="${px.toFixed(1)}" y1="${py.toFixed(1)}" x2="${(tx-3).toFixed(1)}" y2="${ty.toFixed(1)}" stroke="#201E1D" stroke-width="1" stroke-opacity=".55"/><circle cx="${(tx-3).toFixed(1)}" cy="${ty.toFixed(1)}" r="1.6" fill="#201E1D" fill-opacity=".6"/>`;
         });
         svg.innerHTML = out;
       };
@@ -4694,9 +4747,12 @@ ${GUARD}`,
     if (!el.track || !state.bundle) return;
     const key = storeKey(state.bundle), t = readTrack()[key] || {};
     const d = (v) => v ? String(v).slice(5, 10).replace('-', '/') : '—';
-    el.track.innerHTML = `<button type="button" class="diag on" disabled>진단 ${esc(d(state.bundle.collectedAt))}</button>
-      <button type="button" data-k="visit" class="${t.visit ? 'on' : ''}">방문 ${esc(d(t.visit))}</button>
-      <button type="button" data-k="won" class="${t.won ? 'on' : ''}">수주 ${esc(d(t.won))}</button>`;
+    /* v3.21: 버튼처럼 보이게, 무엇을 하는지 적어서 — 누르면 오늘 날짜가 찍히고 다시 누르면 지워진다. 브라우저에 매장별로 저장된다 */
+    el.track.innerHTML = `<span class="tl">진행 기록</span>
+      <button type="button" class="diag on" disabled title="이 묶음을 수집한 날">진단 ${esc(d(state.bundle.collectedAt))}</button>
+      <button type="button" data-k="visit" class="${t.visit ? 'on' : ''}" title="사장님을 만난 날 — 누르면 오늘 날짜, 다시 누르면 지움">${t.visit ? `방문 ${esc(d(t.visit))}` : '＋ 방문했음'}</button>
+      <button type="button" data-k="won" class="${t.won ? 'on' : ''}" title="수주한 날 — 누르면 오늘 날짜, 다시 누르면 지움">${t.won ? `수주 ${esc(d(t.won))}` : '＋ 수주했음'}</button>
+      <span class="src9">이 브라우저에 매장별로 저장 · 같은 매장을 다시 열면 보입니다</span>`;
   }
   el.track.addEventListener('click', (e) => {
     const b = e.target.closest('button[data-k]'); if (!b || !state.bundle) return;
@@ -5002,7 +5058,7 @@ ${GUARD}`,
   (() => {
     const cv = document.getElementById('ink'), ui = document.getElementById('inkui');
     if (!cv || !ui) return;
-    const ctx = cv.getContext('2d'); const dpr = Math.max(1, window.devicePixelRatio || 1);
+    let ctx = cv.getContext('2d'); const dpr = Math.max(1, window.devicePixelRatio || 1);
     let strokes = [], cur = null, PAT_INK = null, PAT_RED = null;
     function toothPattern(r, g, b){
       const N = 128, t = document.createElement('canvas'); t.width = t.height = N;
@@ -5038,11 +5094,25 @@ ${GUARD}`,
       ctx.globalAlpha = 1;
     }
     function drawStroke(s){ const J = s.jit; ribbon(s, 0, 0, 0.80); ribbon(s, J[0], J[1], 0.42); ribbon(s, J[2], J[3], 0.32); ribbon(s, J[4], J[5], 0.16, 0.7); ribbon(s, 0, 0, 0.09, 2.1); }
-    function redraw(){ ctx.clearRect(0,0,cv.width,cv.height); strokes.forEach(drawStroke); ui.style.display = strokes.length ? 'flex' : 'none'; }
-    function fit(){ const w = document.documentElement.scrollWidth, h = Math.max(document.documentElement.scrollHeight, innerHeight);
-      if (cv.width === Math.round(w*dpr) && cv.height === Math.round(h*dpr)) return;
-      cv.style.width = w+'px'; cv.style.height = h+'px'; cv.width = Math.round(w*dpr); cv.height = Math.round(h*dpr); ctx.setTransform(dpr,0,0,dpr,0,0);
-      PAT_INK = PAT_RED = null; redraw(); }
+    /* v3.21 성능: 캔버스는 문서 전체가 아니라 화면 크기(고정)만 잡고, 스크롤만큼 옮겨 그린다.
+       끝난 획은 보이지 않는 캔버스에 미리 그려 두고(committed), 지금 긋는 획만 매 프레임 다시 그린다. 그리기는 rAF 한 번에 한 번. */
+    let ox = 0, oy = 0, dirty = false, raf = 0;
+    const off = document.createElement('canvas'); const octx = off.getContext('2d');
+    function paintCommitted(){ octx.setTransform(1,0,0,1,0,0); octx.clearRect(0,0,off.width,off.height); octx.setTransform(dpr,0,0,dpr,-ox*dpr,-oy*dpr);
+      const keep = ctx; // ribbon()은 ctx에 그린다 — 잠깐 바꿔 끼운다
+      ctx = octx; strokes.forEach(s => { if (s !== cur) drawStroke(s); }); ctx = keep; }
+    function paintFrame(){ dirty = false;
+      ctx.setTransform(1,0,0,1,0,0); ctx.clearRect(0,0,cv.width,cv.height); ctx.drawImage(off, 0, 0);
+      ctx.setTransform(dpr,0,0,dpr,-ox*dpr,-oy*dpr); if (cur) drawStroke(cur); }
+    function schedule(){ if (!dirty){ dirty = true; raf = requestAnimationFrame(paintFrame); } }
+    function redraw(){ paintCommitted(); schedule(); ui.style.display = strokes.length ? 'flex' : 'none'; }
+    function fit(){ const w = innerWidth, h = innerHeight;
+      const nx = scrollX, ny = scrollY; const moved = nx !== ox || ny !== oy; ox = nx; oy = ny;
+      if (cv.width !== Math.round(w*dpr) || cv.height !== Math.round(h*dpr)){
+        cv.style.width = w+'px'; cv.style.height = h+'px'; cv.width = off.width = Math.round(w*dpr); cv.height = off.height = Math.round(h*dpr);
+        PAT_INK = PAT_RED = null; redraw(); return; }
+      if (moved) redraw(); }
+    let scrollRaf = 0; window.addEventListener('scroll', () => { if (!scrollRaf) scrollRaf = requestAnimationFrame(() => { scrollRaf = 0; fit(); }); }, { passive: true });
     function addPoint(s, x, y, t){
       const P = s.pts, last = P[P.length-1];
       if (P.length === 1 && Math.hypot(x-s.x0, y-s.y0) < 3) return;
@@ -5099,22 +5169,23 @@ ${GUARD}`,
       const line = rects.filter(r => r.top < B && r.bottom > T);
       const L = Math.min(...line.map(r => r.left)), R = Math.max(...line.map(r => r.right));
       if (x < L - 6 || x > R + 6) return null;
-      const fs = parseFloat(getComputedStyle(node.nodeType === 3 ? node.parentElement : node).fontSize) || 16;
-      const base = (T + B)/2 + fs*0.53;
-      return { L: L + scrollX, R: R + scrollX, y: Math.min(base, B + 2) + scrollY, fs, key: 'ul@' + Math.round(L + scrollX) + ',' + Math.round(B + scrollY) };
+      /* v3.21: 글자 크기가 아니라 줄 상자 높이로 잰다 — 배율(zoom)이 걸려도 글씨 아래에 붙는다 */
+      const h = Math.max(8, B - T);
+      const base = B - h*0.06 + 1.5;
+      return { L: L + scrollX, R: R + scrollX, y: base + scrollY, fs: h, key: 'ul@' + Math.round(L + scrollX) + ',' + Math.round(B + scrollY) };
     }
     function underlineStroke(ln){
       const s = newStroke(true, ln.L, ln.y); s.circle = ln.key;
       const y0 = ln.y, W = ln.R - ln.L + 8, n = Math.max(24, Math.round(W/5));
-      const amp = Math.max(1.0, ln.fs*0.05), ph = Math.random()*6.28, drift = (Math.random()-0.5)*ln.fs*0.08;
+      const amp = Math.max(0.8, ln.fs*0.035), ph = Math.random()*6.28, drift = (Math.random()-0.5)*ln.fs*0.05;
       for (let i = 0; i <= n; i++){ const t = i/n;
-        s.pts.push([ln.L - 4 + W*t, y0 + drift*t + Math.sin(t*6.28*1.4 + ph)*amp + (Math.random()-0.5)*0.7, widthFor(0.5, true)*(0.85+0.3*Math.random()), alphaFor(0.5)*(Math.random()<0.12?0.45:1)]); }
+        s.pts.push([ln.L - 4 + W*t, y0 + drift*t + Math.sin(t*6.28*1.4 + ph)*amp + (Math.random()-0.5)*0.7, widthFor(0.5, true)*0.7*(0.85+0.3*Math.random()), alphaFor(0.5)*0.85*(Math.random()<0.12?0.45:1)]); }
       return s;
     }
-    function animate(s){ const all = s.pts, total = all.length, t0 = performance.now();
+    function animate(s){ const all = s.pts, total = all.length, t0 = performance.now(); const prev = cur; cur = s;
       const step = (now) => { const k = Math.min(1, (now - t0)/300); s.pts = all.slice(0, Math.max(2, Math.round(total*k)));
-        ctx.clearRect(0,0,cv.width,cv.height); strokes.forEach(drawStroke); if (k < 1) requestAnimationFrame(step); else { s.pts = all; redraw(); } };
-      requestAnimationFrame(step); }
+        paintFrame(); if (k < 1) requestAnimationFrame(step); else { s.pts = all; cur = prev; redraw(); } };
+      paintCommitted(); requestAnimationFrame(step); }
     function toggle(key, make){ const i = strokes.findIndex(s => s.circle === key); if (i >= 0){ strokes.splice(i, 1); redraw(); return; } const s = make(); strokes.push(s); animate(s); }
     function clickAt(x, y, red){ const wd = wordAt(x - scrollX, y - scrollY); if (wd) toggle(wd.key, () => circleStroke(wd, red)); }
     function middleAt(x, y){ const ln = lineAt(x - scrollX, y - scrollY); if (ln) toggle(ln.key, () => underlineStroke(ln)); }
@@ -5133,7 +5204,7 @@ ${GUARD}`,
       document.addEventListener('pointermove', (e) => { if (!cur) return;
         const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
         for (const ev of evs) addPoint(cur, ev.pageX, ev.pageY, ev.timeStamp);
-        ctx.clearRect(0,0,cv.width,cv.height); strokes.forEach(drawStroke); }, o);
+        schedule(); }, o);
       const end = () => { if (cur && cur.pts.length < 2){ const c = cur; strokes.pop(); cur = null; clickAt(c.x0, c.y0, c.red); return; } cur = null; redraw(); };
       document.addEventListener('pointerup', end, o); document.addEventListener('pointercancel', end, o);
       document.addEventListener('contextmenu', (e) => { if (!isCtl(e.target)) e.preventDefault(); }, o);
