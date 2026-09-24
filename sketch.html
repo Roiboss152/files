@@ -314,12 +314,24 @@ body.dropping::after{content:'묶음(.json)을 놓으면 그 매장이 열립니
 .lead-read{font-size:17px;font-weight:600;letter-spacing:-.015em;line-height:1.45;margin-top:11px}
 .ev{margin-top:12px}.evl{margin:6px 0 0;padding-left:18px;font-size:13px;line-height:1.6}.evl li{margin:3px 0}.evl a{color:var(--sub)}
 /* v3.21 0장 v2 — 진단서 */
-.verdict{font-size:24px;line-height:1.35;margin-top:6px}
-.sumlead.md{margin-top:12px;font-weight:600;color:var(--sub)}
-.axes{margin-top:12px;display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center}
+/* v3.24: 가독성 — 제목(판정)과 본문(사실) 사이 24px + 가는 선, 본문은 보통 굵기·줄 간격 1.8, 칩·눈금은 24px 간격. 사진 윗선 = 제목 대문자 윗선 */
+.verdict{font-size:24px;line-height:1.38;font-weight:800;letter-spacing:-.03em;margin:0;padding-bottom:22px;border-bottom:1px solid var(--line)}
+@supports (text-box: trim-both cap alphabetic){ .sumtop .verdict{text-box:trim-start cap alphabetic} }
+@supports not (text-box: trim-both cap alphabetic){ .sumtop .verdict{margin-top:-.2em} }
+.sumtop .sumlead.md{margin-top:20px;font-size:16px;font-weight:400;line-height:1.8;letter-spacing:-.01em;color:var(--sub)}
+.sumtop .sumlead.md b{font-weight:700;color:var(--accent-ink)}
+.axes{margin-top:22px;display:flex;flex-wrap:wrap;gap:8px 8px;align-items:center}
+.axes .src9{flex-basis:100%;margin-top:2px}
+.mz.sumtop{align-items:stretch}
+.sumtop .sumph{position:relative;min-height:320px}
+.sumtop .sumph .ph{position:absolute;inset:0;height:auto;min-height:0;aspect-ratio:auto}
 .ax{font-size:11px;font-weight:700;letter-spacing:.02em;border:1px solid var(--ink);border-radius:999px;padding:2px 9px;cursor:help}
 .ax.l2{background:var(--ink);color:#fff}
-.glegend{margin-top:14px;font-size:11px;color:var(--sub);display:flex;gap:6px;align-items:center}
+.glegend{margin-top:0;font-size:11px;color:var(--sub);display:flex;gap:6px;align-items:center}
+.mz.sumg{margin-top:34px}
+/* 눈금 한 줄 = 12칸 격자 (.mz 와 같은 칸·틈) — 이름 5칸(사진 칸 폭), 막대 3칸 + 값 4칸(글 칸 폭) */
+.sumg .gauge{grid-template-columns:repeat(12,minmax(0,1fr));column-gap:34px}
+.sumg .gauge .gl{grid-column:span 5}.sumg .gauge .gt{grid-column:span 3}.sumg .gauge .gv{grid-column:span 4}
 .glegend i{display:inline-block}.glegend i.bar{width:22px;height:9px;background:var(--accent,#EC3013);border-radius:2px}.glegend i.ref{width:2px;height:13px;background:var(--ink);margin-left:8px}
 .gauges{margin-top:6px;border-top:1px solid var(--rule,#DCDCE1)}
 .gauge{display:grid;grid-template-columns:1.3fr 1fr 1.1fr;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule,#DCDCE1);font-size:12px}
@@ -330,9 +342,9 @@ body.dropping::after{content:'묶음(.json)을 놓으면 그 매장이 열립니
 .gauge .gv{font-variant-numeric:tabular-nums;white-space:nowrap}
 .sumlist.sw li{padding-left:44px;font-size:14px}
 .sumlist.sw .so{font-size:12px;color:var(--sub);margin-top:3px}.sumlist.sw .so.w{color:var(--accent-ink,#B8250E);font-weight:600}
-.sumtop .sumph .ph{height:100%;min-height:300px}
+/* (v3.24: 사진 칸은 위 .sumtop .sumph 규칙으로 — 글 칸 높이에 맞춰 늘어난다) */
 .first .deck{margin-top:8px}.first .acc{color:var(--accent,#EC3013)}
-@media (max-width:660px){.gauge{grid-template-columns:1fr 1fr;grid-auto-rows:auto}.gauge .gv{grid-column:1/-1}.verdict{font-size:20px}}
+@media (max-width:660px){.gauge,.sumg .gauge{grid-template-columns:1fr 1fr;grid-auto-rows:auto;column-gap:10px}.sumg .gauge .gl,.sumg .gauge .gt{grid-column:auto}.gauge .gv,.sumg .gauge .gv{grid-column:1/-1}.verdict{font-size:20px}.sumtop .sumph{min-height:280px}.sumtop .sumlead.md{font-size:15px}}
 @media print{.sumph{display:none!important}.sumtop .b.s7{grid-column:1/-1}}
 /* v3.20 0장 요약 */
 .sumlead{margin-top:10px}.sumlead b{color:var(--ink)}
@@ -492,6 +504,7 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
 .menuwrap{display:flex;gap:12px;align-items:flex-start}
 .menutbl{flex:1;min-width:0}
 .thumbs.mini{grid-template-columns:1fr 1fr;gap:4px;width:96px;flex:none;margin:0;perspective:none}
+.thumbs.mini li.brd a{border-color:var(--accent,#EC3013)}
 .thumbs.mini a{border-radius:3px;background:#fff;border:1px solid rgba(32,30,29,.12);transform:none!important}
 .thumbs.mini img{object-fit:cover}
 @media print{.thumbs.mini{display:none}}
@@ -1097,7 +1110,7 @@ svg.trend.rib path.now{stroke:var(--sub)}
 .inkp{display:none;position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible;pointer-events:none;z-index:9}
 .inkw{position:relative}
 #inkdefs{position:absolute;width:0;height:0;overflow:hidden}
-@media print{.inkp{display:block!important}}
+@media print{.inkp{display:block!important} *:has(> .inkw),*:has(> .inkp){overflow:visible!important}}
 
 /* 오늘 남은 수집 횟수 */
 .usage{margin:6px 0 0;font-size:12.5px;letter-spacing:-.01em;color:var(--dim,#6E6E73)}
@@ -1212,7 +1225,7 @@ svg.trend.rib path.now{stroke:var(--sub)}
 
   // ▼ 배포 후 Cloudflare Worker 주소로 바꾸세요 (끝에 / 없이)
   const API_BASE = 'https://kt.roi0925003.workers.dev';
-  const PAGE_VERSION = 'v3.23';
+  const PAGE_VERSION = 'v3.24';
   const WORKER_VERSION = 'v1.31';   // 이 페이지와 짝이 되는 worker.js 버전
   /* 직원 공개용 토큰 — 비밀번호가 아닙니다. 소스 보기로 누구나 볼 수 있습니다.
      중계 서버의 PUBLIC_PASS와 같은 값이어야 하고, 남이 긁는 게 보이면
@@ -1418,7 +1431,8 @@ svg.trend.rib path.now{stroke:var(--sub)}
     const hours = (d.hours || []).filter(h => h && h.day);
     const am = (d.amenities || []).map(String).filter(Boolean);
     const pk = d.parking || null;
-    const naverMenus = (d.naverMenus || []).filter(x => x && x.name);
+    const nm0 = (d.naverMenus || []).filter(x => x && x.name);
+    const naverMenus = nm0.length && nm0.filter(x => has(x.price) && Number(x.price) > 0).length >= nm0.length/2 ? nm0 : [];
     const menus = naverMenus.length ? naverMenus : (d.menus || []).filter(x => x && x.name);
     const has_ = closed.length || hours.length || am.length || pk || d.intro || menus.length;
     if (!has_) return null;
@@ -1468,10 +1482,14 @@ svg.trend.rib path.now{stroke:var(--sub)}
     const line = `주력 단가 <b>${MP.median !== null ? esc(num(MP.median,'원')) : '—'}</b> · ${esc(MP.label)}${MP.alcohol ? ' · <b>주류 있음</b> — 저녁 체류가 길어집니다' : ''}${MP.count > MP.items.length ? ` · 외 ${MP.count-MP.items.length}개` : ''}`;
     const src = MP.updated ? `${esc(MP.source)} 메뉴 · ${esc(MP.updated)} 갱신 — 가격은 매장에서 확인` : `${esc(MP.source)} 메뉴${MP.kakaoMenus ? ` (카카오맵 메뉴 ${MP.kakaoMenus}개는 갱신이 늦어 안 씀)` : ''}`;
     /* v3.22: 메뉴판 사진(네이버 이미지 검색, 화면 전용)을 표 왼쪽에 작게 — 13장을 없애고 여기로 옮겼다 */
+    /* v3.24: 10장 (2열 × 5줄) — 네이버 플레이스의 메뉴판 사진이 오면 먼저, 모자라면 네이버 이미지 검색으로 채운다 */
     const im = b ? mod(b,'images') : { ok:false };
-    const shots = im.ok && im.data ? (im.data.items||[]).filter(it => imgHref(it.thumbnail)).slice(0, 6) : [];
-    const thumbs = shots.length ? `<ul class="thumbs mini" title="메뉴판 사진 (네이버 이미지 검색 · 참고용 · 화면 전용)">${shots.map((it,i) => `<li><a href="${esc(safeHref(it.image)||safeHref(im.data.searchUrl)||'#')}" target="_blank" rel="noopener noreferrer"><img src="${esc(imgHref(it.thumbnail))}" alt="${esc(it.title||`메뉴판 사진 ${i+1}`)}" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a></li>`).join('')}</ul>` : '';
-    return `<div class="menuwrap">${thumbs}<div class="menutbl"><table class="tbl menu"><tbody>${rows}</tbody></table><p class="deck" style="margin-top:6px">${line}</p><p class="src9">${src} · 회전 유형은 업종과 메뉴 단가·주류·코스로 추정한 값입니다 (분식·국밥·카페 = 빠른 회전 / 고기·횟집·코스·주점 = 긴 체류)${shots.length ? ' · 왼쪽 메뉴판 사진은 네이버 이미지 검색 결과라 참고만 하고, 인쇄·묶음에는 안 나갑니다' : ''}</p></div></div>`;
+    const pl = b ? mod(b,'place') : { ok:false };
+    const board = pl.ok && pl.data ? (pl.data.naverMenuBoard || []).map(u => ({ thumbnail:u, image:u, title:'플레이스 메뉴판', board:true })) : [];
+    const search = im.ok && im.data ? (im.data.items||[]) : [];
+    const shots = board.concat(search).filter(it => imgHref(it.thumbnail)).slice(0, 10);
+    const thumbs = shots.length ? `<ul class="thumbs mini" title="메뉴판 사진 (${board.length ? '플레이스 메뉴판 · ' : ''}네이버 이미지 검색 · 참고용 · 화면 전용)">${shots.map((it,i) => `<li${it.board ? ' class="brd"' : ''}><a href="${esc(safeHref(it.image)||safeHref(im.ok && im.data ? im.data.searchUrl : '')||'#')}" target="_blank" rel="noopener noreferrer"><img src="${esc(imgHref(it.thumbnail))}" alt="${esc(it.title||`메뉴판 사진 ${i+1}`)}" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a></li>`).join('')}</ul>` : '';
+    return `<div class="menuwrap">${thumbs}<div class="menutbl"><table class="tbl menu"><tbody>${rows}</tbody></table><p class="deck" style="margin-top:6px">${line}</p><p class="src9">${src} · 회전 유형은 업종과 메뉴 단가·주류·코스로 추정한 값입니다 (분식·국밥·카페 = 빠른 회전 / 고기·횟집·코스·주점 = 긴 체류)${shots.length ? ` · 왼쪽 메뉴판 사진 ${shots.length}장은 ${board.length ? `플레이스 메뉴판 ${Math.min(board.length, shots.length)}장과 ` : ''}네이버 이미지 검색 결과라 참고만 하고, 인쇄·묶음에는 안 나갑니다` : ''}</p></div></div>`;
   }
 
   /* 요일별 시간을 '월~금 11:00~22:00 · 토 11:00~21:00'처럼 묶는다. 다 같으면 시간만 적는다. */
@@ -1495,7 +1513,7 @@ svg.trend.rib path.now{stroke:var(--sub)}
     else if (runs.length) time = runs.map(r => `${r.days.length > 2 ? `${r.days[0]}~${r.days[r.days.length-1]}` : r.days.join('·')} ${r.t}`).join(' · ');
     const open = !time && P.openDays.length && P.closed.length ? `영업 ${P.openDays.join('·')}` : '';
     const brk  = P.breakTime ? `브레이크타임 ${P.breakTime}` : '';
-    const lo   = P.lastOrder ? `라스트오더 ${P.lastOrder}` : '';
+    const lo   = P.lastOrder ? `라스트오더 ${P.lastOrder.replace(/\s*라스트\s?오더\s*/g, ' ').trim()}` : '';   // 카카오는 '22:20 라스트오더'로 준다
     return [open, time, off, brk, lo].filter(Boolean).join(' · ');
   }
   function parkText(P){
@@ -2382,7 +2400,7 @@ svg.trend.rib path.now{stroke:var(--sub)}
     else if (has(K.myScore) && has(K.avgScore) && K.myScore < K.avgScore - 0.05) weaknesses.push({ sec:'reviews', text:`평점 <b>${esc(String(K.myScore))}</b> — 옆 가게 ${K.list.length}곳 평균 ${esc(String(K.avgScore))} 아래`, lever:'불만 상위 항목부터 (아래)', w:4 });
     if (K.pos === 1 && K.n >= 3) strengths.push({ sec:'comp', text:`리뷰 <b>${esc(num(K.mine,'건'))}</b> — 옆 가게 ${K.n-1}곳보다 많음 (1위)`, keep:'손님이 먼저 찾는 집' });
     else if (K.pos >= 1 && K.n >= 3 && K.pos >= K.n - 1) weaknesses.push({ sec:'comp', text:`리뷰 <b>${esc(num(K.mine,'건'))}</b> — 옆 가게 ${K.n-1}곳 중 ${K.pos}위 (1위 ${esc(num(K.maxReviews,'건'))})`, lever:'영수증 리뷰 QR·하이오더 리뷰 유도', w:3 });
-    if (A.manner.kind >= Math.max(5, counted*0.3)) strengths.push({ sec:'reviews', text:`「친절해요」 <b>${A.manner.kind}건</b>/${counted}건 — 직원의 응대가 자산`, keep:'접점을 줄여 직원 스트레스를 줄이고, 친절이 오래 가게' });
+    if (A.manner.kind >= Math.max(5, counted*0.3)) strengths.push({ sec:'reviews', text:`「친절해요」 <b>${A.manner.kind}건</b>/${counted}건 — 직원의 응대가 자산`, keep:'직원이 오래도록 친절할 수 있도록, 손님 응대 스트레스를 덜어 줄 필요가 있음' });
     if (A.foreign.level >= 2) strengths.push({ sec:'reviews', text:(A.foreign.ratio >= 1.5 ? `구글 리뷰 <b>${esc(num(A.foreign.gTotal,'건'))}</b> — 네이버 ${esc(num(A.foreign.nTotal,'건'))}의 ${A.foreign.ratio.toFixed(1)}배` : `외국어 리뷰 <b>${Math.round(A.foreign.share*100)}%</b>`) + `${A.foreign.tourN ? ` · 반경 안 관광 시설 ${A.foreign.tourN}곳` : ''} — 관광 수요를 이미 받고 있음`, keep:'다국어 메뉴판으로 굳히기' });
     if (rv && rv.velocity && has(rv.velocity.replyRate) && Number(rv.velocity.replyRate) >= 50) strengths.push({ sec:'reviews', text:`사장님 답글 <b>${rv.velocity.replyRate}%</b> — 리뷰를 보는 사장님`, keep:'리뷰 관리 습관이 있음' });
     if (A.waiting.booking) strengths.push({ sec:'reviews', text:`네이버 예약 <b>사용 중</b> — 디지털 채널에 익숙`, keep:'도입 저항이 낮은 편' });
@@ -2480,7 +2498,12 @@ svg.trend.rib path.now{stroke:var(--sub)}
         <div class="b ${ph.length ? 's7' : 's12'}">
           <p class="deck verdict">${esc(m.verdict)}</p>
           <p class="deck md sumlead">${lead}</p>
-          ${axes ? `<div class="axes">${axes}<span class="src9">● 강함 ○ 보임 — 축에 마우스를 올리면 근거</span></div>` : ''}
+          ${axes ? `<div class="axes">${axes}<span class="src9">● 강함 ○ 보임 — 칩에 마우스를 올리면 근거</span></div>` : ''}
+        </div>
+      </div>
+      ${/* v3.24: 눈금은 사진·글 아래 한 줄로 — 이름은 사진 칸, 막대·값은 글 칸에 맞춰 세로 선을 맞춘다 */''}
+      <div class="mz sumg">
+        <div class="b s12">
           ${m.gauges.length ? `<div class="glegend"><i class="bar"></i> 이 매장${m.gauges.some(g => g.includes('class="ref"')) ? ' <i class="ref"></i> 기준' : ' <span class="src9">· 기준 눈금은 옆 가게 리뷰를 읽었을 때 붙습니다</span>'}</div><div class="gauges">${m.gauges.join('')}</div>` : ''}
           <p class="src9">${esc(m.evidence)} · 판정은 규칙으로만 만듭니다 (AI 없음)</p>
         </div>
@@ -5145,7 +5168,28 @@ ${GUARD}`,
       }
       ctx.globalAlpha = 1;
     }
-    function drawStroke(s){ const J = s.jit; ribbon(s, 0, 0, 0.80); ribbon(s, J[0], J[1], 0.42); ribbon(s, J[2], J[3], 0.32); ribbon(s, J[4], J[5], 0.16, 0.7); ribbon(s, 0, 0, 0.09, 2.1); }
+    /* v3.24: 동그라미·밑줄(clean)은 한 번에 채우는 한 줄 — 점마다 굵기·농도를 흔들던 것이 톱니·털처럼 보였다(크롬 실물).
+       손으로 그은 획은 예전처럼 다섯 겹. 인쇄용 SVG 도 같은 겹(PASSES)을 쓴다 */
+    function passesOf(s){ const J = s.jit;
+      return s.clean ? [[0,0,0.9,1],[J[0]*0.3,J[1]*0.3,0.28,0.7]]
+        : [[0,0,0.80,1],[J[0],J[1],0.42,1],[J[2],J[3],0.32,1],[J[4],J[5],0.16,0.7],[0,0,0.09,2.1]]; }
+    function ribbonSolid(s, dx, dy, passAlpha, wmul = 1){
+      const P = s.pts; if (P.length < 2) return;
+      const n = P.length, L = new Array(n), R = new Array(n);
+      for (let i = 0; i < n; i++){
+        const a = P[Math.max(0,i-1)], b = P[Math.min(n-1,i+1)];
+        let nx = -(b[1]-a[1]), ny = (b[0]-a[0]); const len = Math.hypot(nx, ny) || 1; nx /= len; ny /= len;
+        const w = P[i][2] * wmul / 2;
+        L[i] = [P[i][0] + nx*w + dx, P[i][1] + ny*w + dy]; R[i] = [P[i][0] - nx*w + dx, P[i][1] - ny*w + dy];
+      }
+      ctx.fillStyle = pat(s.red); ctx.globalAlpha = passAlpha;
+      ctx.beginPath(); ctx.moveTo(L[0][0], L[0][1]); for (let i = 1; i < n; i++) ctx.lineTo(L[i][0], L[i][1]);
+      for (let i = n-1; i >= 0; i--) ctx.lineTo(R[i][0], R[i][1]); ctx.closePath(); ctx.fill(); ctx.globalAlpha = 1;
+    }
+    function drawStroke(s){
+      if (s.clean){ passesOf(s).forEach(([dx,dy,pa,wm]) => ribbonSolid(s, dx, dy, pa, wm)); return; }
+      passesOf(s).forEach(([dx,dy,pa,wm]) => ribbon(s, dx, dy, pa, wm));
+    }
     /* v3.21 성능: 캔버스는 문서 전체가 아니라 화면 크기(고정)만 잡고, 스크롤만큼 옮겨 그린다.
        끝난 획은 보이지 않는 캔버스에 미리 그려 두고(committed), 지금 긋는 획만 매 프레임 다시 그린다. 그리기는 rAF 한 번에 한 번. */
     let ox = 0, oy = 0, dirty = false, raf = 0;
@@ -5186,6 +5230,11 @@ ${GUARD}`,
       if (!isW(t[off]) && !isW(t[off-1])) return null;
       let a = off, b = off; while (a > 0 && isW(t[a-1])) a--; while (b < t.length && isW(t[b])) b++;
       if (b - a === 0) return null;
+      /* v3.24: 짧은 이름(가게 이름·메뉴 이름·숫자 한 덩이)은 낱말이 아니라 통째로 — '일편등심 명동점'을 누르면 두 낱말을 함께 두른다.
+         문단(p·div·li 바로 아래 글)은 낱말만 */
+      { const pe0 = node.parentElement, tt = t.trim(), lead = t.length - t.replace(/^\s+/, '').length;
+        if (pe0 && /^(SPAN|B|STRONG|EM|A|TD|TH|LABEL)$/.test(pe0.tagName) && tt.length >= 2 && tt.length <= 14 && (tt.match(/\s+/g) || []).length <= 2
+            && off >= lead && off <= lead + tt.length) { a = lead; b = lead + tt.length; } }
       const rg = document.createRange(); rg.setStart(node, a); rg.setEnd(node, b);
       const rects = [...rg.getClientRects()]; if (!rects.length) return null;
       let L = Infinity, T = Infinity, R = -Infinity, B = -Infinity;
@@ -5199,15 +5248,30 @@ ${GUARD}`,
       if (L > x + 4 || R < x - 4 || T > y + 4 || B < y - 4) return null;
       return { x: (L+R)/2 + scrollX, y: (T+B)/2 + scrollY, w: R-L, h: B-T, node, a, b, key: word + '@' + Math.round(L+scrollX) + ',' + Math.round(T+scrollY) };
     }
+    /* v3.24: 동그라미 — 긴 이름은 타원이 글자 귀퉁이를 가로질렀다. 초타원(|x/rx|^q + |y/ry|^q = 1)으로 둘러 네 귀퉁이가 여유 있게 안에 들게 하고,
+       왼쪽 위에서 시작해 한 바퀴 조금 넘게 돌며 끝이 살짝 바깥으로 빠지게(사람이 닫는 모양) 그린다. 굵기는 글자 크기를 따르고 처음·끝은 가늘다 */
     function circleStroke(wd, red){
-      const rx = wd.w/2 + Math.max(9, wd.h*0.28), ry = wd.h/2 + Math.max(7, wd.h*0.22);
-      const s = newStroke(red, wd.x, wd.y); s.circle = wd.key; s.word = wd;
-      const tilt = (Math.random()-0.5)*0.18, start = -0.55 + (Math.random()-0.5)*0.4, turns = 1.12 + Math.random()*0.08;
-      const n = Math.max(36, Math.round((rx+ry)*0.9));
+      const a0 = wd.w/2, b0 = wd.h/2, h = Math.max(10, wd.h);
+      let rx = a0 + Math.max(10, h*0.5), ry = b0 + Math.max(7, h*0.45);
+      const q = Math.max(2.2, Math.min(3.4, 2.1 + 0.28*(rx/ry - 1)));
+      for (let k = 0; k < 16 && Math.pow(a0/rx, q) + Math.pow(b0/ry, q) > 0.78; k++){ rx *= 1.02; ry *= 1.05; }
+      const s = newStroke(red, wd.x, wd.y); s.circle = wd.key; s.word = wd; s.clean = true;
+      const tilt = (Math.random()-0.5)*0.07;
+      const start = -2.25 + (Math.random()-0.5)*0.5;
+      const sweep = Math.PI*2 + 0.3 + Math.random()*0.35;
+      const drift = 0.045 + Math.random()*0.035;
+      const ph1 = Math.random()*6.28, ph2 = Math.random()*6.28;
+      const per = 2*Math.PI*Math.sqrt((rx*rx + ry*ry)/2);
+      const n = Math.max(72, Math.round(per*(sweep/(2*Math.PI))/1.6));
+      const pw = Math.max(2.1, Math.min(4.6, h*0.12));
+      const sp = (v) => Math.sign(v)*Math.pow(Math.abs(v), 2/q);
       for (let i = 0; i <= n; i++){
-        const a = start + (i/n)*Math.PI*2*turns, wob = 1 + (Math.random()-0.5)*0.05 + 0.03*Math.sin(i*0.7);
-        const ex = rx*wob*Math.cos(a), ey = ry*wob*Math.sin(a);
-        s.pts.push([wd.x + ex*Math.cos(tilt) - ey*Math.sin(tilt), wd.y + ex*Math.sin(tilt) + ey*Math.cos(tilt), widthFor(0.35, red)*(0.85+0.3*Math.random()), alphaFor(0.35)*(Math.random()<0.12?0.45:1)]);
+        const u = i/n, ang = start + u*sweep;
+        const r = 1 + drift*u*u + 0.016*Math.sin(ang*2 + ph1) + 0.01*Math.sin(ang*3 + ph2);
+        const ex = rx*r*sp(Math.cos(ang)), ey = ry*r*sp(Math.sin(ang));
+        const press = Math.sin(Math.PI*Math.min(1, 0.08 + u*0.95));
+        s.pts.push([wd.x + ex*Math.cos(tilt) - ey*Math.sin(tilt), wd.y + ex*Math.sin(tilt) + ey*Math.cos(tilt),
+          pw*(0.45 + 0.55*press)*(1 + 0.07*Math.sin(u*13 + ph1)), 1]);
       }
       return s;
     }
@@ -5233,11 +5297,12 @@ ${GUARD}`,
       return { L: L + scrollX, R: R + scrollX, y: base + scrollY, fs: h, blk, key: 'ul@' + Math.round(L + scrollX) + ',' + Math.round(B + scrollY) };
     }
     function underlineStroke(ln){
-      const s = newStroke(true, ln.L, ln.y); s.circle = ln.key; s.blk = ln.blk;
-      const y0 = ln.y, W = ln.R - ln.L + 8, n = Math.max(24, Math.round(W/5));
-      const amp = Math.max(0.8, ln.fs*0.035), ph = Math.random()*6.28, drift = (Math.random()-0.5)*ln.fs*0.05;
-      for (let i = 0; i <= n; i++){ const t = i/n;
-        s.pts.push([ln.L - 4 + W*t, y0 + drift*t + Math.sin(t*6.28*1.4 + ph)*amp + (Math.random()-0.5)*0.7, widthFor(0.5, true)*0.7*(0.85+0.3*Math.random()), alphaFor(0.5)*0.85*(Math.random()<0.12?0.45:1)]); }
+      const s = newStroke(true, ln.L, ln.y); s.circle = ln.key; s.blk = ln.blk; s.clean = true;
+      const y0 = ln.y, W = ln.R - ln.L + 8, n = Math.max(40, Math.round(W/2));
+      const amp = Math.max(0.6, ln.fs*0.028), ph = Math.random()*6.28, drift = (Math.random()-0.5)*ln.fs*0.05;
+      const pw = Math.max(1.8, Math.min(3.8, ln.fs*0.1));
+      for (let i = 0; i <= n; i++){ const t = i/n, press = Math.sin(Math.PI*Math.min(1, 0.06 + t*0.97));
+        s.pts.push([ln.L - 4 + W*t, y0 + drift*t + Math.sin(t*6.28*1.2 + ph)*amp, pw*(0.5 + 0.5*press), 1]); }
       return s;
     }
     function animate(s){ const all = s.pts, total = all.length, t0 = performance.now(); const prev = cur; cur = s;
@@ -5266,13 +5331,13 @@ ${GUARD}`,
       if (!e || e === document.body || e === document.documentElement || e.id === 'ink') e = document.querySelector('.page') || document.body;
       return e;
     }
-    function ribbonPath(s, dx, dy, wmul, ox0, oy0){
+    function ribbonPath(s, dx, dy, wmul, ox0, oy0, clean){
       const P = s.pts; if (P.length < 2) return '';
       const n = P.length, L = new Array(n), R = new Array(n);
       for (let i = 0; i < n; i++){
         const a = P[Math.max(0,i-1)], b = P[Math.min(n-1,i+1)];
         let nx = -(b[1]-a[1]), ny = (b[0]-a[0]); const len = Math.hypot(nx, ny) || 1; nx /= len; ny /= len;
-        const taper = Math.min(1, (i+1)/3, (n-i)/3);
+        const taper = clean ? 1 : Math.min(1, (i+1)/3, (n-i)/3);
         const w = P[i][2] * wmul * (0.35 + 0.65*taper) / 2;
         L[i] = [P[i][0] + nx*w + dx - ox0, P[i][1] + ny*w + dy - oy0]; R[i] = [P[i][0] - nx*w + dx - ox0, P[i][1] - ny*w + dy - oy0];
       }
@@ -5292,9 +5357,9 @@ ${GUARD}`,
         if (getComputedStyle(anchor).position === 'static') anchor.style.position = 'relative';
         const r = docRect(anchor);
         const svg = mkEl('svg', { class:'inkp', viewBox:`0 0 ${r.width.toFixed(1)} ${r.height.toFixed(1)}`, preserveAspectRatio:'none', 'aria-hidden':'true' });
-        const J = s.jit, avgA = s.pts.reduce((a, p) => a + p[3], 0) / Math.max(1, s.pts.length), pid = inkPattern(s.red);
-        [[0,0,0.80,1],[J[0],J[1],0.42,1],[J[2],J[3],0.32,1],[J[4],J[5],0.16,0.7],[0,0,0.09,2.1]].forEach(([dx,dy,pa,wm]) => {
-          const d = ribbonPath(s, dx, dy, wm, r.left, r.top); if (d) svg.appendChild(mkEl('path', { d, fill:`url(#${pid})`, 'fill-opacity': Math.min(1, pa*avgA*1.3).toFixed(3) }));   // 종이에선 조금 진하게
+        const avgA = s.pts.reduce((a, p) => a + p[3], 0) / Math.max(1, s.pts.length), pid = inkPattern(s.red);
+        passesOf(s).forEach(([dx,dy,pa,wm]) => {
+          const d = ribbonPath(s, dx, dy, wm, r.left, r.top, s.clean); if (d) svg.appendChild(mkEl('path', { d, fill:`url(#${pid})`, 'fill-opacity': Math.min(1, pa*avgA*1.25).toFixed(3) }));   // 종이에선 조금 진하게
         });
         anchor.appendChild(svg); s.dom = svg;
       } catch (_) { /* 인쇄용 흔적이 안 붙어도 화면 그리기는 그대로 */ }
