@@ -584,6 +584,10 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
 
 /* ══ 부정 표현 — 빨강은 절제하기로 했으니 본문에는 진한 쪽(#AE1800)을 쓴다 ══ */
 .cmp .sn em.neg{font-style:normal;font-weight:700;color:var(--accent-ink)}
+/* v3.32: 외국어 리뷰의 번역 줄 — 원문 바로 아래, '번역' 꼬리표 */
+.trk{margin-top:6px;color:#3A3A3C;line-height:1.6}   /* 원문보다 한 단계 옅게 — 발표 화면에서도 읽히는 짙은 회색 */
+.trk em.neg{font-style:normal;font-weight:700;color:var(--accent-ink)}
+.trk .trl{display:inline-block;font-size:11px;font-weight:700;color:var(--dim,#6E6E73);border:1px solid var(--line,#E4E4E4);border-radius:4px;padding:0 5px;margin-right:7px;vertical-align:1px}
 /* 빨간 '글씨'는 문제(부정 표현)에만, 우리 해결책은 빨간 '선'으로 — 둘이 안 섞이게 */
 .cmp .fx{color:var(--ink);font-weight:600;border-left:2px solid var(--accent);padding-left:9px}
 /* 안내 목록 */
@@ -1304,8 +1308,8 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
 
   // ▼ 배포 후 Cloudflare Worker 주소로 바꾸세요 (끝에 / 없이)
   const API_BASE = 'https://kt.roi0925003.workers.dev';
-  const PAGE_VERSION = 'v3.31';
-  const WORKER_VERSION = 'v1.39';   // 이 페이지와 짝이 되는 worker.js 버전 (이보다 낮으면 경고)
+  const PAGE_VERSION = 'v3.32';
+  const WORKER_VERSION = 'v1.40';   // 이 페이지와 짝이 되는 worker.js 버전 (이보다 낮으면 경고)
   /* 직원 공개용 토큰 — 비밀번호가 아닙니다. 소스 보기로 누구나 볼 수 있습니다.
      중계 서버의 PUBLIC_PASS와 같은 값이어야 하고, 남이 긁는 게 보이면
      양쪽을 같이 바꿔서 다시 올리면 됩니다. 리뷰는 이 토큰으로 부를 수 없습니다. */
@@ -4151,6 +4155,15 @@ ${GUARD}`,
   /* v3.28: 일본어·영어 글은 번역 링크를 붙인다 (구글 번역 — 수집·판정에는 AI를 쓰지 않고, 읽는 사람만 번역을 연다) */
   const trHref = (t) => `https://translate.google.com/?sl=auto&tl=ko&op=translate&text=${encodeURIComponent(String(t||'').slice(0, 900))}`;
   const trLink = (x) => x && x.lang && x.lang !== 'ko' ? ` · ${linkText(trHref(x.text), '한국어로 번역')}` : '';
+  /* v3.32: 외국어 리뷰는 원문 아래 한국어 번역(기계 번역)을 같이 — 구글 리뷰는 구글이 준 번역문(한국어로 부른 것은 text가 번역, original이 원문),
+     카카오·코네스트·네이버 외국어 글은 수집 서버 v1.40이 구글 번역으로 붙인 ko. 판정은 원문을 규칙으로 읽은 그대로다 */
+  function trPair(x){
+    if (!x) return { orig: '', ko: '' };
+    if (x.original) return { orig: String(x.original), ko: String(x.text || '') };
+    if (x.ko) return { orig: String(x.text || ''), ko: String(x.ko) };
+    return { orig: String(x.text || ''), ko: '' };
+  }
+  const trLine = (ko, hl) => ko ? `<div class="trk" lang="ko"><span class="trl" title="기계 번역 — 원문이 기준입니다">번역</span>${hl ? negHTML(ko) : esc(ko)}</div>` : '';
 
   function usageLine(){
     const u = state.apifyUsage;
@@ -4175,8 +4188,8 @@ ${GUARD}`,
       ${burstHTML(d)}
       <ul class="cmp praise">${items.map(p => { const s = (p.samples||[]).find(x => !used.has(x.text)) || (p.samples||[])[0]; if (s) used.add(s.text);
         return `<li><div class="top">${badge('ok', p.label)} <b>${esc(num(p.n,'건'))}</b>${p.voted ? ` · 네이버 ${p.voted.map(v => `「${esc(v.name)}」 ${esc(num(v.count,'표'))}`).join(' · ')}` : ''}${srcN(p) ? ` <span class="also">${esc(srcN(p))}</span>` : ''}</div>
-          ${s ? `<div class="sn" lang="${esc(s.lang||'ko')}">“${esc(s.text)}”</div>` : ''}<div class="fx">하이오더로 더 살림 — ${esc(p.amp)}</div>
-          ${s ? `<div class="src9">${esc([s.source, s.date, has(s.rating) ? `별점 ${s.rating}` : ''].filter(Boolean).join(' · '))}${s.link ? ` · ${linkText(s.link, RV_LINK[s.source]||'원문 확인')}` : ''}${trLink(s)}</div>` : ''}</li>`; }).join('')}</ul>`;
+          ${s ? `<div class="sn" lang="${esc(s.lang||'ko')}">“${esc(trPair(s).orig)}”</div>${trLine(trPair(s).ko)}` : ''}<div class="fx">하이오더로 더 살림 — ${esc(p.amp)}</div>
+          ${s ? `<div class="src9">${esc([s.source, s.date, has(s.rating) ? `별점 ${s.rating}` : ''].filter(Boolean).join(' · '))}${s.link ? ` · ${linkText(s.link, RV_LINK[s.source]||'원문 확인')}` : ''}${trPair(s).ko ? '' : trLink(s)}</div>` : ''}</li>`; }).join('')}</ul>`;
   }
   /* v3.28: 리뷰가 며칠에 몰린 구간 — 체험단·리뷰 이벤트 글이면 칭찬 수가 부푼다. 글을 지우지 않고 '빼고 보면'을 같이 보인다 */
   function burstHTML(d){
@@ -4189,7 +4202,7 @@ ${GUARD}`,
   /* v3.28: 코네스트 질문 — 일본인 손님이 가기 전에 묻는 것. 주문 규칙·메뉴 질문은 매장 안에서도 직원에게 되풀이된다 */
   /* v3.31: 방문 태그 갈래 이름이 코드로 온다(실측 v_no_reservation·v_with_reservation) — 우리말로 바꾸고 같은 이름끼리 합친다 */
   const VT_CAT = [['예약', /reserv|예약/i], ['대기 시간', /wait|대기|입장|\d+\s?분/i],
-    ['방문 목적', /purpose|일상|데이트|회식|친목|여행|기념일|나들이|모임|출장|비즈니스/i], ['동행', /companion|친구|연인|배우자|가족|아이|혼자|동료|지인|부모|반려|아기|어르신/i]];
+    ['방문 목적', /purpose|일상|데이트|회식|친목|여행|기념일|나들이|모임|출장|비즈니스/i], ['동행', /companion|cousin|family|friend|친구|연인|배우자|가족|아이|혼자|동료|지인|부모|반려|아기|어르신|친척|형제|자매|사촌/i]];
   function vtCats(VT){
     const m = new Map();
     for (const cc of (VT && VT.cats) || []) {
@@ -4197,7 +4210,7 @@ ${GUARD}`,
       let name = String(cc.name || '');
       if (!name || /^[A-Za-z0-9_\-\s]+$/.test(name)) {        // 코드 이름으로 먼저, 안 되면 낱말로 (목적을 동행보다 먼저 — '가족모임'은 목적)
         const hit = (name && VT_CAT.find(([, re]) => re.test(name))) || VT_CAT.find(([, re]) => re.test(kws.map(k => k.name).join(' ')));
-        name = hit ? hit[0] : (name || '기타'); }
+        name = hit ? hit[0] : '기타 태그'; }                // 모르는 코드(v_…)를 그대로 보이지 않는다
       const cur = m.get(name) || { name, n: 0, kw: new Map() };
       cur.n += Number(cc.n) || 0; kws.forEach(k => cur.kw.set(k.name, (cur.kw.get(k.name) || 0) + (Number(k.n) || 0)));
       m.set(name, cur);
@@ -4208,7 +4221,7 @@ ${GUARD}`,
   /* v3.30: 리뷰에서 더 읽은 것 — 추가 주문·누가 오나·실제 재방문·방문 태그·방문 요일·붐비는 때 (수집 서버 v1.38) */
   function reviewMoreHTML(d){
     const X = d.extraOrder, V = d.visitors, RVS = d.revisit, VT = d.visitTags, BZ = d.busy, rows = [];
-    const smp = (s) => s ? `<br><span class="src9">${esc(s.source || '')}${s.date ? ` · ${esc(s.date)}` : ''} · “${esc(s.text)}”</span>` : '';
+    const smp = (s) => s ? `<br><span class="src9">${esc(s.source || '')}${s.date ? ` · ${esc(s.date)}` : ''} · “${esc(s.text)}”</span>${s.ko ? `<br><span class="src9">번역 · “${esc(s.ko)}”</span>` : ''}` : '';
     if (X && X.count) rows.push(['추가 주문', `리뷰에 <b>${esc(num(X.count,'건'))}</b>${X.withCall ? ` · 그중 직원을 불러야 했던 글 <b>${esc(num(X.withCall,'건'))}</b>` : ''}${smp(X.recent && X.recent[0])}`]);
     if (V && (V.segments || []).length) rows.push(['누가 오나', `${V.segments.map(s => `${esc(s.label)} <b>${esc(num(s.n))}</b>`).join(' · ')} <span class="src9">— 글 ${esc(num(V.scanned,'건'))} 중 적힌 글</span>${smp(V.segments[0].sample)}`]);
     if (RVS && RVS.withCount) rows.push(['실제 재방문', `네이버 리뷰 ${esc(num(RVS.withCount,'건'))} 중 두 번 이상 온 손님 <b>${esc(String(RVS.pct))}%</b> (${esc(num(RVS.repeat,'건'))})${RVS.heavy ? ` · 다섯 번 이상 ${esc(num(RVS.heavy,'건'))}` : ''} <span class="src9">— 리뷰 카드의 ‘N번째 방문’</span>`]);
@@ -4227,8 +4240,8 @@ ${GUARD}`,
       <p class="src9">코네스트는 일본인이 한국 여행 전에 보는 사이트입니다. 가기 전에 묻는 것은 매장 안에서도 직원에게 되풀이되는 질문입니다 — 태블릿 메뉴판(번역 포함)에 적어 두면 묻기 전에 보입니다.</p>
       <div class="qtop">${(Q.topics||[]).map(t => `<span class="${t.hiorder ? 'hi' : ''}">${esc(t.label)} ${esc(t.n)}</span>`).join('')}</div>
       ${hi.length ? `<ul class="cmp">${hi.map(t => { const shown = new Set((d.complaints||[]).map(x => x.link).filter(Boolean)); const s = (t.samples||[]).find(x => !shown.has(x.link)) || (t.samples||[])[0];
-        return `<li><div class="top">${badge('info', t.label)} <b>${esc(num(t.n,'건'))}</b></div>${s ? `<div class="sn" lang="ja">${esc(s.text)}</div>` : ''}
-          ${t.fix ? `<div class="fx">하이오더로 — ${esc(t.fix)}</div>` : ''}${s ? `<div class="src9">${esc(s.date||'')}${s.link ? ` · ${linkText(s.link, '코네스트에서 확인')}` : ''} · ${linkText(trHref(s.text), '한국어로 번역')}</div>` : ''}</li>`; }).join('')}</ul>` : ''}`;
+        return `<li><div class="top">${badge('info', t.label)} <b>${esc(num(t.n,'건'))}</b></div>${s ? `<div class="sn" lang="ja">${esc(s.text)}</div>${trLine(s.ko)}` : ''}
+          ${t.fix ? `<div class="fx">하이오더로 — ${esc(t.fix)}</div>` : ''}${s ? `<div class="src9">${esc(s.date||'')}${s.link ? ` · ${linkText(s.link, '코네스트에서 확인')}` : ''}${s.ko ? '' : ` · ${linkText(trHref(s.text), '한국어로 번역')}`}</div>` : ''}</li>`; }).join('')}</ul>` : ''}`;
   }
 
   function renderReviews(){
@@ -4352,14 +4365,17 @@ ${GUARD}`,
         const fix = c && c.hiorder ? `<div class="fx">하이오더로 보완 — ${esc(c.fix)}</div>` : '';
         const kind = x.source === '코네스트' && x.kind ? ({ good:'좋음 표시', average:'보통 표시', bad:'아쉬움 표시', question:'질문 글' })[x.kind] || '' : '';
         const meta = [kind || (has(x.rating)?`별점 ${x.rating}`:'별점 없음'), x.date, x.reply?(x.source === '코네스트' ? '가게 답글 있음' : '사장님 답글 있음'):'', x.lang&&x.lang!=='ko'?`원문 ${x.lang}`:''].filter(Boolean).join(' · ');
-        return `<li><div class="top">${x.source?badge('info',x.source)+' ':''}${tag}${also} ${x.link?linkText(x.link, RV_LINK[x.source]||'원문 확인'):'<span class="src9">링크 없음</span>'}</div>
-          <div class="sn" lang="${esc(x.lang||'ko')}">${negHTML(x.text)}</div>${fix}<div class="src9">${esc(meta)}${trLink(x)}</div></li>`;
+        const TP = trPair(x);
+        return `<li${TP.ko ? ' class="fl"' : ''}><div class="top">${x.source?badge('info',x.source)+' ':''}${tag}${also} ${x.link?linkText(x.link, RV_LINK[x.source]||'원문 확인'):'<span class="src9">링크 없음</span>'}</div>
+          <div class="sn" lang="${esc(x.lang||'ko')}">${negHTML(TP.orig)}</div>${trLine(TP.ko, true)}${fix}<div class="src9">${esc(meta)}${TP.ko ? '' : trLink(x)}</div></li>`;
       }).join('')}</ul>`);
     }
     out.push(praiseHTML(d));
     out.push(questionsHTML(d));
     out.push(reviewMoreHTML(d));
-    out.push(`<p class="src9 sale">${esc(d.note||'')}</p>`);
+    const TRS = d.translate;   // v3.32: 번역이 됐는지 — 구글 번역 설정을 확인할 때 본다
+    const trNote = !TRS ? '' : TRS.error ? ` · 번역 안 됨 — ${TRS.error}` : TRS.skipped ? ` · 번역 안 함 — ${TRS.skipped}` : TRS.n ? ` · 외국어 글 ${TRS.n}건 구글 번역(기계 번역, 원문이 기준)` : '';
+    out.push(`<p class="src9 sale">${esc(d.note||'')}${esc(trNote)}</p>`);
     out.push(`<div class="rvbar int" style="margin-top:21px"><input id="rvUrl" type="url" maxlength="300" aria-label="네이버 지도 주소"
       placeholder="매장이 다르면 네이버 지도 주소를 넣으세요 (Apify로 다시 가져옵니다)">
       <button type="button" class="abtn" id="rvBtn"${blocked?' disabled':''}>이 주소로 다시</button></div>${usageLine()}`);
@@ -5108,7 +5124,7 @@ ${GUARD}`,
         L.push('|---|---|---|---|---|---|---|---|');
         items.forEach((x) => {
           const c = x.category;
-          L.push(`| ${md(x.source || '네이버')} | ${md(c ? c.label + ((c.also||[]).length ? ` (함께: ${c.also.join(' · ')})` : '') : '기타 불만 (별점은 낮으나 정해 둔 불만 표현 없음 — 읽고 분류)')} | ${c && c.hiorder ? '○' : '×'} | ${x.source === '코네스트' && x.kind ? md(({ good:'좋음 표시', average:'보통 표시', bad:'아쉬움 표시', question:'질문 글' })[x.kind] || '') : (has(x.rating) ? x.rating : '없음')} | ${md(x.date || '—')} | ${md(x.text)}${x.lang && x.lang !== 'ko' ? ` (원문 ${md(x.lang)} — 번역해서 인용하세요)` : ''} | ${x.reply ? '있음' : '없음'} | ${md(x.link || '—')} |`);
+          L.push(`| ${md(x.source || '네이버')} | ${md(c ? c.label + ((c.also||[]).length ? ` (함께: ${c.also.join(' · ')})` : '') : '기타 불만 (별점은 낮으나 정해 둔 불만 표현 없음 — 읽고 분류)')} | ${c && c.hiorder ? '○' : '×'} | ${x.source === '코네스트' && x.kind ? md(({ good:'좋음 표시', average:'보통 표시', bad:'아쉬움 표시', question:'질문 글' })[x.kind] || '') : (has(x.rating) ? x.rating : '없음')} | ${md(x.date || '—')} | ${md(trPair(x).orig)}${trPair(x).ko ? ` (기계 번역: ${md(trPair(x).ko)})` : (x.lang && x.lang !== 'ko' ? ` (원문 ${md(x.lang)} — 번역해서 인용하세요)` : '')} | ${x.reply ? '있음' : '없음'} | ${md(x.link || '—')} |`);
         });
         L.push('');
         const fixes = [...new Set(items.filter((x) => x.category && x.category.hiorder).map((x) => `${x.category.label} → ${x.category.fix}`))];
@@ -6044,7 +6060,7 @@ ${GUARD}`,
     function autoInk(){
       clearAuto();
       if (!ac || autoOff || document.body.classList.contains('cust')){ redraw(); return; }
-      const ems = [...document.querySelectorAll('#sec-reviews .cmp .sn em.neg')];
+      const ems = [...document.querySelectorAll('#sec-reviews .cmp li:not(.fl) .sn em.neg, #sec-reviews .cmp li.fl .trk em.neg')];   // v3.32: 번역이 붙은 외국어 글은 한국어 줄에
       const lis = new Set();
       for (const em of ems){
         const wd = autoWord(em); if (!wd) continue;
