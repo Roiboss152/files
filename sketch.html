@@ -1225,7 +1225,7 @@ svg.trend.rib path.now{stroke:var(--sub)}
 
   // ▼ 배포 후 Cloudflare Worker 주소로 바꾸세요 (끝에 / 없이)
   const API_BASE = 'https://kt.roi0925003.workers.dev';
-  const PAGE_VERSION = 'v3.25';
+  const PAGE_VERSION = 'v3.26';
   const WORKER_VERSION = 'v1.31';   // 이 페이지와 짝이 되는 worker.js 버전
   /* 직원 공개용 토큰 — 비밀번호가 아닙니다. 소스 보기로 누구나 볼 수 있습니다.
      중계 서버의 PUBLIC_PASS와 같은 값이어야 하고, 남이 긁는 게 보이면
@@ -2895,6 +2895,8 @@ ${GUARD}`,
         <div class="b s7">${donutSVG(data, `반경 ${dist(R)} · 곳`)}</div>
         <div class="b s5 rail"><div class="relief"><p class="k">많은 순</p>${rankList(data, '곳')}</div></div>
         <div class="b s12 top"><p class="deck">${read}</p>
+          ${/* v3.26: 관광 신호를 눈에 보이게 — 0장 '외국인 손님' 판정의 근거 */''}
+          ${m.data.tourism && (m.data.tourism.list||[]).length ? `<p class="src9" style="margin-top:8px">관광 신호 (반경 ${esc(dist(m.data.tourism.radius||R))} · 카카오 키워드 검색) — ${m.data.tourism.list.map(x => `${esc(x.word)} <b>${esc(num(x.count,'곳'))}</b>`).join(' · ')} · 면세점은 검색이 넓게 잡혀 뺐습니다 · 0장 ‘외국인 손님’ 판정에 씁니다</p>` : ''}
           <p class="src9 int">각도가 비율이고, 정확한 값은 오른쪽 숫자가 책임집니다. 조각은 5위까지 진한 순서, 그 아래는 한 톤입니다.
           ${near ? `<br>가까운 곳 — ${near}` : ''}
           ${(m.data.notes||[]).map(t=>`<br>${esc(t)}`).join('')}</p></div>
