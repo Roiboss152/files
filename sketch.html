@@ -363,6 +363,14 @@ body.dropping::after{content:'묶음(.json)을 놓으면 그 매장이 열립니
 .rx .rp{display:block;margin-top:3px;color:var(--accent-ink,#AE1800);font-weight:600}
 .vsavg{margin-top:8px;font-size:14px;color:var(--sub)}.vsavg b{font-weight:800;white-space:nowrap;color:var(--ink)}.vsavg b.up,.vsavg b.dn{color:var(--accent-ink,#AE1800)}
 .deck.cmphead b{color:var(--accent,#EC3013)}
+.deck.cmphead.praise b{color:var(--ink)}
+.cmp.praise .fx{border-left-color:var(--ink)}
+.cmp .also{font-size:11px;color:var(--faint)}
+.cmp .sn{overflow-wrap:anywhere}
+.cmp .sn[lang="ja"],.cmp .sn[lang="zh"]{word-break:normal;line-break:strict}
+.qtop{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.qtop span{font-size:11px;padding:4px 10px;border-radius:999px;background:var(--panel);color:var(--sub)}
+.qtop span.hi{background:var(--ink);color:#fff}
 @media print{.rx{break-inside:avoid;background:none}}
 @media (max-width:660px){.gauge,.sumg .gauge{grid-template-columns:1fr 1fr;grid-auto-rows:auto;column-gap:10px}.sumg .gauge .gl,.sumg .gauge .gt{grid-column:auto}.gauge .gv,.sumg .gauge .gv{grid-column:1/-1}.verdict{font-size:20px}.sumtop .sumph{min-height:280px}.sumtop .sumlead.md{font-size:15px}}
 @media print{.sumph{display:none!important}.sumtop .b.s7{grid-column:1/-1}}
@@ -1172,14 +1180,15 @@ svg.trend.rib path.now{stroke:var(--sub)}
 <svg id="skDefs" width="0" height="0" style="position:absolute;width:0;height:0" aria-hidden="true" focusable="false"><defs>
   <!-- v3.21 (#99): 흑백 + 빨강만 — 픽셀마다 빨강 정도(R − 0.75G − 0.75B − 문턱)가 큰 곳만 원본 색을 남긴다 -->
   <filter id="redOnly" color-interpolation-filters="sRGB" x="0" y="0" width="100%" height="100%">
-    <feColorMatrix in="SourceGraphic" type="saturate" values="0" result="gray"/>
-    <feColorMatrix in="SourceGraphic" type="matrix" result="mask" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  1 -0.75 -0.75 0 -0.12"/>
-    <feComponentTransfer in="mask" result="mask2"><feFuncA type="table" tableValues="0 0 0.3 0.7 1 1"/></feComponentTransfer>
-    <feColorMatrix in="SourceGraphic" type="saturate" values="1.25" result="vivid"/>
+    <feColorMatrix in="SourceGraphic" type="saturate" values="0" result="g0"/>
+    <!-- v3.28: 필름 톤(검정을 0.26까지 들어 올림)은 흑백 부분에만. v3.27은 빨강까지 들어 올려 분홍으로 바랬다 -->
+    <feComponentTransfer in="g0" result="gray"><feFuncR type="linear" slope=".74" intercept=".26"/><feFuncG type="linear" slope=".74" intercept=".26"/><feFuncB type="linear" slope=".74" intercept=".26"/></feComponentTransfer>
+    <!-- 빨강 문턱을 조금 낮추고(R − 0.8G − 0.65B − 0.1) 채도를 1.45로 — 간판·고기의 붉은색이 산다. 초록 무게를 더 둬서 주황은 덜 남긴다 -->
+    <feColorMatrix in="SourceGraphic" type="matrix" result="mask" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  1 -0.8 -0.65 0 -0.1"/>
+    <feComponentTransfer in="mask" result="mask2"><feFuncA type="table" tableValues="0 0.12 0.55 0.9 1 1"/></feComponentTransfer>
+    <feColorMatrix in="SourceGraphic" type="saturate" values="1.45" result="vivid"/>
     <feComposite in="vivid" in2="mask2" operator="in" result="red"/>
-    <feComposite in="red" in2="gray" operator="over" result="rg"/>
-    <!-- v3.27: 필름 톤 — 검정을 0.28까지 들어 올리고 흰색은 그대로, 대비 72% (지면의 글과 어울리게) -->
-    <feComponentTransfer in="rg"><feFuncR type="linear" slope=".72" intercept=".28"/><feFuncG type="linear" slope=".72" intercept=".28"/><feFuncB type="linear" slope=".72" intercept=".28"/></feComponentTransfer>
+    <feComposite in="red" in2="gray" operator="over"/>
   </filter>
   <pattern id="paper" patternUnits="userSpaceOnUse" width="560" height="1000"><image id="paperImg" width="560" height="1000" preserveAspectRatio="none"/></pattern>
   <!-- 스케치 글자 — 손이 지나간 선처럼 흔든다 (HTML 글자에도 CSS filter:url()로 걸린다) -->
@@ -1247,8 +1256,8 @@ svg.trend.rib path.now{stroke:var(--sub)}
 
   // ▼ 배포 후 Cloudflare Worker 주소로 바꾸세요 (끝에 / 없이)
   const API_BASE = 'https://kt.roi0925003.workers.dev';
-  const PAGE_VERSION = 'v3.27';
-  const WORKER_VERSION = 'v1.31';   // 이 페이지와 짝이 되는 worker.js 버전
+  const PAGE_VERSION = 'v3.28';
+  const WORKER_VERSION = 'v1.37';   // 이 페이지와 짝이 되는 worker.js 버전 (이보다 낮으면 경고)
   /* 직원 공개용 토큰 — 비밀번호가 아닙니다. 소스 보기로 누구나 볼 수 있습니다.
      중계 서버의 PUBLIC_PASS와 같은 값이어야 하고, 남이 긁는 게 보이면
      양쪽을 같이 바꿔서 다시 올리면 됩니다. 리뷰는 이 토큰으로 부를 수 없습니다. */
@@ -2272,8 +2281,10 @@ svg.trend.rib path.now{stroke:var(--sub)}
       if (ratio >= 1.5) why.push(`구글 리뷰 ${num(gTotal,'건')} vs 네이버 ${num(nTotal,'건')} — 구글이 ${ratio.toFixed(1)}배 (외국인은 구글에 씁니다)`);
       if (tourN) why.push(`반경 안 환전소·게스트하우스·관광안내소 ${tourN}곳${duty ? ` (면세점 ${duty}곳은 합계에서 뺌)` : ''}`);
       if (tz) why.push('관광특구 안');
-      if (share >= 0.2 || gForeign >= 3 || ratio >= 3 || (tz && share >= 0.05) || (tz && ratio >= 1.5)) level = 2;
-      else if (share >= 0.08 || ratio >= 1.5 || tourN >= 6 || tz || (sights >= 15 && lodging >= 10)) level = 1;
+      const kn = rv && rv.konest ? Number(rv.konest.count)||0 : 0;   // v3.28: 일본인 여행 사이트에 글이 쌓인 집
+      if (kn) why.push(`코네스트(일본인 한국 여행 사이트) 글 ${kn}건`);
+      if (share >= 0.2 || gForeign >= 3 || ratio >= 3 || kn >= 10 || (tz && share >= 0.05) || (tz && ratio >= 1.5)) level = 2;
+      else if (share >= 0.08 || ratio >= 1.5 || tourN >= 6 || tz || kn >= 3 || (sights >= 15 && lodging >= 10)) level = 1;
       A.foreign = { key:'foreign', label:'외국인 손님', level, why, share, foreign, tourN, tz, ratio, gTotal, nTotal, langs: rv && rv.langs ? rv.langs : null }; }
 
     /* 직장인 */
@@ -2386,7 +2397,8 @@ svg.trend.rib path.now{stroke:var(--sub)}
 
   /* ══ 장별 처방 (v3.27) — '사실만 있고 내용이 없다'는 지적. 장마다 이 매장의 숫자로 진단하고, 하이오더 기능이나 영업 행동으로 처방한다.
      규칙으로만 만든다 (AI 없음). 한 줄 = 진단 → 처방, 장마다 2~4줄. 하이오더 기능 이름은 매뉴얼에 있는 것만 쓴다. */
-  const LEVER_TEXT = { '주문·직원 호출이 늦음':'테이블 주문·직원 호출', '주문 누락·착오':'주문이 포스·주방으로 바로 (누락 0)', '웨이팅·대기 안내':'웨이팅 서비스 (대기번호·알림톡)', '메뉴 설명·외국어':'사진·다국어 메뉴판', '응대 태도':'주문·호출·계산 접점을 태블릿이 맡아 감정 소모를 줄임 — 직원이 오래 다니는 매장', '간·먹는 법 안내':'주문 전 상품 안내 — 간 세기·맛있게 먹는 법을 메뉴판에' };
+  const LEVER_TEXT = { '주문·직원 호출이 늦음':'테이블 주문·직원 호출', '주문 누락·착오':'주문이 포스·주방으로 바로 (누락 0)', '웨이팅·대기 안내':'웨이팅 서비스 (대기번호·알림톡)', '메뉴 설명·외국어':'사진·다국어 메뉴판', '응대 태도':'주문·호출·계산 접점을 태블릿이 맡아 감정 소모를 줄임 — 직원이 오래 다니는 매장', '간·먹는 법 안내':'주문 전 상품 안내 — 간 세기·맛있게 먹는 법을 메뉴판에',
+    '고기 굽기 서비스 못 받음':'주문·호출을 태블릿이 받아 굽는 손을 비움 — 굽기 서비스를 층·시간대와 상관없이 고르게', '메뉴·품절 안내가 실제와 다름':'메뉴·가격·품절을 매니저앱에서 바꾸면 태블릿에 바로 반영' };
   const rxLine = (d, p) => ({ d, p });
   function areaWord(b){
     const reg = mod(b,'region'); const dong = reg.ok && reg.data && reg.data.admin ? String(reg.data.admin.dong || '') : '';
@@ -2419,17 +2431,26 @@ svg.trend.rib path.now{stroke:var(--sub)}
       if (r >= 1.3) out.push(rxLine(`최근 3개월 리뷰 월 <b>${K.pm3}건</b> — 12개월 평균 ${K.pm12}건의 ${r.toFixed(1)}배`, '손님이 늘고 있습니다 — 같은 인원으로 늘어난 주문을 받게 주문·호출을 태블릿으로'));
       else if (r <= 0.7) out.push(rxLine(`최근 3개월 리뷰 월 <b>${K.pm3}건</b> — 12개월 평균 ${K.pm12}건의 ${Math.round(r*100)}%`, '발길이 줄고 있습니다 — 재방문 장치(스탬프·쿠폰)와 리뷰 유도'));
     }
+    /* v3.28: 불만 → 칭찬 → 질문을 앞에 — 평점·리뷰 수 줄은 뒤로 */
+    const head = [];
     const cats = {}; (rv.complaints||[]).forEach(x => { const c = x.category; if (c && c.hiorder) cats[c.label] = (cats[c.label]||0) + 1; });
     const hk = Object.entries(cats).sort((a,c) => c[1] - a[1]);
-    if (hk.length) out.push(rxLine(`하이오더로 개선할 수 있는 불만 <b>${num(hk.reduce((a,[,n]) => a+n, 0),'건')}</b> — ${hk.map(([k,n]) => `${esc(k)} ${n}`).join(' · ')}`,
+    if (hk.length) head.push(rxLine(`하이오더로 개선할 수 있는 불만 <b>${num(hk.reduce((a,[,n]) => a+n, 0),'건')}</b> — ${hk.map(([k,n]) => `${esc(k)} ${n}`).join(' · ')}`,
       hk.map(([k]) => LEVER_TEXT[k] || '').filter(Boolean).slice(0, 2).join(' / ')));
-    else if (counted >= 20) out.push(rxLine(`리뷰 ${num(counted,'건')} 중 하이오더로 개선할 불만 <b>없음</b>`, '도입 이유를 불만 해결이 아니라 운영 효율(주문·호출)과 외국어 응대로 잡으세요'));
+    else if (counted >= 20) head.push(rxLine(`리뷰 ${num(counted,'건')} 중 하이오더로 개선할 불만 <b>없음</b>`, '도입 이유를 불만 해결이 아니라 운영 효율(주문·호출)과 외국어 응대로 잡으세요'));
+    const pz = rv.praise && (rv.praise.items||[]).filter(p => p.hiorder && p.n > 0);
+    if (pz && pz.length) { const p = pz.slice().sort((a,b) => (b.n + b.votes/10) - (a.n + a.votes/10))[0];
+      head.push(rxLine(`칭찬 <b>${esc(p.label)} ${num(p.n,'건')}</b>${p.voted ? ` · 네이버 「${esc(p.voted[0].name)}」 ${num(p.votes,'표')}` : ''}`, esc(p.amp))); }
+    const qz = rv.questions;
+    if (qz && Number(qz.hiorder) >= 2) head.push(rxLine(`코네스트 방문 전 질문 ${num(qz.total,'건')} 중 주문 규칙·메뉴 <b>${num(qz.hiorder,'건')}</b>`,
+      '첫 주문 최소 수량(2인분 이상)·세트 구성·주류를 번역된 메뉴 설명에 — 직원이 매번 설명하지 않아도 됩니다'));
+    out.unshift(...head);
     if (rv.velocity && has(rv.velocity.replyRate) && counted >= 20 && out.length < 4) {
       const rr = Number(rv.velocity.replyRate);
       if (rr >= 40) out.push(rxLine(`사장님 답글 <b>${rr}%</b>`, '리뷰를 챙기는 사장님 — 리뷰 QR·알림톡 같은 손님 관리 기능 이야기가 잘 통합니다'));
       else if (rr < 15) out.push(rxLine(`사장님 답글 <b>${rr}%</b>`, '리뷰를 거의 안 보는 편 — 리뷰 이야기보다 운영(주문·호출·대기) 이야기부터'));
     }
-    return out.slice(0, 4);
+    return out.slice(0, 5);
   }
   function rxComp(b){
     const m = mod(b,'competition'); if (!m.ok) return [];
@@ -2541,6 +2562,9 @@ svg.trend.rib path.now{stroke:var(--sub)}
     const R = (b.options && b.options.radius) || 500;
     const rv = state.reviews && state.reviews.data ? state.reviews.data : null;
     const counted = rv ? Number(rv.counted)||0 : 0;
+    const scanned = rv && rv.scanned ? Object.values(rv.scanned).reduce((a,v) => a + (Number(v)||0), 0) : counted;   // v3.28: 네이버·구글·카카오·코네스트
+    const VT = rv && rv.stats && rv.stats.voted ? rv.stats.voted : null;
+    const votes = (re) => VT ? (VT.top||[]).filter(k => re.test(String(k.name||''))).reduce((a,k) => a + (Number(k.count)||0), 0) : 0;
     const A = axesOf(b), K = rankModel(b), MP = menuProfile(b), Q = quoteCalc(b);
     const near = A.comp.near;
     const small = cd && cd.industry ? cd.industry.small + (cd.industry.estimated ? ' (추정)' : '') : '';
@@ -2560,12 +2584,18 @@ svg.trend.rib path.now{stroke:var(--sub)}
 
     /* 2) 강점·약점 — 숫자 둘씩. lever는 하이오더 기능, sec은 근거가 있는 장 */
     const strengths = [], weaknesses = [];
-    if (has(K.myScore) && has(K.avgScore) && K.myScore >= K.avgScore + 0.05) strengths.push({ sec:'reviews', text:`평점 <b>${esc(String(K.myScore))}</b> — 옆 가게 ${K.list.length}곳 평균 ${esc(String(K.avgScore))} 위`, keep:'지킬 자산' });
-    else if (has(K.myScore) && has(K.avgScore) && K.myScore < K.avgScore - 0.05) weaknesses.push({ sec:'reviews', text:`평점 <b>${esc(String(K.myScore))}</b> — 옆 가게 ${K.list.length}곳 평균 ${esc(String(K.avgScore))} 아래`, lever:'불만 상위 항목부터 (아래)', w:4 });
+    if (has(K.myScore) && has(K.avgScore) && K.myScore >= K.avgScore + 0.05) strengths.push({ sec:'reviews', text:`평점 <b>${esc(String(K.myScore))}</b> — 옆 가게 ${K.list.filter(x => has(x.score)).length}곳 평균 ${esc(String(K.avgScore))} 위`, keep:'지킬 자산' });
+    else if (has(K.myScore) && has(K.avgScore) && K.myScore < K.avgScore - 0.05) weaknesses.push({ sec:'reviews', text:`평점 <b>${esc(String(K.myScore))}</b> — 옆 가게 ${K.list.filter(x => has(x.score)).length}곳 평균 ${esc(String(K.avgScore))} 아래`, lever:'불만 상위 항목부터 (아래)', w:4 });
     if (K.pos === 1 && K.n >= 3) strengths.push({ sec:'comp', text:`리뷰 <b>${esc(num(K.mine,'건'))}</b> — 옆 가게 ${K.n-1}곳보다 많음 (1위)`, keep:'손님이 먼저 찾는 집' });
     else if (K.pos >= 1 && K.n >= 3 && K.pos >= K.n - 1) weaknesses.push({ sec:'comp', text:`리뷰 <b>${esc(num(K.mine,'건'))}</b> — 옆 가게 ${K.n-1}곳 중 ${K.pos}위 (1위 ${esc(num(K.maxReviews,'건'))})`, lever:'영수증 리뷰 QR·하이오더 리뷰 유도', w:3 });
-    if (A.manner.kind >= Math.max(5, counted*0.3)) strengths.push({ sec:'reviews', text:`「친절해요」 <b>${A.manner.kind}건</b>/${counted}건 — 직원의 응대가 자산`, keep:'직원이 오래도록 친절할 수 있도록, 손님 응대 스트레스를 덜어 줄 필요가 있음' });
-    if (A.foreign.level >= 2) strengths.push({ sec:'reviews', text:(A.foreign.ratio >= 1.5 ? `구글 리뷰 <b>${esc(num(A.foreign.gTotal,'건'))}</b> — 네이버 ${esc(num(A.foreign.nTotal,'건'))}의 ${A.foreign.ratio.toFixed(1)}배` : `외국어 리뷰 <b>${Math.round(A.foreign.share*100)}%</b>`) + `${A.foreign.tourN ? ` · 반경 안 관광 시설 ${A.foreign.tourN}곳` : ''} — 관광 수요를 이미 받고 있음`, keep:'다국어 메뉴판으로 굳히기' });
+    { /* v3.28: 친절은 네이버 전체 키워드 투표로 본다 (가져온 글보다 훨씬 큰 표본) — 없으면 가져온 글의 키워드 */
+      const kv = votes(/친절/), base = VT ? Number(VT.reviews)||0 : 0;
+      if (kv >= 20 && base && kv / base >= 0.15) strengths.push({ sec:'reviews', text:`「친절해요」 <b>${esc(num(kv,'표'))}</b> — 네이버 리뷰 ${esc(num(base,'건'))}의 ${Math.round(kv/base*100)}%`, keep:'직원이 오래도록 친절할 수 있도록, 손님 응대 스트레스를 덜어 줄 필요가 있음' });
+      else if (!VT && A.manner.kind >= Math.max(5, counted*0.3)) strengths.push({ sec:'reviews', text:`「친절해요」 <b>${A.manner.kind}건</b>/${counted}건 — 직원의 응대가 자산`, keep:'직원이 오래도록 친절할 수 있도록, 손님 응대 스트레스를 덜어 줄 필요가 있음' }); }
+    if (A.foreign.level >= 2) { const kn = rv && rv.konest ? Number(rv.konest.count)||0 : 0;
+      strengths.push({ sec:'reviews', text:(A.foreign.ratio >= 1.5 ? `구글 리뷰 <b>${esc(num(A.foreign.gTotal,'건'))}</b> — 네이버 ${esc(num(A.foreign.nTotal,'건'))}의 ${A.foreign.ratio.toFixed(1)}배` : `외국어 리뷰 <b>${Math.round(A.foreign.share*100)}%</b>`) + `${kn ? ` · 코네스트(일본) 글 ${esc(num(kn,'건'))}` : ''}${A.foreign.tourN && !kn ? ` · 반경 안 관광 시설 ${A.foreign.tourN}곳` : ''} — 관광 수요를 이미 받고 있음`, keep:'다국어 메뉴판으로 굳히기' }); }
+    { const gv = votes(/구워/);
+      if (gv >= 10) strengths.push({ sec:'reviews', text:`「직접 잘 구워줘요」 <b>${esc(num(gv,'표'))}</b> — 굽기 서비스가 이 집의 얼굴`, keep:'굽는 손이 끊기지 않게 — 주문·호출은 태블릿이 받기' }); }
     if (rv && rv.velocity && has(rv.velocity.replyRate) && Number(rv.velocity.replyRate) >= 50) strengths.push({ sec:'reviews', text:`사장님 답글 <b>${rv.velocity.replyRate}%</b> — 리뷰를 보는 사장님`, keep:'리뷰 관리 습관이 있음' });
     if (A.waiting.booking) strengths.push({ sec:'reviews', text:`네이버 예약 <b>사용 중</b> — 디지털 채널에 익숙`, keep:'도입 저항이 낮은 편' });
     { const P0 = placeInfo(b); const feed = P0 ? P0.feed : []; const last = feed[0] && feed[0].date ? String(feed[0].date).slice(0, 7) : '';
@@ -2575,9 +2605,10 @@ svg.trend.rib path.now{stroke:var(--sub)}
     const cats = {}; if (rv) (rv.complaints||[]).forEach(x => { const c = x.category; const k = c ? c.label : '기타 불만'; cats[k] = cats[k] || { n:0, hi: Boolean(c && c.hiorder), fix: c ? c.fix : '' }; cats[k].n += 1; });
     const LEVER = LEVER_TEXT;
     Object.entries(cats).sort((a,b) => b[1].n - a[1].n).forEach(([k,v]) => {
-      if (v.n >= 1 && (v.hi || /응대/.test(k))) weaknesses.push({ sec:'reviews', text:`리뷰에 <b>${esc(k)} ${esc(num(v.n,'건'))}</b>/${counted}건`, lever: LEVER[k] || v.fix || '하이오더', w: 5 + v.n });
-      else if (v.n >= 2) weaknesses.push({ sec:'reviews', text:`리뷰에 <b>${esc(k)} ${esc(num(v.n,'건'))}</b>/${counted}건`, lever:'하이오더 밖의 문제 — 방문 때 확인', w: 1 + v.n, plain:true });
+      if (v.n >= 1 && (v.hi || /응대/.test(k))) weaknesses.push({ sec:'reviews', text:`리뷰에 <b>${esc(k)} ${esc(num(v.n,'건'))}</b>/${scanned}건`, lever: LEVER[k] || v.fix || '하이오더', w: 5 + v.n });
+      else if (v.n >= 2) weaknesses.push({ sec:'reviews', text:`리뷰에 <b>${esc(k)} ${esc(num(v.n,'건'))}</b>/${scanned}건`, lever:'하이오더 밖의 문제 — 방문 때 확인', w: 1 + v.n, plain:true });
     });
+    if (rv && rv.questions && Number(rv.questions.hiorder) >= 3) weaknesses.push({ sec:'reviews', text:`코네스트 방문 전 질문 ${esc(num(rv.questions.total,'건'))} 중 <b>주문 규칙·메뉴 ${esc(num(rv.questions.hiorder,'건'))}</b> — 일본인 손님이 헷갈리는 곳`, lever:'첫 주문 최소 수량 안내·번역된 메뉴 설명', w: 4 });
     if (K.pm3 !== null && K.pm12 !== null && K.pm12 >= 2 && K.pm3 < K.pm12 * 0.6) weaknesses.push({ sec:'reviews', text:`최근 3개월 리뷰 월 <b>${K.pm3}건</b> — 12개월 평균 월 ${K.pm12}건의 ${Math.round(K.pm3/K.pm12*100)}%`, lever:'재방문 유도 (스탬프·쿠폰·리뷰 QR)', w:4 });
     if (rv && rv.velocity && has(rv.velocity.replyRate) && Number(rv.velocity.replyRate) < 20 && counted >= 20) weaknesses.push({ sec:'reviews', text:`사장님 답글 <b>${rv.velocity.replyRate}%</b> — 리뷰를 안 보는 편`, lever:'하이오더 네이버 리뷰 기능 (답글 습관)', w:2 });
     if (A.comp.sameBld || A.comp.n100 >= 2) weaknesses.push({ sec:'comp', text:`<b>${A.comp.sameBld ? `같은 건물 ${A.comp.sameBld}곳` : `100m 안 ${A.comp.n100}곳`}</b>이 같은 업종 — 문 앞에서 손님이 갈림`, lever:'주문 속도·회전으로 차별', w:3 });
@@ -2630,7 +2661,7 @@ svg.trend.rib path.now{stroke:var(--sub)}
     /* 6) 근거 줄 */
     const okMods = Object.values(b.modules||{}).filter(m => m && m.ok).length;
     const rvMode = state.reviews && state.reviews.mode === 'apify' ? 'Apify 대체' : (state.reviews && state.reviews.cached ? '저장본' : '직접');
-    const evidence = [`출처 ${okMods}곳`, cd && cd.matched ? '상가정보에서 매장 확인' : (cd && cd.fallback ? '업종은 추정' : ''), rv ? `리뷰 ${counted}건 (${rvMode})` : '리뷰 없음', A.elder.level ? '연령은 추정' : ''].filter(Boolean).join(' · ');
+    const evidence = [`출처 ${okMods}곳`, cd && cd.matched ? '상가정보에서 매장 확인' : (cd && cd.fallback ? '업종은 추정' : ''), rv ? `리뷰 ${scanned}건 읽음 (${rvMode}${scanned !== counted ? ` · 네이버 ${counted}건 + 구글·카카오·코네스트` : ''})` : '리뷰 없음', VT ? `네이버 키워드 투표 ${num(VT.total,'표')}` : '', A.elder.level ? '연령은 추정' : ''].filter(Boolean).join(' · ');
 
     /* 7) 브랜드·MOU (#92) — 내부 메모 */
     const br = mod(b,'brand'); const bd = br.ok && br.data ? br.data : null;
@@ -2861,7 +2892,7 @@ ${GUARD}`,
   const SECTIONS = [
     { id:'summary', title:'요약',                    bg:'요약', dig:'0', render:renderSummary },   // v3.20 두괄식 — 결론부터
     { id:'store',   title:'매장 정보',                bg:'매장', cls:'hero', render:renderStore },   // v3.27: '매장' → '매장 정보'
-    { id:'reviews', title:'손님 불편 신호',            bg:'리뷰', render:renderReviewSection },      // v3.21 (#101): 판정 바로 뒤에 손님 목소리
+    { id:'reviews', title:'손님 목소리',              bg:'리뷰', render:renderReviewSection },      // v3.21 (#101): 판정 바로 뒤에 손님 목소리
     { id:'comp',    title:'같은 업종 점포',            bg:'업종', render:renderComp },
     { id:'nearby',  title:'주변 시설 구성',            bg:'주변', render:renderNearby },
     { id:'pop',     title:'동네 인구·사업체',          bg:'동네', render:renderPop },
@@ -3213,7 +3244,7 @@ ${GUARD}`,
 
   /* ── 손님 불편 신호 (늦게 도착 · 연출 없음) ── */
   function renderReviewSection(b){
-    return { html: '<div id="reviewBox"></div>', meta:'NAVER PLACE · KAKAO · GOOGLE', static:true };
+    return { html: '<div id="reviewBox"></div>', meta:'NAVER · KAKAO · GOOGLE · KONEST', static:true };
   }
 
   /* ── 온라인 언급 — 숫자 셋 · 웨이팅 신호 · 최근 글 (v3.10) ── */
@@ -3930,7 +3961,10 @@ ${GUARD}`,
   /* ══════════ 손님 불편 신호 (플레이스 리뷰) ══════════ */
   const RV_POLL_MS = window.__DEMO__ ? 800 : 5000;      // 미리보기는 기다릴 서버가 없다
   const RV_TRIES = 40;                       // 5초 × 40 = 3분 20초까지 기다린다
-  const RV_LINK = { 네이버:'플레이스에서 확인', 카카오:'카카오맵에서 확인', 구글:'구글 리뷰 열기' };
+  const RV_LINK = { 네이버:'플레이스에서 확인', 카카오:'카카오맵에서 확인', 구글:'구글 리뷰 열기', 코네스트:'코네스트에서 확인' };
+  /* v3.28: 일본어·영어 글은 번역 링크를 붙인다 (구글 번역 — 수집·판정에는 AI를 쓰지 않고, 읽는 사람만 번역을 연다) */
+  const trHref = (t) => `https://translate.google.com/?sl=auto&tl=ko&op=translate&text=${encodeURIComponent(String(t||'').slice(0, 900))}`;
+  const trLink = (x) => x && x.lang && x.lang !== 'ko' ? ` · ${linkText(trHref(x.text), '한국어로 번역')}` : '';
 
   function usageLine(){
     const u = state.apifyUsage;
@@ -3941,6 +3975,42 @@ ${GUARD}`,
   }
   const usageBlocked = () => { const u = state.apifyUsage;
     return Boolean(u && has(u.used) && has(u.limit) && u.limit>0 && u.used/u.limit>=0.9); };
+
+  /* v3.28: 칭찬 — 불만만 보면 칭찬 많은 매장은 할 말이 없다. 손님이 이미 칭찬하는 것 중 하이오더가 키워 줄 수 있는 것 */
+  function praiseHTML(d){
+    const P = d && d.praise; if (!P || !(P.items||[]).length) return '';
+    const items = P.items.filter(p => p.hiorder && (p.n > 0 || p.votes > 0)).slice(0, 5);
+    if (!items.length) return '';
+    const VT = d.stats && d.stats.voted ? d.stats.voted : null;
+    const srcN = (p) => Object.entries(p.bySource||{}).map(([k,v]) => `${k} ${v}`).join(' · ');
+    const used = new Set();
+    return `<p class="deck cmphead praise" style="margin-top:46px">칭찬이 적힌 리뷰 <b>${esc(num(P.withPraise,'건'))}</b> 중 <b>${esc(num(P.hiorder,'건'))}</b>은 하이오더로 더 살릴 수 있습니다</p>
+      <p class="src9">손님이 이미 칭찬하는 것 중 하이오더가 키워 줄 수 있는 것만 셉니다 (별점 1~2점 글 제외)${P.foreignScanned ? ` · 외국어 글 ${esc(num(P.foreignScanned,'건'))} 중 칭찬 ${esc(num(P.foreignPraise,'건'))}` : ''}${VT ? ` · 「」 안의 표 수는 네이버 전체 리뷰 ${esc(num(VT.reviews,'건'))}의 키워드 투표입니다` : ''}.</p>
+      ${burstHTML(d)}
+      <ul class="cmp praise">${items.map(p => { const s = (p.samples||[]).find(x => !used.has(x.text)) || (p.samples||[])[0]; if (s) used.add(s.text);
+        return `<li><div class="top">${badge('ok', p.label)} <b>${esc(num(p.n,'건'))}</b>${p.voted ? ` · 네이버 ${p.voted.map(v => `「${esc(v.name)}」 ${esc(num(v.count,'표'))}`).join(' · ')}` : ''}${srcN(p) ? ` <span class="also">${esc(srcN(p))}</span>` : ''}</div>
+          ${s ? `<div class="sn" lang="${esc(s.lang||'ko')}">“${esc(s.text)}”</div>` : ''}<div class="fx">하이오더로 더 살림 — ${esc(p.amp)}</div>
+          ${s ? `<div class="src9">${esc([s.source, s.date, has(s.rating) ? `별점 ${s.rating}` : ''].filter(Boolean).join(' · '))}${s.link ? ` · ${linkText(s.link, RV_LINK[s.source]||'원문 확인')}` : ''}${trLink(s)}</div>` : ''}</li>`; }).join('')}</ul>`;
+  }
+  /* v3.28: 리뷰가 며칠에 몰린 구간 — 체험단·리뷰 이벤트 글이면 칭찬 수가 부푼다. 글을 지우지 않고 '빼고 보면'을 같이 보인다 */
+  function burstHTML(d){
+    const B = d && d.burst; if (!B) return '';
+    const days = Math.round((Date.parse(B.to) - Date.parse(B.from)) / 86400000) + 1;
+    const ex = d.praise && d.praise.exBurst;
+    return `<div class="flag2"><div class="eyebrow">CHECK</div><div class="lead-read">네이버 리뷰 ${esc(num(B.n,'건'))}이 ${esc(B.from)}~${esc(B.to)} ${days}일 사이에 몰려 있습니다 — 나머지 기간은 주 ${esc(B.weekly)}건</div>
+      <p class="src9">체험단·리뷰 이벤트 글일 수 있습니다. 목록에서 지우지는 않았습니다${ex ? ` — 이 구간을 빼고 보면 칭찬 리뷰 ${esc(num(ex.withPraise,'건'))} 중 ${esc(num(ex.hiorder,'건'))}이 하이오더로 더 살릴 칭찬입니다` : ''}. 리뷰 속도(최근 12개월)에도 이 구간이 들어 있습니다.</p></div>`;
+  }
+  /* v3.28: 코네스트 질문 — 일본인 손님이 가기 전에 묻는 것. 주문 규칙·메뉴 질문은 매장 안에서도 직원에게 되풀이된다 */
+  function questionsHTML(d){
+    const Q = d && d.questions; if (!Q || !Q.total) return '';
+    const hi = (Q.topics||[]).filter(t => t.hiorder && t.n);
+    return `<p class="deck md" style="margin-top:46px">코네스트 방문 전 질문 <b>${esc(num(Q.total,'건'))}</b> 중 <b>${esc(num(Q.hiorder,'건'))}</b>은 주문 규칙·메뉴 질문입니다</p>
+      <p class="src9">코네스트는 일본인이 한국 여행 전에 보는 사이트입니다. 가기 전에 묻는 것은 매장 안에서도 직원에게 되풀이되는 질문입니다 — 태블릿 메뉴판(번역 포함)에 적어 두면 묻기 전에 보입니다.</p>
+      <div class="qtop">${(Q.topics||[]).map(t => `<span class="${t.hiorder ? 'hi' : ''}">${esc(t.label)} ${esc(t.n)}</span>`).join('')}</div>
+      ${hi.length ? `<ul class="cmp">${hi.map(t => { const shown = new Set((d.complaints||[]).map(x => x.link).filter(Boolean)); const s = (t.samples||[]).find(x => !shown.has(x.link)) || (t.samples||[])[0];
+        return `<li><div class="top">${badge('info', t.label)} <b>${esc(num(t.n,'건'))}</b></div>${s ? `<div class="sn" lang="ja">${esc(s.text)}</div>` : ''}
+          ${t.fix ? `<div class="fx">하이오더로 — ${esc(t.fix)}</div>` : ''}${s ? `<div class="src9">${esc(s.date||'')}${s.link ? ` · ${linkText(s.link, '코네스트에서 확인')}` : ''} · ${linkText(trHref(s.text), '한국어로 번역')}</div>` : ''}</li>`; }).join('')}</ul>` : ''}`;
+  }
 
   function renderReviews(){
     const rv = state.reviews;
@@ -4001,22 +4071,28 @@ ${GUARD}`,
     const srcList = Object.values(d.sources||{});
     const srcLine = srcList.length ? `<p class="src9">${srcList.map(x => x.error
       ? `${badge('fail',x.label)} ${esc(x.error)}`
-      : `<b>${esc(x.label)}</b> ${esc(num(x.counted,'건'))}${x.place&&has(x.place.total)?` (전체 ${esc(num(x.place.total,'건'))})`:''}${x.place&&has(x.place.rating)?` · 평점 ${esc(x.place.rating)}`:''}${has(x.foreign)?` · 외국어 리뷰 ${esc(num(x.foreign,'건'))}${x.langs?` (${esc(x.langs)})`:''}`:''}${x.matched?'':' · ⚠ 매장 확인'}${x.others?` · 다른 장소 ${esc(x.others)}곳 제외`:''}${has(x.silentLow)&&Number(x.silentLow)>0?` · 글 없이 별점만 낮은 리뷰 ${esc(num(x.silentLow,'건'))}은 목록에서 뺌`:''}${x.label==='구글'&&has(x.low)&&Number(x.low)===0&&Number(x.counted)>0?` · 최신 ${esc(x.counted)}건 모두 4점 이상 — 표본이 작아 ‘불만 없음’의 근거로는 쓰지 마세요`:''}${x.label==='구글'&&x.place&&safeHref(x.place.url)?` · <a href="${esc(x.place.url)}" target="_blank" rel="noopener noreferrer">구글 지도 열기</a>`:''}`).join(' &nbsp;/&nbsp; ')}
+      : `<b>${esc(x.label)}</b> ${esc(num(x.counted,'건'))}${x.place&&has(x.place.total)?` (전체 ${esc(num(x.place.total,'건'))})`:''}${x.place&&has(x.place.rating)?` · 평점 ${esc(x.place.rating)}`:''}${has(x.foreign)&&x.label!=='코네스트'?` · 외국어 리뷰 ${esc(num(x.foreign,'건'))}${x.langs?` (${esc(x.langs)})`:''}`:''}${x.label==='코네스트'&&x.kinds?` · 좋음 ${esc(x.kinds.good||0)} · 보통 ${esc(x.kinds.average||0)} · 아쉬움 ${esc(x.kinds.bad||0)} · 질문 ${esc(x.kinds.question||0)}${x.ownerReplies?` · 가게 답글 ${esc(num(x.ownerReplies,'건'))}`:''}${x.place&&safeHref(x.place.kuchiUrl||x.place.url)?` · <a href="${esc(x.place.kuchiUrl||x.place.url)}" target="_blank" rel="noopener noreferrer">코네스트 열기</a>`:''}`:''}${x.label==='구글'&&x.extra?` · 영어·일본어로도 불러 새 리뷰 ${esc(num(Object.values(x.extra).reduce((a,e)=>a+(Number(e&&e.fresh)||0),0),'건'))}`:''}${x.matched?'':' · ⚠ 매장 확인'}${x.others?` · 다른 장소 ${esc(x.others)}곳 제외`:''}${has(x.silentLow)&&Number(x.silentLow)>0?` · 글 없이 별점만 낮은 리뷰 ${esc(num(x.silentLow,'건'))}은 목록에서 뺌`:''}${x.label==='구글'&&has(x.low)&&Number(x.low)===0&&Number(x.counted)>0?` · 최신 ${esc(x.counted)}건 모두 4점 이상 — 표본이 작아 ‘불만 없음’의 근거로는 쓰지 마세요`:''}${x.label==='구글'&&x.place&&safeHref(x.place.url)?` · <a href="${esc(x.place.url)}" target="_blank" rel="noopener noreferrer">구글 지도 열기</a>`:''}`).join(' &nbsp;/&nbsp; ')}
       ${(rv.skipped||[]).map(t=>`<br>${badge('warn','건너뜀')} ${esc(t)}`).join('')}</p>` : '';
 
     let dist = '';
-    if (d.rated){
-      const counts = d.ratingCounts || {};
+    const ST = d.stats && Number(d.stats.starRated) > 0 ? d.stats : null;   // v3.28: 네이버 전체 별점 분포 (워커 v1.37)
+    if (ST || d.rated){
+      const counts = ST ? ST.star : (d.ratingCounts || {}); const ratedN = ST ? Number(ST.starRated) : d.rated;
       const bars = [5,4,3,2,1].map(n => ({ nm:`${n}점`, v:Number(counts[n]||0),
-        sub: d.rated ? `${Math.round((Number(counts[n]||0)/d.rated)*100)}%` : '',
+        sub: ratedN ? `${Math.round((Number(counts[n]||0)/ratedN)*100)}%` : '',
         c: n<=2 ? '#EC3013' : RAMP5[5-n], hot: n<=2 })).filter((x,i)=>i<4 || x.v>0);
-      dist = `<p class="k">별점 분포 <span style="font-weight:400;color:var(--faint)">별점이 있는 ${esc(num(d.rated,'건'))}</span></p>
+      dist = `<p class="k">별점 분포 <span style="font-weight:400;color:var(--faint)">${ST ? `네이버 전체 — 별점 남긴 ${esc(num(ratedN,'건'))} 중 3점 이하 ${esc(num(ST.low,'건'))}` : `별점이 있는 ${esc(num(d.rated,'건'))}`}</span></p>
         ${columnsSVG(bars, { H:220, cw:56, shadow:110 })}${legendCols(bars)}
         ${has(d.unrated) ? `<p class="src9">별점 없는 리뷰 ${esc(num(d.unrated,'건'))}${has(d.ratingAvg)?` · 별점 평균 ${esc(d.ratingAvg)}`:''} — 네이버는 2021년부터 별점 대신 키워드로 평가합니다. 위 막대는 별점이 있는 것만 센 값입니다.</p>` : ''}`;
     }
     let kws = '';
-    if ((d.keywords||[]).length) kws += `<p class="k">손님이 고른 키워드 <span style="font-weight:400;color:var(--faint)">리포트의 강점 부분에 씁니다</span></p>
+    const VT = d.stats && d.stats.voted && (d.stats.voted.top||[]).length ? d.stats.voted : null;
+    if (VT) kws += `<p class="k">손님이 고른 키워드 <span style="font-weight:400;color:var(--faint)">네이버 전체 리뷰 ${esc(num(VT.reviews,'건'))} · ${esc(num(VT.total,'표'))} — 가져온 글이 아니라 이 매장 전체의 집계</span></p>
+      <div class="kw">${VT.top.slice(0,12).map(k=>`<span>${esc(k.name)} ${esc(num(k.count))}</span>`).join('')}</div>`;
+    else if ((d.keywords||[]).length) kws += `<p class="k">손님이 고른 키워드 <span style="font-weight:400;color:var(--faint)">리포트의 강점 부분에 씁니다</span></p>
       <div class="kw">${d.keywords.map(k=>`<span>${esc(k.word)} ${esc(k.count)}</span>`).join('')}</div>`;
+    if (d.stats && (d.stats.menus||[]).length) kws += `<p class="k" style="margin-top:21px">리뷰에 가장 많이 나온 메뉴 <span style="font-weight:400;color:var(--faint)">네이버 전체</span></p>
+      <div class="kw">${d.stats.menus.slice(0,8).map(m=>`<span>${esc(m.label)} ${esc(num(m.count))}</span>`).join('')}</div>`;
     if ((d.keywordsKakao||[]).length) kws += `<p class="k" style="margin-top:21px">카카오 손님이 고른 키워드</p>
       <div class="kw">${d.keywordsKakao.map(k=>`<span>${esc(k.word)} ${esc(k.count)}</span>`).join('')}</div>`;
 
@@ -4035,20 +4111,28 @@ ${GUARD}`,
       ${to.hits.map(h=>`<br>${esc(h.source)} · ${esc(h.date||'—')} · “${esc(h.text)}”`).join('')}</p></div>`);
 
     const items = d.complaints || [];
+    const nC = has(d.complaintsTotal) ? Number(d.complaintsTotal) : items.length;
+    const SC = d.scanned || null;
+    const scTotal = SC ? Object.values(SC).reduce((a,v) => a + (Number(v)||0), 0) : total;
+    const scLine = SC ? Object.entries(SC).filter(([,v]) => Number(v) > 0).map(([k,v]) => `${k} ${num(v,'건')}`).join(' · ') : '';
     if (!items.length){
-      out.push(`<p class="lead-read" style="font-size:15px;margin-top:46px">분석한 ${esc(num(total,'건'))} 가운데 불만이 적힌 리뷰를 찾지 못했습니다. 리뷰가 고르게 긍정적인 매장입니다 — 이건 그대로 리포트의 강점으로 쓰세요.</p>`);
+      out.push(`<p class="lead-read" style="font-size:15px;margin-top:46px">분석한 ${esc(num(scTotal,'건'))}${scLine ? ` (${esc(scLine)})` : ''} 가운데 불만이 적힌 리뷰를 찾지 못했습니다. 리뷰가 고르게 긍정적인 매장입니다 — 이건 그대로 리포트의 강점으로 쓰세요.</p>`);
     } else {
-      out.push(`<p class="deck cmphead" style="margin-top:46px">불만이 적힌 리뷰 <b>${esc(num(items.length,'건'))}</b> 중 <b>${esc(num(d.hiorderCount,'건'))}</b>은 하이오더로 개선할 수 있습니다</p>
-        <p class="src9">리포트에 쓸 때는 작성 시점을 함께 적으세요. 맛·위생·가격 불만은 하이오더로 해결되지 않으니 그 말은 쓰지 마세요. ‘기타 불만’은 별점은 낮은데 정해 둔 불만 표현이 없는 글입니다 — 읽고 직접 분류하세요.</p>`);
+      out.push(`<p class="deck cmphead" style="margin-top:46px">불만이 적힌 리뷰 <b>${esc(num(nC,'건'))}</b> 중 <b>${esc(num(d.hiorderCount,'건'))}</b>은 하이오더로 개선할 수 있습니다</p>
+        <p class="src9">${scLine ? `읽은 글 ${esc(num(scTotal,'건'))} — ${esc(scLine)}. ` : ''}리포트에 쓸 때는 작성 시점을 함께 적으세요. 맛·위생·가격 불만은 하이오더로 해결되지 않으니 그 말은 쓰지 마세요. 한 글에 여러 불만이 섞이면 하이오더로 손볼 갈래를 앞에 두고 나머지는 ‘함께’로 적었습니다. ‘기타 불만’은 별점은 낮은데 정해 둔 불만 표현이 없는 글입니다 — 읽고 직접 분류하세요.</p>`);
       out.push(`<ul class="cmp">${items.map((x) => {
         const c = x.category;
         const tag = c ? badge('info', c.label) : badge('info','기타 불만');
+        const also = c && (c.also||[]).length ? ` <span class="also">함께: ${esc(c.also.join(' · '))}</span>` : '';
         const fix = c && c.hiorder ? `<div class="fx">하이오더로 보완 — ${esc(c.fix)}</div>` : '';
-        const meta = [has(x.rating)?`별점 ${x.rating}`:'별점 없음', x.date, x.reply?'사장님 답글 있음':'', x.lang&&x.lang!=='ko'?`원문 ${x.lang}`:''].filter(Boolean).join(' · ');
-        return `<li><div class="top">${x.source?badge('info',x.source)+' ':''}${tag} ${x.link?linkText(x.link, RV_LINK[x.source]||'원문 확인'):'<span class="src9">링크 없음</span>'}</div>
-          <div class="sn">${negHTML(x.text)}</div>${fix}<div class="src9">${esc(meta)}</div></li>`;
+        const kind = x.source === '코네스트' && x.kind ? ({ good:'좋음 표시', average:'보통 표시', bad:'아쉬움 표시', question:'질문 글' })[x.kind] || '' : '';
+        const meta = [kind || (has(x.rating)?`별점 ${x.rating}`:'별점 없음'), x.date, x.reply?(x.source === '코네스트' ? '가게 답글 있음' : '사장님 답글 있음'):'', x.lang&&x.lang!=='ko'?`원문 ${x.lang}`:''].filter(Boolean).join(' · ');
+        return `<li><div class="top">${x.source?badge('info',x.source)+' ':''}${tag}${also} ${x.link?linkText(x.link, RV_LINK[x.source]||'원문 확인'):'<span class="src9">링크 없음</span>'}</div>
+          <div class="sn" lang="${esc(x.lang||'ko')}">${negHTML(x.text)}</div>${fix}<div class="src9">${esc(meta)}${trLink(x)}</div></li>`;
       }).join('')}</ul>`);
     }
+    out.push(praiseHTML(d));
+    out.push(questionsHTML(d));
     out.push(`<p class="src9">${esc(d.note||'')}</p>`);
     out.push(`<div class="rvbar int" style="margin-top:21px"><input id="rvUrl" type="url" maxlength="300" aria-label="네이버 지도 주소"
       placeholder="매장이 다르면 네이버 지도 주소를 넣으세요 (Apify로 다시 가져옵니다)">
@@ -4516,7 +4600,7 @@ ${GUARD}`,
       }
       L.push(`- 시장 흐름: ${MARKET.lines.map((l) => `${md(l.t)} (${md(l.src)})`).join(' / ')}`);
       /* v3.27: 장별 처방 (규칙) — 진단 → 처방 */
-      const RXN = { reviews:'손님 불편 신호', comp:'같은 업종 점포', nearby:'주변 시설 구성', pop:'동네 인구·사업체' };
+      const RXN = { reviews:'손님 목소리', comp:'같은 업종 점포', nearby:'주변 시설 구성', pop:'동네 인구·사업체' };
       const rxl = [];
       Object.keys(RX).forEach((id) => rxItems(id, b).forEach((x) => rxl.push(`- [${RXN[id]}] ${md(plain(x.d))} → ${md(plain(x.p))}`)));
       if (rxl.length) { L.push(''); L.push('### 장별 처방 (규칙으로 판정 · 진단 → 처방)'); rxl.forEach((t) => L.push(t)); }
@@ -4697,7 +4781,7 @@ ${GUARD}`,
     L.push(`- 계절성: ${trend.ok ? (trend.data.series || []).map((sr) => `${md(sr.keyword)} 최고 ${sr.peak ? sr.peak.month : '—'} / 최저 ${sr.low ? sr.low.month : '—'}`).join(', ') || '—' : '수집 안 됨'}`);
     const rv = state.reviews && state.reviews.data;
     const srcSum = rv ? Object.values(rv.sources || {}).filter((x) => !x.error).map((x) => `${x.label} ${x.counted}건`).join('·') : '';
-    L.push(`- 손님 불편 신호: ${rv ? `리뷰 ${srcSum || `${rv.counted}건`} 분석, 플레이스 평점 ${rv.place && has(rv.place.rating) ? rv.place.rating : '—'}, 불만 리뷰 ${(rv.complaints || []).length}건 중 하이오더로 보완 가능 ${rv.hiorderCount}건 (9번 참고)` : '아직 리뷰를 가져오지 않음'}`);
+    L.push(`- 손님 목소리: ${rv ? `리뷰 ${srcSum || `${rv.counted}건`} 분석, 플레이스 평점 ${rv.place && has(rv.place.rating) ? rv.place.rating : '—'}, 불만 리뷰 ${has(rv.complaintsTotal) ? rv.complaintsTotal : (rv.complaints || []).length}건 중 하이오더로 보완 가능 ${rv.hiorderCount}건${rv.praise ? `, 칭찬 리뷰 ${rv.praise.withPraise}건 중 하이오더로 더 살릴 것 ${rv.praise.hiorder}건` : ''} (9번 참고)` : '아직 리뷰를 가져오지 않음'}`);
     const toSig = tableOrderSignals(rv);
     L.push(`- 테이블 주문기 흔적: ${toSig.count ? `${toSig.count}건 (리뷰 ${toSig.reviewCount}건 · 블로그·카페 제목 ${toSig.blogCount}건) — 이미 태블릿 주문을 쓰는 매장일 수 있음, 9번 참고` : rv ? '리뷰·블로그 제목에서 없음' : '리뷰를 가져온 뒤 판정'}`);
     L.push('');
@@ -4710,9 +4794,10 @@ ${GUARD}`,
     L.push('');
 
     const rvSources = rv ? Object.values(rv.sources || {}) : [];
-    const rvNames = rvSources.filter((x) => !x.error).map((x) => ({ 네이버: '네이버 플레이스', 카카오: '카카오맵', 구글: '구글 지도' })[x.label] || x.label);
-    L.push(`## 9. 손님 불편 신호 (${rvNames.length ? `${rvNames.join(' · ')} 리뷰` : '네이버 플레이스 방문자 리뷰'})`);
-    L.push('- 규칙: ‘하이오더 보완’ 칸이 ○인 항목만 하이오더 개선 사례로 연결하세요. 맛·위생·가격·응대 태도는 하이오더로 해결되지 않으므로 그런 식으로 쓰면 안 됩니다.');
+    const rvNames = rvSources.filter((x) => !x.error).map((x) => ({ 네이버: '네이버 플레이스', 카카오: '카카오맵', 구글: '구글 지도', 코네스트: '코네스트(일본인 한국 여행 사이트)' })[x.label] || x.label);
+    L.push(`## 9. 손님 목소리 — 불만·칭찬 (${rvNames.length ? `${rvNames.join(' · ')} 리뷰` : '네이버 플레이스 방문자 리뷰'})`);
+    L.push('- 규칙: ‘하이오더 보완’ 칸이 ○인 항목만 하이오더 개선 사례로 연결하세요. 맛·위생·가격 불만은 하이오더로 해결되지 않으므로 그런 식으로 쓰면 안 됩니다. 응대 태도는 "주문·호출 접점을 태블릿이 맡아 직원 부담을 던다"까지만 쓰고, 불친절이 사라진다고 쓰지 마세요.');
+    L.push('- 규칙: 일본어·영어 글은 번역해서 뜻만 옮기세요. 원문을 길게 인용하지 마세요.');
     L.push('- 규칙: 리포트에 쓸 때는 원문 링크와 작성 시점을 함께 적으세요. 오래된 리뷰를 지금 일처럼 쓰면 안 됩니다.');
     L.push('- 규칙: 손님이 고른 키워드는 강점 부분에 쓰고, 불만은 개선 제안 부분에 씁니다. 리뷰 문장을 그대로 길게 옮기지 말고 요약하세요.');
     L.push('- 규칙: 테이블 주문기 흔적이 있으면 이미 다른 태블릿 주문기를 쓰는 매장입니다. ‘주문 불편 해소’ 논리 대신 ‘지금 태블릿으로 되는 것 / 하이오더로만 되는 것’ 비교(A-전환형)로 쓰고, 사장님께 어떤 기기인지 확인하세요.');
@@ -4766,7 +4851,7 @@ ${GUARD}`,
         L.push('|---|---|---|---|---|---|---|---|');
         items.forEach((x) => {
           const c = x.category;
-          L.push(`| ${md(x.source || '네이버')} | ${md(c ? c.label : '기타 불만 (별점은 낮으나 정해 둔 불만 표현 없음 — 읽고 분류)')} | ${c && c.hiorder ? '○' : '×'} | ${has(x.rating) ? x.rating : '없음'} | ${md(x.date || '—')} | ${md(x.text)}${x.lang && x.lang !== 'ko' ? ` (원문 ${md(x.lang)})` : ''} | ${x.reply ? '있음' : '없음'} | ${md(x.link || '—')} |`);
+          L.push(`| ${md(x.source || '네이버')} | ${md(c ? c.label + ((c.also||[]).length ? ` (함께: ${c.also.join(' · ')})` : '') : '기타 불만 (별점은 낮으나 정해 둔 불만 표현 없음 — 읽고 분류)')} | ${c && c.hiorder ? '○' : '×'} | ${x.source === '코네스트' && x.kind ? md(({ good:'좋음 표시', average:'보통 표시', bad:'아쉬움 표시', question:'질문 글' })[x.kind] || '') : (has(x.rating) ? x.rating : '없음')} | ${md(x.date || '—')} | ${md(x.text)}${x.lang && x.lang !== 'ko' ? ` (원문 ${md(x.lang)} — 번역해서 인용하세요)` : ''} | ${x.reply ? '있음' : '없음'} | ${md(x.link || '—')} |`);
         });
         L.push('');
         const fixes = [...new Set(items.filter((x) => x.category && x.category.hiorder).map((x) => `${x.category.label} → ${x.category.fix}`))];
@@ -4774,6 +4859,27 @@ ${GUARD}`,
           L.push('- 하이오더로 이어 말할 수 있는 것:');
           fixes.forEach((t) => L.push(`  - ${md(t)}`));
         }
+        if (has(rv.complaintsTotal)) L.push(`- 불만 글 전체 ${rv.complaintsTotal}건 중 하이오더로 손볼 것 ${rv.hiorderCount}건 (읽은 글: ${md(Object.entries(rv.scanned || {}).map(([k, v]) => `${k} ${v}`).join(' · '))}). 한 글에 여러 불만이 섞이면 하이오더 갈래를 대표로 적고 나머지는 '함께'로 적었다 — 함께 적힌 맛·가격 불만은 하이오더 효과로 연결하지 마세요.`);
+      }
+      /* v3.28: 칭찬 — 하이오더로 더 살릴 것 */
+      const PZ = rv.praise;
+      if (PZ && (PZ.items || []).length) {
+        L.push('');
+        L.push(`### 칭찬 — 하이오더로 더 살릴 것 (칭찬 글 ${PZ.withPraise}건 중 ${PZ.hiorder}건)`);
+        if (rv.burst) L.push(`- 주의: 네이버 리뷰 ${rv.burst.n}건이 ${rv.burst.from}~${rv.burst.to}에 몰려 있습니다(나머지 기간 주 ${rv.burst.weekly}건) — 체험단·리뷰 이벤트 글일 수 있습니다.${PZ.exBurst ? ` 이 구간을 빼면 칭찬 글 ${PZ.exBurst.withPraise}건 중 ${PZ.exBurst.hiorder}건.` : ''} 리포트에는 빼고 센 숫자를 쓰세요.`);
+        L.push('- 규칙: 칭찬은 "지킬 강점"으로 먼저 쓰고, 하이오더는 그 강점을 바쁜 시간에도 유지하게 해 주는 도구로 연결하세요. 강점을 하이오더가 만든 것처럼 쓰지 마세요.');
+        PZ.items.filter((p) => p.hiorder).slice(0, 6).forEach((p) => {
+          const s = (p.samples || [])[0];
+          L.push(`- ${md(p.label)} ${p.n}건${p.voted ? ` · 네이버 전체 ${md(p.voted.map((v) => `「${v.name}」 ${v.count}표`).join(', '))}` : ''} → ${md(p.amp)}${s ? ` — 예: ${md(s.source)} ${md(s.date || '')} “${md(s.text)}”${s.lang && s.lang !== 'ko' ? ` (원문 ${md(s.lang)})` : ''}` : ''}`);
+        });
+      }
+      if (rv.stats && rv.stats.voted && (rv.stats.voted.top || []).length) {
+        const S2 = rv.stats;
+        L.push(`- 네이버 전체 집계(가져온 글이 아니라 이 매장 리뷰 전체): 리뷰 ${S2.total || '—'}건 · 키워드 투표 ${S2.voted.total || '—'}표(리뷰 ${S2.voted.reviews || '—'}건) — ${md(S2.voted.top.slice(0, 10).map((k) => `${k.name} ${k.count}`).join(', '))}${S2.starRated ? ` · 별점 남긴 ${S2.starRated}건 중 3점 이하 ${S2.low}건` : ''}${(S2.menus || []).length ? ` · 리뷰에 많이 나온 메뉴: ${md(S2.menus.slice(0, 6).map((m) => `${m.label} ${m.count}`).join(', '))}` : ''}`);
+      }
+      const QZ = rv.questions;
+      if (QZ && QZ.total) {
+        L.push(`- 코네스트(일본인 한국 여행 사이트) 방문 전 질문 ${QZ.total}건 — ${md(QZ.topics.map((t) => `${t.label} ${t.n}`).join(', '))}. 주문 규칙·메뉴 질문 ${QZ.hiorder}건은 매장 안에서도 직원에게 되풀이되는 질문입니다. 규칙: "태블릿 메뉴판(번역)에 주문 규칙·구성을 적어 두면 묻기 전에 보인다"까지만 쓰고, 질문 수를 매출 효과로 바꾸지 마세요.`);
       }
     }
     L.push('');
@@ -5038,7 +5144,8 @@ ${GUARD}`,
       el.chips.innerHTML = Object.keys(KEY_LABEL)
         .map(k => `<span class="chip${keys[k] ? '' : ' off'}">${esc(KEY_LABEL[k])}${keys[k] ? '' : ' 없음'}</span>`).join('');
       const missing = Object.keys(KEY_LABEL).filter(k => !keys[k]).length;
-      const mismatch = s.version !== WORKER_VERSION;
+      const vnum = (v) => { const m = /v?(\d+)\.(\d+)/.exec(String(v || '')); return m ? Number(m[1]) * 1000 + Number(m[2]) : 0; };
+      const mismatch = Boolean(s.version) && vnum(s.version) < vnum(WORKER_VERSION);   // v3.28: 낮을 때만 경고
       const verNote = mismatch ? ` · 이 페이지(${PAGE_VERSION})는 worker.js ${WORKER_VERSION}와 짝입니다. worker.js를 ${WORKER_VERSION}로 올려야 모든 항목이 나옵니다` : '';
       setMsg(el.authMsg, '');
       state.usage = s.usage || null;
