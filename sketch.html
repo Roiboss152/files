@@ -587,6 +587,8 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
 /* v3.32: 외국어 리뷰의 번역 줄 — 원문 바로 아래, '번역' 꼬리표 */
 .trk{margin-top:6px;color:#3A3A3C;line-height:1.6}   /* 원문보다 한 단계 옅게 — 발표 화면에서도 읽히는 짙은 회색 */
 .trk em.neg{font-style:normal;font-weight:700;color:var(--accent-ink)}
+.trst{margin-top:9px;line-height:1.7}   /* v3.34: 번역 상태 한 줄 */
+.trst .trerr{display:block;margin-top:3px;color:var(--faint,#8E8E93);overflow-wrap:anywhere}
 .trk .trl{display:inline-block;font-size:11px;font-weight:700;color:var(--dim,#6E6E73);border:1px solid var(--line,#E4E4E4);border-radius:4px;padding:0 5px;margin-right:7px;vertical-align:1px}
 /* 빨간 '글씨'는 문제(부정 표현)에만, 우리 해결책은 빨간 '선'으로 — 둘이 안 섞이게 */
 .cmp .fx{color:var(--ink);font-weight:600;border-left:2px solid var(--accent);padding-left:9px}
@@ -1336,8 +1338,8 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
 
   // ▼ 배포 후 Cloudflare Worker 주소로 바꾸세요 (끝에 / 없이)
   const API_BASE = 'https://kt.roi0925003.workers.dev';
-  const PAGE_VERSION = 'v3.33';
-  const WORKER_VERSION = 'v1.40';   // 이 페이지와 짝이 되는 worker.js 버전 (이보다 낮으면 경고)
+  const PAGE_VERSION = 'v3.34';
+  const WORKER_VERSION = 'v1.41';   // 이 페이지와 짝이 되는 worker.js 버전 (이보다 낮으면 경고)
   /* 직원 공개용 토큰 — 비밀번호가 아닙니다. 소스 보기로 누구나 볼 수 있습니다.
      중계 서버의 PUBLIC_PASS와 같은 값이어야 하고, 남이 긁는 게 보이면
      양쪽을 같이 바꿔서 다시 올리면 됩니다. 리뷰는 이 토큰으로 부를 수 없습니다. */
@@ -4460,7 +4462,17 @@ ${GUARD}`,
   const RV_LINK = { 네이버:'플레이스에서 확인', 카카오:'카카오맵에서 확인', 구글:'구글 리뷰 열기', 코네스트:'코네스트에서 확인' };
   /* v3.28: 일본어·영어 글은 번역 링크를 붙인다 (구글 번역 — 수집·판정에는 AI를 쓰지 않고, 읽는 사람만 번역을 연다) */
   const trHref = (t) => `https://translate.google.com/?sl=auto&tl=ko&op=translate&text=${encodeURIComponent(String(t||'').slice(0, 900))}`;
-  const trLink = (x) => x && x.lang && x.lang !== 'ko' ? ` · ${linkText(trHref(x.text), '한국어로 번역')}` : '';
+  /* v3.34: lang 칸이 없는 예문(더 읽은 것·주문기 흔적 — 수집 서버 v1.38)도 글자로 외국어를 가린다 — 수집 서버 langOf와 같은 기준 */
+  function isForeignText(t){
+    const s = String(t || '');
+    if (/[\u3040-\u30ff]/.test(s)) return true;
+    const ko = (s.match(/[가-힣]/g) || []).length, lat = (s.match(/[A-Za-z]/g) || []).length, han = (s.match(/[\u4e00-\u9fff]/g) || []).length;
+    return !(ko && ko >= lat && ko >= han) && lat + han >= 6;
+  }
+  const foreignOf = (x) => Boolean(x) && (x.lang ? x.lang !== 'ko' : isForeignText(x.text));
+  const trLink = (x) => foreignOf(x) ? ` · ${linkText(trHref(x.text), '한국어로 번역')}` : '';
+  /* v3.34: 인용 한 줄 뒤 — 번역(ko)이 있으면 원문 아래 번역, 없으면 번역 링크 (주문기 흔적 인용) */
+  const quoteTr = (h) => h && h.ko ? `<br><span class="src9">번역 · “${esc(h.ko)}”</span>` : trLink(h);
   /* v3.32: 외국어 리뷰는 원문 아래 한국어 번역(기계 번역)을 같이 — 구글 리뷰는 구글이 준 번역문(한국어로 부른 것은 text가 번역, original이 원문),
      카카오·코네스트·네이버 외국어 글은 수집 서버 v1.40이 구글 번역으로 붙인 ko. 판정은 원문을 규칙으로 읽은 그대로다 */
   function trPair(x){
@@ -4470,6 +4482,22 @@ ${GUARD}`,
     return { orig: String(x.text || ''), ko: '' };
   }
   const trLine = (ko, hl) => ko ? `<div class="trk" lang="ko"><span class="trl" title="기계 번역 — 원문이 기준입니다">번역</span>${hl ? negHTML(ko) : esc(ko)}</div>` : '';
+  /* v3.34: 번역 상태를 따로 한 줄(영업용 화면만) — 긴 안내 끝에 붙어 있어 못 찾던 것. 안 됐으면 이유와 고칠 곳.
+     수집 서버 v1.41은 저장본(14일)을 다시 부를 때 번역만 새로 붙인다 — 최근 목록·저장 묶음으로 여는 것은 수집이 아니라 그대로다 */
+  function trStatusHTML(T){
+    if (!T || typeof T !== 'object') return '';
+    const again = '고친 뒤 이 매장을 <b>다시 검색해 수집</b>하면 번역만 새로 붙습니다 (최근 목록·저장 묶음으로 열면 그대로입니다).';
+    if (T.error) {
+      const E = String(T.error);
+      const why = /HTTP 40[013]\b/.test(E) ? `구글이 번역 요청을 받지 않았습니다 — 구글 클라우드에서 <b>Cloud Translation API</b>를 사용 설정하고, API 키에 제한을 걸어 두었다면 그 목록에도 넣으세요. ${again}`
+        : /HTTP 429\b/.test(E) ? `구글 번역 할당량에 닿았습니다 — 콘솔에서 정한 상한이면 다음 날 다시 수집할 때 번역만 새로 붙습니다.`
+        : `구글 번역을 부르지 못했습니다 — 이 매장을 다시 검색해 수집하면 번역만 다시 부릅니다.`;
+      return `<p class="src9 sale trst">${badge('warn','번역 안 됨')} ${why} <span class="trerr">${esc(E.split(' — 구글 클라우드에서')[0])}</span></p>`;   // 수집 서버 안내 꼬리는 위 문장과 겹쳐 뺀다
+    }
+    if (T.skipped) return `<p class="src9 sale trst">${badge('warn','번역 안 함')} ${esc(T.skipped)}</p>`;
+    if (T.n) return `<p class="src9 sale trst">${badge('ok','번역')} 외국어 글 ${esc(num(T.n,'건'))}에 구글 번역을 붙였습니다 — 기계 번역이라 원문이 기준입니다${T.again ? ' · 저장본에 번역만 새로 붙임' : ''}</p>`;
+    return '';
+  }
 
   function usageLine(){
     const u = state.apifyUsage;
@@ -4527,7 +4555,7 @@ ${GUARD}`,
   /* v3.30: 리뷰에서 더 읽은 것 — 추가 주문·누가 오나·실제 재방문·방문 태그·방문 요일·붐비는 때 (수집 서버 v1.38) */
   function reviewMoreHTML(d){
     const X = d.extraOrder, V = d.visitors, RVS = d.revisit, VT = d.visitTags, BZ = d.busy, rows = [];
-    const smp = (s) => s ? `<br><span class="src9">${esc(s.source || '')}${s.date ? ` · ${esc(s.date)}` : ''} · “${esc(s.text)}”</span>${s.ko ? `<br><span class="src9">번역 · “${esc(s.ko)}”</span>` : ''}` : '';
+    const smp = (s) => s ? `<br><span class="src9">${esc(s.source || '')}${s.date ? ` · ${esc(s.date)}` : ''} · “${esc(s.text)}”${s.ko ? '' : trLink(s)}</span>${s.ko ? `<br><span class="src9">번역 · “${esc(s.ko)}”</span>` : ''}` : '';   // v3.34: 번역이 없으면 링크
     if (X && X.count) rows.push(['추가 주문', `리뷰에 <b>${esc(num(X.count,'건'))}</b>${X.withCall ? ` · 그중 직원을 불러야 했던 글 <b>${esc(num(X.withCall,'건'))}</b>` : ''}${smp(X.recent && X.recent[0])}`]);
     if (V && (V.segments || []).length) rows.push(['누가 오나', `${V.segments.map(s => `${esc(segLabel(s.label))} <b>${esc(num(s.n))}</b>`).join(' · ')} <span class="src9">— 글 ${esc(num(V.scanned,'건'))} 중 적힌 글</span>${smp(V.segments[0].sample)}`]);
     if (RVS && RVS.withCount) rows.push(['실제 재방문', `네이버 리뷰 ${esc(num(RVS.withCount,'건'))} 중 두 번 이상 온 손님 <b>${esc(String(RVS.pct))}%</b> (${esc(num(RVS.repeat,'건'))})${RVS.heavy ? ` · 다섯 번 이상 ${esc(num(RVS.heavy,'건'))}` : ''} <span class="src9">— 리뷰 카드의 ‘N번째 방문’</span>`]);
@@ -4649,10 +4677,10 @@ ${GUARD}`,
     if (to.count || kN) out.push(`<div class="flag2"><div class="eyebrow">CHECK</div>
       <div class="lead-read">${hiN ? `리뷰에 하이오더 ${esc(num(hiN,'건'))} — 이미 하이오더 매장일 수 있습니다.` : to.count ? `자리 주문기(태블릿·QR) 흔적 ${esc(num(to.count,'건'))} — 이미 태블릿 주문을 쓰는 매장일 수 있습니다.` : `카운터 키오스크 흔적 ${esc(num(kN,'건'))} — 주문을 카운터 기계로 받는 매장일 수 있습니다.`}</div>
       <p class="src9">${hiN ? '이미 하이오더라면 신규 제안이 아니라 쓰고 있는 기능 점검과 부가서비스(웨이팅·스탬프·쿠폰) 이야기로 — 방문 때 어떤 기기인지 먼저 확인하세요.' : to.count ? '리포트는 ‘주문 불편 해소’가 아니라 ‘지금 기기로 되는 것 / 하이오더로만 되는 것’ 비교(전환형)로 쓰고, 방문 때 어떤 기기인지 확인하세요.' : '키오스크는 손님이 카운터에 줄을 서서 주문하는 방식입니다 — 자리에서 주문하는 테이블오더와 견주어 설명하세요.'}${isN ? `<br><b>${hiN ? '기기 불만' : '기존 기기 불만'} ${esc(num(isN,'건'))}</b> — ${hiN ? '하이오더 기기라면 점검 대상, 다른 기기라면 교체 근거입니다.' : '교체 제안의 근거입니다.'}` : ''}
-      ${to.hits.map(h=>`<br>${((TOx.issues && TOx.issues.hits) || []).some(x => x.text === h.text) ? `${badge('warn','불만')} ` : ''}${esc(h.source)} · ${esc(h.date||'—')} · “${esc(h.text)}”`).join('')}
-      ${((TOx.issues && TOx.issues.hits) || []).filter(h => !to.hits.some(x => x.text === h.text)).map(h=>`<br>${badge('warn','불만')} ${esc(h.source)} · ${esc(h.date||'—')} · “${esc(h.text)}”`).join('')}
+      ${to.hits.map(h=>`<br>${((TOx.issues && TOx.issues.hits) || []).some(x => x.text === h.text) ? `${badge('warn','불만')} ` : ''}${esc(h.source)} · ${esc(h.date||'—')} · “${esc(h.text)}”${quoteTr(h)}`).join('')}
+      ${((TOx.issues && TOx.issues.hits) || []).filter(h => !to.hits.some(x => x.text === h.text)).map(h=>`<br>${badge('warn','불만')} ${esc(h.source)} · ${esc(h.date||'—')} · “${esc(h.text)}”${quoteTr(h)}`).join('')}
       ${kN && to.count ? `<br>카운터 키오스크 흔적 ${esc(num(kN,'건'))}도 있습니다.` : ''}
-      ${(!to.count && TOx.kiosk ? TOx.kiosk.hits : []).map(h=>`<br>${esc(h.source)} · ${esc(h.date||'—')} · “${esc(h.text)}”`).join('')}</p></div>`);
+      ${(!to.count && TOx.kiosk ? TOx.kiosk.hits : []).map(h=>`<br>${esc(h.source)} · ${esc(h.date||'—')} · “${esc(h.text)}”${quoteTr(h)}`).join('')}</p></div>`);
 
     const items = d.complaints || [];
     const nC = has(d.complaintsTotal) ? Number(d.complaintsTotal) : items.length;
@@ -4679,9 +4707,8 @@ ${GUARD}`,
     out.push(praiseHTML(d));
     out.push(questionsHTML(d));
     out.push(reviewMoreHTML(d));
-    const TRS = d.translate;   // v3.32: 번역이 됐는지 — 구글 번역 설정을 확인할 때 본다
-    const trNote = !TRS ? '' : TRS.error ? ` · 번역 안 됨 — ${TRS.error}` : TRS.skipped ? ` · 번역 안 함 — ${TRS.skipped}` : TRS.n ? ` · 외국어 글 ${TRS.n}건 구글 번역(기계 번역, 원문이 기준)` : '';
-    out.push(`<p class="src9 sale">${esc(d.note||'')}${esc(trNote)}</p>`);
+    out.push(`<p class="src9 sale">${esc(d.note||'')}</p>`);
+    out.push(trStatusHTML(d.translate));   // v3.34: 번역 상태는 따로 한 줄
     out.push(`<div class="rvbar int" style="margin-top:21px"><input id="rvUrl" type="url" maxlength="300" aria-label="네이버 지도 주소"
       placeholder="매장이 다르면 네이버 지도 주소를 넣으세요 (Apify로 다시 가져옵니다)">
       <button type="button" class="abtn" id="rvBtn"${blocked?' disabled':''}>이 주소로 다시</button></div>${usageLine()}`);
