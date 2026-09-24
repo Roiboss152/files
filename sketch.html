@@ -341,9 +341,29 @@ body.dropping::after{content:'묶음(.json)을 놓으면 그 매장이 열립니
 .gauge .gt i.ref{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--ink);transform:translateX(-50%)}
 .gauge .gv{font-variant-numeric:tabular-nums;white-space:nowrap}
 .sumlist.sw li{padding-left:44px;font-size:14px}
+/* v3.27: '강점'·'약점' 두 낱말만 크게 */
+.eyebrow.swh{font-size:12px;color:var(--sub);letter-spacing:0}
+.eyebrow.swh b{font-size:24px;font-weight:800;color:var(--ink);letter-spacing:-.03em;margin-right:6px;vertical-align:-3px}
+.eyebrow.swh b.w{color:var(--accent-ink,#AE1800)}
+.first .price{margin-top:10px;font-size:17px;font-weight:700;color:var(--accent,#EC3013);letter-spacing:-.01em}
+.first .price b{font-weight:800}
+.first .price .vat{display:block;margin-top:3px;font-size:12px;font-weight:500;color:var(--sub)}
 .sumlist.sw .so{font-size:12px;color:var(--sub);margin-top:3px}.sumlist.sw .so.w{color:var(--accent-ink,#B8250E);font-weight:600}
 /* (v3.24: 사진 칸은 위 .sumtop .sumph 규칙으로 — 글 칸 높이에 맞춰 늘어난다) */
 .first .deck{margin-top:8px}.first .acc{color:var(--accent,#EC3013)}
+/* v3.27 장별 처방 */
+.rx{margin:6px 0 34px;padding:16px 20px 12px;border-left:3px solid var(--accent,#EC3013);background:rgba(236,48,19,.035)}
+.rx-h{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.rx-h b{font-size:20px;font-weight:800;color:var(--accent-ink,#AE1800);letter-spacing:-.02em}
+.rx-h span{font-size:11px;color:var(--sub)}
+.rx ol{list-style:none;margin:0;padding:0}
+.rx li{padding:9px 0;border-top:1px solid rgba(32,30,29,.08);font-size:14.5px;line-height:1.55}
+.rx li:first-child{border-top:0}
+.rx .rd{display:block;color:var(--ink)}
+.rx .rp{display:block;margin-top:3px;color:var(--accent-ink,#AE1800);font-weight:600}
+.vsavg{margin-top:8px;font-size:14px;color:var(--sub)}.vsavg b{font-weight:800;white-space:nowrap;color:var(--ink)}.vsavg b.up,.vsavg b.dn{color:var(--accent-ink,#AE1800)}
+.deck.cmphead b{color:var(--accent,#EC3013)}
+@media print{.rx{break-inside:avoid;background:none}}
 @media (max-width:660px){.gauge,.sumg .gauge{grid-template-columns:1fr 1fr;grid-auto-rows:auto;column-gap:10px}.sumg .gauge .gl,.sumg .gauge .gt{grid-column:auto}.gauge .gv,.sumg .gauge .gv{grid-column:1/-1}.verdict{font-size:20px}.sumtop .sumph{min-height:280px}.sumtop .sumlead.md{font-size:15px}}
 @media print{.sumph{display:none!important}.sumtop .b.s7{grid-column:1/-1}}
 /* v3.20 0장 요약 */
@@ -783,7 +803,7 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
 }
 
 /* 13장 메뉴판 사진 — 페이지 톤에 맞춰 흑백, 마우스를 올리면 컬러 (v3.10) */
-.thumbs img{filter:grayscale(1) contrast(1.02);transition:filter 420ms ease}
+.thumbs img{filter:grayscale(1) contrast(.8) brightness(1.1);transition:filter 420ms ease}   /* v3.27: 필름 톤 */
 .thumbs li:hover img{filter:grayscale(0)}
 
 /* 계산 과정·환산표는 접어 둔다 — 화면은 조용하게, 인쇄할 때는 펼친다 */
@@ -806,7 +826,7 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
 /* 가게 사진 — 채도를 낮춰 지면에 앉히고, 마우스를 올리면 살아난다. 화면 전용 */
 .ph{margin:0;overflow:hidden;border-radius:4px;background:var(--panel);position:relative}
 .ph img{display:block;width:100%;height:100%;object-fit:cover;filter:url(#redOnly);mix-blend-mode:multiply;transition:filter 600ms ease}
-.ph:hover img{filter:none}
+.ph:hover img{filter:saturate(.9) contrast(.86) brightness(1.06)}   /* v3.27: 색은 살리되 필름처럼 부드럽게 */
 .ph[data-slot]{cursor:pointer}
 .ph .pk,.ph .pn{position:absolute;top:6px;font-size:9px;letter-spacing:.04em;padding:2px 6px;border-radius:2px;pointer-events:none}
 .ph .pk{left:6px;background:var(--accent,#EC3013);color:#fff}
@@ -1157,7 +1177,9 @@ svg.trend.rib path.now{stroke:var(--sub)}
     <feComponentTransfer in="mask" result="mask2"><feFuncA type="table" tableValues="0 0 0.3 0.7 1 1"/></feComponentTransfer>
     <feColorMatrix in="SourceGraphic" type="saturate" values="1.25" result="vivid"/>
     <feComposite in="vivid" in2="mask2" operator="in" result="red"/>
-    <feComposite in="red" in2="gray" operator="over"/>
+    <feComposite in="red" in2="gray" operator="over" result="rg"/>
+    <!-- v3.27: 필름 톤 — 검정을 0.28까지 들어 올리고 흰색은 그대로, 대비 72% (지면의 글과 어울리게) -->
+    <feComponentTransfer in="rg"><feFuncR type="linear" slope=".72" intercept=".28"/><feFuncG type="linear" slope=".72" intercept=".28"/><feFuncB type="linear" slope=".72" intercept=".28"/></feComponentTransfer>
   </filter>
   <pattern id="paper" patternUnits="userSpaceOnUse" width="560" height="1000"><image id="paperImg" width="560" height="1000" preserveAspectRatio="none"/></pattern>
   <!-- 스케치 글자 — 손이 지나간 선처럼 흔든다 (HTML 글자에도 CSS filter:url()로 걸린다) -->
@@ -1225,7 +1247,7 @@ svg.trend.rib path.now{stroke:var(--sub)}
 
   // ▼ 배포 후 Cloudflare Worker 주소로 바꾸세요 (끝에 / 없이)
   const API_BASE = 'https://kt.roi0925003.workers.dev';
-  const PAGE_VERSION = 'v3.26';
+  const PAGE_VERSION = 'v3.27';
   const WORKER_VERSION = 'v1.31';   // 이 페이지와 짝이 되는 worker.js 버전
   /* 직원 공개용 토큰 — 비밀번호가 아닙니다. 소스 보기로 누구나 볼 수 있습니다.
      중계 서버의 PUBLIC_PASS와 같은 값이어야 하고, 남이 긁는 게 보이면
@@ -1962,7 +1984,8 @@ svg.trend.rib path.now{stroke:var(--sub)}
       const padY = o.padY != null ? o.padY : size * 0.28;
       if (!txt) return;
 
-      host.textContent = '';
+      /* v3.27: 연필 인쇄용 흔적(.inkp)은 남기고 비운다 — 숫자가 올라가는 동안 다시 그려도 동그라미가 지워지지 않게 */
+      [...host.childNodes].forEach(n => { if (!(n.nodeType === 1 && n.classList && n.classList.contains('inkp'))) host.removeChild(n); });
       const svg = mk('svg', { role:'img', 'aria-label':txt, focusable:'false' });
       svg.classList.add('skv');
       host.appendChild(svg);
@@ -1985,6 +2008,7 @@ svg.trend.rib path.now{stroke:var(--sub)}
       const VBW = Math.max(hostW, R + padX*2);
       const VBH = (base - capTop) + padY*2;
       svg.setAttribute('viewBox', `${-padX} ${capTop-padY} ${VBW} ${VBH}`);
+      svg.dataset.gb = [L, capTop, R, base].map(v => (+v).toFixed(2)).join(',');   // v3.27: 연필이 쓰는 글자 상자
       svg.setAttribute('preserveAspectRatio', 'xMinYMid meet');
       svg.style.maxWidth = VBW + 'px';        // 짧은 상호가 칸을 채우려 커지지 않게 — 줄어들기만 한다
       const GL = -padX, GR = VBW - padX;
@@ -2356,7 +2380,144 @@ svg.trend.rib path.now{stroke:var(--sub)}
     const V = rv && rv.velocity ? rv.velocity : null;
     const pm3 = V && has(V.last3) ? Math.round(Number(V.last3)/3*10)/10 : null;
     const pm12 = V && has(V.perMonth12) ? Number(V.perMonth12) : null;
-    return { mine, myScore, list, pos, n: all.length, avgScore, maxReviews: all.length ? all[0].reviews : null, pm3, pm12 };
+    return { mine, myScore, list, pos, n: all.length, avgScore, maxReviews: all.length ? all[0].reviews : null, pm3, pm12,
+      top: all[0] || null, runnerUp: all.find(x => !x.me) || null };
+  }
+
+  /* ══ 장별 처방 (v3.27) — '사실만 있고 내용이 없다'는 지적. 장마다 이 매장의 숫자로 진단하고, 하이오더 기능이나 영업 행동으로 처방한다.
+     규칙으로만 만든다 (AI 없음). 한 줄 = 진단 → 처방, 장마다 2~4줄. 하이오더 기능 이름은 매뉴얼에 있는 것만 쓴다. */
+  const LEVER_TEXT = { '주문·직원 호출이 늦음':'테이블 주문·직원 호출', '주문 누락·착오':'주문이 포스·주방으로 바로 (누락 0)', '웨이팅·대기 안내':'웨이팅 서비스 (대기번호·알림톡)', '메뉴 설명·외국어':'사진·다국어 메뉴판', '응대 태도':'주문·호출·계산 접점을 태블릿이 맡아 감정 소모를 줄임 — 직원이 오래 다니는 매장', '간·먹는 법 안내':'주문 전 상품 안내 — 간 세기·맛있게 먹는 법을 메뉴판에' };
+  const rxLine = (d, p) => ({ d, p });
+  function areaWord(b){
+    const reg = mod(b,'region'); const dong = reg.ok && reg.data && reg.data.admin ? String(reg.data.admin.dong || '') : '';
+    if (/\d+가$/.test(dong)) return dong.replace(/\d+가$/, '');
+    return dong.replace(/(\d+)동$/, '동').replace(/제(?=동$)/, '');
+  }
+  function signatureMenu(b){
+    const MP = menuProfile(b); if (!MP || !MP.items.length) return '';
+    const rec = MP.items.find(m => m.recommend) || MP.items[0];
+    return String(rec.name || '').replace(/\(.*?\)|\[.*?\]/g, '').replace(/\s*(세트|정식|코스|스페셜)\s*$/, '').trim();
+  }
+  function rxReviews(b){
+    const rv = state.reviews && state.reviews.data; if (!rv) return [];
+    const K = rankModel(b), out = [], counted = Number(rv.counted) || 0;
+    if (has(K.myScore) && has(K.avgScore)) {
+      const diff = Math.round((K.myScore - K.avgScore)*100)/100, nS = K.list.filter(x => has(x.score)).length;
+      if (diff >= 0.1) out.push(rxLine(`평점 <b>${K.myScore}</b> — 옆 가게 ${nS}곳 평균 ${K.avgScore}보다 <b>${diff.toFixed(2)} 높음 (상위)</b>`,
+        '평판은 지킬 자산입니다. 좋은 경험이 리뷰로 남게 — 하이오더 주문 화면의 네이버 리뷰 QR로 영수증 없이 리뷰를 남기게 합니다 (OKPOS 매장)'));
+      else if (diff <= -0.1) out.push(rxLine(`평점 <b>${K.myScore}</b> — 옆 가게 ${nS}곳 평균 ${K.avgScore}보다 <b>${Math.abs(diff).toFixed(2)} 낮음 (하위)</b>`,
+        '아래 불만 목록에서 하이오더로 개선할 수 있는 것부터 손보세요'));
+      else out.push(rxLine(`평점 <b>${K.myScore}</b> — 옆 가게 ${nS}곳 평균 ${K.avgScore}와 비슷`, '평점으로는 차이가 안 납니다 — 리뷰 수와 사장님 답글로 차이를 만드세요'));
+    }
+    if (K.mine !== null && K.n >= 2 && K.top) {
+      if (K.pos === 1) out.push(rxLine(`리뷰 <b>${num(K.mine,'건')}</b> — ${K.n}곳 중 가장 많음`, '손님이 먼저 찾는 집 — 다음 과제는 몰리는 시간의 대기·주문 병목 (웨이팅 서비스·테이블 주문)'));
+      else out.push(rxLine(`리뷰 <b>${num(K.mine,'건')}</b> — ${K.n}곳 중 ${K.pos}위 (1위 ${esc(K.top.name)} ${num(K.top.reviews,'건')})`,
+        '비교하는 손님에게 리뷰 수는 첫인상입니다 — 방문 손님이 리뷰를 남기기 쉽게 (하이오더 네이버 리뷰 QR)'));
+    }
+    if (K.pm3 !== null && K.pm12 !== null && K.pm12 >= 1) {
+      const r = K.pm3 / K.pm12;
+      if (r >= 1.3) out.push(rxLine(`최근 3개월 리뷰 월 <b>${K.pm3}건</b> — 12개월 평균 ${K.pm12}건의 ${r.toFixed(1)}배`, '손님이 늘고 있습니다 — 같은 인원으로 늘어난 주문을 받게 주문·호출을 태블릿으로'));
+      else if (r <= 0.7) out.push(rxLine(`최근 3개월 리뷰 월 <b>${K.pm3}건</b> — 12개월 평균 ${K.pm12}건의 ${Math.round(r*100)}%`, '발길이 줄고 있습니다 — 재방문 장치(스탬프·쿠폰)와 리뷰 유도'));
+    }
+    const cats = {}; (rv.complaints||[]).forEach(x => { const c = x.category; if (c && c.hiorder) cats[c.label] = (cats[c.label]||0) + 1; });
+    const hk = Object.entries(cats).sort((a,c) => c[1] - a[1]);
+    if (hk.length) out.push(rxLine(`하이오더로 개선할 수 있는 불만 <b>${num(hk.reduce((a,[,n]) => a+n, 0),'건')}</b> — ${hk.map(([k,n]) => `${esc(k)} ${n}`).join(' · ')}`,
+      hk.map(([k]) => LEVER_TEXT[k] || '').filter(Boolean).slice(0, 2).join(' / ')));
+    else if (counted >= 20) out.push(rxLine(`리뷰 ${num(counted,'건')} 중 하이오더로 개선할 불만 <b>없음</b>`, '도입 이유를 불만 해결이 아니라 운영 효율(주문·호출)과 외국어 응대로 잡으세요'));
+    if (rv.velocity && has(rv.velocity.replyRate) && counted >= 20 && out.length < 4) {
+      const rr = Number(rv.velocity.replyRate);
+      if (rr >= 40) out.push(rxLine(`사장님 답글 <b>${rr}%</b>`, '리뷰를 챙기는 사장님 — 리뷰 QR·알림톡 같은 손님 관리 기능 이야기가 잘 통합니다'));
+      else if (rr < 15) out.push(rxLine(`사장님 답글 <b>${rr}%</b>`, '리뷰를 거의 안 보는 편 — 리뷰 이야기보다 운영(주문·호출·대기) 이야기부터'));
+    }
+    return out.slice(0, 4);
+  }
+  function rxComp(b){
+    const m = mod(b,'competition'); if (!m.ok) return [];
+    const R = (b.options && b.options.radius) || 500, A = axesOf(b).comp, out = [];
+    const sig = signatureMenu(b), area = areaWord(b), kw = [area, sig].filter(Boolean).join(' ');
+    const kwTip = kw ? ` (예: ‘${esc(kw)}’ — 「플레이스 노출 키워드 후보」 장 참고)` : ' (「플레이스 노출 키워드 후보」 장 참고)';
+    if (A.sameBld >= 1 || A.n100 >= 2) out.push(rxLine(`100m 안 같은 업종 <b>${num(A.n100,'곳')}</b>${A.sameBld ? ` · 같은 건물 ${num(A.sameBld,'곳')}` : ''} — 문 앞에서 손님이 갈림`,
+      `가게 앞에서 고르는 손님을 붙잡는 건 대기와 주문 속도 — 웨이팅 서비스로 줄을 붙잡고, 플레이스 키워드는 옆집과 겹치지 않게 대표 메뉴로${kwTip}`));
+    else if (A.total >= 8) out.push(rxLine(`반경 ${dist(R)} 안 같은 업종 <b>${num(A.total,'곳')}</b> — 촘촘함`,
+      `넓은 검색어(‘${esc(area || '동네')} 맛집’)로는 리뷰 수 싸움 — 상권 + 대표 메뉴로 좁힌 키워드로 차별하세요${kwTip}`));
+    else if (A.total <= 2) out.push(rxLine(`반경 ${dist(R)} 안 같은 업종 <b>${num(A.total,'곳')}</b> — 경쟁 드묾`,
+      '이 동네에서 이 업종은 사실상 이 집 — 새 손님 찾기보다 단골 지키기: 스탬프·쿠폰으로 재방문'));
+    else out.push(rxLine(`반경 ${dist(R)} 안 같은 업종 <b>${num(A.total,'곳')}</b>${A.near[0] ? ` · 가장 가까운 곳 ${esc(A.near[0].name)} ${dist(A.near[0].distance)}` : ''}`,
+      '보통 수준 — 가장 가까운 집과 다른 점(메뉴·가격·대기)을 방문 때 확인하고, 그 차이를 메뉴판 첫 화면에 두세요'));
+    const K = rankModel(b);
+    if (K.mine !== null && K.n >= 3 && K.top) {
+      if (K.pos === 1) out.push(rxLine(`옆 가게 ${K.n-1}곳 중 리뷰 수 <b>1위</b>${has(K.myScore) && has(K.avgScore) && K.myScore >= K.avgScore ? ' · 평점도 평균 이상' : ''}`,
+        '경쟁에서는 이미 앞섭니다 — 과제는 몰리는 손님 처리(대기·주문 병목)'));
+      else if (K.pos >= K.n - 1) out.push(rxLine(`${K.n}곳 중 리뷰 수 <b>${K.pos}위</b> (1위 ${esc(K.top.name)} ${num(K.top.reviews,'건')})`,
+        '비교하면 밀리는 자리 — 리뷰가 쌓이게(리뷰 QR), 첫 손님이 다시 오게(스탬프·쿠폰)'));
+      else out.push(rxLine(`${K.n}곳 중 리뷰 수 <b>${K.pos}위</b> (1위 ${esc(K.top.name)} ${num(K.top.reviews,'건')})`,
+        `1위와 ${num(K.top.reviews - K.mine,'건')} 차이 — 방문 손님이 리뷰를 남기게 (하이오더 네이버 리뷰 QR)`));
+    }
+    if (A.newlyRatio !== null && A.newlyRatio >= 0.12) { const L = licence(b), hood = L && L.hood;
+      if (hood) out.push(rxLine(`동네 ${esc(hood.kind||'음식점')} 최근 ${hood.years||2}년 새로 연 곳 <b>${num(hood.newly,'곳')}</b> (영업 중의 ${Math.round(A.newlyRatio*100)}%)`,
+        '새 가게가 첫 방문 손님을 나눠 갑니다 — 단골이 한 번 가 보고 돌아오게 스탬프·쿠폰')); }
+    return out.slice(0, 3);
+  }
+  function rxNearby(b){
+    const m = mod(b,'nearby'); if (!m.ok || !m.data) return [];
+    const d = m.data, out = [];
+    const cat = (code) => (d.categories||[]).find(c => c.code === code) || null;
+    const cnt = (code) => { const c = cat(code); return c && has(c.count) ? Number(c.count)||0 : 0; };
+    const tour = d.tourism, tourN = tour ? Number(tour.total)||0 : 0, tz = inTouristZone(b);
+    const lodge = cnt('AD5'), culture = cnt('CT1'), school = cnt('SC4');
+    const tot = (d.categories||[]).reduce((a,c) => a + (Number(c.count)||0), 0);
+    const st = ((cat('SW8')||{}).nearest || [])[0];
+    const uni = (d.universities && !d.universities.error && d.universities.list) || [];
+    if (tourN >= 10 || tz || (tot && lodge/tot >= 0.08)) out.push(rxLine(`숙박 <b>${num(lodge,'곳')}</b>${tour ? ` · 환전소·게스트하우스·관광안내소 ${num(tourN,'곳')}` : ''}${tz ? ' · 관광특구' : ''}`,
+      '관광객이 지나는 길 — 말이 안 통해도 주문되게 다국어 메뉴판·사진 메뉴 (설명 시간과 주문 실수를 줄임)'));
+    if (st && has(st.distance) && Number(st.distance) <= 500) out.push(rxLine(`지하철 ${esc(st.name)} <b>${dist(st.distance)}</b>`,
+      '역에서 걸어오는 첫 방문 손님 — 메뉴를 몰라도 고르게 사진 메뉴, 앉자마자 자리에서 주문'));
+    const uniNear = uni.filter(u => has(u.distance) && Number(u.distance) <= 500);
+    if (school >= 5 || (uniNear.length && !(tourN >= 10 || tz))) out.push(rxLine(`학교 <b>${num(school,'곳')}</b>${uniNear.length ? ` · 대학 ${esc(uniNear.slice(0,2).map(u => `${u.place || u.name} ${dist(u.distance)}`).join(', '))}` : ''}`,
+      '학생·가족 손님 — 스탬프·쿠폰으로 재방문, 여럿이 함께 고르는 사진 메뉴'));
+    if (culture >= 5 && out.length < 3) out.push(rxLine(`문화시설 <b>${num(culture,'곳')}</b>`, '공연·행사 앞뒤로 한꺼번에 몰림 — 웨이팅 서비스로 대기를 흩뜨리기'));
+    if (!out.length) out.push(rxLine(`반경 시설 ${num(tot,'곳')} — 뚜렷한 손님층 신호 없음`, '주변 시설보다 3장 경쟁과 5장 인구로 판단하세요'));
+    return out.slice(0, 3);
+  }
+  function rxPop(b){
+    const pop = mod(b,'population'); if (!pop.ok || !pop.data) return [];
+    const pd = pop.data, out = [], P = placeInfo(b);
+    const r = has(pd.workerPerResident) ? Number(pd.workerPerResident) : null;
+    if (r !== null) {
+      if (r >= 3) out.push(rxLine(`낮 인구 배율 <b>${r}</b> — 사는 사람보다 일하는 사람이 많은 직장가`,
+        P && P.weekendOff ? '평일 점심이 승부 — 짧은 점심시간에 자리에서 바로 주문받아 회전을 올리기 (테이블 주문·호출)'
+          : '평일 점심 한두 시간에 몰림 — 자리에서 바로 주문받아 점심 회전을 올리고, 저녁엔 회식 단체 (테이블 주문·호출)'));
+      else if (r >= 1) out.push(rxLine(`낮 인구 배율 <b>${r}</b> — 직장가`, '평일 점심 수요 — 점심 회전을 올리는 테이블 주문'));
+      else out.push(rxLine(`낮 인구 배율 <b>${r}</b> — 사는 사람이 ${(1/Math.max(r, 0.01)).toFixed(1)}배 많은 주거지`,
+        P && P.weekendOff ? '저녁 동네 손님이 중심 — 단골 관리(스탬프·쿠폰)' : '저녁·주말 가족 손님 — 여럿이 함께 고르는 사진 메뉴와 재방문(스탬프·쿠폰)'));
+    }
+    /* 나이·가구는 주거지일 때만 — 직장가에선 주민이 손님이 아니다 */
+    const resid = r === null || r < 1.5;
+    const age = has(pd.avgAge) ? Number(pd.avgAge) : null, sido = pd.compare && pd.compare.sido;
+    if (resid && age !== null && age >= 45) out.push(rxLine(`평균 나이 <b>${age}세</b>${sido && has(sido.avgAge) ? ` (${esc(sido.name)} ${sido.avgAge}세)` : ''}`,
+      '어르신 손님 대비 — 큰 글씨·사진 메뉴와 직원 호출 버튼. 고령층이 키오스크에서 가장 힘든 건 조작이 아니라 「뒷사람 눈치」(53.6%) — 자리에서 내 속도로 고르는 테이블 주문엔 그 불편이 없습니다 (서울디지털재단 2023)'));
+    else if (resid && age !== null && age <= 38) out.push(rxLine(`평균 나이 <b>${age}세</b> — 젊은 동네`, '태블릿 주문에 익숙한 손님 — 도입 설명은 짧게, 스탬프·쿠폰으로 재방문'));
+    const hh = has(pd.avgHouseholdSize) ? Number(pd.avgHouseholdSize) : null;
+    if (r !== null && r < 1 && hh !== null && hh >= 2.5) out.push(rxLine(`가구당 <b>${hh}명</b> — 가족 단위 동네`, '가족 손님 — 아이·어른이 함께 고르는 사진 메뉴'));
+    if (!resid && out.length < 3) out.push(rxLine(`주민 ${num(pd.population,'명')} · 종사자 ${num(pd.workers,'명')}`, '주민 나이·가구는 이 동네 손님을 설명하지 못합니다 — 손님은 일하러 오는 사람과 지나가는 사람'));
+    return out.slice(0, 3);
+  }
+  const RX = { reviews: rxReviews, comp: rxComp, nearby: rxNearby, pop: rxPop };
+  function rxItems(id, b){ const f = RX[id]; if (!f || !b) return []; try { return f(b) || []; } catch (e) { console.error('rx', id, e); return []; } }
+  function rxFor(id, b){
+    const items = rxItems(id, b); if (!items.length) return '';
+    return `<div class="rx" id="rx-${id}"><div class="rx-h"><b>처방</b><span>이 장에서 읽은 것 → 할 일 · 규칙으로 판정</span></div>
+      <ol>${items.map(x => `<li><span class="rd">${x.d}</span><span class="rp">→ ${x.p}</span></li>`).join('')}</ol></div>`;
+  }
+  /* 리뷰가 나중에 오면(Apify 대체) 처방도 다시 — 장 머리 바로 아래 */
+  function refreshRx(){
+    if (!state.bundle) return;
+    Object.keys(RX).forEach(id => {
+      const sec = document.getElementById(`sec-${id}`); if (!sec) return;
+      const old = document.getElementById(`rx-${id}`), html = rxFor(id, state.bundle);
+      if (old) { if (html) old.outerHTML = html; else old.remove(); }
+      else if (html) { const hd = sec.querySelector(':scope > .hd'); if (hd) hd.insertAdjacentHTML('afterend', html); }
+    });
   }
 
   /* 눈금 한 줄 — 이 매장(빨간 점)과 기준(검은 눈금) */
@@ -2366,8 +2527,8 @@ svg.trend.rib path.now{stroke:var(--sub)}
     const pct = (v) => Math.max(1.5, Math.min(100, ((Number(v) - min)/Math.max(1e-9, max - min))*100));
     const bar = has(val) ? `<i class="bar" style="width:${pct(val).toFixed(1)}%" title="이 매장"></i>` : '';
     const rf = has(ref) ? `<i class="ref" style="left:${pct(ref).toFixed(1)}%" title="기준"></i>` : '';
-    /* v3.25: '기준 299건 기준 = 1위'처럼 두 번 읽히던 것 → '기준 299건 (1위)' */
-    const tail = has(ref) ? ` <span class="src9">기준 ${esc(fmt(ref))}${note ? ` (${note})` : ''}</span>` : (note ? ` <span class="src9">${note}</span>` : '');
+    /* v3.27: 꼬리는 '무엇이 기준인지 + 값' 한 덩이로 — '옆 가게 평균 4.53', '1위 투뿔한우우미옥 299건' */
+    const tail = has(ref) ? ` <span class="src9">${note ? `${note} ` : '기준 '}${esc(fmt(ref))}</span>` : (note ? ` <span class="src9">${note}</span>` : '');
     return `<div class="gauge"><div class="gl">${label}</div><div class="gt">${bar}${rf}</div><div class="gv">${has(val) ? `<b>${esc(fmt(val))}</b>` : '—'}${tail}</div></div>`;
   }
 
@@ -2412,7 +2573,7 @@ svg.trend.rib path.now{stroke:var(--sub)}
       if (feed.length >= 2 && recent) strengths.push({ sec:'store', text:`네이버 소식 <b>${feed.length}건</b> (최근 ${esc(last)}) — 직접 홍보하는 사장님`, keep:'알림톡·쿠폰·리뷰 기능이 통하는 매장' }); }
 
     const cats = {}; if (rv) (rv.complaints||[]).forEach(x => { const c = x.category; const k = c ? c.label : '기타 불만'; cats[k] = cats[k] || { n:0, hi: Boolean(c && c.hiorder), fix: c ? c.fix : '' }; cats[k].n += 1; });
-    const LEVER = { '주문·직원 호출이 늦음':'테이블 주문·직원 호출', '주문 누락·착오':'주문이 포스·주방으로 바로 (누락 0)', '웨이팅·대기 안내':'웨이팅 서비스 (대기번호·알림톡)', '메뉴 설명·외국어':'사진·다국어 메뉴판', '응대 태도':'주문·호출·계산 접점을 태블릿이 맡아 감정 소모를 줄임 — 직원이 오래 다니는 매장', '간·먹는 법 안내':'주문 전 상품 안내 — 간 세기·맛있게 먹는 법을 메뉴판에' };
+    const LEVER = LEVER_TEXT;
     Object.entries(cats).sort((a,b) => b[1].n - a[1].n).forEach(([k,v]) => {
       if (v.n >= 1 && (v.hi || /응대/.test(k))) weaknesses.push({ sec:'reviews', text:`리뷰에 <b>${esc(k)} ${esc(num(v.n,'건'))}</b>/${counted}건`, lever: LEVER[k] || v.fix || '하이오더', w: 5 + v.n });
       else if (v.n >= 2) weaknesses.push({ sec:'reviews', text:`리뷰에 <b>${esc(k)} ${esc(num(v.n,'건'))}</b>/${counted}건`, lever:'하이오더 밖의 문제 — 방문 때 확인', w: 1 + v.n, plain:true });
@@ -2455,12 +2616,13 @@ svg.trend.rib path.now{stroke:var(--sub)}
     const monthly = Q.est ? wonRange(Q.est.monthly) : '';
     const dl = Q.est ? Q.est.monthly.map(v => Math.round(v*QUOTE.vat/30/100)*100) : null;   // v3.23: 「하루 N원」 — VAT 포함 ÷ 30일, 백 원 단위
     const daily = dl ? (dl[0] === dl[1] ? won(dl[0]) : `${wonN(dl[0])}~${wonN(dl[1])}원`) : '';
-    const proposal = { daily, title: `${addons.length ? addons.slice(0,2).join('·') + ' 포함 ' : ''}테이블오더${devices ? ` ${devices}` : ''}`, monthly, how: Q.how, note: Q.how === 'area' ? `면적 기준 추정 (${Q.density.label})` : Q.how === 'typed' ? '실측 테이블 수' : '면적 자료 없음 — 방문 실측' };
+    const proposal = { daily, net: Q.est ? wonR(Q.est.monthly) : '', vat: Q.est ? wonR(Q.est.monthly, QUOTE.vat) : '', title: `${addons.length ? addons.slice(0,2).join('·') + ' 포함 ' : ''}테이블오더${devices ? ` ${devices}` : ''}`, monthly, how: Q.how, note: Q.how === 'area' ? `면적 기준 추정 (${Q.density.label})` : Q.how === 'typed' ? '실측 테이블 수' : '면적 자료 없음 — 방문 실측' };
 
     /* 5) 눈금 4개 */
     const gauges = [];
-    if (K.mine !== null && K.n >= 2) gauges.push(gaugeHTML(`리뷰 수 — 옆 가게 ${K.n-1}곳과 견줘 <b>${K.pos}위</b>`, K.mine, K.maxReviews !== K.mine ? K.maxReviews : null, Math.max(K.maxReviews||1, K.mine), v => num(v,'건'), K.maxReviews !== K.mine ? '1위' : '이 매장이 1위'));
-    if (has(K.myScore)) gauges.push(gaugeHTML('평점 (3.5~5)', K.myScore, K.avgScore, 5, v => String(v), has(K.avgScore) ? '옆 가게 평균' : '기준 없음 — 옆 가게 평점을 못 읽음', 3.5));
+    if (K.mine !== null && K.n >= 2) gauges.push(gaugeHTML(`리뷰 수 — ${K.n}곳 중 <b>${K.pos === 1 ? '1위 (이 매장)' : `${K.pos}위`}</b>`, K.mine, K.pos !== 1 && K.top ? K.top.reviews : (K.runnerUp ? K.runnerUp.reviews : null), Math.max(K.maxReviews||1, K.mine), v => num(v,'건'),
+      K.pos !== 1 && K.top ? `1위 ${esc(K.top.name)}` : (K.runnerUp ? `2위 ${esc(K.runnerUp.name)}` : '')));
+    if (has(K.myScore)) gauges.push(gaugeHTML('평점 (3.5~5)', K.myScore, K.avgScore, 5, v => String(v), has(K.avgScore) ? `옆 가게 ${K.list.filter(x => has(x.score)).length}곳 평균` : '기준 없음 — 옆 가게 평점을 못 읽음', 3.5));
     if (K.pm3 !== null && K.pm12 !== null) gauges.push(gaugeHTML('최근 3개월 리뷰 (월)', K.pm3, K.pm12, Math.max(K.pm3, K.pm12, 1)*1.25, v => `${v}건`, '12개월 평균'));
     if (pd && has(pd.workerPerResident)) gauges.push(gaugeHTML('낮 인구 배율', Number(pd.workerPerResident), DAYPOP_REF, Math.max(Number(pd.workerPerResident), DAYPOP_REF)*1.2, v => `${v}배`, '전국 평균 어림'));
     if (cd && cd.sameSmall && has(cd.sameSmall.count)) gauges.push(gaugeHTML(`같은 업종 100m 안 / ${dist(R)} 안`, A.comp.n100, null, Math.max(1, Number(cd.sameSmall.count)), v => `${v}곳`, `${dist(R)} 안 ${num(cd.sameSmall.count,'곳')}`));
@@ -2512,11 +2674,11 @@ svg.trend.rib path.now{stroke:var(--sub)}
         </div>
       </div>
       <div class="mz" style="margin-top:22px">
-        <div class="b s6"><div class="eyebrow">강점 — 지킬 것</div><ul class="sumlist sw">${S}</ul></div>
-        <div class="b s6 rail"><div class="eyebrow">약점 — 그래서 하이오더로</div><ul class="sumlist sw">${W}</ul></div>
+        <div class="b s6"><div class="eyebrow swh"><b>강점</b> — 지킬 것</div><ul class="sumlist sw">${S}</ul></div>
+        <div class="b s6 rail"><div class="eyebrow swh"><b class="w">약점</b> — 그래서 하이오더로</div><ul class="sumlist sw">${W}</ul></div>
       </div>
       <div class="mz" style="margin-top:22px">
-        <div class="b s7 first"><div class="eyebrow">첫 제안</div><p class="deck">${esc(m.proposal.title)}${m.proposal.monthly ? ` <span class="acc">월 ${esc(m.proposal.monthly)}</span>` : ''}</p><p class="src9">${esc(m.proposal.note)}${m.proposal.daily ? ` · 하루로 나누면 약 ${esc(m.proposal.daily)} (VAT 포함 ÷ 30일)` : ''} · 자세한 계산은 견적 장</p>
+        <div class="b s7 first"><div class="eyebrow">첫 제안</div><p class="deck">${esc(m.proposal.title)}</p>${m.proposal.net ? `<p class="price">월 <b>${esc(m.proposal.net)}</b><span class="vat">VAT 포함 ${esc(m.proposal.vat)}</span></p>` : ''}<p class="src9">${esc(m.proposal.note)}${m.proposal.daily ? ` · 하루로 나누면 약 ${esc(m.proposal.daily)} (VAT 포함 ÷ 30일)` : ''} · 자세한 계산은 견적 장</p>
           ${m.brandLine ? `<p class="src9 int">${m.brandLine}</p>` : ''}</div>
         <div class="b s5 rail"><div class="eyebrow">먼저 볼 곳</div><ul class="sumlist look">${look}</ul></div>
       </div>`, meta: '진단서 · 규칙으로 판정' };
@@ -2698,7 +2860,7 @@ ${GUARD}`,
 
   const SECTIONS = [
     { id:'summary', title:'요약',                    bg:'요약', dig:'0', render:renderSummary },   // v3.20 두괄식 — 결론부터
-    { id:'store',   title:'매장',                    bg:'매장', cls:'hero', render:renderStore },
+    { id:'store',   title:'매장 정보',                bg:'매장', cls:'hero', render:renderStore },   // v3.27: '매장' → '매장 정보'
     { id:'reviews', title:'손님 불편 신호',            bg:'리뷰', render:renderReviewSection },      // v3.21 (#101): 판정 바로 뒤에 손님 목소리
     { id:'comp',    title:'같은 업종 점포',            bg:'업종', render:renderComp },
     { id:'nearby',  title:'주변 시설 구성',            bg:'주변', render:renderNearby },
@@ -2758,7 +2920,7 @@ ${GUARD}`,
     const hd = sec.querySelector(':scope > .hd'), meta = hd && hd.querySelector('.meta');
     if (meta) meta.textContent = r.meta || '';
     [...sec.children].forEach(ch => { if (!ch.classList.contains('hd') && !ch.classList.contains('bgw') && !ch.classList.contains('arule')) ch.remove(); });
-    sec.insertAdjacentHTML('beforeend', r.html);
+    sec.insertAdjacentHTML('beforeend', rxFor(id, state.bundle) + r.html);
   }
 
   /* ── 리포트 조립 — 장번호는 실제로 그려진 섹션에만 순서대로 매긴다 ── */
@@ -2775,7 +2937,7 @@ ${GUARD}`,
           <div class="chap" data-rule="hb,vr"><span class="dig">${esc(label)}</span><h2>${esc(sd.title)}</h2></div>
           <span class="meta">${esc(r.meta||'')}</span>
         </div>
-        ${r.html}
+        ${rxFor(sd.id, b)}${r.html}
       </section>`;
     });
     setTimeout(() => { mountMap(b); numberSumLinks(); window.dispatchEvent(new Event('sketch:rendered')); }, 0);          // innerHTML이 들어간 다음에 올린다
@@ -3805,7 +3967,12 @@ ${GUARD}`,
     const headline = has(place.rating) ? place.rating : d.ratingAvg;
     const lead = `<div class="k">${has(place.rating)?'플레이스 평점':'별점 평균'}</div>
       <div class="lead-n" data-sk="1" data-sk-wide="1"${has(headline) ? ` data-n="${Number(headline)}" data-d="${String(headline).includes('.') ? String(headline).split('.')[1].length : 0}" data-sk-wait="1"` : ''}>${esc(has(headline)?headline:'—')}</div>
-      <div class="lead-ref">분석한 리뷰 ${esc(num(total,'건'))}${has(place.total)?` / 전체 ${esc(num(place.total,'건'))}`:''}${place.url?` · <a href="${esc(place.url)}" target="_blank" rel="noopener noreferrer">플레이스 열기</a>`:''}</div>`;
+      <div class="lead-ref">분석한 리뷰 ${esc(num(total,'건'))}${has(place.total)?` / 전체 ${esc(num(place.total,'건'))}`:''}${place.url?` · <a href="${esc(place.url)}" target="_blank" rel="noopener noreferrer">플레이스 열기</a>`:''}</div>
+      ${(() => { /* v3.27: 옆 가게 평균보다 위인지 아래인지 한 줄로 */
+        if (!state.bundle) return ''; const K = rankModel(state.bundle); if (!has(K.myScore) || !has(K.avgScore)) return '';
+        const diff = Math.round((K.myScore - K.avgScore)*100)/100, nS = K.list.filter(x => has(x.score)).length;
+        const tag = diff >= 0.1 ? `<b class="up">${diff.toFixed(2)} 높음 · 상위</b>` : diff <= -0.1 ? `<b class="dn">${Math.abs(diff).toFixed(2)} 낮음 · 하위</b>` : '<b>비슷함</b>';
+        return `<p class="vsavg">옆 가게 ${nS}곳 평균 ${esc(String(K.avgScore))}보다 ${tag}</p>`; })()}`;
 
     /* 리뷰가 쌓이는 속도 (v3.00 · v3.10 하한) — 가져온 글이 전부 기간 안이면 ≥로 적고, 월 건수는 실제 덮은 기간으로 나눈다. 답글 비율은 사장님이 리뷰를 보는지의 신호 */
     const V = d.velocity;
@@ -3871,7 +4038,7 @@ ${GUARD}`,
     if (!items.length){
       out.push(`<p class="lead-read" style="font-size:15px;margin-top:46px">분석한 ${esc(num(total,'건'))} 가운데 불만이 적힌 리뷰를 찾지 못했습니다. 리뷰가 고르게 긍정적인 매장입니다 — 이건 그대로 리포트의 강점으로 쓰세요.</p>`);
     } else {
-      out.push(`<p class="k" style="margin-top:46px">불만이 적힌 리뷰 ${esc(num(items.length,'건'))} 중 ${esc(num(d.hiorderCount,'건'))}은 하이오더로 손볼 수 있습니다</p>
+      out.push(`<p class="deck cmphead" style="margin-top:46px">불만이 적힌 리뷰 <b>${esc(num(items.length,'건'))}</b> 중 <b>${esc(num(d.hiorderCount,'건'))}</b>은 하이오더로 개선할 수 있습니다</p>
         <p class="src9">리포트에 쓸 때는 작성 시점을 함께 적으세요. 맛·위생·가격 불만은 하이오더로 해결되지 않으니 그 말은 쓰지 마세요. ‘기타 불만’은 별점은 낮은데 정해 둔 불만 표현이 없는 글입니다 — 읽고 직접 분류하세요.</p>`);
       out.push(`<ul class="cmp">${items.map((x) => {
         const c = x.category;
@@ -3889,7 +4056,7 @@ ${GUARD}`,
     return out.join('');
   }
 
-  function paintReviews(){ const box = document.getElementById('reviewBox'); if (box) box.innerHTML = renderReviews();
+  function paintReviews(){ const box = document.getElementById('reviewBox'); if (box) box.innerHTML = renderReviews(); refreshRx();
     if (state.reviews && !state.reviews.running) { repaintSection('summary'); numberSumLinks(); if (state.reviews.data && state.bundle) rememberBundle(state.bundle); } }
 
   /* 리뷰 결과에 딸려 온 플레이스 기본정보를 묶음에 합치고 리포트를 다시 그린다.
@@ -4348,9 +4515,14 @@ ${GUARD}`,
         keys.forEach((k) => { const E = EVIDENCE[k]; L.push(`- ${md(E.title)}`); E.lines.forEach((l) => L.push(`  - ${md(l.t)}${l.src ? ` (${md(l.src)}${l.url ? ` ${l.url}` : ''})` : ''}`)); });
       }
       L.push(`- 시장 흐름: ${MARKET.lines.map((l) => `${md(l.t)} (${md(l.src)})`).join(' / ')}`);
+      /* v3.27: 장별 처방 (규칙) — 진단 → 처방 */
+      const RXN = { reviews:'손님 불편 신호', comp:'같은 업종 점포', nearby:'주변 시설 구성', pop:'동네 인구·사업체' };
+      const rxl = [];
+      Object.keys(RX).forEach((id) => rxItems(id, b).forEach((x) => rxl.push(`- [${RXN[id]}] ${md(plain(x.d))} → ${md(plain(x.p))}`)));
+      if (rxl.length) { L.push(''); L.push('### 장별 처방 (규칙으로 판정 · 진단 → 처방)'); rxl.forEach((t) => L.push(t)); }
       L.push('');
     } catch (_) { /* 요약이 안 만들어지면 묶음은 그대로 나간다 */ }
-    L.push('## 1. 매장');
+    L.push('## 1. 매장 정보');
     L.push('| 항목 | 값 | 출처 |', '|---|---|---|');
     L.push(`| 상호 | ${md(s.name)} | ${md((s.sources || []).join('·') || '검색')} 검색 결과 |`);
     L.push(`| 업종(카카오) | ${md(s.category || '—')} | 카카오 로컬 API |`);
@@ -5201,13 +5373,14 @@ ${GUARD}`,
     /* v3.21 성능: 캔버스는 문서 전체가 아니라 화면 크기(고정)만 잡고, 스크롤만큼 옮겨 그린다.
        끝난 획은 보이지 않는 캔버스에 미리 그려 두고(committed), 지금 긋는 획만 매 프레임 다시 그린다. 그리기는 rAF 한 번에 한 번. */
     let ox = 0, oy = 0, dirty = false, raf = 0;
+    let anim = null;   // v3.27: 동그라미·밑줄이 그려지는 동안의 획 — 사용자가 긋는 획(cur)과 따로 둔다 (가운데 버튼을 떼는 순간 애니메이션 획이 '끝난 획'으로 잡히던 것)
     const off = document.createElement('canvas'); const octx = off.getContext('2d');
     function paintCommitted(){ octx.setTransform(1,0,0,1,0,0); octx.clearRect(0,0,off.width,off.height); octx.setTransform(dpr,0,0,dpr,-ox*dpr,-oy*dpr);
       const keep = ctx; // ribbon()은 ctx에 그린다 — 잠깐 바꿔 끼운다
-      ctx = octx; strokes.forEach(s => { if (s !== cur) drawStroke(s); }); ctx = keep; }
+      ctx = octx; strokes.forEach(s => { if (s !== cur && s !== anim) drawStroke(s); }); ctx = keep; }
     function paintFrame(){ dirty = false;
       ctx.setTransform(1,0,0,1,0,0); ctx.clearRect(0,0,cv.width,cv.height); ctx.drawImage(off, 0, 0);
-      ctx.setTransform(dpr,0,0,dpr,-ox*dpr,-oy*dpr); if (cur) drawStroke(cur); }
+      ctx.setTransform(dpr,0,0,dpr,-ox*dpr,-oy*dpr); if (anim) drawStroke(anim); if (cur) drawStroke(cur); }
     function schedule(){ if (!dirty){ dirty = true; raf = requestAnimationFrame(paintFrame); } }
     function redraw(){ paintCommitted(); schedule(); ui.style.display = strokes.length ? 'flex' : 'none'; }
     function fit(){ const w = innerWidth, h = innerHeight;
@@ -5219,11 +5392,20 @@ ${GUARD}`,
     let scrollRaf = 0; window.addEventListener('scroll', () => { if (!scrollRaf) scrollRaf = requestAnimationFrame(() => { scrollRaf = 0; fit(); }); }, { passive: true });
     function addPoint(s, x, y, t){
       const P = s.pts, last = P[P.length-1];
+      if (!Number.isFinite(x) || !Number.isFinite(y)) return;
       if (P.length === 1 && Math.hypot(x-s.x0, y-s.y0) < 3) return;
       if (last){ const d = Math.hypot(x-last[0], y-last[1]); if (d < 1.2) return;
+        /* v3.27: 튀는 점 — 한 프레임 안(12ms)에 10px 넘게 나갔다가 거의 제자리로 돌아오면 그 점은 잘못 온 좌표다 (크롬 '합쳐진 이벤트'가 가끔 어긋난 좌표를 준다).
+           사람 손으로 그은 지그재그는 한 번 꺾는 데 30ms 넘게 걸리므로 지워지지 않는다 */
+        if (P.length >= 2){ const p2 = P[P.length-2], a = Math.hypot(last[0]-p2[0], last[1]-p2[1]), c = Math.hypot(x-p2[0], y-p2[1]);
+          if (a > 10 && c < 0.35*(a + d) && (t - (p2[4] || 0)) < 12) {
+            P.pop(); if (p2[5] !== undefined) { p2[0] = p2[5]; p2[1] = p2[6]; }   // 튄 점에 끌려 다듬어졌던 앞 점도 되돌린다
+            s.t = p2[4] || s.t; return addPoint(s, x, y, t); } }
         const v = d / Math.max(1, t - s.t); s.v = s.v == null ? v : s.v*0.6 + v*0.4;
-        if (P.length >= 2){ const p2 = P[P.length-2]; last[0] = (p2[0] + last[0]*2 + x)/4; last[1] = (p2[1] + last[1]*2 + y)/4; } }
-      s.t = t; P.push([x, y, widthFor(s.v || 0, s.red) * (0.8 + 0.4*Math.random()), alphaFor(s.v || 0) * (Math.random() < 0.12 ? 0.45 : 1)]);
+        if (P.length >= 2){ const p2 = P[P.length-2]; last[5] = last[0]; last[6] = last[1]; last[0] = (p2[0] + last[0]*2 + x)/4; last[1] = (p2[1] + last[1]*2 + y)/4; } }
+      /* v3.27: 굵기 흔들림을 이웃 점과 이어지게(저역 통과) — 점마다 따로 흔들면 테두리가 톱니처럼 보였다 */
+      s.wn = s.wn == null ? Math.random() : s.wn*0.7 + Math.random()*0.3;
+      s.t = t; P.push([x, y, widthFor(s.v || 0, s.red) * (0.85 + 0.3*s.wn), alphaFor(s.v || 0) * (Math.random() < 0.06 ? 0.55 : 1), t]);
     }
     const isCtl = (e) => !!(e && e.closest && e.closest('input,textarea,button,a,select,label,summary,[role=button],#inkui,.zoomui,.modal,.mapbox,video'));
     const newStroke = (red, x0, y0) => { const r = () => (Math.random()-0.5)*2.2, r2 = () => (Math.random()-0.5)*3.4;
@@ -5264,6 +5446,7 @@ ${GUARD}`,
       const q = Math.max(2.2, Math.min(3.4, 2.1 + 0.28*(rx/ry - 1)));
       for (let k = 0; k < 16 && Math.pow(a0/rx, q) + Math.pow(b0/ry, q) > 0.78; k++){ rx *= 1.02; ry *= 1.05; }
       const s = newStroke(red, wd.x, wd.y); s.circle = wd.key; s.word = wd; s.clean = true;
+      if (wd.host) s.blk = wd.host;   // 스케치 글자는 글자를 감싸지 않고 그 칸에 인쇄용 흔적을 붙인다
       const tilt = (Math.random()-0.5)*0.07;
       const start = -2.25 + (Math.random()-0.5)*0.5;
       const sweep = Math.PI*2 + 0.3 + Math.random()*0.35;
@@ -5313,9 +5496,12 @@ ${GUARD}`,
         s.pts.push([ln.L - 4 + W*t, y0 + drift*t + Math.sin(t*6.28*1.2 + ph)*amp, pw*(0.5 + 0.5*press), 1]); }
       return s;
     }
-    function animate(s){ const all = s.pts, total = all.length, t0 = performance.now(); const prev = cur; cur = s;
-      const step = (now) => { const k = Math.min(1, (now - t0)/300); s.pts = all.slice(0, Math.max(2, Math.round(total*k)));
-        paintFrame(); if (k < 1) requestAnimationFrame(step); else { s.pts = all; cur = prev; redraw(); } };
+    function animate(s){ const all = s.pts, total = all.length, t0 = performance.now();
+      if (anim && anim !== s && anim.full) { anim.pts = anim.full; }   // 앞 애니메이션은 끝난 모양으로
+      anim = s; s.full = all;
+      const step = (now) => { if (anim !== s) { s.pts = all; return; }
+        const k = Math.min(1, (now - t0)/300); s.pts = all.slice(0, Math.max(2, Math.round(total*k)));
+        paintFrame(); if (k < 1) requestAnimationFrame(step); else { s.pts = all; anim = null; redraw(); } };
       paintCommitted(); requestAnimationFrame(step); }
     /* ── 인쇄용 흔적 (v3.23) — 화면 캔버스는 인쇄에 안 나가므로, 획마다 붙은 요소 안에 SVG 를 넣어 둔다.
        요소의 상자(그릴 때 크기)를 viewBox 로 잡고 width·height 100% 로 늘리니, 인쇄 배치(A4·배율 1)에서도 그 요소를 따라간다.
@@ -5380,8 +5566,33 @@ ${GUARD}`,
     function dropAll(){ strokes.forEach(detachPrint); strokes = []; }
     function popStroke(){ const s = strokes.pop(); detachPrint(s); }
     function toggle(key, make){ const i = strokes.findIndex(s => s.circle === key); if (i >= 0){ detachPrint(strokes[i]); strokes.splice(i, 1); redraw(); return; } const s = make(); strokes.push(s); animate(s); attachPrint(s); }
-    function clickAt(x, y, red){ const wd = wordAt(x - scrollX, y - scrollY); if (wd) toggle(wd.key, () => circleStroke(wd, red)); }
-    function middleAt(x, y){ const ln = lineAt(x - scrollX, y - scrollY); if (ln) toggle(ln.key, () => underlineStroke(ln)); }
+    /* v3.27: 큰 상호·큰 숫자는 SVG 스케치 글자라 글자 커서가 안 잡힌다 — SVG 에 적어 둔 글자 상자(dataset.gb)로 두른다 */
+    function sketchBox(x, y){
+      const el = document.elementFromPoint(x, y); const host = el && el.closest && el.closest('[data-sk]');
+      if (!host) return null;
+      const svg = host.querySelector('svg.skv'); if (!svg || !svg.dataset.gb) return null;
+      const [gL, gT, gR, gB] = svg.dataset.gb.split(',').map(Number);
+      const vb = svg.viewBox && svg.viewBox.baseVal, r = svg.getBoundingClientRect();
+      if (!vb || !vb.width || !vb.height || !r.width || !r.height) return null;
+      const k = Math.min(r.width / vb.width, r.height / vb.height);          // xMinYMid meet
+      const ox = r.left - vb.x*k, oy = r.top + (r.height - vb.height*k)/2 - vb.y*k;
+      const L = ox + gL*k, R = ox + gR*k, T = oy + gT*k, B = oy + gB*k;
+      if (x < L - 40 || x > R + 40 || y < T - 40 || y > B + 40) return null;
+      return { L, R, T, B, host, txt: host.dataset.skTxt || svg.getAttribute('aria-label') || '' };
+    }
+    function sketchAt(x, y){
+      const g = sketchBox(x, y); if (!g) return null;
+      return { x: (g.L+g.R)/2 + scrollX, y: (g.T+g.B)/2 + scrollY, w: g.R-g.L, h: g.B-g.T, host: g.host,
+        key: 'sk:' + g.txt + '@' + Math.round(g.L+scrollX) + ',' + Math.round(g.T+scrollY) };
+    }
+    function sketchLine(x, y){
+      const g = sketchBox(x, y); if (!g) return null;
+      const h = g.B - g.T;
+      return { L: g.L + scrollX, R: g.R + scrollX, y: g.B + h*0.3 + scrollY, fs: Math.min(h, 60), blk: g.host,
+        key: 'skul:' + g.txt + '@' + Math.round(g.L+scrollX) + ',' + Math.round(g.B+scrollY) };
+    }
+    function clickAt(x, y, red){ const cx = x - scrollX, cy = y - scrollY; const wd = sketchAt(cx, cy) || wordAt(cx, cy); if (wd) toggle(wd.key, () => circleStroke(wd, red)); }
+    function middleAt(x, y){ const cx = x - scrollX, cy = y - scrollY; const ln = sketchLine(cx, cy) || lineAt(cx, cy); if (ln) toggle(ln.key, () => underlineStroke(ln)); }
 
     const mq = matchMedia('(hover: hover) and (pointer: fine)');
     let ac = null;
@@ -5395,7 +5606,15 @@ ${GUARD}`,
         cur = newStroke(e.button === 2, e.pageX, e.pageY); cur.t = e.timeStamp; addPoint(cur, e.pageX, e.pageY, e.timeStamp); strokes.push(cur);
       }, o);
       document.addEventListener('pointermove', (e) => { if (!cur) return;
-        const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
+        /* v3.27: 합쳐진 이벤트(getCoalescedEvents)는 좌표가 가끔 어긋나 긴 털처럼 그어졌다 — 마지막 것이 본 이벤트와 같은 자리이고,
+           모두 직전 점과 본 이벤트 사이(여유 24px)에 있을 때만 쓴다. 아니면 본 이벤트 하나만 */
+        let evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [];
+        const lp = cur.pts[cur.pts.length-1] || [cur.x0, cur.y0];
+        const x0 = Math.min(lp[0], e.pageX) - 24, x1 = Math.max(lp[0], e.pageX) + 24, y0 = Math.min(lp[1], e.pageY) - 24, y1 = Math.max(lp[1], e.pageY) + 24;
+        const tail = evs[evs.length-1];
+        const okC = evs.length > 1 && tail && Math.abs(tail.pageX - e.pageX) < 1.5 && Math.abs(tail.pageY - e.pageY) < 1.5
+          && evs.every(q => q.pageX >= x0 && q.pageX <= x1 && q.pageY >= y0 && q.pageY <= y1 && q.timeStamp >= (cur.t || 0) - 1);
+        if (!okC) evs = [e];
         for (const ev of evs) addPoint(cur, ev.pageX, ev.pageY, ev.timeStamp);
         schedule(); }, o);
       const end = () => { if (cur && cur.pts.length < 2){ const c = cur; strokes.pop(); cur = null; clickAt(c.x0, c.y0, c.red); return; } const done = cur; cur = null; redraw(); if (done) attachPrint(done); };
