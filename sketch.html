@@ -1225,7 +1225,7 @@ svg.trend.rib path.now{stroke:var(--sub)}
 
   // ▼ 배포 후 Cloudflare Worker 주소로 바꾸세요 (끝에 / 없이)
   const API_BASE = 'https://kt.roi0925003.workers.dev';
-  const PAGE_VERSION = 'v3.24';
+  const PAGE_VERSION = 'v3.25';
   const WORKER_VERSION = 'v1.31';   // 이 페이지와 짝이 되는 worker.js 버전
   /* 직원 공개용 토큰 — 비밀번호가 아닙니다. 소스 보기로 누구나 볼 수 있습니다.
      중계 서버의 PUBLIC_PASS와 같은 값이어야 하고, 남이 긁는 게 보이면
@@ -1472,9 +1472,10 @@ svg.trend.rib path.now{stroke:var(--sub)}
     return { items: pick, count: items.length, median, alcohol, course, meat, type, label, updated: (P && P.menuUpdated) || '', source: P.menuSource, kakaoMenus: P.kakaoMenus };
   }
   function s_cat(b){ const s = b.store || {}; return [s.category, s.naverCategory].filter(Boolean).join(' '); }
+  const noEmoji = (t) => String(t || '').replace(/\p{Extended_Pictographic}|\uFE0F|\u200D/gu, '').replace(/\s{2,}/g, ' ').trim();
   function feedHTML(feed){
     const last = feed[0] && feed[0].date ? String(feed[0].date).slice(0, 10) : '';
-    const items = feed.slice(0, 3).map(f => `<li><span class="d">${esc(String(f.date||'').slice(0, 10) || '—')}</span><span>${f.type ? `<span class="bdg info">${esc(f.type)}</span> ` : ''}${esc(f.title || String(f.text||'').slice(0, 40))}${f.text && f.title ? `<span class="by">${esc(String(f.text).replace(/\s+/g,' ').slice(0, 90))}</span>` : ''}</span></li>`).join('');
+    const items = feed.slice(0, 3).map(f => `<li><span class="d">${esc(String(f.date||'').slice(0, 10) || '—')}</span><span>${f.type ? `<span class="bdg info">${esc(f.type)}</span> ` : ''}${esc(noEmoji(f.title) || noEmoji(f.text).slice(0, 40))}${f.text && f.title ? `<span class="by">${esc(noEmoji(f.text).slice(0, 90))}</span>` : ''}</span></li>`).join('');
     return `<ul class="recent" style="margin:0">${items}</ul><p class="src9" style="margin-top:6px">사장님이 직접 올린 글 ${esc(num(feed.length,'건'))}${last ? ` · 마지막 ${esc(last)}` : ''} — 알림·이벤트를 스스로 올리는 매장은 알림톡·쿠폰 제안이 통합니다</p>`;
   }
   function menuTableHTML(MP, b){
@@ -2365,7 +2366,9 @@ svg.trend.rib path.now{stroke:var(--sub)}
     const pct = (v) => Math.max(1.5, Math.min(100, ((Number(v) - min)/Math.max(1e-9, max - min))*100));
     const bar = has(val) ? `<i class="bar" style="width:${pct(val).toFixed(1)}%" title="이 매장"></i>` : '';
     const rf = has(ref) ? `<i class="ref" style="left:${pct(ref).toFixed(1)}%" title="기준"></i>` : '';
-    return `<div class="gauge"><div class="gl">${label}</div><div class="gt">${bar}${rf}</div><div class="gv">${has(val) ? `<b>${esc(fmt(val))}</b>` : '—'}${has(ref) ? ` <span class="src9">기준 ${esc(fmt(ref))}</span>` : ''}${note ? ` <span class="src9">${note}</span>` : ''}</div></div>`;
+    /* v3.25: '기준 299건 기준 = 1위'처럼 두 번 읽히던 것 → '기준 299건 (1위)' */
+    const tail = has(ref) ? ` <span class="src9">기준 ${esc(fmt(ref))}${note ? ` (${note})` : ''}</span>` : (note ? ` <span class="src9">${note}</span>` : '');
+    return `<div class="gauge"><div class="gl">${label}</div><div class="gt">${bar}${rf}</div><div class="gv">${has(val) ? `<b>${esc(fmt(val))}</b>` : '—'}${tail}</div></div>`;
   }
 
   function summaryModel(b){
@@ -2456,10 +2459,10 @@ svg.trend.rib path.now{stroke:var(--sub)}
 
     /* 5) 눈금 4개 */
     const gauges = [];
-    if (K.mine !== null && K.n >= 2) gauges.push(gaugeHTML(`리뷰 수 — 옆 가게 ${K.n-1}곳 중 <b>${K.pos}위</b>`, K.mine, K.maxReviews !== K.mine ? K.maxReviews : null, Math.max(K.maxReviews||1, K.mine), v => num(v,'건'), K.maxReviews !== K.mine ? '기준 = 1위' : '이 매장이 1위'));
-    if (has(K.myScore)) gauges.push(gaugeHTML('평점 (3.5~5)', K.myScore, K.avgScore, 5, v => String(v), has(K.avgScore) ? '기준 = 옆 가게 평균' : '기준 없음 — 옆 가게 리뷰를 못 읽음', 3.5));
-    if (K.pm3 !== null && K.pm12 !== null) gauges.push(gaugeHTML('최근 3개월 리뷰 (월)', K.pm3, K.pm12, Math.max(K.pm3, K.pm12, 1)*1.25, v => `${v}건`, '기준 = 12개월 평균'));
-    if (pd && has(pd.workerPerResident)) gauges.push(gaugeHTML('낮 인구 배율', Number(pd.workerPerResident), DAYPOP_REF, Math.max(Number(pd.workerPerResident), DAYPOP_REF)*1.2, v => `${v}배`, '기준 = 전국 평균 어림'));
+    if (K.mine !== null && K.n >= 2) gauges.push(gaugeHTML(`리뷰 수 — 옆 가게 ${K.n-1}곳과 견줘 <b>${K.pos}위</b>`, K.mine, K.maxReviews !== K.mine ? K.maxReviews : null, Math.max(K.maxReviews||1, K.mine), v => num(v,'건'), K.maxReviews !== K.mine ? '1위' : '이 매장이 1위'));
+    if (has(K.myScore)) gauges.push(gaugeHTML('평점 (3.5~5)', K.myScore, K.avgScore, 5, v => String(v), has(K.avgScore) ? '옆 가게 평균' : '기준 없음 — 옆 가게 평점을 못 읽음', 3.5));
+    if (K.pm3 !== null && K.pm12 !== null) gauges.push(gaugeHTML('최근 3개월 리뷰 (월)', K.pm3, K.pm12, Math.max(K.pm3, K.pm12, 1)*1.25, v => `${v}건`, '12개월 평균'));
+    if (pd && has(pd.workerPerResident)) gauges.push(gaugeHTML('낮 인구 배율', Number(pd.workerPerResident), DAYPOP_REF, Math.max(Number(pd.workerPerResident), DAYPOP_REF)*1.2, v => `${v}배`, '전국 평균 어림'));
     if (cd && cd.sameSmall && has(cd.sameSmall.count)) gauges.push(gaugeHTML(`같은 업종 100m 안 / ${dist(R)} 안`, A.comp.n100, null, Math.max(1, Number(cd.sameSmall.count)), v => `${v}곳`, `${dist(R)} 안 ${num(cd.sameSmall.count,'곳')}`));
 
     /* 6) 근거 줄 */
@@ -5032,6 +5035,9 @@ ${GUARD}`,
   }
   function mergeDirect(bundle, d){
     Object.entries(d.modules || {}).forEach(([k, v]) => { if (v) bundle.modules[k] = v; });
+    /* v3.25: 관광 신호(환전소·게스트하우스·관광안내소)는 중계 v1.35부터 /direct 가 센다 — 4장 주변 시설 자료에 붙여 넣는다 */
+    const tm = bundle.modules.tourism, nb = bundle.modules.nearby;
+    if (tm) { if (tm.ok && tm.data && nb && nb.ok && nb.data) nb.data.tourism = tm.data; delete bundle.modules.tourism; }
     bundle.direct = Object.assign({}, bundle.direct || {}, d.direct || {}, { split: true });
     bundle.apiCalls = sumCalls(bundle.apiCalls, d.apiCalls);
     if (d.version && bundle.version && d.version !== bundle.version) bundle.version = `${bundle.version} / ${d.version}`;
@@ -5067,7 +5073,7 @@ ${GUARD}`,
       const body = { store: c, radius: Number(el.radius.value)||500, keywords: el.keywords ? el.keywords.value.split(',').map(s=>s.trim()).filter(Boolean) : [], split: true };
       const [colRes, dirRes] = await Promise.allSettled([
         api('/collect', { method: 'POST', body, timeout: 90000 }),
-        api('/direct', { method: 'POST', body: { store: c }, timeout: 90000 }),
+        api('/direct', { method: 'POST', body: { store: c, radius: body.radius }, timeout: 90000 }),
       ]);
       if (colRes.status === 'rejected') throw colRes.reason;
       const bundle = colRes.value; bundle.modules = bundle.modules || {};
