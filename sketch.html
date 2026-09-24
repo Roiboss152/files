@@ -595,6 +595,34 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
 .tips li{padding:8px 0;border-bottom:1px solid var(--line);line-height:1.65}
 .tips li:last-child{border-bottom:0}
 .tips b{color:var(--ink);font-weight:700}
+/* v3.33: 네이버 플레이스 점검 — 상태는 색보다 말(양호·보완·고칠 것·확인 못 함)로. 강조 주홍은 '고칠 것'에만 */
+.pcsum{display:flex;align-items:baseline;gap:18px;flex-wrap:wrap;margin-bottom:6px}
+.pcsum .big{font-size:52px;font-weight:800;letter-spacing:-.04em;line-height:1;font-variant-numeric:tabular-nums;white-space:nowrap}
+.pcsum .big small{font-size:20px;font-weight:700;color:var(--sub);margin-left:6px;letter-spacing:0}
+.pcsum .lead-read{margin:0}
+.pchk{list-style:none;margin:16px 0 0;padding:0}
+.pchk li{display:grid;grid-template-columns:84px minmax(0,1fr) 150px;gap:16px;align-items:baseline;padding:13px 0;border-bottom:1px solid var(--line)}
+.pchk li:last-child{border-bottom:0}
+.pst{display:inline-block;text-align:center;font-size:11px;font-weight:700;padding:3px 8px;border-radius:4px;border:1px solid var(--line);color:var(--ink);white-space:nowrap}
+.pst.warn{border-color:var(--accent);color:var(--accent-ink)}
+.pst.bad{background:var(--accent);border-color:var(--accent);color:#fff}
+.pst.na{border-style:dashed;color:var(--faint)}
+.pc-b{display:grid;grid-template-columns:104px minmax(0,1fr);column-gap:12px;align-items:baseline}
+.pc-l{font-size:15px;font-weight:700;color:var(--ink)}
+.pc-v{font-size:14px;line-height:1.6;color:var(--ink)}
+.pc-t{grid-column:2;margin-top:4px;font-size:13px;line-height:1.6;color:var(--sub)}
+.pc-s{grid-column:2;margin-top:4px;font-size:12px;line-height:1.55;font-weight:600;color:var(--accent-ink)}
+.pc-src{font-size:10px;line-height:1.5;color:var(--faint);text-align:right}
+.kwl{list-style:none;margin:12px 0 10px;padding:0;counter-reset:kwl}
+.kwl li{display:flex;align-items:baseline;gap:11px;padding:8px 0;border-bottom:1px solid var(--line);counter-increment:kwl}
+.kwl li:last-child{border-bottom:0}
+.kwl li::before{content:counter(kwl);min-width:14px;font-size:11px;font-weight:700;color:var(--faint)}
+.kwl .kt2{font-size:16px;font-weight:700;letter-spacing:-.02em;color:var(--ink)}
+.kwl .kw9{margin-left:auto;font-size:10px;color:var(--faint);text-align:right}
+.rx.rxsc{margin:22px 0 0}
+body.cust .kwrest{display:none!important}           /* 고객용 진단서에는 조합 말 목록을 뺀다 (영업·AI 초안용) */
+@media (max-width:660px){.pchk li{grid-template-columns:70px minmax(0,1fr)}.pc-src{grid-column:2;text-align:left}.pcsum .big{font-size:40px}
+  .pc-b{grid-template-columns:minmax(0,1fr)}.pc-t,.pc-s{grid-column:1}}
 
 /* ══ 키워드 후보 ══ */
 .kwtop{list-style:none;margin:13px 0 0;padding:0 0 13px}
@@ -1308,7 +1336,7 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
 
   // ▼ 배포 후 Cloudflare Worker 주소로 바꾸세요 (끝에 / 없이)
   const API_BASE = 'https://kt.roi0925003.workers.dev';
-  const PAGE_VERSION = 'v3.32';
+  const PAGE_VERSION = 'v3.33';
   const WORKER_VERSION = 'v1.40';   // 이 페이지와 짝이 되는 worker.js 버전 (이보다 낮으면 경고)
   /* 직원 공개용 토큰 — 비밀번호가 아닙니다. 소스 보기로 누구나 볼 수 있습니다.
      중계 서버의 PUBLIC_PASS와 같은 값이어야 하고, 남이 긁는 게 보이면
@@ -2601,7 +2629,7 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
     const m = mod(b,'competition'); if (!m.ok) return [];
     const R = (b.options && b.options.radius) || 500, A = axesOf(b).comp, out = [];
     const sig = signatureMenu(b), area = areaWord(b), kw = [area, sig].filter(Boolean).join(' ');
-    const kwTip = kw ? ` (예: ‘${esc(kw)}’ — 「플레이스 노출 키워드 후보」 장 참고)` : ' (「플레이스 노출 키워드 후보」 장 참고)';
+    const kwTip = kw ? ` (예: ‘${esc(kw)}’ — 「네이버 플레이스 점검」 장 참고)` : ' (「네이버 플레이스 점검」 장 참고)';
     if (A.sameBld >= 1 || A.n100 >= 2) out.push(rxLine(`100m 안 같은 업종 <b>${num(A.n100,'곳')}</b>${A.sameBld ? ` · 같은 건물 ${num(A.sameBld,'곳')}` : ''} — 문 앞에서 손님이 갈림`,
       `가게 앞에서 고르는 손님을 붙잡는 건 대기와 주문 속도 — 웨이팅 서비스로 줄을 붙잡고, 플레이스 키워드는 옆집과 겹치지 않게 대표 메뉴로${kwTip}`));
     else if (A.total >= 8) out.push(rxLine(`반경 ${dist(R)} 안 같은 업종 <b>${num(A.total,'곳')}</b> — 촘촘함`,
@@ -2784,7 +2812,7 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
     });
     if (rv && rv.questions && Number(rv.questions.hiorder) >= 3) weaknesses.push({ sec:'reviews', text:`코네스트 방문 전 질문 ${esc(num(rv.questions.total,'건'))} 중 <b>주문 규칙·메뉴 ${esc(num(rv.questions.hiorder,'건'))}</b> — 일본인 손님이 헷갈리는 곳`, lever:'첫 주문 최소 수량 안내·번역된 메뉴 설명', w: 4 });
     if (K.pm3 !== null && K.pm12 !== null && K.pm12 >= 2 && K.pm3 < K.pm12 * 0.6) weaknesses.push({ sec:'reviews', text:`최근 3개월 리뷰 월 <b>${K.pm3}건</b> — 12개월 평균 월 ${K.pm12}건의 ${Math.round(K.pm3/K.pm12*100)}%`, lever:'재방문 유도 (스탬프·쿠폰·리뷰 QR)', w:4 });
-    if (rv && rv.velocity && has(rv.velocity.replyRate) && Number(rv.velocity.replyRate) < 20 && counted >= 20) weaknesses.push({ sec:'reviews', text:`사장님 답글 <b>${rv.velocity.replyRate}%</b> — 리뷰를 안 보는 편`, lever:'하이오더 네이버 리뷰 기능 (답글 습관)', w:2, sale:true });
+    if (rv && rv.velocity && has(rv.velocity.replyRate) && Number(rv.velocity.replyRate) < 20 && counted >= 20) weaknesses.push({ sec:'reviews', text:`사장님 답글 <b>${rv.velocity.replyRate}%</b> — 리뷰를 안 보는 편`, lever:'답글 습관 — 사과·고친 것·다시 오시면 세 줄 (플레이스 점검 장)', w:2, sale:true });
     if (A.comp.sameBld || A.comp.n100 >= 2) weaknesses.push({ sec:'comp', text:`<b>${A.comp.sameBld ? `같은 건물 ${A.comp.sameBld}곳` : `100m 안 ${A.comp.n100}곳`}</b>이 같은 업종 — 문 앞에서 손님이 갈림`, lever:'주문 속도·회전으로 차별', w:3 });
     if (A.comp.newlyRatio !== null && A.comp.newlyRatio >= 0.15) weaknesses.push({ sec:'comp', text:`동네 ${esc(L.hood.kind||'음식점')} 최근 ${esc(String(L.hood.years||2))}년 새 <b>${esc(num(L.hood.newly,'곳'))}</b> 개업 (영업 중의 ${Math.round(A.comp.newlyRatio*100)}%)`, lever:'재방문 유도 (스탬프·쿠폰)', w:2 });
     if (L && has(L.area) && Number(L.area) >= 100) weaknesses.push({ sec:'quote', text:`홀 <b>약 ${esc(String(pyeong(L.area)))}평</b>${Q.floors > 1 ? ` · ${Q.floors}개 층` : ''} — 주문받으러 다니는 동선`, lever:`테이블 주문·호출 (${Q.est ? rngN(Q.est.devices,'대') : '대수 추정'})`, w:3 });
@@ -3081,7 +3109,7 @@ ${GUARD}`,
     { id:'news',    title:'뉴스',                     bg:'뉴스', render:renderNews },
     { id:'trend',   title:'메뉴 검색 추이',            bg:'추이', render:renderTrend },
     { id:'quote',   title:'하이오더 견적 밑그림',        bg:'견적', render:renderQuote },
-    { id:'keyword', title:'플레이스 노출 키워드 후보',   bg:'검색', render:renderKeyword },
+    { id:'keyword', title:'네이버 플레이스 점검',        bg:'점검', render:renderKeyword },   // v3.33: 키워드 후보 → 공식 기준 점검 (id는 그대로)
     { id:'support', title:'사장님께 알려드릴 지원사업·교육', bg:'지원', render:renderSupport },
     { id:'manual',  title:'사람이 채울 것',            bg:'현장', render:renderManual },
     // v3.22: '메뉴판 사진' 장은 없앴다 — 1장 메뉴 표 왼쪽의 작은 사진으로 옮김 (renderImages 는 남겨 둔다)
@@ -3136,7 +3164,7 @@ ${GUARD}`,
   }
 
   /* ── 리포트 조립 — 장번호는 실제로 그려진 섹션에만 순서대로 매긴다 ── */
-  const CUST_SKIP = new Set(['quote', 'keyword', 'news', 'manual']);   // v3.31: 고객용 진단서에서 빼는 장 — 견적·키워드 후보는 제안서 몫, 뉴스는 부정 기사가 섞일 수 있다
+  const CUST_SKIP = new Set(['quote', 'news', 'manual']);   // v3.31: 고객용 진단서에서 빼는 장 — 견적은 제안서 몫, 뉴스는 부정 기사가 섞일 수 있다 · v3.33: 플레이스 점검은 고객에게도 (영업 메모만 숨김)
   function renderReport(b){
     let no = 0;
     const parts = SECTIONS.map((sd) => {
@@ -3835,10 +3863,257 @@ ${GUARD}`,
       note: '정책지원금·프로모션은 넣지 않은 공식 요금표 기준. 대수는 추정치.' };
   }
 
-  /* ══════════ 플레이스 노출 키워드 후보 ══════════
-     네이버는 키워드를 넣어 두기만 하면 올려 주지 않는다. 사장님이 직접 넣는 칸은
-     대표키워드 5개뿐이고, 나머지는 상호·메뉴·소개글·편의시설·리뷰에서 자동으로 뽑힌다.
-     여기서는 이미 가진 자료로 후보를 조합만 한다 — 검색량 검증은 다음 단계. */
+  /* ══════════ v3.33: 네이버 플레이스 점검 ══════════
+     네이버가 공개한 순위 기준은 유사도·인기도·거리·정보 충실성이고, 순위를 보장하거나 요청으로 조정하지 않는다
+     (스마트플레이스 SEO 가이드 · 도움말 20440). 그래서 '점수 올리기'가 아니라 네이버 문서에 적힌 것만 점검하고 줄마다 근거 번호를 단다.
+     근거 표기 — 도움말 NNNNN: help.naver.com/service/30026/contents/NNNNN · 공지 NNN: new.smartplace.naver.com/notices/NNN
+     · 작성기준: 스마트플레이스 작성 기준(업체명 1항·찾아오는 길 6항·가격 7항·대표키워드 10항).
+     판정 기준값(최근 3개월 리뷰 9건·답글 50%·소식 45일)은 밑그림 규칙이다 — 네이버 수치가 아니다. (2026-09-25 조사) */
+
+  /* 네이버 리뷰 키워드 — 음식점 기존 15개 + 추가 33개 (공지 523, 2022.4.14). 지금 설정 화면과 다를 수 있어 '설정 화면에 있는 말만' 안내한다 */
+  const NV_KW = {
+    '음식·가격': ['음식이 맛있어요','재료가 신선해요','양이 많아요','특별한 메뉴가 있어요','가성비가 좋아요','비싼 만큼 가치있어요','반찬이 잘 나와요','건강한 맛이에요','메뉴 구성이 알차요','현지 맛에 가까워요','향신료가 강하지 않아요','고기 질이 좋아요','잡내가 적어요','코스요리가 알차요','커피가 맛있어요','디저트가 맛있어요','음료가 맛있어요','술이 다양해요','기본 안주가 좋아요'],
+    '분위기': ['인테리어가 멋져요','매장이 넓어요','뷰가 좋아요','혼밥하기 좋아요','단체모임 하기 좋아요','컨셉이 독특해요','야외공간이 멋져요','아늑해요','차분한 분위기에요','대화하기 좋아요','사진이 잘 나와요','음악이 좋아요','집중하기 좋아요','혼술하기 좋아요'],
+    '편의·기타': ['주차하기 편해요','화장실이 깨끗해요','친절해요','매장이 청결해요','특별한 날 가기 좋아요','룸이 잘 되어있어요','반려동물과 가기 좋아요','아이와 가기 좋아요','오래 머무르기 좋아요','음식이 빨리 나와요','좌석이 편해요','환풍이 잘 돼요','포장이 깔끔해요','직접 잘 구워줘요','샐러드바가 잘 되어있어요'],
+  };
+  const nvKwGroup = (name) => { const t = String(name || '').replace(/\s/g, ''); for (const [g, list] of Object.entries(NV_KW)) if (list.some(k => k.replace(/\s/g, '') === t)) return g; return ''; };
+
+  /* 손님이 오는 이유(네이버 방문 목적·동행 태그) → 장면. 2장 표 아래 '할 일'과 이 장의 리뷰 키워드 순서·소개글 점검이 같이 쓴다.
+     하이오더 기능 이름은 매뉴얼 제목 그대로 번호를 붙인다 (하이오더_매뉴얼_20260912 — 9905 상품 분류 순서 변경 · 9955 상품 분류 설명 등록
+     · 10765 AI 메뉴 추천 · 7711 팝업 공지 관리 · 9371 스킨 변경 · 7261 다국어 설정 · 9935 번역 수정 · 7351 웨이팅 서비스) */
+  const SCENES = [
+    { key:'group',   re:/회식|친목|가족\s?모임|모임|단체|지인|동료|비즈니스|출장|접대/, word:'모임·단체', intro:/회식|모임|단체|룸|송년|동창|접대/,
+      kw:['단체모임 하기 좋아요','룸이 잘 되어있어요','대화하기 좋아요'],
+      p:'한 번에 많이 시키는 손님 — 세트·주류·사이드를 메뉴판 앞쪽 분류로 (상품 분류 순서 변경 9905), 태블릿 「AI 메뉴 추천」에 ‘모임 추천’ 태그 (10765)' },
+    { key:'couple',  re:/데이트|연인|배우자|기념일/, word:'데이트·기념일', intro:/데이트|기념일|연인|커플/,
+      kw:['특별한 날 가기 좋아요','인테리어가 멋져요','대화하기 좋아요'],
+      p:'둘이 오는 손님 — 2인 세트를 첫 분류로 (9905), 기념일 서비스가 있으면 태블릿 팝업 공지로 알림 (팝업 공지 관리 7711)' },
+    { key:'family',  re:/가족(?!\s?모임)|아이|아기|부모|어르신|친척|형제|자매|나들이/, word:'가족·아이', intro:/가족|아이|어린이|키즈|부모님|어르신/,
+      kw:['아이와 가기 좋아요','매장이 넓어요','좌석이 편해요'],
+      p:'가족 손님 — 아이 메뉴·유아의자를 메뉴판에 적고 사진은 크게 (스킨 변경 9371), 「AI 메뉴 추천」에 ‘아이와 함께’ 태그 (10765)' },
+    { key:'trip',    re:/여행|관광/, word:'여행', intro:/여행|관광|외국인|명소/,
+      kw:['특별한 메뉴가 있어요','사진이 잘 나와요'],
+      p:'처음 오는 손님 — 사진과 외국어로 고르게: 다국어 설정 (7261)·번역 수정 (9935), 대표 메뉴 사진을 첫 화면에' },
+    { key:'solo',    re:/혼자|혼밥|혼술/, word:'혼자', intro:/혼밥|혼술|혼자|1인/,
+      kw:['혼밥하기 좋아요','음식이 빨리 나와요'],
+      p:'혼자 오는 손님 — 1인분·1인 메뉴가 되는지 분류 설명에 적기 (상품 분류 설명 등록 9955)' },
+    { key:'friends', re:/친구/, word:'친구', intro:/친구|지인/,
+      kw:['대화하기 좋아요','술이 다양해요'],
+      p:'친구끼리 오는 손님 — 사이드·주류 추가 주문이 쉽게 주류 분류를 앞쪽으로 (9905)' },
+  ];
+  const sceneOf = (name) => SCENES.find(s => s.re.test(String(name || ''))) || null;
+  const segLabel = (l) => String(l || '') === '회식·모임' ? '모임·단체' : String(l || '');   // 글에서 센 갈래 — 친목·동창까지 들어 있어 '모임·단체'로 부른다 (수집 서버 이름은 그대로)
+  /* 방문 목적·동행에서 장면이 있는 1위 — 방문 목적 1위가 '일상'처럼 장면이 없으면 장면이 있는 첫 말. 태그가 없으면 글에서 센 갈래 */
+  function sceneTops(rv){
+    if (!rv) return [];
+    const cats = rv.visitTags ? vtCats(rv.visitTags) : [], out = [];
+    for (const [re, cat] of [[/목적/, '방문 목적'], [/동행/, '동행']]) {
+      const cc = cats.find(c => re.test(c.name)); if (!cc) continue;
+      const k = (cc.keywords || []).find(x => x.n > 0 && sceneOf(x.name));
+      if (k) out.push({ name: k.name, n: k.n, pct: cc.n ? Math.round(k.n / cc.n * 100) : null, scene: sceneOf(k.name), cat });
+    }
+    if (!out.length) {
+      const seg = ((rv.visitors && rv.visitors.segments) || []).find(s => s.n > 0 && SCENES.some(x => x.key === s.key));
+      if (seg) out.push({ name: segLabel(seg.label), n: seg.n, pct: null, scene: SCENES.find(x => x.key === seg.key), cat: '리뷰 글' });
+    }
+    return out;
+  }
+  /* 2장 '리뷰에서 더 읽은 것' 표 → 할 일 (영업용). 1위와, 1위의 90% 이상이면 2위까지 함께 */
+  function sceneLines(d){
+    if (!d) return [];
+    const out = [], cats = d.visitTags ? vtCats(d.visitTags) : [];
+    const cat = (re) => cats.find(c => re.test(c.name));
+    const pct = (n, of) => of ? Math.round(n / of * 100) : null;
+    for (const [re, label] of [[/목적/, '방문 목적'], [/동행/, '동행']]) {
+      const cc = cat(re); if (!cc) continue;
+      const ks = (cc.keywords || []).filter(k => k.n > 0); if (!ks.length) continue;
+      const show = [ks[0]]; if (ks[1] && ks[1].n >= ks[0].n * 0.9) show.push(ks[1]);
+      let scs = [...new Set(show.map(k => sceneOf(k.name)).filter(Boolean))], extra = '';
+      if (!scs.length) { const k = ks.find(x => sceneOf(x.name)); if (k) { scs = [sceneOf(k.name)]; extra = ` · 장면이 있는 말 중 1위 <b>${esc(k.name)} ${pct(k.n, cc.n)}%</b>`; } }
+      if (!scs.length) continue;
+      out.push({ d: `${label} 1위 <b>${esc(show[0].name)} ${pct(show[0].n, cc.n)}%</b>${show[1] ? ` · 2위 <b>${esc(show[1].name)} ${pct(show[1].n, cc.n)}%</b> (거의 같음)` : ''}${extra} <span class="src9">— 태그 단 리뷰 ${esc(num(cc.n,'건'))}</span>`,
+        p: scs.slice(0, 2).map(s => s.p).join(' / ') });
+    }
+    if (!out.length && d.visitors && (d.visitors.segments || []).length) {
+      const seg = d.visitors.segments.find(s => s.n > 0 && SCENES.some(x => x.key === s.key));
+      if (seg) out.push({ d: `리뷰 글에 가장 많이 적힌 손님 <b>${esc(segLabel(seg.label))} ${esc(num(seg.n,'건'))}</b> <span class="src9">— 네이버 방문 태그가 없어 글에서 셈</span>`, p: SCENES.find(x => x.key === seg.key).p });
+    }
+    const rs = cat(/^예약/);
+    if (rs && rs.n >= 10) {
+      const w = (rs.keywords || []).filter(k => /후\s?이용|with/i.test(k.name)).reduce((a, k) => a + k.n, 0), p = pct(w, rs.n);
+      if (p !== null && p >= 30) out.push({ d: `예약하고 온 손님 <b>${p}%</b> <span class="src9">— 예약 태그 ${esc(num(rs.n,'건'))} 중 ${esc(num(w,'건'))}</span>`,
+        p: d.booking === false ? '예약 손님이 많은데 네이버 예약이 없음 — 네이버 예약으로 받으면 예약이 방문 인증 리뷰로도 이어집니다 (「네이버 플레이스 점검」 장)'
+          : '예약 손님은 앉자마자 주문 — 세트·코스를 메뉴판 첫 분류로 (상품 분류 순서 변경 9905)' });
+    }
+    const wt = cat(/대기/);
+    if (wt) { const long = (wt.keywords || []).filter(k => LONG_WAIT.test(k.name)).reduce((a, k) => a + k.n, 0);
+      if (long >= 3) out.push({ d: `30분 넘게 기다린 글 <b>${esc(num(long,'건'))}</b> <span class="src9">— 대기 태그 ${esc(num(wt.n,'건'))} 중</span>`, p: '줄을 받아 두고 차례가 오면 알림톡 — 웨이팅 서비스 (7351)' }); }
+    const BZ = d.busy;
+    if (BZ && Number(BZ.dayN) >= 20 && has(BZ.weekendPct) && Number(BZ.weekendPct) >= 35) out.push({ d: `주말(토·일) 방문 <b>${esc(String(BZ.weekendPct))}%</b> <span class="src9">— 7일 중 이틀이면 29% · 리뷰 방문일 ${esc(num(BZ.dayN,'건'))}</span>`,
+      p: '주말에 몰리는 주문·추가 주문을 자리에서 받게 — 주말 인원 그대로 돌리는 것이 목표' });
+    const VT = d.stats && d.stats.voted && (d.stats.voted.top || []).length ? d.stats.voted.top : null;
+    if (VT) {
+      const g = {}; VT.forEach(k => { const gg = nvKwGroup(k.name); if (gg) g[gg] = (g[gg] || 0) + (Number(k.count) || 0); });
+      const tot = Object.values(g).reduce((a, n) => a + n, 0), top = Object.entries(g).sort((a, c) => c[1] - a[1])[0];
+      const GP = { '음식·가격':'맛으로 오는 집 — 대표 메뉴 설명을 태블릿 분류 설명에 적고 사진은 크게 (상품 분류 설명 등록 9955)',
+        '분위기':'분위기로 오는 집 — 태블릿 메뉴판 화면도 매장 분위기에 맞게 (스킨 변경 9371)', '편의·기타':'응대·편의로 오는 집 — 바쁜 시간에도 응대가 흔들리지 않게 주문·호출을 태블릿으로' };
+      if (tot >= 20 && top) out.push({ d: `손님이 고른 키워드 ${Object.keys(NV_KW).map(k => `${k} <b>${esc(num(g[k] || 0,'표'))}</b>`).join(' · ')} <span class="src9">— 네이버 전체 리뷰 상위 키워드를 네이버 분류로 묶음</span>`, p: GP[top[0]] });
+    }
+    return out.slice(0, 6);
+  }
+  function sceneRxHTML(d){
+    if (state.cust) return '';                                             // 고객용 진단서에는 제안이 없다
+    const L = sceneLines(d); if (!L.length) return '';
+    return `<div class="rx rxsc sale"><div class="rx-h"><b>이 표로 할 일</b><span>리뷰를 쓴 손님 기준 · 네이버 방문 태그를 먼저 · 규칙으로 판정</span></div>
+      <ol>${L.map(x => `<li><span class="rd">${x.d}</span><span class="rp">→ ${x.p}</span></li>`).join('')}</ol></div>`;
+  }
+
+  const PROMO_WORD = /맛집|최고|1등|넘버\s?원|no\.?\s?1|잘하는|유명한|추천/i;                 // 작성기준 1항·10항 — 홍보·주관 표현
+  const GENERIC_MENU = /^(고기|음식|메뉴|요리|식사|반찬|밥|국|음료|술|주류|사이드|세트|정식|코스|디저트|안주|추가|기본)$/;
+  const daysBetween = (a, b) => { const x = Date.parse(String(a || '').slice(0, 10)), y = Date.parse(String(b || '').slice(0, 10)); return isFinite(x) && isFinite(y) ? Math.round((y - x) / 86400000) : null; };
+
+  /* 대표키워드 5칸 후보 — 작성기준 10항: 메뉴명·제공 서비스·상품을 한 낱말씩. 업체명·지역·'맛집'은 넣지 않는다 */
+  function kwRep(b){
+    const P = placeInfo(b), pl = mod(b,'place'), D = pl.ok && pl.data ? pl.data : null;
+    const rv = state.reviews && state.reviews.data ? state.reviews.data : null;
+    const nameT = nameTokens(b.store && b.store.name, rv && rv.place && rv.place.name);
+    const word = (v) => { let t = String(v || '').split(/[(\[/·,+&]/)[0].replace(/\s+/g, '').replace(/\d+(g|인분|인)$/, '').trim();
+      if (/(세트|정식|코스)$/.test(t) && t.length >= 4) t = t.replace(/(세트|정식|코스)$/, '');
+      return /^[가-힣]{2,8}$/.test(t) && !GENERIC_MENU.test(t) && !PROMO_WORD.test(t) && !nameT.some(n => t.toLowerCase().includes(n)) ? t : ''; };
+    const menus = [];
+    const share2 = (a, c) => { const [s, l] = a.length <= c.length ? [a, c] : [c, a]; for (let i = 0; i + 2 <= s.length; i++) if (l.includes(s.slice(i, i + 2))) return true; return false; };
+    const add = (v, why) => { const t = word(v); if (!t || menus.some(m => share2(m.t, t))) return; menus.push({ t, why }); };
+    const nm = D ? (D.naverMenus || []).filter(x => x && x.name) : [];
+    nm.filter(m => m.recommend).forEach(m => add(m.name, '대표 표시 메뉴'));
+    ((rv && rv.stats && rv.stats.menus) || []).forEach(m => add(m.label, `리뷰에 나온 메뉴 ${num(m.count,'번')}`));
+    ((P && P.reviewMenus) || []).forEach(m => add(m, '리뷰에 많이 나온 메뉴'));
+    nm.forEach(m => add(m.name, '플레이스 메뉴'));
+    const I = (P && P.info) || {}, fac = `${(I.facilities || []).join(' ')} ${(I.seats || []).join(' ')} ${P ? (P.amenities || []).join(' ') : ''}`;
+    const svc = [], addS = (t, why) => { if (!svc.some(s => s.t === t)) svc.push({ t, why }); };
+    if (/무한\s?리필/.test(fac)) addS('무한리필', '정보 탭 편의시설');
+    if (/단체석|단체\s?이용/.test(fac)) addS('단체석', '정보 탭 좌석·편의시설');
+    if (/룸|개별\s?공간|프라이빗/.test(fac)) addS('룸', '정보 탭 좌석');
+    if (/포장/.test(fac)) addS('포장', '정보 탭 편의시설');
+    if (/배달/.test(fac)) addS('배달', '정보 탭 편의시설');
+    if (/콜키지/.test(`${fac} ${(P && P.naverIntro) || ''}`)) addS('콜키지', '소개글·편의시설');
+    const cand = menus.slice(0, svc.length ? 3 : 5).concat(svc.slice(0, 2));
+    menus.slice(3).forEach(m => { if (cand.length < 5 && !cand.includes(m)) cand.push(m); });
+    return { cand: cand.slice(0, 5), menus, svc, current: D ? (D.naverKeywords || []).map(k => String(k || '').trim()).filter(Boolean) : [] };
+  }
+  /* 리뷰 키워드 위 5개 — 손님이 이미 고른 강점 2개 + 손님이 오는 이유(방문 목적·동행 1위 장면) + 정보 탭(주차·룸) + 나머지 강점 */
+  function kwOrder(b){
+    const rv = state.reviews && state.reviews.data ? state.reviews.data : null;
+    const P = placeInfo(b), I = (P && P.info) || {}, out = [];
+    const seats = `${(I.seats || []).join(' ')} ${(I.facilities || []).join(' ')}`;
+    const room = /룸|개별\s?공간|프라이빗/.test(seats), MP = menuProfile(b);
+    const allowed = (w) => w === '술이 다양해요' ? Boolean(MP && MP.alcohol) : w === '룸이 잘 되어있어요' ? room : true;
+    const push = (t, why) => { if (out.length < 5 && t && !out.some(o => o.t === t)) out.push({ t, why }); };
+    const voted = ((rv && rv.stats && rv.stats.voted && rv.stats.voted.top) || []).filter(k => k && k.name);
+    voted.slice(0, 2).forEach((k, i) => push(k.name, `손님이 이미 고른 ${i + 1}위 · ${num(k.count,'표')}`));
+    sceneTops(rv).forEach(x => { const k = x.scene.kw.find(w => !out.some(o => o.t === w) && allowed(w)); if (k) push(k, `${x.cat} 1위 ${x.name}${x.pct !== null ? ` ${x.pct}%` : ''}`); });
+    const pk = String(I.parking || '');
+    if (/가능|무료/.test(pk) && !/불가/.test(pk)) push('주차하기 편해요', '정보 탭: 주차 가능');
+    if (room) push('룸이 잘 되어있어요', '정보 탭: 룸');
+    voted.slice(2).forEach((k, i) => push(k.name, `손님이 고른 ${i + 3}위 · ${num(k.count,'표')}`));
+    return out;
+  }
+  /* 점검 10줄 — 줄마다 판정(ok·warn·bad·na)·읽은 값·할 일·근거. 못 읽은 값은 '확인 못 함'으로 두고 없다고 하지 않는다 */
+  function placeCheck(b){
+    const pl = mod(b,'place'), D = pl.ok && pl.data ? pl.data : null, P = placeInfo(b);
+    const rv = state.reviews && state.reviews.data ? state.reviews.data : null;
+    const ref = String(b.collectedAt || '').slice(0, 10) || new Date().toISOString().slice(0, 10);
+    const rows = [], row = (key, label, st, val, todo, src, sale) => rows.push({ key, label, st, val, todo, src, sale: sale || '' });
+    /* 1 가게 사진 — 사장님이 올린 사진이 검색 결과에 먼저, 2장 이상이면 등록 사진 2장 + 소식 영상·리뷰 사진 (도움말 20429 · AI 긴 문장 검색 카드도 등록 사진 2장이 먼저 25167) */
+    { const ph = D && Array.isArray(D.naverPhotos) ? D.naverPhotos : [], own = ph.filter(x => x && x.kind === '가게').length;
+      if (!ph.length) row('photo','가게 사진','na','네이버 사진을 읽지 못함','스마트플레이스 사진에 대표 메뉴·매장 사진이 2장 이상인지 확인','도움말 20429');
+      else if (own >= 2) row('photo','가게 사진','ok',`사장님이 올린 사진 <b>${own}장</b> 읽힘${ph.length >= 30 ? ' (30장까지만 셈)' : ''}`,'1·2번 사진이 검색 결과와 AI 검색 카드에 먼저 나옵니다 — 가장 자신 있는 메뉴·매장 사진으로','도움말 20429 · 25167');
+      else if (own === 1) row('photo','가게 사진','warn','사장님이 올린 사진 <b>1장</b>','1장이면 검색 결과에 거리뷰가 붙습니다 — 2장 이상 올리세요','도움말 20429');
+      else row('photo','가게 사진','warn','사장님이 올린 사진이 읽히지 않음','대표 메뉴·매장 사진을 2장 이상 — 그래야 검색 결과에 사장님 사진이 먼저 뜹니다','도움말 20429'); }
+    /* 2 메뉴 — 대표·신규 표시 메뉴가 검색 결과 메뉴판의 추천 영역에 먼저 (공지 1118, 2026.9.17) */
+    { const nm = D ? (D.naverMenus || []).filter(x => x && x.name) : [];
+      if (!nm.length) row('menu','메뉴','na','네이버 메뉴를 읽지 못함','플레이스 메뉴에 가격과 ‘대표’ 표시가 있는지 확인','공지 1118');
+      else { const rec = nm.filter(m => m.recommend).length, dsc = nm.filter(m => m.desc).length, img = nm.filter(m => m.image).length;
+        const upd = String(D.naverMenuUpdated || ''), age = upd ? daysBetween(upd, ref) : null;
+        const val = `${nm.length}개 · 대표 표시 <b>${rec}개</b> · 설명 ${dsc}개 · 사진 ${img}개${upd ? ` · 마지막 수정 ${esc(upd)}` : ''}`;
+        if (!rec) row('menu','메뉴','warn',val,'대표 메뉴 2~3개에 ‘대표’ 표시 — 검색 결과 메뉴판의 추천 메뉴 영역에 먼저 나옵니다','공지 1118');
+        else if (age !== null && age > 365) row('menu','메뉴','warn',val,'1년 넘게 그대로 — 가격·구성이 바뀌었으면 메뉴와 메뉴판 사진을 같이 고치세요','작성기준 7항');
+        else row('menu','메뉴','ok',val,'대표 표시와 가격이 지금과 맞는지 계절마다 — 메뉴명은 AI 요약 문구의 재료입니다','공지 1118 · 도움말 20415'); } }
+    /* 3 소개글 — 네이버는 업체 설명과 리뷰로 뜻을 맞춘다(SEO 가이드). AI 긴 문장 검색(25167)·요약 문구(20415)도 소개글을 읽는다 */
+    { const intro = noEmoji(String((P && P.info && P.info.intro) || (P && P.naverIntro) || '')).trim();
+      const places = kwPlaces(b).map(p => p.t).filter(Boolean), menus = kwRep(b).menus.map(c => c.t), sc = sceneTops(rv)[0];
+      if (!P || (!P.info && !P.naverIntro)) row('intro','소개글','na','소개글을 읽지 못함','스마트플레이스 업체정보의 소개글을 확인','SEO 가이드');
+      else if (!intro) row('intro','소개글','bad','비어 있음','동네·대표 메뉴·손님이 오는 이유를 문장으로 — 네이버는 소개글과 리뷰의 뜻을 맞춰 검색에 씁니다','SEO 가이드 · 도움말 25167');
+      else { const miss = [];
+        if (places.length && !places.some(w => intro.includes(w.replace(/역$/, '')))) miss.push(`동네 이름(${places[0]})`);
+        if (menus.length && !menus.slice(0, 4).some(w => intro.includes(w))) miss.push(`대표 메뉴(${menus[0]})`);
+        if (sc && !sc.scene.intro.test(intro)) miss.push(`손님이 오는 이유(${sc.scene.word})`);
+        row('intro','소개글', miss.length ? 'warn' : 'ok', `${num(intro.length,'자')}${miss.length ? ` · 빠진 말: <b>${esc(miss.join(' · '))}</b>` : ' · 동네·대표 메뉴·오는 이유가 다 들어 있음'}`,
+          miss.length ? '빠진 말을 문장으로 — 키워드를 늘어놓지 말고 손님에게 설명하듯. AI 긴 문장 검색과 요약 문구가 소개글을 읽습니다' : '메뉴·시설이 바뀌면 소개글도 같이',
+          'SEO 가이드 · 도움말 25167 · 20415'); } }
+    /* 4 정보 탭 — 등록한 정보에 따라 검색 결과에 보이는 항목 수가 달라진다 (도움말 20428). 찾아오는 길은 수집하지 않아 사람이 본다 */
+    { const I = P && P.info;
+      if (!I) row('info','정보 탭','na','정보 탭을 읽지 못함','편의시설·결제수단·주차·좌석을 스마트플레이스에서 확인','도움말 20428');
+      else { const F = [['편의시설', (I.facilities || []).length], ['결제수단', (I.payments || []).length], ['주차', I.parking ? 1 : 0], ['좌석·공간', (I.seats || []).length]];
+        const filled = F.filter(f => f[1] > 0).length, empty = F.filter(f => !f[1]).map(f => f[0]);
+        if (!filled) row('info','정보 탭','na','정보 탭 칸이 하나도 읽히지 않음','편의시설·결제수단·주차·좌석을 스마트플레이스에서 확인','도움말 20428');
+        else row('info','정보 탭', filled === 4 ? 'ok' : filled >= 2 ? 'warn' : 'bad', filled === 4 ? '편의시설·결제수단·주차·좌석이 모두 차 있음' : `비어 있는 칸: <b>${esc(empty.join(' · '))}</b>`,
+          `${filled === 4 ? '' : '빈칸을 채우세요 — 등록한 정보에 따라 검색 결과에 보이는 항목 수가 달라집니다. '}찾아오는 길(역 출구 기준)·영업시간·브레이크·라스트오더도 같이 확인`, '도움말 20428 · 작성기준 6항'); } }
+    /* 5 대표키워드 — 작성기준 10항: 한 낱말씩 5개까지, 업체명·홍보 말·나열은 지워질 수 있다. 검색은 업체명·업종·대표키워드의 단어 조합 (도움말 20403) */
+    { const cur = D ? (D.naverKeywords || []).map(k => String(k || '').trim()).filter(Boolean) : [];
+      const nameT = nameTokens(b.store && b.store.name, rv && rv.place && rv.place.name);
+      if (!cur.length) row('repkw','대표키워드','na','이번 수집에서 읽히지 않음','스마트플레이스 업체정보에서 5칸을 확인 — 아래 메뉴명·서비스 후보 참고','작성기준 10항');
+      else { const badK = cur.filter(k => PROMO_WORD.test(k) || /\s/.test(k) || nameT.some(t => k.replace(/[^가-힣A-Za-z0-9]/g, '').toLowerCase().includes(t)));
+        const val = `${cur.length}개 — ${cur.map(esc).join(' · ')}`;
+        if (badK.length) row('repkw','대표키워드','bad',val,`검수에서 지워질 수 있는 말: ${esc(badK.join(' · '))} — 업체명·‘맛집’ 같은 홍보 말·여러 낱말은 안 됩니다`,'작성기준 10항');
+        else if (cur.length < 5) row('repkw','대표키워드','warn',val,`${5 - cur.length}칸 비어 있음 — 아래 메뉴명·서비스 후보로`,'작성기준 10항 · 도움말 20403');
+        else row('repkw','대표키워드','ok',val,'메뉴명·서비스 낱말 5개','작성기준 10항'); } }
+    /* 6 업체명 — 간판·사업자등록증 이름만. 홍보 문구·지역명+일반명사·검색을 노린 이름은 반영되지 않는다 (작성기준 1항) */
+    { const nv = String((rv && rv.place && rv.place.name) || (D && D.name) || (b.store && b.store.name) || '').trim(), m = PROMO_WORD.exec(nv);
+      if (!nv) row('name','업체명','na','업체명을 읽지 못함','간판·사업자등록증 이름과 같은지 확인','작성기준 1항');
+      else if (m) row('name','업체명','bad',`‘${esc(nv)}’ — ‘${esc(m[0])}’`,'업체명에는 간판·사업자등록증 이름만 — 홍보 말은 작성기준상 등록되지 않고 편집될 수 있습니다','작성기준 1항');
+      else row('name','업체명','ok',`‘${esc(nv)}’`,'간판 이름 그대로 — 지역·메뉴를 업체명에 붙이자는 제안은 작성기준 위반입니다','작성기준 1항'); }
+    /* 7 소식 — 공지로 걸면 최대 45일(30일 권장, 공지 822). 소식 영상은 검색 결과 사진 옆에 붙을 수 있다 (도움말 20429) */
+    { const feed = D ? (D.naverFeed || []).filter(x => x && (x.title || x.text)) : [];
+      const read = D && D.naverPages ? Boolean(D.naverPages.feed) : feed.length > 0;
+      const dates = feed.map(x => String(x.date || '').slice(0, 10)).filter(s => /^\d{4}-\d{2}-\d{2}$/.test(s)).sort();
+      const last = dates[dates.length - 1] || '', age = last ? daysBetween(last, ref) : null;
+      const todo = '메뉴·재료·휴무 소식을 한 달에 한두 번 — 공지로 걸면 최대 45일, 소식 영상은 검색 결과 사진 옆에 붙을 수 있습니다';
+      if (!read && !feed.length) row('feed','소식','na','소식 쪽을 읽지 못함','스마트플레이스 소식에 최근 글이 있는지 확인','공지 822');
+      else if (!feed.length) row('feed','소식','bad','소식이 없음',todo,'공지 822 · 도움말 20429');
+      else if (age === null) row('feed','소식','warn',`${num(feed.length,'건')} 읽힘 · 날짜를 못 읽음`,todo,'공지 822 · 도움말 20429');
+      else row('feed','소식', age <= 45 ? 'ok' : age <= 120 ? 'warn' : 'bad', `마지막 소식 <b>${esc(num(age,'일'))} 전</b> (${esc(last)}) · 읽힌 ${num(feed.length,'건')}`, age <= 45 ? '지금처럼 — 공지로 걸면 최대 45일까지 보입니다' : todo, '공지 822 · 도움말 20429'); }
+    /* 8 최근 리뷰 — AI 브리핑·요약 문구는 최근 리뷰가 쌓인 가게에 붙는다 (공지 1059 · 도움말 20415). 부탁은 괜찮고 점수·내용 요구는 제재 (25089) */
+    { const V = rv && rv.velocity;
+      if (!V || !has(V.last3)) row('recent','최근 리뷰','na','리뷰가 쌓이는 속도를 계산하지 못함','최근 3개월에 방문자 리뷰가 몇 건인지 확인','도움말 25089');
+      else { const n3 = Number(V.last3), st = n3 >= 9 ? 'ok' : n3 >= 3 ? 'warn' : 'bad';
+        row('recent','최근 리뷰', st, `최근 3개월 <b>${V.capped ? '≥ ' : ''}${esc(num(n3,'건'))}</b>${has(V.perMonth) ? ` · 월 ${esc(String(V.perMonth))}건` : ''}`,
+          st === 'ok' ? '리뷰가 계속 들어옵니다 — AI 브리핑·요약 문구는 최근 리뷰가 쌓인 가게에 붙습니다' : '리뷰를 부탁하는 동선을 — 계산대·테이블에 영수증 리뷰 안내. 부탁은 괜찮고 점수·내용을 정해 달라는 건 제재 대상입니다',
+          '공지 1059 · 도움말 25089', st === 'ok' ? '' : '하이오더 주문내역 화면 「네이버 플레이스 리뷰」 QR로 영수증 촬영 없이 — OKPOS 20251024 이상·포스의 플레이스 연동이 조건 (매뉴얼 10245)'); } }
+    /* 9 사장님 답글 — 답글이 순위를 올린다는 공식 문장은 없다. 리뷰를 읽는 다른 손님에게 보이는 태도로 본다. 감정 표현·개인정보 금지 (20545 · 25089) */
+    { const V = rv && rv.velocity;
+      if (!V || !has(V.replyRate)) row('reply','사장님 답글','na','답글 비율을 계산하지 못함','최근 리뷰에 답글이 달려 있는지 확인','도움말 20545');
+      else { const r = Number(V.replyRate), st = r >= 50 ? 'ok' : r >= 20 ? 'warn' : 'bad';
+        row('reply','사장님 답글', st, `<b>${esc(String(r))}%</b> (가져온 ${esc(num(V.dated,'건'))} 중 ${esc(num(V.replied,'건'))})`,
+          '불만 글부터 — 사과, 원인과 고친 것, 다시 오시면 — 세 줄로. 감정 표현·손님 개인정보는 빼고 실제로 한 조치만 씁니다', '도움말 20545 · 25089'); } }
+    /* 10 네이버 예약 — 네이버 발간 연구(2022, 성균관대 김지영 교수팀 · 음식점·미용실): 예약이 유입을 가장 크게 늘림(3.1배). 쿠폰은 검색 목록에 아이콘 (도움말 20840) */
+    { if (!rv || typeof rv.booking !== 'boolean') row('booking','네이버 예약','na','예약 여부를 읽지 못함','플레이스에 예약 버튼이 있는지 확인','D-플레이스 리포트 2022');
+      else if (rv.booking) row('booking','네이버 예약','ok','예약 받는 중','쿠폰을 만들면 검색 목록에 쿠폰 아이콘이 붙습니다 — 리뷰를 쓰려고 만든 허위 예약은 제재 대상','도움말 20840 · 25089');
+      else row('booking','네이버 예약','warn','네이버 예약 없음','자리가 적으면 한가한 시간대만이라도 — 네이버가 낸 연구(2022, 음식점·미용실)에서 예약이 유입을 가장 크게 늘렸습니다(3.1배)','D-플레이스 리포트 2022'); }
+    const cnt = (s) => rows.filter(r => r.st === s).length;
+    return { rows, ok: cnt('ok'), warn: cnt('warn'), bad: cnt('bad'), na: cnt('na'), known: rows.length - cnt('na') };
+  }
+  /* 리뷰가 나중에 오면(Apify 대체) 점검 줄도 다시 — 장 전체가 아니라 본문 상자만 바꾼다 (배경 글자·연필 자리 보존) */
+  function repaintPlaceCheck(){
+    const box = document.getElementById('pcBox'); if (!box || !state.bundle) return;
+    let r = null; try { r = renderKeyword(state.bundle); } catch (e) { console.error('keyword', e); }
+    if (!r) return;
+    box.outerHTML = r.html;
+    const meta = document.querySelector('#sec-keyword > .hd .meta'); if (meta) meta.textContent = r.meta || '';
+  }
+
+  /* ── 검색어 후보 (v2.x, v3.33부터 소개글·소식용) ──
+     지역어 × 업종어 × 상황어로 손님이 칠 법한 말을 조합한다. 대표키워드 칸이 아니라 소개글·소식·체험단 글에 문장으로 쓰는 말이다
+     (대표키워드는 메뉴명·서비스 한 낱말 — 작성기준 10항). 검색량은 데이터랩 상대값으로만 본다. */
 
   const KW_OCC = [
     { w:'회식',   adj:'회식',     place:true  },
@@ -4016,36 +4291,67 @@ ${GUARD}`,
   }
 
   function renderKeyword(b){
-    const K = kwBuild(b);
-    if (!K) return null;
-    const asks = K.top.concat(K.rest).filter(c => c.ask);
-    const seen = [];
-    asks.forEach(c => { if (!seen.includes(c.ask)) seen.push(c.ask); });
-
-    const half = Math.ceil(K.rest.length / 2);
-    const restCol = (arr) => `<ul class="kwcol">${arr.map(c => `<li>${esc(c.t)}<span class="why">${esc(c.why)}</span></li>`).join('')}</ul>`;
-    const html = `<div class="mz">
-       <div class="b s12"><p class="k">스마트플레이스 대표키워드 5칸에 넣을 후보</p>
-       <ol class="kwtop" data-rule="vl,hb">${K.top.map(c =>
-         `<li><span class="kt">${esc(c.t)}</span><span class="kw9">${esc(c.why)}</span></li>`).join('')}</ol>
-       <p class="src9">지역 이름과 세부 업종을 붙인 형태입니다. ‘맛집’·‘추천’처럼 누구나 쓰는 말은 뺐습니다.
-         아래 검색 추이로 실제로 검색되는 후보인지 확인한 뒤, 다섯 개를 그대로 넣기 전에 사장님과 한 번 읽어 보세요.</p></div>
-       <div class="b s12 top" id="kwTrendBox">${kwTrendHTML()}</div>
-       ${K.rest.length ? `<div class="b s12 top"><p class="k">소개글·메뉴명·블로그에 섞어 쓸 후보 ${esc(num(K.rest.length,'개'))}</p></div>
-       <div class="b s6 tight">${restCol(K.rest.slice(0, half))}</div><div class="b s6 tight rail">${restCol(K.rest.slice(half))}</div>` : ''}
-       ${seen.length ? `<div class="b s12"><div class="flag2"><div class="eyebrow">ASK</div>
-        <div class="lead-read">사장님께 먼저 여쭐 것 — ${esc(seen.join(' / '))}</div>
-        <p class="src9">주변에 주차장이 많다고 우리 가게에 주차가 되는 것은 아닙니다. 확인 못 한 말을 넣으면 손님이 헛걸음합니다.</p></div></div>` : ''}
-       <div class="b s12 top"><p class="k">키워드만으로는 안 오릅니다</p>
-       <ul class="tips">
-         <li><b>편의시설 체크</b>가 따로 잡습니다 — 주차·단체석·예약은 키워드가 아니라 스마트플레이스 편의시설에서 켜세요.</li>
-         <li><b>영수증 리뷰</b>가 일반 리뷰보다 무겁게 셉니다 — 실제 방문 증거라서 그렇습니다.</li>
-         <li><b>문장형은 검색어가 아닙니다</b> — ‘주차장이 있는 식당’이 아니라 ‘${esc(K.places[0].t)} 주차되는 ${esc(K.kinds[0].t)}’처럼 씁니다.</li>
-         <li>소식·사진을 손대지 않으면 키워드를 바꿔도 순위가 잘 움직이지 않습니다.</li>
-       </ul></div>
+    const C = placeCheck(b), K = kwBuild(b), O = kwOrder(b), R = kwRep(b);
+    if (!C.known && !K) return null;
+    const W = { ok:'양호', warn:'보완', bad:'고칠 것', na:'확인 못 함' };
+    const rows = C.rows.map(r => `<li class="pc-${r.st}"><span class="pst ${r.st}">${W[r.st]}</span>
+      <div class="pc-b"><b class="pc-l">${esc(r.label)}</b><span class="pc-v">${r.val}</span><span class="pc-t">→ ${r.todo}</span>${r.sale ? `<span class="pc-s sale">영업 — ${r.sale}</span>` : ''}</div>
+      <span class="pc-src">${esc(r.src)}</span></li>`).join('');
+    const list = (arr) => `<ol class="kwl">${arr.map(c => `<li><span class="kt2">${esc(c.t)}</span><span class="kw9">${esc(c.why)}</span></li>`).join('')}</ol>`;
+    const cur = (R.current || []).length ? `지금 등록된 것: ${R.current.map(esc).join(' · ')}` : '지금 등록된 대표키워드는 이번 수집에서 읽히지 않았습니다 — 스마트플레이스에서 확인하세요.';
+    let search = '';
+    if (K) {
+      const asks = K.top.concat(K.rest).filter(c => c.ask), seen = [];
+      asks.forEach(c => { if (!seen.includes(c.ask)) seen.push(c.ask); });
+      const half = Math.ceil(K.rest.length / 2);
+      const restCol = (arr) => `<ul class="kwcol">${arr.map(c => `<li>${esc(c.t)}<span class="why">${esc(c.why)}</span></li>`).join('')}</ul>`;
+      const T = state.kwTrend, tKey = (kwTrendKeys(b) || []).join('|');
+      const trendBox = state.cust && !(T && T.ok && T.key === tKey) ? '' : `<div class="b s12 top" id="kwTrendBox">${kwTrendHTML()}</div>`;   // 고객용에는 받아 온 추이만
+      search = `<div class="b s12 top"><p class="k">손님이 검색하는 말 — 소개글·소식에 문장으로</p>
+        <ol class="kwtop" data-rule="vl,hb">${K.top.map(c => `<li><span class="kt">${esc(c.t)}</span><span class="kw9">${esc(c.why)}</span></li>`).join('')}</ol>
+        <p class="src9">지역 이름에 업종·상황을 붙인 말입니다(‘맛집’·‘추천’처럼 누구나 쓰는 말은 뺐습니다). 대표키워드 칸이 아니라 소개글·소식·체험단 글에 손님에게 설명하듯 넣으세요 — 네이버는 소개글과 리뷰의 뜻을 맞춰 ‘역 근처 아이와 갈 만한 고깃집’ 같은 긴 문장 검색에도 씁니다(도움말 25167, 음식점).</p></div>
+        ${trendBox}
+        ${K.rest.length ? `<div class="b s12 top kwrest"><p class="k">글에 섞어 쓸 말 ${esc(num(K.rest.length,'개'))}</p></div>
+        <div class="b s6 tight kwrest">${restCol(K.rest.slice(0, half))}</div><div class="b s6 tight rail kwrest">${restCol(K.rest.slice(half))}</div>` : ''}
+        ${seen.length ? `<div class="b s12"><div class="flag2"><div class="eyebrow">ASK</div>
+          <div class="lead-read">사장님께 먼저 여쭐 것 — ${esc(seen.join(' / '))}</div>
+          <p class="src9">주변에 주차장이 많다고 우리 가게에 주차가 되는 것은 아닙니다. 확인 못 한 말을 넣으면 손님이 헛걸음합니다.</p></div></div>` : ''}`;
+    }
+    const html = `<div class="mz" id="pcBox">
+      <div class="b s12"><div class="pcsum"><span class="big">${C.known ? C.ok : '—'}<small>/ ${C.known}</small></span>
+          <p class="lead-read">네이버가 공개한 기준으로 본 기본기 — 확인한 ${C.known}줄 중 양호 ${C.ok} · 보완 ${C.warn} · 고칠 것 ${C.bad}${C.na ? ` · 확인 못 함 ${C.na}` : ''}</p></div>
+        <p class="src9">네이버 플레이스 순위는 검색어와 가게 정보가 맞는 정도(유사도)·인기도·거리·정보 충실성으로 정해지고, 네이버는 순위를 보장하거나 요청으로 조정하지 않습니다(스마트플레이스 SEO 가이드 · 도움말 20440). 아래는 그중 사장님이 채울 수 있는 것만, 이번 수집으로 읽은 값입니다. <b>이 숫자는 밑그림의 점검 기준이며 네이버 순위 점수가 아닙니다.</b></p>
+        <ol class="pchk">${rows}</ol></div>
+      <div class="b s6 top"><p class="k">리뷰 키워드 — 위 5개를 이렇게</p>${O.length ? list(O) : '<p class="src9">손님이 고른 키워드와 방문 태그가 없어 후보를 만들지 않았습니다.</p>'}
+        <p class="src9">스마트플레이스 › 리뷰 › 키워드 설정에서 끌어서 순서를 정하면 위 5개가 손님 리뷰 화면에 먼저 나옵니다(공지 982, 2026.3.26). 손님이 이미 많이 고른 강점과 손님이 오는 이유를 위에 두는 규칙입니다 — 순위를 올리는 설정이 아니라, 가게의 강점이 리뷰 통계에 쌓이게 하는 설정입니다. 목록은 2022년 공지 기준이라 설정 화면에 있는 말만 고르세요.</p></div>
+      <div class="b s6 top rail"><p class="k">대표키워드 5칸 — 메뉴명·서비스 낱말로</p>${R.cand.length ? list(R.cand) : '<p class="src9">메뉴를 읽지 못해 후보를 만들지 않았습니다.</p>'}
+        <p class="src9">작성기준: 업체를 설명하는 메뉴명·제공 서비스·상품을 한 낱말씩 5개까지. 업체명·‘맛집’ 같은 홍보 말·낱말 나열은 검수에서 지워질 수 있습니다(작성기준 10항). ${cur}</p></div>
+      ${search}
+      <div class="b s6 top"><p class="k">하면 안 되는 것 — 한 번만 걸려도 가게 리뷰 전체가 안 보입니다</p>
+        <ul class="tips">
+          <li><b>가짜·조작 영수증</b>, 리뷰를 쓰려고 만든 <b>허위 예약</b></li>
+          <li>리워드 앱·대행사를 통한 <b>방문하지 않은 리뷰</b>와 클릭·트래픽 작업</li>
+          <li>직원이 손님 영수증이나 휴대폰으로 <b>대신 찍어 올리기</b></li>
+          <li>“4점 이상”, “좋게 써 주세요”처럼 <b>점수·내용을 정해 달라는 부탁</b> — 리뷰를 부탁하는 것 자체는 괜찮습니다</li>
+          <li>리뷰 이벤트에 <b>중간계산서</b>를 쓰게 하기 — 인증이 안 되는 영수증입니다. 음료 같은 대가를 주면 리뷰에 대가를 받았다고 적도록 안내하세요</li>
+        </ul>
+        <p class="src9">공지 957(2026.1.27) · 도움말 25089 · 영수증 기준 9766 · 리뷰 이용정책 · 공정위 추천·보증 심사지침. 걸리면 가게의 모든 리뷰가 안 보이고 AI 브리핑이 지워집니다.</p></div>
+      <div class="b s6 top rail"><p class="k">이런 전화를 받으면</p>
+        <ul class="tips">
+          <li><b>네이버는 업체 관리를 이유로 먼저 전화하지 않습니다</b> — 폐업 확인 ARS만 있습니다</li>
+          <li><b>“상위 노출 보장”</b>은 없습니다 — 네이버는 순위를 보장하거나 요청으로 조정하지 않는다고 밝힙니다</li>
+          <li>스마트플레이스는 광고가 아니라 <b>대행 수수료가 없습니다</b> — 월 관리비·위약금 계약을 조심하세요</li>
+          <li>업체명에 지역·메뉴를 붙이자는 제안 — <b>작성기준 위반</b>입니다 (간판·사업자등록증 이름만)</li>
+        </ul>
+        <p class="src9">공지 740(2024.4.11) · 도움말 20440 · 작성기준 1항</p></div>
+      <div class="b s12 top sale"><p class="k">영업 메모</p>
+        <ul class="tips">
+          <li>리뷰 흐름이 약한 매장 — 하이오더 주문내역 화면의 <b>「네이버 플레이스 리뷰」 QR</b>(자동 팝업 설정 가능)로 영수증 촬영 없이. 조건: <b>OKPOS 20251024 이상</b>과 포스의 네이버 플레이스 연동 (매뉴얼 10245 · 2026-05 기준)</li>
+          <li>네이버 <b>플레이스 플러스(place+)</b>는 포스 연동 서비스입니다 — 2026년 8월 기준 15개 포스, 검색 배지·전용 필터·영수증 없는 리뷰 (공지 1078). 하이오더 리뷰 QR도 포스의 플레이스 연동 위에서 돕니다</li>
+          <li>네이버가 9월 11일 공지로 <b>‘유니온 스마트오더’</b>(네이버 로그인 QR 주문 → 영수증 없는 리뷰·‘재방문 많은’ 배지)를 알리고 있습니다 — 사장님이 먼저 물으면 위 두 줄로 답하세요 (공지 1113)</li>
+        </ul></div>
     </div>`;
-
-    return { html, meta: `조합 규칙 · 후보 ${K.total}개 · 검색 추이는 데이터랩` };
+    return { html, meta: `네이버 공식 기준 점검 · 기본기 ${C.known ? `${C.ok}/${C.known}` : '—'}${C.na ? ` · 확인 못 함 ${C.na}` : ''} — 네이버 순위 점수가 아닙니다` };
   }
 
   /* ── 후보 5개의 검색 추이 (v3.00) — 8장과 같은 데이터랩 꺾은선. 값은 5개 중 최고를 100으로 둔 상대값이라
@@ -4076,12 +4382,12 @@ ${GUARD}`,
     const one = (td.series||[]).filter(x => (x.points||[]).length).length === 1;
     const chart = trendChart(td, one ? { ribbon:true } : { mountain:true });
     const peak = (sr) => sr.peak && has(sr.peak.ratio) ? Number(sr.peak.ratio) : 0;
-    const grade = (v) => v >= 30 ? '검색됩니다' : v >= 5 ? '약하게 검색됩니다' : '거의 검색되지 않습니다 — 소개글·메뉴명용';
+    const grade = (v) => v >= 30 ? '검색됩니다' : v >= 5 ? '약하게 검색됩니다' : '거의 검색되지 않습니다';
     const rows = (td.series||[]).map((sr,i) => `<li${peak(sr) < 5 ? '' : ''}><span class="no">${String(i+1).padStart(2,'0')}</span><i style="background:${TREND_COLORS[i%TREND_COLORS.length]}"></i><span class="nm">${esc(sr.keyword)}<span class="why">${esc(grade(peak(sr)))}</span></span><span class="v">${esc(peak(sr))}</span></li>`).join('');
     return `<p class="k">후보 5개의 검색 추이 <span style="font-weight:400;color:var(--faint)">데이터랩 · 가장 많이 검색된 후보를 100으로 둔 상대값</span></p>
       ${chart || '<p class="src9">데이터랩이 값을 주지 않았습니다 — 검색이 거의 없는 말들입니다.</p>'}
       ${rows ? `<ol class="rank kwrank" style="margin-top:18px">${rows}</ol>` : ''}
-      <p class="src9">절대 검색량이 아니라 다섯 후보 사이의 비율입니다. 0에 붙는 후보는 지금 검색되지 않는 말이니 대표키워드 5칸보다 소개글·메뉴명에 쓰세요. 8장 메뉴 검색 추이와 같은 자료입니다. ${g}</p>`;
+      <p class="src9">절대 검색량이 아니라 다섯 후보 사이의 비율입니다. 검색되는 말부터 소개글·소식 문장에 쓰세요 — 0에 붙는 말은 지금 검색되지 않는 말입니다. 「메뉴 검색 추이」 장과 같은 자료입니다. ${g}</p>`;
   }
   function paintKwTrend(){ const box = document.getElementById('kwTrendBox'); if (box) box.innerHTML = kwTrendHTML(); }
   async function fetchKwTrend(){
@@ -4223,7 +4529,7 @@ ${GUARD}`,
     const X = d.extraOrder, V = d.visitors, RVS = d.revisit, VT = d.visitTags, BZ = d.busy, rows = [];
     const smp = (s) => s ? `<br><span class="src9">${esc(s.source || '')}${s.date ? ` · ${esc(s.date)}` : ''} · “${esc(s.text)}”</span>${s.ko ? `<br><span class="src9">번역 · “${esc(s.ko)}”</span>` : ''}` : '';
     if (X && X.count) rows.push(['추가 주문', `리뷰에 <b>${esc(num(X.count,'건'))}</b>${X.withCall ? ` · 그중 직원을 불러야 했던 글 <b>${esc(num(X.withCall,'건'))}</b>` : ''}${smp(X.recent && X.recent[0])}`]);
-    if (V && (V.segments || []).length) rows.push(['누가 오나', `${V.segments.map(s => `${esc(s.label)} <b>${esc(num(s.n))}</b>`).join(' · ')} <span class="src9">— 글 ${esc(num(V.scanned,'건'))} 중 적힌 글</span>${smp(V.segments[0].sample)}`]);
+    if (V && (V.segments || []).length) rows.push(['누가 오나', `${V.segments.map(s => `${esc(segLabel(s.label))} <b>${esc(num(s.n))}</b>`).join(' · ')} <span class="src9">— 글 ${esc(num(V.scanned,'건'))} 중 적힌 글</span>${smp(V.segments[0].sample)}`]);
     if (RVS && RVS.withCount) rows.push(['실제 재방문', `네이버 리뷰 ${esc(num(RVS.withCount,'건'))} 중 두 번 이상 온 손님 <b>${esc(String(RVS.pct))}%</b> (${esc(num(RVS.repeat,'건'))})${RVS.heavy ? ` · 다섯 번 이상 ${esc(num(RVS.heavy,'건'))}` : ''} <span class="src9">— 리뷰 카드의 ‘N번째 방문’</span>`]);
     if (VT && (VT.cats || []).length) vtCats(VT).slice(0, 5).forEach(cc => rows.push([cc.name, `${cc.keywords.map(k => `${esc(k.name)} <b>${esc(num(k.n))}</b>`).join(' · ')} <span class="src9">— 태그 단 리뷰 ${esc(num(cc.n,'건'))}</span>`]));
     if (BZ && BZ.days && BZ.dayN >= 10) { const D = ['월','화','수','목','금','토','일'];
@@ -4231,7 +4537,7 @@ ${GUARD}`,
     if (BZ && (BZ.peaks || []).length) rows.push(['붐빈다는 글', `${BZ.peaks.map(p => `${esc(p.label)} <b>${esc(num(p.n,'건'))}</b>`).join(' · ')}${smp(BZ.peaks[0].sample)}`]);
     if (!rows.length) return '';
     return `<p class="deck md" style="margin-top:46px">리뷰에서 더 읽은 것</p>
-      <p class="src9">리뷰에 적힌 말과 네이버 리뷰 카드로 센 값입니다. 리뷰를 쓴 손님 기준이라 전체 손님 비율과는 다릅니다.</p>${tbl(rows)}`;
+      <p class="src9">리뷰에 적힌 말과 네이버 리뷰 카드로 센 값입니다. 리뷰를 쓴 손님 기준이라 전체 손님 비율과는 다릅니다.</p>${tbl(rows)}${sceneRxHTML(d)}`;
   }
   function questionsHTML(d){
     const Q = d && d.questions; if (!Q || !Q.total) return '';
@@ -4296,8 +4602,8 @@ ${GUARD}`,
           <div class="lead-ref">% · 가져온 ${esc(num(V.dated,'건'))} 중 ${esc(num(V.replied,'건'))}에 답글</div></div>` : ''}
       </div>`;
       readV = fast
-        ? `<p class="src9 sale">읽는 법: 리뷰가 빠르게 쌓이는 매장입니다 — 리뷰 수 대신 <b>답글 비율</b>과 아래 불만 신호를 보세요. 네이버는 2021년부터 별점 대신 키워드 평가라 옛 리뷰는 적게 보일 수 있습니다.</p>`
-        : `<p class="src9 sale">읽는 법: 리뷰가 느리게 쌓이는 매장이면 하이오더 주문내역 화면의 「네이버 플레이스 리뷰」 QR로 영수증 촬영 없이 영수증 리뷰를 남기게 할 수 있습니다 — 현재 <b>OKPOS(20251024 이상) 매장만</b> 되므로 방문 때 포스 제조사를 확인하세요 (하이오더 매뉴얼 10245 · 2026-05 기준). 네이버는 2021년부터 별점 대신 키워드 평가라 옛 리뷰는 적게 보일 수 있습니다.</p>`;
+        ? `<p class="src9 sale">읽는 법: 리뷰가 빠르게 쌓이는 매장입니다 — 리뷰 수 대신 <b>답글 비율</b>과 아래 불만 신호를 보세요. 네이버는 2021년 10월부터 2026년 4월까지 별점을 받지 않아(키워드 평가) 그 사이 리뷰에는 별점이 없습니다.</p>`
+        : `<p class="src9 sale">읽는 법: 리뷰가 느리게 쌓이는 매장이면 하이오더 주문내역 화면의 「네이버 플레이스 리뷰」 QR로 영수증 촬영 없이 영수증 리뷰를 남기게 할 수 있습니다 — 현재 <b>OKPOS(20251024 이상) 매장만</b> 되므로 방문 때 포스 제조사를 확인하세요 (하이오더 매뉴얼 10245 · 2026-05 기준). 네이버는 2021년 10월부터 2026년 4월까지 별점을 받지 않아(키워드 평가) 그 사이 리뷰에는 별점이 없습니다.</p>`;
     }
 
     const srcList = Object.values(d.sources||{});
@@ -4315,7 +4621,7 @@ ${GUARD}`,
         c: n<=2 ? '#EC3013' : RAMP5[5-n], hot: n<=2 })).filter((x,i)=>i<4 || x.v>0);
       dist = `<p class="k">별점 분포 <span style="font-weight:400;color:var(--faint)">${ST ? `네이버 전체 — 별점 남긴 ${esc(num(ratedN,'건'))} 중 3점 이하 ${esc(num(ST.low,'건'))}` : `별점이 있는 ${esc(num(d.rated,'건'))}`}</span></p>
         ${columnsSVG(bars, { H:220, cw:56, shadow:110 })}${legendCols(bars)}
-        ${has(d.unrated) ? `<p class="src9">별점 없는 리뷰 ${esc(num(d.unrated,'건'))}${has(d.ratingAvg)?` · 별점 평균 ${esc(d.ratingAvg)}`:''} — 네이버는 2021년부터 별점 대신 키워드로 평가합니다. 위 막대는 별점이 있는 것만 센 값입니다.</p>` : ''}`;
+        ${has(d.unrated) ? `<p class="src9">별점 없는 리뷰 ${esc(num(d.unrated,'건'))}${has(d.ratingAvg)?` · 별점 평균 ${esc(d.ratingAvg)}`:''} — 네이버는 2021년 10월에 별점을 멈췄다가 2026년 4월 6일 방문분부터 다시 받습니다(7월 9일부터 공개). 위 막대는 별점이 있는 것만 센 값입니다.</p>` : ''}`;
     }
     let kws = '';
     const VT = d.stats && d.stats.voted && (d.stats.voted.top||[]).length ? d.stats.voted : null;
@@ -4384,7 +4690,7 @@ ${GUARD}`,
 
   function paintReviews(){ const box = document.getElementById('reviewBox'); if (box) box.innerHTML = renderReviews(); refreshRx();
     window.dispatchEvent(new Event('sketch:reviews'));                  // v3.30: 연필 — 리뷰 불만 낱말 자동 동그라미를 다시 친다
-    if (state.reviews && !state.reviews.running) { repaintSection('summary'); numberSumLinks(); if (state.reviews.data && state.bundle) rememberBundle(state.bundle); } }
+    if (state.reviews && !state.reviews.running) { repaintSection('summary'); repaintPlaceCheck(); numberSumLinks(); if (state.reviews.data && state.bundle) rememberBundle(state.bundle); } }
 
   /* 리뷰 결과에 딸려 온 플레이스 기본정보를 묶음에 합치고 리포트를 다시 그린다.
      1장(영업일·주차·편의시설)·4장·9장·10장이 이 값을 읽으므로 통째로 다시 그리되, 보던 자리는 지킨다. */
@@ -5096,14 +5402,16 @@ ${GUARD}`,
       const XO2 = rv.extraOrder, VS2 = rv.visitors, RV2 = rv.revisit, VT2 = rv.visitTags, BZ2 = rv.busy, TO2 = rv.tableOrder;
       if (TO2 && ((TO2.kiosk && TO2.kiosk.count) || (TO2.issues && TO2.issues.count) || (TO2.hiorder && TO2.hiorder.count))) L.push(`- 주문 기기 세부: 카운터 키오스크 ${TO2.kiosk ? TO2.kiosk.count : 0}건 · 기존 기기 불만 ${TO2.issues ? TO2.issues.count : 0}건 · 하이오더 언급 ${TO2.hiorder ? TO2.hiorder.count : 0}건${((TO2.issues && TO2.issues.hits) || []).length ? ` — 불만 예: ${md(TO2.issues.hits.map((h) => `${h.date || ''} "${h.text}"`).join(' / '))}` : ''}`);
       if (XO2 && XO2.count) L.push(`- 추가 주문 언급: ${XO2.count}건${XO2.withCall ? ` (직원을 불러야 했던 글 ${XO2.withCall}건)` : ''}${(XO2.recent || []).length ? ` — ${md(XO2.recent.map((r) => `${r.date || ''} "${r.text}"`).join(' / '))}` : ''}`);
-      if (VS2 && (VS2.segments || []).length) L.push(`- 리뷰에 적힌 손님 구성: ${md(VS2.segments.map((s) => `${s.label} ${s.n}`).join(', '))} (글 ${VS2.scanned}건 중 적힌 글 — 한 글이 여러 갈래일 수 있음)`);
+      if (VS2 && (VS2.segments || []).length) L.push(`- 리뷰에 적힌 손님 구성: ${md(VS2.segments.map((s) => `${segLabel(s.label)} ${s.n}`).join(', '))} (글 ${VS2.scanned}건 중 적힌 글 — 한 글이 여러 갈래일 수 있음)`);
       if (RV2) L.push(`- 실제 재방문(네이버 리뷰 카드 'N번째 방문'): ${RV2.withCount}건 중 두 번 이상 ${RV2.repeat}건 (${RV2.pct}%)${RV2.heavy ? `, 다섯 번 이상 ${RV2.heavy}건` : ''}`);
       if (VT2 && (VT2.cats || []).length) L.push(`- 네이버 방문 태그(태그 단 리뷰 ${VT2.reviews}건): ${md(vtCats(VT2).map((cc) => `${cc.name} — ${cc.keywords.map((k) => `${k.name} ${k.n}`).join(', ')}`).join(' / '))} (대기 시간의 '30분 이내'는 30분 안쪽이고, 30분 넘게 기다린 글은 '30분 이상'입니다)`);
       if (BZ2 && BZ2.days && BZ2.dayN >= 10) L.push(`- 방문 요일(네이버 리뷰 방문일 ${BZ2.dayN}건): ${['월','화','수','목','금','토','일'].map((w, i) => `${w} ${BZ2.days[i]}`).join(', ')} · 주말 ${BZ2.weekendPct}%${(BZ2.peaks || []).length ? ` · 붐빈다는 글: ${BZ2.peaks.map((p) => `${p.label} ${p.n}`).join(', ')}` : ''}`);
       if ((XO2 && XO2.count) || (VS2 && (VS2.segments || []).length) || RV2 || (BZ2 && BZ2.dayN >= 10)) L.push('- 규칙: 추가 주문·손님 구성·재방문·요일은 리뷰를 쓴 손님 기준입니다. 전체 손님 비율처럼 쓰지 말고 "리뷰에 적힌 기준"이라고 밝히세요.');
+      const SL2 = sceneLines(rv);                                        // v3.33: 표로 할 일 (영업용 · 규칙 판정)
+      if (SL2.length) { L.push('- 표로 할 일 (리뷰를 쓴 손님 기준 · 규칙 판정 · 하이오더 기능 이름은 매뉴얼 번호):'); SL2.forEach((x) => L.push(`  - ${md(String(x.d).replace(/<[^>]+>/g, ''))} → ${md(String(x.p).replace(/<[^>]+>/g, ''))}`)); }
       const rc = rv.ratingCounts || {};
       if (has(rv.rated) && rv.sources && rv.sources.naver && !rv.sources.naver.error) {
-        L.push(`- 네이버는 2021년부터 별점 대신 키워드로 평가하므로 최근 리뷰에는 별점이 없습니다. 네이버 별점 분포는 옛 리뷰만 센 것이니 대표값으로 쓰지 마세요.${rv.rated ? ` (별점 있는 ${rv.rated}건: ${[5, 4, 3, 2, 1].map((n) => `${n}점 ${Number(rc[n] || 0)}건`).join(', ')})` : ''}`);
+        L.push(`- 네이버는 2021년 10월부터 2026년 4월까지 별점을 받지 않았습니다(2026년 4월 6일 방문분부터 다시 받고 7월 9일부터 공개). 그 사이 리뷰에는 별점이 없으니 별점 분포를 대표값으로 쓰지 마세요.${rv.rated ? ` (별점 있는 ${rv.rated}건: ${[5, 4, 3, 2, 1].map((n) => `${n}점 ${Number(rc[n] || 0)}건`).join(', ')})` : ''}`);
       }
       if ((rv.keywords || []).length) {
         L.push(`- 네이버 손님이 고른 키워드: ${md(rv.keywords.map((k) => `${k.word} ${k.count}`).join(', '))}`);
@@ -5202,36 +5510,60 @@ ${GUARD}`,
     L.push('');
 
     const KW = (typeof kwBuild === 'function') ? kwBuild(b) : null;
-    L.push('## 11. 플레이스 노출 키워드 후보 (조합 규칙 · 검색 추이는 데이터랩 상대값)');
+    /* v3.33: 네이버 플레이스 점검 — 네이버 공식 문서 기준 (판정 기준값은 밑그림 규칙) */
+    const PC = placeCheck(b), KO = kwOrder(b), KR = kwRep(b), strip = (h) => String(h || '').replace(/<[^>]+>/g, '');
+    const WD = { ok:'양호', warn:'보완', bad:'고칠 것', na:'확인 못 함' };
+    L.push('## 11. 네이버 플레이스 점검 (네이버 공식 문서 기준 · 판정 기준값은 밑그림 규칙 — 네이버 순위 점수가 아닙니다)');
+    L.push('- 네이버 공식: 순위는 유사도·인기도(언급수·이미지수·클릭수 등)·거리·정보 충실성으로 정하고, 순위를 보장하거나 요청으로 조정하지 않는다 (스마트플레이스 SEO 가이드 · 도움말 20440).');
+    L.push(`- 기본기: 확인한 ${PC.known}줄 중 양호 ${PC.ok} · 보완 ${PC.warn} · 고칠 것 ${PC.bad}${PC.na ? ` · 확인 못 함 ${PC.na}` : ''}`);
+    L.push('| 항목 | 판정 | 읽은 값 | 할 일 | 근거 |');
+    L.push('|---|---|---|---|---|');
+    PC.rows.forEach((r) => L.push(`| ${md(r.label)} | ${WD[r.st]} | ${md(strip(r.val))} | ${md(strip(r.todo))}${r.sale ? ` (영업: ${md(strip(r.sale))})` : ''} | ${md(r.src)} |`));
+    L.push('');
+    if (KO.length) {
+      L.push('### 리뷰 키워드 위 5개 후보 (공지 982 — 스마트플레이스 › 리뷰 › 키워드 설정)');
+      KO.forEach((c, i) => L.push(`${i + 1}. ${md(c.t)} — ${md(c.why)}`));
+      L.push('- 순위를 올리는 설정이 아니라 가게의 강점이 리뷰 통계에 쌓이게 하는 설정입니다. 목록은 2022년 공지(523) 기준이라 설정 화면에 있는 말만 고릅니다.');
+      L.push('');
+    }
+    L.push('### 대표키워드 5칸 후보 (작성기준 10항 — 메뉴명·제공 서비스·상품을 한 낱말씩, 업체명·홍보 말·나열 금지)');
+    if (KR.cand.length) KR.cand.forEach((c) => L.push(`- ${md(c.t)} — ${md(c.why)}`)); else L.push('- 메뉴를 읽지 못해 후보가 없습니다.');
+    L.push(`- 지금 등록된 대표키워드: ${(KR.current || []).length ? md(KR.current.join(', ')) : '이번 수집에서 읽히지 않음 — 스마트플레이스에서 확인'}`);
+    L.push('');
+    L.push('### 손님이 검색하는 말 — 소개글·소식에 문장으로 (조합 규칙 · 검색 추이는 데이터랩 상대값)');
     if (!KW){
       L.push('- 지역 또는 업종을 정하지 못해 후보를 만들지 못했습니다.');
     } else {
       L.push(`- 만드는 방법: 지역어(${md(KW.places.map(p=>p.t).join(', '))}) × 업종어(${md(KW.kinds.map(k=>k.t).join(', '))})`+
         (KW.occs.length ? ` × 상황어(${md(KW.occs.map(o=>o.w).join(', '))} — 동네 블로그·카페 글 제목에서 뽑음)` : ''));
-      L.push('- 주의: 아래 검색 추이는 네이버 데이터랩 상대값이라 "월 몇 건"은 낼 수 없습니다. 0에 붙는 후보는 대표키워드 5칸이 아니라 소개글·메뉴명에 씁니다.');
-      L.push('- 주의: 대표키워드는 스마트플레이스에 5개까지만 넣을 수 있습니다. 주차·단체석·예약은 키워드가 아니라 편의시설에서 켭니다.');
+      L.push('- 주의: 대표키워드 칸이 아니라 소개글·소식·체험단 글에 손님에게 설명하는 문장으로 씁니다. 네이버는 소개글과 리뷰의 뜻을 맞춰 긴 문장 검색에도 씁니다 (도움말 25167, 음식점).');
+      L.push('- 주의: 검색 추이는 네이버 데이터랩 상대값이라 "월 몇 건"은 낼 수 없습니다. 주차·단체석·예약은 키워드가 아니라 정보 탭(편의시설)에서 켭니다.');
       L.push('');
-      L.push('### 대표키워드 5칸 후보');
       L.push('| 후보 | 근거 | 확인할 것 |');
       L.push('|---|---|---|');
       KW.top.forEach(c => L.push(`| ${md(c.t)} | ${md(c.why)} | ${md(c.ask || '—')} |`));
       const T = state.kwTrend;
       if (T && T.ok && T.data && (T.data.series || []).length) {
         L.push('', `- 후보 5개의 검색 추이 (네이버 데이터랩 ${md(T.data.startMonth)}~${md(T.data.endMonth)} · 가장 많이 검색된 후보를 100으로 둔 상대값 · 절대 검색량 아님):`);
-        T.data.series.forEach((sr) => L.push(`  - ${md(sr.keyword)}: 최고 ${sr.peak ? `${sr.peak.ratio} (${sr.peak.month})` : '—'}${sr.peak && Number(sr.peak.ratio) < 5 ? ' — 거의 검색되지 않음, 소개글·메뉴명용' : ''}`));
+        T.data.series.forEach((sr) => L.push(`  - ${md(sr.keyword)}: 최고 ${sr.peak ? `${sr.peak.ratio} (${sr.peak.month})` : '—'}${sr.peak && Number(sr.peak.ratio) < 5 ? ' — 거의 검색되지 않음' : ''}`));
       } else if (T && !T.ok) {
         L.push(`- 후보 검색 추이: 수집 안 됨 — ${md(T.error || '')}`);
       }
       if (KW.rest.length){
         L.push('');
-        L.push('### 소개글·메뉴명에 섞어 쓸 후보');
+        L.push('### 글에 섞어 쓸 말');
         L.push('| 후보 | 근거 |');
         L.push('|---|---|');
         KW.rest.forEach(c => L.push(`| ${md(c.t)} | ${md(c.why)} |`));
       }
       L.push('');
-      L.push('- AI에게: 위 후보 중 이 매장에 맞는 5개를 고르고, 왜 나머지를 뺐는지 한 줄씩 적어 주세요. 후보에 없는 말을 새로 지어내지 마세요.');
+      L.push('- AI에게: 위 말로 소개글 초안을 쓸 때 키워드를 늘어놓지 말고 손님에게 설명하는 문장으로 쓰세요. 확인되지 않은 사실(주차·룸 등)을 지어내지 마세요.');
     }
+    L.push('');
+    L.push('### 하면 안 되는 것 (공지 957 · 도움말 25089 · 영수증 기준 9766 · 리뷰 이용정책 · 공정위 추천·보증 심사지침)');
+    L.push('- 가짜·조작 영수증, 리뷰용 허위 예약, 리워드 앱·대행사를 통한 미방문 리뷰, 직원이 대신 촬영, 점수·내용 요구 — 한 번만 걸려도 업체 단위 제재(모든 리뷰 미노출·AI 브리핑 삭제). 리뷰를 부탁하는 것 자체는 괜찮습니다.');
+    L.push('- 중간계산서는 인증이 안 되는 영수증입니다. 대가(음료 등)를 준 리뷰는 대가를 받았다고 표시하도록 안내합니다.');
+    L.push('- 네이버는 업체 관리 명목으로 먼저 전화하지 않고, 상위 노출 보장은 없습니다 (공지 740).');
     L.push('');
     L.push('## 12. 하이오더 견적 밑그림 (KT 공식 요금표 · 대수는 추정)');
     quoteMarkdown(b).forEach((t) => L.push(t));
@@ -5388,7 +5720,7 @@ ${GUARD}`,
     copy.quote = quoteExport(b);     // 공식 요금표 기준 · 대수는 추정 (정책지원금 없음)
     if (state.kwTrend && state.kwTrend.ok && state.kwTrend.data) {   // 10장 후보 5개의 검색 추이 (v3.00)
       copy.keywordTrend = { fetchedAt: state.kwTrend.fetchedAt, keywords: state.kwTrend.kws, ...state.kwTrend.data,
-        note: '대표키워드 후보 5개의 네이버 데이터랩 상대값 — 가장 많이 검색된 후보의 최고 달을 100으로 둔 값이라 절대 검색량이 아닙니다.' };
+        note: '검색어 후보 5개(소개글·소식용)의 네이버 데이터랩 상대값 — 가장 많이 검색된 후보의 최고 달을 100으로 둔 값이라 절대 검색량이 아닙니다.' };
     }
     return copy;
   }
