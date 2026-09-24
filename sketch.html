@@ -292,8 +292,10 @@ body.dropping::after{content:'묶음(.json)을 놓으면 그 매장이 열립니
 .pfr{flex:none;width:300px;height:188px;background:url(sketch_prog.webp) 0 0/600% 500% no-repeat;mix-blend-mode:multiply}
 .ptx{min-width:0}.psub{margin-top:6px;font-size:11.5px;color:var(--dim,#6E6E73)}
 @media (max-width:560px){.prog{flex-direction:column;align-items:flex-start}.pfr{width:100%;height:auto;aspect-ratio:8/5}}
+/* v3.29: 장 제목이 길면 오른쪽 출처 글씨와 겹쳤다(412px에서 3·11장, 360px에서 일곱 장) — 폰에서는 출처를 제목 아래 줄로 */
+@media (max-width:560px){.sec>.hd{flex-wrap:wrap;row-gap:6px}.sec>.hd .meta{flex-basis:100%;text-align:right;white-space:normal;line-height:1.5}}
 .skhero{margin:4px 0 22px;max-height:600px;overflow:hidden;transition:max-height .55s ease,opacity .4s ease,margin .55s ease}
-.skhero video{display:block;width:100%;height:auto;mix-blend-mode:multiply;background:transparent}
+.skhero video,.skhero img.heroanim{display:block;width:100%;height:auto;mix-blend-mode:multiply;background:transparent}
 .skhero.away{max-height:0;opacity:0;margin:0}
 @media print{.skhero{display:none!important}}
 .prog[hidden]{display:none}
@@ -319,7 +321,7 @@ body.dropping::after{content:'묶음(.json)을 놓으면 그 매장이 열립니
 @supports (text-box: trim-both cap alphabetic){ .sumtop .verdict{text-box:trim-start cap alphabetic} }
 @supports not (text-box: trim-both cap alphabetic){ .sumtop .verdict{margin-top:-.2em} }
 .sumtop .sumlead.md{margin-top:20px;font-size:16px;font-weight:400;line-height:1.8;letter-spacing:-.01em;color:var(--sub)}
-.sumtop .sumlead.md b{font-weight:700;color:var(--accent-ink)}
+.sumtop .sumlead.md b{font-weight:700;color:var(--ink)}   /* v3.29: 빨강 → 검정 굵게. 나머지 글은 짙은 회색 그대로 */
 .axes{margin-top:22px;display:flex;flex-wrap:wrap;gap:8px 8px;align-items:center}
 .axes .src9{flex-basis:100%;margin-top:2px}
 .mz.sumtop{align-items:stretch}
@@ -327,6 +329,13 @@ body.dropping::after{content:'묶음(.json)을 놓으면 그 매장이 열립니
 .sumtop .sumph .ph{position:absolute;inset:0;height:auto;min-height:0;aspect-ratio:auto}
 .ax{font-size:11px;font-weight:700;letter-spacing:.02em;border:1px solid var(--ink);border-radius:999px;padding:2px 9px;cursor:help}
 .ax.l2{background:var(--ink);color:#fff}
+/* v3.29: 폰에는 마우스가 없어 title 근거를 볼 수 없었다 — 누르면 칩 아래에 한 줄로 */
+/* 마우스 화면용(.hv)과 터치 화면용(.tp) 안내를 나눠 둔다 — 0장 칩, 1장 사진 */
+.tp{display:none}
+@media (hover:none){.hv{display:none}.tp{display:inline}.ax{cursor:pointer}}
+.ax.sel{box-shadow:0 0 0 2px var(--paper),0 0 0 3px var(--accent,#EC3013)}
+.axes .axwhy{flex-basis:100%;margin:2px 0 0;font-size:12px;line-height:1.55;color:var(--sub)}
+@media print{.axes .axwhy{display:none}.ax.sel{box-shadow:none}}
 .glegend{margin-top:0;font-size:11px;color:var(--sub);display:flex;gap:6px;align-items:center}
 .mz.sumg{margin-top:34px}
 /* 눈금 한 줄 = 12칸 격자 (.mz 와 같은 칸·틈) — 이름 5칸(사진 칸 폭), 막대 3칸 + 값 4칸(글 칸 폭) */
@@ -351,7 +360,7 @@ body.dropping::after{content:'묶음(.json)을 놓으면 그 매장이 열립니
 .sumlist.sw .so{font-size:12px;color:var(--sub);margin-top:3px}.sumlist.sw .so.w{color:var(--accent-ink,#B8250E);font-weight:600}
 /* (v3.24: 사진 칸은 위 .sumtop .sumph 규칙으로 — 글 칸 높이에 맞춰 늘어난다) */
 .first .deck{margin-top:8px}.first .acc{color:var(--accent,#EC3013)}
-/* v3.27 장별 처방 */
+/* v3.27 장별 제안 (v3.29: '처방'에서 바꿨다 — 사장님을 환자로 두는 말이라) */
 .rx{margin:6px 0 34px;padding:16px 20px 12px;border-left:3px solid var(--accent,#EC3013);background:rgba(236,48,19,.035)}
 .rx-h{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:6px}
 .rx-h b{font-size:20px;font-weight:800;color:var(--accent-ink,#AE1800);letter-spacing:-.02em}
@@ -433,6 +442,9 @@ body.dropping::after{content:'묶음(.json)을 놓으면 그 매장이 열립니
 .recent li:last-child{border-bottom:0}
 .recent .d{font-size:9px;color:var(--faint);font-variant-numeric:tabular-nums;padding-top:3px}
 .recent .by{display:block;font-size:9px;color:var(--faint);margin-top:3px}
+/* v3.29: 날짜가 없는 목록(카페 글·공고·교육·빈 목록 안내) — 빈 날짜 칸이 폰에서 54px를 통째로 비웠다 */
+.recent.nod li,.recent li.nod,.mz .b .recent.nod li,.mz .b .recent li.nod{grid-template-columns:minmax(0,1fr)}
+.recent.nod .d,.recent li.nod .d{display:none}
 .errs{margin:0;padding-left:17px;font-size:11px;color:var(--sub);line-height:1.85}
 
 /* 결과 동작 버튼 */
@@ -834,12 +846,13 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
 /* 가게 사진 — 채도를 낮춰 지면에 앉히고, 마우스를 올리면 살아난다. 화면 전용 */
 .ph{margin:0;overflow:hidden;border-radius:4px;background:var(--panel);position:relative}
 .ph img{display:block;width:100%;height:100%;object-fit:cover;filter:url(#redOnly);mix-blend-mode:multiply;transition:filter 600ms ease}
-.ph:hover img{filter:saturate(.9) contrast(.86) brightness(1.06)}   /* v3.27: 색은 살리되 필름처럼 부드럽게 */
+@media (hover:hover){.ph:hover img{filter:saturate(.9) contrast(.86) brightness(1.06)}}   /* v3.27: 색은 살리되 필름처럼 부드럽게.
+   v3.29: 마우스가 있는 화면에서만 — 폰은 누른 뒤에도 :hover가 남아 다음 사진이 컬러로 떴다 */
 .ph[data-slot]{cursor:pointer}
 .ph .pk,.ph .pn{position:absolute;top:6px;font-size:9px;letter-spacing:.04em;padding:2px 6px;border-radius:2px;pointer-events:none}
 .ph .pk{left:6px;background:var(--accent,#EC3013);color:#fff}
 .ph .pn{right:6px;background:rgba(32,30,29,.72);color:#fff}
-@media (hover:none){.ph img{filter:none}}
+/* v3.29: 터치 화면에서 사진 필터를 끄던 줄(@media (hover:none))을 뺐다 — 폰에서만 사진이 컬러로 나왔다(메뉴 썸네일은 다른 흑백 필터라 그대로였다) */
 .ph.wide{aspect-ratio:16/10}.ph.tall{aspect-ratio:4/5}.ph.sq{aspect-ratio:1/1}.ph.band{aspect-ratio:21/9}.ph.h220{height:220px}
 .ph figcaption{position:absolute;left:10px;bottom:8px;font-size:9px;color:#fff;opacity:.85;letter-spacing:.04em;text-shadow:0 1px 3px rgba(0,0,0,.5)}
 .phnote{font-size:9px;color:var(--faint);margin-top:6px}
@@ -1022,6 +1035,10 @@ svg.trend.rib path.now{stroke:var(--sub)}
   .rank.kwrank li{grid-template-columns:18px 10px 1fr auto}
   .chap .dig{font-size:56px;width:44px}
   .chap h2{left:22px;font-size:16px}
+  .maplines{display:none}               /* v3.29: 3장 지도 연결선 — 한 칸 배치에서는 목록 위를 가로질렀다. 번호 동그라미로 짝을 맞춘다 */
+  .arule.v{display:none}                /* v3.29: 세로 격자선 — 폰 배치에서는 옆 칸이 아니라 아래 글(6장 1,217 등) 위로 지나갔다 */
+  .mz .b.tight+.b.tight{margin-top:-46px}               /* v3.29: 10장 후보 두 칸이 한 줄로 쌓일 때 가운데 빈 틈 */
+  .mz .b.tight+.b.tight .kwcol{border-top:1px solid var(--line)}
   .mtn svg,.cols svg{overflow:hidden!important}
   .donut svg{overflow:visible}   /* 그림자가 장 밖으로 나가면 화면 폭이 늘어난다 */
   .acc>summary{gap:8px;min-width:0;padding-right:4px}
@@ -1095,7 +1112,7 @@ svg.trend.rib path.now{stroke:var(--sub)}
 /* 1장 지도 — 바탕 타일만 흑백으로 누르고, 매장과 반경 원은 색을 남긴다.
    상자 전체에 filter를 걸면 그 안의 마커까지 같이 흑백이 되므로 타일만 고른다. */
 .mapwrap{margin-top:42px}
-.mapbox{width:100%;height:460px;background:var(--fill-lo)}
+.mapbox{width:100%;height:460px;background:var(--fill-lo);overflow:hidden}   /* v3.29: 반경 글씨(500m)가 지도 밖으로 나가 폰 화면 폭을 늘리지 않게 */
 .mapbox img,
 .mapbox div[style*="background-image"]{filter:grayscale(1) contrast(.9) brightness(1.12) opacity(.72)}
 .mapbox .skpin,.mapbox .skpin.n{filter:none}
@@ -1181,13 +1198,20 @@ svg.trend.rib path.now{stroke:var(--sub)}
   <!-- v3.21 (#99): 흑백 + 빨강만 — 픽셀마다 빨강 정도(R − 0.75G − 0.75B − 문턱)가 큰 곳만 원본 색을 남긴다 -->
   <filter id="redOnly" color-interpolation-filters="sRGB" x="0" y="0" width="100%" height="100%">
     <feColorMatrix in="SourceGraphic" type="saturate" values="0" result="g0"/>
-    <!-- v3.28: 필름 톤(검정을 0.26까지 들어 올림)은 흑백 부분에만. v3.27은 빨강까지 들어 올려 분홍으로 바랬다 -->
+    <!-- v3.28: 필름 톤(검정을 0.26까지 들어 올림)은 흑백 부분에만 -->
     <feComponentTransfer in="g0" result="gray"><feFuncR type="linear" slope=".74" intercept=".26"/><feFuncG type="linear" slope=".74" intercept=".26"/><feFuncB type="linear" slope=".74" intercept=".26"/></feComponentTransfer>
-    <!-- 빨강 문턱을 조금 낮추고(R − 0.8G − 0.65B − 0.1) 채도를 1.45로 — 간판·고기의 붉은색이 산다. 초록 무게를 더 둬서 주황은 덜 남긴다 -->
-    <feColorMatrix in="SourceGraphic" type="matrix" result="mask" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  1 -0.8 -0.65 0 -0.1"/>
-    <feComponentTransfer in="mask" result="mask2"><feFuncA type="table" tableValues="0 0.12 0.55 0.9 1 1"/></feComponentTransfer>
-    <feColorMatrix in="SourceGraphic" type="saturate" values="1.45" result="vivid"/>
-    <feComposite in="vivid" in2="mask2" operator="in" result="red"/>
+    <!-- v3.29: '얼마나 빨간가'(R − 0.8G − 0.65B)로 고르던 것을 '색이 빨강 쪽인가'로 바꿨다. 어두운 빨강(구운 고기 속살·마블링·숯불)은
+         R과 G·B의 차이가 작아 회색으로 빠졌다. 색상 ≈ ((R−G) − 1.5(G−B)) ÷ R 을 알파 채널에서 계산한다 —
+         (R−G)와 (G−B)를 알파로 따로 뽑아 빼고, 1/R은 표로 근사해 곱한다(아주 어두운 곳은 0). 주황·갈색(G−B가 큼)은 빠진다 -->
+    <feColorMatrix in="SourceGraphic" type="matrix" result="rg" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  1 -1 0 0 0"/>
+    <feColorMatrix in="SourceGraphic" type="matrix" result="gb" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 1 -1 0 0"/>
+    <feComposite in="rg" in2="gb" operator="arithmetic" k1="0" k2="1" k3="-1.5" k4="0" result="num"/>
+    <feColorMatrix in="SourceGraphic" type="matrix" result="r" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  1 0 0 0 0"/>
+    <feComponentTransfer in="r" result="inv"><feFuncA type="table" tableValues="0 0 0.25 0.3333 0.25 0.2 0.1667 0.1429 0.125 0.1111 0.1"/></feComponentTransfer>
+    <feComposite in="num" in2="inv" operator="arithmetic" k1="10" k2="0" k3="0" k4="0" result="q"/>
+    <feComponentTransfer in="q" result="mask"><feFuncA type="table" tableValues="0 0.22 0.68 0.93 1 1"/></feComponentTransfer>
+    <feColorMatrix in="SourceGraphic" type="saturate" values="1.15" result="vivid"/>
+    <feComposite in="vivid" in2="mask" operator="in" result="red"/>
     <feComposite in="red" in2="gray" operator="over"/>
   </filter>
   <pattern id="paper" patternUnits="userSpaceOnUse" width="560" height="1000"><image id="paperImg" width="560" height="1000" preserveAspectRatio="none"/></pattern>
@@ -1201,7 +1225,7 @@ svg.trend.rib path.now{stroke:var(--sub)}
 
   <!-- v3.20 첫 화면 그림 — 흰 바탕 영상을 페이지 종이 위에 곱한다(mix-blend-mode). 소리 없음, 한 번만, 인쇄 제외 -->
   <div class="skhero" id="hero" aria-hidden="true">
-    <video id="heroVid" muted playsinline preload="auto" poster="sketch_hero.webp"><source src="sketch_hero.mp4" type="video/mp4"></video>
+    <video id="heroVid" autoplay muted playsinline preload="auto" poster="sketch_hero.webp"><source src="sketch_hero.mp4" type="video/mp4"></video>
   </div>
 
   <div class="mast">
@@ -1256,7 +1280,7 @@ svg.trend.rib path.now{stroke:var(--sub)}
 
   // ▼ 배포 후 Cloudflare Worker 주소로 바꾸세요 (끝에 / 없이)
   const API_BASE = 'https://kt.roi0925003.workers.dev';
-  const PAGE_VERSION = 'v3.28';
+  const PAGE_VERSION = 'v3.29';
   const WORKER_VERSION = 'v1.37';   // 이 페이지와 짝이 되는 worker.js 버전 (이보다 낮으면 경고)
   /* 직원 공개용 토큰 — 비밀번호가 아닙니다. 소스 보기로 누구나 볼 수 있습니다.
      중계 서버의 PUBLIC_PASS와 같은 값이어야 하고, 남이 긁는 게 보이면
@@ -2212,7 +2236,7 @@ svg.trend.rib path.now{stroke:var(--sub)}
 
     const ph = placePhotos(b);
     const photos = ph.length ? `<div class="mz" style="margin-top:34px;gap:16px"><div class="b s7">${photoHTML(ph[0],'h220','',0,b)}</div>${ph[1] ? `<div class="b s5">${photoHTML(ph[1],'h220','',1,b)}</div>` : ''}
-      <div class="b s12 tight"><p class="phnote">손님 리뷰·블로그·가게 사진 ${esc(num(ph.length,'장'))} · 사진을 클릭하면 다음 사진, 오른쪽 클릭은 이전 사진 — 다른 칸이 쓰는 사진과 안 열리는 사진은 건너뜁니다 · 화면 전용이라 인쇄물·묶음에는 나오지 않습니다</p></div></div>` : '';
+      <div class="b s12 tight"><p class="phnote">손님 리뷰·블로그·가게 사진 ${esc(num(ph.length,'장'))} · <span class="hv">사진을 클릭하면 다음 사진, 오른쪽 클릭은 이전 사진</span><span class="tp">사진을 누르면 다음 사진</span> — 다른 칸이 쓰는 사진과 안 열리는 사진은 건너뜁니다 · 화면 전용이라 인쇄물·묶음에는 나오지 않습니다</p></div></div>` : '';
     const html = `<div class="eyebrow">STORE</div>
       <div class="nm" data-sk="1" data-sk-wide="1">${esc(s.name || '매장')}</div>
       <div class="meta2">${esc([s.category, s.roadAddress || s.address].filter(Boolean).join(' · ') || '—')}</div>
@@ -2395,8 +2419,8 @@ svg.trend.rib path.now{stroke:var(--sub)}
       top: all[0] || null, runnerUp: all.find(x => !x.me) || null };
   }
 
-  /* ══ 장별 처방 (v3.27) — '사실만 있고 내용이 없다'는 지적. 장마다 이 매장의 숫자로 진단하고, 하이오더 기능이나 영업 행동으로 처방한다.
-     규칙으로만 만든다 (AI 없음). 한 줄 = 진단 → 처방, 장마다 2~4줄. 하이오더 기능 이름은 매뉴얼에 있는 것만 쓴다. */
+  /* ══ 장별 제안 (v3.27, v3.29 이름 바꿈) — '사실만 있고 내용이 없다'는 지적. 장마다 이 매장의 숫자를 읽고, 하이오더 기능이나 영업 행동을 제안한다.
+     규칙으로만 만든다 (AI 없음). 한 줄 = 읽은 것 → 제안, 장마다 2~4줄. 하이오더 기능 이름은 매뉴얼에 있는 것만 쓴다. */
   const LEVER_TEXT = { '주문·직원 호출이 늦음':'테이블 주문·직원 호출', '주문 누락·착오':'주문이 포스·주방으로 바로 (누락 0)', '웨이팅·대기 안내':'웨이팅 서비스 (대기번호·알림톡)', '메뉴 설명·외국어':'사진·다국어 메뉴판', '응대 태도':'주문·호출·계산 접점을 태블릿이 맡아 감정 소모를 줄임 — 직원이 오래 다니는 매장', '간·먹는 법 안내':'주문 전 상품 안내 — 간 세기·맛있게 먹는 법을 메뉴판에',
     '고기 굽기 서비스 못 받음':'주문·호출을 태블릿이 받아 굽는 손을 비움 — 굽기 서비스를 층·시간대와 상관없이 고르게', '메뉴·품절 안내가 실제와 다름':'메뉴·가격·품절을 매니저앱에서 바꾸면 태블릿에 바로 반영' };
   const rxLine = (d, p) => ({ d, p });
@@ -2527,10 +2551,10 @@ svg.trend.rib path.now{stroke:var(--sub)}
   function rxItems(id, b){ const f = RX[id]; if (!f || !b) return []; try { return f(b) || []; } catch (e) { console.error('rx', id, e); return []; } }
   function rxFor(id, b){
     const items = rxItems(id, b); if (!items.length) return '';
-    return `<div class="rx" id="rx-${id}"><div class="rx-h"><b>처방</b><span>이 장에서 읽은 것 → 할 일 · 규칙으로 판정</span></div>
+    return `<div class="rx" id="rx-${id}"><div class="rx-h"><b>제안</b><span>이 장에서 읽은 것 → 할 일 · 규칙으로 판정</span></div>
       <ol>${items.map(x => `<li><span class="rd">${x.d}</span><span class="rp">→ ${x.p}</span></li>`).join('')}</ol></div>`;
   }
-  /* 리뷰가 나중에 오면(Apify 대체) 처방도 다시 — 장 머리 바로 아래 */
+  /* 리뷰가 나중에 오면(Apify 대체) 제안도 다시 — 장 머리 바로 아래 */
   function refreshRx(){
     if (!state.bundle) return;
     Object.keys(RX).forEach(id => {
@@ -2694,7 +2718,7 @@ svg.trend.rib path.now{stroke:var(--sub)}
         <div class="b ${ph.length ? 's7' : 's12'}">
           <p class="deck verdict">${esc(m.verdict)}</p>
           <p class="deck md sumlead">${lead}</p>
-          ${axes ? `<div class="axes">${axes}<span class="src9">● 강함 ○ 보임 — 칩에 마우스를 올리면 근거</span></div>` : ''}
+          ${axes ? `<div class="axes">${axes}<span class="src9">● 강함 ○ 보임 — <span class="hv">칩에 마우스를 올리면 근거</span><span class="tp">칩을 누르면 근거</span></span></div>` : ''}
         </div>
       </div>
       ${/* v3.24: 눈금은 사진·글 아래 한 줄로 — 이름은 사진 칸, 막대·값은 글 칸에 맞춰 세로 선을 맞춘다 */''}
@@ -3289,7 +3313,7 @@ ${GUARD}`,
       ${waitStat}
       ${waitingBlock(waiting, waiting && waiting.scanned)}
       ${blogList ? `<div class="b s7 top"><p class="k">최근 블로그 글</p><ul class="recent" data-rule="ht">${blogList}</ul></div>` : ''}
-      <div class="b s5 top rail">${cafeList ? `<p class="k">최근 카페 글</p><ul class="recent">${cafeList}</ul>` : ''}${ph[2] ? `<div style="margin-top:${cafeList?'24px':'0'}">${photoHTML(ph[2],'sq','',2,b)}</div>` : ''}</div>
+      <div class="b s5 top rail">${cafeList ? `<p class="k">최근 카페 글</p><ul class="recent nod">${cafeList}</ul>` : ''}${ph[2] ? `<div style="margin-top:${cafeList?'24px':'0'}">${photoHTML(ph[2],'sq','',2,b)}</div>` : ''}</div>
       <div class="b s12"><p class="src9">블로그·카페 수는 검색 결과 수라서 다른 매장 글이 섞일 수 있습니다. 많고 적음을 보는 참고치로만 씁니다.${waiting && has(waiting.scanned) ? ' 웨이팅 수는 최근 글의 제목·요약에서 센 것이라 본문에만 적힌 것은 빠집니다.' : ''}
         ${others.length?`<br>${badge('warn','주의')} 최근 블로그 글 ${(blog.recent||[]).length}건 중 ${others.length}건이 같은 브랜드의 다른 지점(${esc([...new Set(others.map(r=>r.otherBranch))].join(', '))}) 글입니다.`:''}</p></div>
     </div>`, meta: srcText(m).toUpperCase() };
@@ -3309,7 +3333,7 @@ ${GUARD}`,
       const kept = x.filter && x.filter.kind === 'brand' && x.filter.kept ? `최근 ${x.filter.fetched}건 중 구·동 이름이 있는 ${x.filter.kept}건` : x.filter && x.filter.kind !== 'brand' && has(x.filter.fetched) ? `최근 ${x.filter.fetched}건 중 동네 이름·상권 말이 있는 ${(x.recent||[]).length}건` : '';
       return `<div class="b s6${i ? ' rail' : ''}"><div class="stat row"><div class="k">${esc(NEWS_LABEL[x.key]||x.key)} ‘${esc(x.q)}’</div>
         <div class="v sk" data-n="${Number(x.total)||0}">${esc(num(x.total))}</div><div class="lead-ref">건 · 검색 결과 수${kept ? ` · ${esc(kept)}` : ''}</div></div>
-        <ul class="recent" style="margin-top:18px">${list || `<li><span class="d"></span><span style="color:var(--faint)">${esc(empty)}</span></li>`}</ul></div>`;
+        <ul class="recent" style="margin-top:18px">${list || `<li class="nod"><span class="d"></span><span style="color:var(--faint)">${esc(empty)}</span></li>`}</ul></div>`;
     }).join('');
     return { html: `<div class="mz">${blocks}<div class="b s12"><p class="src9">${esc(m.data.note||'')}</p></div></div>`, meta: srcText(m).toUpperCase() };
   }
@@ -3358,14 +3382,14 @@ ${GUARD}`,
     if (notices.ok){
       const items = notices.data.items || [];
       liveN = `<div class="stat row"><div class="k">지금 접수 중인 공고</div><div class="v sk" data-n="${items.length}">${esc(num(items.length))}</div><div class="lead-ref">건 · ${esc(notices.data.sido||'')} 기준</div></div>
-        <ul class="recent" style="margin-top:14px">${items.length ? items.map(x => `<li><span class="d"></span><span>${linkText(x.link,x.title)}<span class="by">${esc([x.org,x.target?`대상 ${x.target}`:'',x.period,x.contact].filter(Boolean).join(' · '))}</span></span></li>`).join('')
+        <ul class="recent nod" style="margin-top:14px">${items.length ? items.map(x => `<li><span class="d"></span><span>${linkText(x.link,x.title)}<span class="by">${esc([x.org,x.target?`대상 ${x.target}`:'',x.period,x.contact].filter(Boolean).join(' · '))}</span></span></li>`).join('')
           : '<li><span class="d"></span><span style="color:var(--faint)">해당되는 공고가 없습니다</span></li>'}</ul>
         ${notices.data.excluded && notices.data.excluded.special ? `<p class="src9">대상이 정해진 공고(청년·여성·제조업 등)와 다른 구·군 공고 ${esc(num(notices.data.excluded.special,'건'))}은 뺐습니다${(notices.data.excluded.titles||[]).length ? ` — ${esc(notices.data.excluded.titles.slice(0,3).join(' / '))}` : ''}</p>` : ''}`;
     }
     if (events.ok){
       const items = events.data.items || [];
       liveE = `<div class="stat row"><div class="k">갈 만한 교육·행사</div><div class="v sk" data-n="${items.length}">${esc(num(items.length))}</div><div class="lead-ref">건</div></div>
-        <ul class="recent" style="margin-top:14px">${items.length ? items.map(x => `<li><span class="d"></span><span>${linkText(x.link,x.title)}<span class="by">${esc([x.kind,x.org,x.period?`행사 ${x.period}`:'',x.apply?`접수 ${x.apply}`:''].filter(Boolean).join(' · '))}</span></span></li>`).join('')
+        <ul class="recent nod" style="margin-top:14px">${items.length ? items.map(x => `<li><span class="d"></span><span>${linkText(x.link,x.title)}<span class="by">${esc([x.kind,x.org,x.period?`행사 ${x.period}`:'',x.apply?`접수 ${x.apply}`:''].filter(Boolean).join(' · '))}</span></span></li>`).join('')
           : '<li><span class="d"></span><span style="color:var(--faint)">지금은 이 지역에 해당되는 행사가 없습니다</span></li>'}</ul>`;
     }
     if (!liveN && !liveE && !list.length) return null;
@@ -3453,7 +3477,8 @@ ${GUARD}`,
   const pct  = (v) => `${(v*100).toFixed(1)}%`;
   const rng  = (p, f) => p[0] === p[1] ? f(p[0]) : `${f(p[0])}~${f(p[1])}`;
   const rngN = (p, unit) => p[0] === p[1] ? `${p[0]}${unit}` : `${p[0]}~${p[1]}${unit}`;
-  const pctRange = (p) => p[0] === p[1] ? pct(p[0]) : `${(p[0]*100).toFixed(1)}~${(p[1]*100).toFixed(1)}%`;
+  /* v3.29: 작은 값부터 — 대수와 홀 인원이 함께 늘어 인건비 대비 비율은 '9.7~8.7%'처럼 거꾸로 나오기도 했다 */
+  const pctRange = (p) => { const A = (Math.min(p[0], p[1])*100).toFixed(1), B = (Math.max(p[0], p[1])*100).toFixed(1); return A === B ? `${A}%` : `${A}~${B}%`; };
   const wonR = (p, k = 1) => p[0] === p[1] ? won(p[0]*k) : `${wonN(p[0]*k)}~${won(p[1]*k)}`;
   const wonRange = (p) => p[0] === p[1] ? wonV(p[0]) : `${wonR(p)} (VAT 포함 ${wonR(p, QUOTE.vat)})`;
 
@@ -4427,9 +4452,15 @@ ${GUARD}`,
       run(sec, nums, 200);
     });
   }
-  /* 장이 화면 아래 140px 안쪽까지 들어와야 시작한다 — 가장자리에서 시작하면 보기 전에 끝난다 */
+  /* 장이 화면 아래 140px 안쪽까지 들어와야 시작한다 — 가장자리에서 시작하면 보기 전에 끝난다.
+     v3.29: '장의 20%가 보일 때'만 보던 것 — 폰 화면에서는 긴 장(3장·9장 약 3,200px, 2장 6,000px)이 20%를 채우지 못해
+     끝까지 켜지지 않았다(막대 숫자·견적 칸이 빈 채로). 이제 장의 20%와 화면의 45% 중 작은 쪽만 보이면 시작한다 */
+  const IO_T = Array.from({ length: 21 }, (_, i) => i / 100);   // 0 ~ 0.20 — 긴 장은 비율이 조금씩 오르므로 촘촘하게 깨운다
   const io = new IntersectionObserver((es) => es.forEach((e) => {
-    if (e.isIntersecting){ fire(e.target); io.unobserve(e.target); } }), { threshold:.2, rootMargin:'0px 0px -140px 0px' });
+    if (!e.isIntersecting) return;
+    const rootH = (e.rootBounds && e.rootBounds.height) || Math.max(1, innerHeight - 140);
+    const need = Math.min(e.boundingClientRect.height * 0.2, rootH * 0.45);
+    if (e.intersectionRect.height + 0.5 >= need){ fire(e.target); io.unobserve(e.target); } }), { threshold: IO_T, rootMargin:'0px 0px -140px 0px' });
 
   /* 상호를 글자 크기로 줄이던 fitHero는 뺐다 — SVG 스케치가 칼럼 폭에 맞춰 스스로 줄어든다 */
 
@@ -4599,11 +4630,11 @@ ${GUARD}`,
         keys.forEach((k) => { const E = EVIDENCE[k]; L.push(`- ${md(E.title)}`); E.lines.forEach((l) => L.push(`  - ${md(l.t)}${l.src ? ` (${md(l.src)}${l.url ? ` ${l.url}` : ''})` : ''}`)); });
       }
       L.push(`- 시장 흐름: ${MARKET.lines.map((l) => `${md(l.t)} (${md(l.src)})`).join(' / ')}`);
-      /* v3.27: 장별 처방 (규칙) — 진단 → 처방 */
+      /* v3.27: 장별 제안 (규칙) — 읽은 것 → 제안 */
       const RXN = { reviews:'손님 목소리', comp:'같은 업종 점포', nearby:'주변 시설 구성', pop:'동네 인구·사업체' };
       const rxl = [];
       Object.keys(RX).forEach((id) => rxItems(id, b).forEach((x) => rxl.push(`- [${RXN[id]}] ${md(plain(x.d))} → ${md(plain(x.p))}`)));
-      if (rxl.length) { L.push(''); L.push('### 장별 처방 (규칙으로 판정 · 진단 → 처방)'); rxl.forEach((t) => L.push(t)); }
+      if (rxl.length) { L.push(''); L.push('### 장별 제안 (규칙으로 판정 · 읽은 것 → 제안)'); rxl.forEach((t) => L.push(t)); }
       L.push('');
     } catch (_) { /* 요약이 안 만들어지면 묶음은 그대로 나간다 */ }
     L.push('## 1. 매장 정보');
@@ -5201,10 +5232,48 @@ ${GUARD}`,
   function heroBack(){ if (el.hero) el.hero.classList.remove('away'); }
   (function heroInit(){
     const v = el.heroVid; if (!v) return;
-    v.addEventListener('error', () => { el.hero.classList.add('away'); }, { once: true });   // 파일이 없으면 자리를 남기지 않는다
-    const p = v.play(); if (p && p.catch) p.catch(() => {});                                // 자동재생이 막히면 포스터가 남는다
+    /* v3.29: 폰에서 영상이 첫 장면에 멈춰 있던 것 — 자동재생이 막히면(아이폰 저전력 모드·데이터 절약 등) 같은 그림을
+       움직이는 이미지(sketch_hero_anim.webp, 640px·한 번 재생)로 바꿔 튼다. 그 파일도 없으면 첫 장면(포스터)이 남는다 */
+    let settled = false;
+    const toAnim = (why) => {
+      if (settled || !el.hero || el.hero.classList.contains('away')) return;
+      settled = true; el.hero.dataset.fallback = why || '1';
+      const img = new Image(); img.alt = ''; img.className = 'heroanim'; img.decoding = 'async';
+      img.onload = () => { if (v.isConnected) v.replaceWith(img); };
+      img.onerror = () => { el.hero.dataset.fallback = 'none'; };                 // 대체 그림이 없으면 포스터 그대로
+      img.src = 'sketch_hero_anim.webp';
+    };
+    v.muted = true; v.defaultMuted = true; v.playsInline = true;                  // 속성만으로는 음소거로 안 보는 브라우저가 있다
+    v.addEventListener('playing', () => { settled = true; }, { once: true });
+    v.addEventListener('error', () => toAnim('error'), { once: true });
+    const s = v.querySelector('source'); if (s) s.addEventListener('error', () => toAnim('error'), { once: true });   // <source>가 실패하면 오류는 source에서 난다
+    let p; try { p = v.play(); } catch (_) { toAnim('throw'); }
+    if (p && p.catch) p.catch((e) => { if (e && e.name === 'AbortError') return; toAnim((e && e.name) || 'reject'); });
+    /* 거절도 재생도 없이 멈춰 있는 브라우저 — 화면이 보이는 동안 4초가 지나도 첫 장면이면 바꾼다(받는 중이면 두 번 더 기다린다) */
+    let tries = 0;
+    const watch = () => setTimeout(() => {
+      if (settled) return;
+      if (document.visibilityState !== 'visible') { document.addEventListener('visibilitychange', watch, { once: true }); return; }
+      if (v.paused && v.currentTime === 0) { if (v.readyState >= 2 || ++tries > 2) toAnim('stall'); else watch(); }
+    }, 4000);
+    watch();
     el.q.addEventListener('input', () => { if (el.q.value.trim()) heroAway(); });
+    /* v3.29: 로딩 그림(3840×2000, 640KB)은 수집을 누른 뒤에야 받기 시작해 폰에서는 받는 동안 빈칸이었다 — 첫 화면이 뜨면 미리 받아 둔다 */
+    const pre = () => setTimeout(() => { try { const im = new Image(); im.decoding = 'async'; im.src = 'sketch_prog.webp'; } catch (_) {} }, 400);
+    if (document.readyState === 'complete') pre(); else window.addEventListener('load', pre, { once: true });
   })();
+  /* v3.29: 0장 칩 — 폰(마우스 없음)에서는 누르면 근거가 칩 아래 한 줄로 뜬다. 다시 누르면 닫힌다 */
+  document.addEventListener('click', (e) => {
+    if (!matchMedia('(hover: none)').matches) return;
+    const c = e.target && e.target.closest && e.target.closest('.axes .ax'); if (!c) return;
+    const box = c.closest('.axes'); let why = box.querySelector('.axwhy');
+    const was = c.classList.contains('sel');
+    box.querySelectorAll('.ax.sel').forEach(x => x.classList.remove('sel'));
+    if (was) { if (why) why.hidden = true; return; }
+    if (!why) { why = document.createElement('p'); why.className = 'axwhy'; box.appendChild(why); }
+    c.classList.add('sel'); why.hidden = false;
+    why.textContent = `${c.textContent.replace(/[●○]/g, '').trim()} — ${c.getAttribute('title') || '근거 없음'}`;
+  });
 
   function usageText(u){
     if (!u) return ' · 한도 셈 꺼짐(중계 서버에 KV 미연결)';
