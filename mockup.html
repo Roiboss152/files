@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>맛보기 — 고객 맞춤 하이오더 화면 | kt-synergy</title>
+<meta name="description" content="네이버 메뉴·사진으로 고객 매장의 하이오더 화면 이미지, 기기 사진, 제안 전단을 만듭니다.">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" defer></script>
+<style>
+/* ══ 맛보기 — kt-synergy.com 공통 다크 테마(cal.html 디자인 언어) ══ */
+:root{
+  --bg:#020204; --panel:#0a0c10; --card:#15181d; --card2:#1b1f26; --line:#262b33; --line2:#353c47;
+  --text:#e4e8ee; --sub:#c6cdd8; --muted:#8b93a1; --faint:#5a6270;
+  --accent:#4facfe; --accent2:#7cc4ff; --accentD:#2f7fd6; --ok:#4ade80; --warn:#fbbf24; --bad:#ff8a80;
+  --r:12px; --r2:8px;
+  --font:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;line-height:1.55;min-height:100vh;letter-spacing:-.01em}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+.wrap{max-width:1440px;margin:0 auto;padding:22px 20px 60px}
+.top{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+.top h1{font-size:26px;font-weight:800;letter-spacing:-.03em;display:flex;align-items:baseline;gap:8px}
+.top h1 .ver{font-size:11px;font-weight:500;color:#aaa;letter-spacing:0}
+.top .sub{color:var(--muted);font-size:13px;margin-top:2px}
+.top .how{color:var(--muted);font-size:12.5px;max-width:560px}
+.top .how b{color:var(--sub);font-weight:600}
+.layout{display:grid;grid-template-columns:400px minmax(0,1fr);gap:14px;align-items:start}
+.ctl{display:grid;gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px}
+.card h2{font-size:14px;font-weight:700;color:var(--sub);margin-bottom:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.card h2 .n{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--accentD);color:#fff;font-size:11px;font-weight:700;flex:none}
+.card h2 small{font-weight:500;color:var(--faint);font-size:12px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.in{background:var(--panel);border:1px solid var(--line2);border-radius:var(--r2);padding:8px 11px;min-width:0;outline:none}
+.in:focus{border-color:var(--accent)}
+select.in{padding:7px 9px}
+textarea.in{width:100%;min-height:60px;resize:vertical;line-height:1.5}
+.btn{background:var(--card2);border:1px solid var(--line2);border-radius:var(--r2);padding:8px 14px;font-weight:600;font-size:13px;white-space:nowrap}
+.btn:hover{border-color:var(--accent)}
+.btn:disabled{opacity:.4;cursor:default}
+.btn.primary{background:var(--accentD);border-color:var(--accentD);color:#fff}
+.btn.sm{padding:5px 10px;font-size:12px}
+.btn.on{border-color:var(--accent);color:var(--accent2);background:#0b1a2b}
+.msg{font-size:12.5px;color:var(--muted);margin-top:8px;min-height:1.2em}
+.msg.ok{color:var(--ok)} .msg.bad{color:var(--bad)} .msg.warn{color:var(--warn)}
+.hint{font-size:12px;color:var(--faint)}
+.small{font-size:12px;color:var(--muted)}
+.cands{list-style:none;margin-top:8px;display:grid;gap:6px;max-height:220px;overflow:auto}
+.cands li{display:flex;justify-content:space-between;gap:10px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:var(--r2);padding:7px 10px}
+.cands .nm{font-weight:700}
+.cands .meta{color:var(--muted);font-size:12px}
+.fld{display:grid;gap:4px;font-size:12.5px;color:var(--muted)}
+.fld .in{width:100%}
+.seg{display:flex;gap:4px;flex-wrap:wrap}
+.seg label{display:flex;gap:5px;align-items:center;border:1px solid var(--line2);border-radius:8px;padding:5px 9px;font-size:12.5px;color:var(--sub);cursor:pointer}
+.seg label:has(input:checked){border-color:var(--accent);background:#0b1a2b;color:var(--text)}
+.seg input{accent-color:var(--accent)}
+.sw{display:flex;gap:6px}
+.sw button{width:26px;height:26px;border-radius:50%;border:2px solid transparent;padding:0}
+.sw button.on{border-color:#fff;box-shadow:0 0 0 2px var(--accentD)}
+.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(58px,1fr));gap:6px;max-height:190px;overflow:auto}
+.thumbs button{position:relative;padding:0;border:1px solid var(--line2);border-radius:7px;overflow:hidden;background:#fff;aspect-ratio:1/1}
+.thumbs button.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+.thumbs img{width:100%;height:100%;object-fit:cover;display:block}
+.thumbs i{position:absolute;left:2px;bottom:2px;font-size:9px;font-style:normal;background:rgba(2,2,4,.78);color:var(--sub);border-radius:4px;padding:0 4px}
+.logoBox{display:flex;gap:10px;align-items:center}
+.logoBox canvas{width:120px;height:72px;border-radius:8px;border:1px solid var(--line2);background:repeating-conic-gradient(#2a2f37 0% 25%,#20242b 0% 50%) 50%/14px 14px}
+.slots{display:grid;gap:6px}
+.slot{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:6px;align-items:center}
+.slot .no{color:var(--faint);font-size:12px;text-align:right}
+.slot select{width:100%}
+.slot .ph{font-size:11px;color:var(--muted);white-space:nowrap}
+.slot .ph.bad{color:var(--warn)}
+.note{font-size:11.5px;color:var(--faint);line-height:1.6}
+.warnBox{font-size:12px;color:var(--warn);border:1px solid #5b4a13;background:#1d1706;border-radius:8px;padding:7px 10px}
+/* 미리보기 */
+.view{position:sticky;top:12px}
+.tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px}
+.tabs button{background:var(--panel);border:1px solid var(--line2);border-radius:8px;padding:7px 12px;font-size:13px;font-weight:700;color:var(--muted)}
+.tabs button.on{background:var(--accentD);border-color:var(--accentD);color:#fff}
+.stage{background:#2a2e35;border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;place-items:center;min-height:300px}
+.stage canvas{max-width:100%;max-height:calc(100vh - 190px);height:auto;border-radius:6px;box-shadow:0 10px 30px rgba(0,0,0,.45);background:#fff}
+.dl{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center}
+#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:80;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;width:min(640px,calc(100vw - 24px))}
+.tst{pointer-events:auto;background:#10141a;border:1px solid var(--line2);border-radius:10px;padding:10px 12px;font-size:13px;box-shadow:0 8px 30px rgba(0,0,0,.5)}
+.tst.ok{border-color:#1f5c3a} .tst.bad{border-color:#6b2c2c}
+footer{margin-top:20px;color:var(--faint);font-size:12px;line-height:1.7}
+@media (max-width:1000px){
+  .layout{grid-template-columns:1fr}
+  .view{position:static;order:-1}
+  .stage canvas{max-height:60vh}
+}
+@media (max-width:600px){
+  .wrap{padding:14px 12px 40px}
+  .top h1{font-size:22px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>맛보기 <span class="ver" id="pageVer">v1.00</span></h1>
+      <p class="sub">고객 맞춤 하이오더 화면 — 네이버 메뉴로 화면 이미지·기기 사진·제안 전단을 만듭니다</p>
+    </div>
+    <p class="how"><b>1</b> 매장을 찾으면 메뉴·사진이 화면에 들어갑니다 · <b>2</b> 로고를 올리고 칸을 고릅니다(사진이 적으면 로고·대표메뉴로 채움) · <b>3</b> 기기 틀·전단을 골라 받습니다. 계약 뒤 실제 세팅은 차림표로.</p>
+  </header>
+
+  <div class="layout">
+    <div class="ctl">
+      <section class="card">
+        <h2><span class="n">1</span>매장 찾기</h2>
+        <form id="searchForm" class="row" autocomplete="off">
+          <input id="q" class="in" type="search" placeholder="상호 (예: 우대포 명동점)" aria-label="상호" style="flex:1 1 200px">
+          <button class="btn primary" id="searchBtn" type="submit">찾기</button>
+        </form>
+        <ul class="cands" id="cands"></ul>
+        <p class="msg" id="loadMsg"></p>
+        <div class="row" style="margin-top:6px"><label class="fld" style="flex:1 1 100%">화면·전단에 쓸 매장 이름<input class="in" id="storeName" maxlength="30" placeholder="예: 우대포 명동점"></label></div>
+      </section>
+
+      <section class="card">
+        <h2><span class="n">2</span>화면 <small>실제 하이오더에 있는 화면만</small></h2>
+        <div class="seg" id="kindSeg">
+          <label><input type="radio" name="kind" value="menu" checked> 메뉴판 (NEW UX)</label>
+          <label><input type="radio" name="kind" value="one"> 한 장 화면 (대기화면·첫 주문화면)</label>
+        </div>
+        <div id="menuOpts" style="display:grid;gap:10px;margin-top:10px">
+          <div class="row"><span class="small" style="width:64px">스킨 색</span><div class="sw" id="colorSw"></div><button class="btn sm" type="button" id="colorFromLogo" title="올린 로고 색에 가까운 색">로고 색으로</button></div>
+          <div class="row"><span class="small" style="width:64px">첫 화면</span><select class="in" id="catSel" style="flex:1"></select></div>
+          <div class="row"><span class="small" style="width:64px">빈 사진 칸</span>
+            <div class="seg" id="emptySeg">
+              <label><input type="radio" name="empty" value="logo" checked> 로고</label>
+              <label><input type="radio" name="empty" value="rep"> 대표메뉴 사진</label>
+              <label><input type="radio" name="empty" value="text"> 글자만</label>
+            </div></div>
+          <label class="small"><input type="checkbox" id="photoFirst" checked> 사진 있는 메뉴를 첫 화면 앞으로</label>
+          <p class="note" id="photoNote"></p>
+        </div>
+        <div id="oneOpts" style="display:none;gap:10px;margin-top:10px">
+          <div class="seg" id="oneSeg">
+            <label><input type="radio" name="one" value="rep" checked> 대표메뉴 사진 한 장</label>
+            <label><input type="radio" name="one" value="logo"> 로고 화면</label>
+          </div>
+          <label class="small"><input type="checkbox" id="oneName" checked> 매장 이름 넣기</label>
+          <p class="note">손님이 안 만질 때 뜨는 대기화면·첫 주문화면(이미지 최대 4장)과 같은 쓰임입니다 — 계약 뒤에도 그대로 만들 수 있는 화면입니다.</p>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2><span class="n">3</span>로고 · 대표메뉴 사진</h2>
+        <div class="logoBox"><canvas id="logoCv" width="240" height="144"></canvas>
+          <div style="display:grid;gap:6px">
+            <button class="btn sm" type="button" id="logoPick">로고 올리기</button>
+            <label class="small"><input type="checkbox" id="logoWhite" checked> 흰 바탕 지우기</label>
+            <button class="btn sm" type="button" id="logoClear" hidden>로고 빼기</button>
+          </div></div>
+        <input type="file" id="logoFile" accept="image/*" hidden>
+        <p class="small" style="margin-top:10px">대표메뉴 사진 — 네이버 메뉴 사진·가게가 올린 사진에서 고르거나 올리세요</p>
+        <div class="thumbs" id="repThumbs" style="margin-top:6px"></div>
+        <div class="row" style="margin-top:6px"><button class="btn sm" type="button" id="repPick">사진 올리기</button><span class="hint">방문자 리뷰 사진은 쓰지 않습니다(저작권)</span></div>
+        <input type="file" id="repFile" accept="image/*" hidden>
+      </section>
+
+      <section class="card" id="slotCard">
+        <h2><span class="n">4</span>첫 화면 여섯 칸</h2>
+        <div class="slots" id="slots"></div>
+        <input type="file" id="slotFile" accept="image/*" hidden>
+      </section>
+
+      <section class="card">
+        <h2><span class="n">5</span>제안 전단 <small>A4 비율 · 카톡·인쇄</small></h2>
+        <div style="display:grid;gap:8px">
+          <label class="small"><input type="checkbox" id="mou"> MOU 브랜드 가맹점용 문구로</label>
+          <p class="warnBox" id="mouWarn" hidden>MOU 문구는 KT와 업무협약을 맺은 브랜드의 가맹점에 줄 때만 씁니다. 할인 금액·조건 숫자는 넣지 말고 “상담 시 안내”로 두세요.</p>
+          <div class="row" id="mouRow" hidden><label class="fld" style="flex:1">MOU 알약 글씨<input class="in" id="fMouPill" maxlength="40"></label></div>
+          <label class="fld">큰 제목<input class="in" id="fHead" maxlength="40"></label>
+          <label class="fld">빨간 글자(큰 제목 안의 강조)<input class="in" id="fEm" maxlength="10"></label>
+          <label class="fld">부제 첫 줄 <span class="hint">비우면 메뉴 이름으로 저절로</span><input class="in" id="fSub1" maxlength="60"></label>
+          <label class="fld">부제 둘째 줄<select class="in" id="fSub2Sel"></select><input class="in" id="fSub2" maxlength="70"></label>
+          <label class="fld">왼쪽 칸 (작은 제목 / 제목 / 설명)<input class="in" id="fB1a" maxlength="20"><input class="in" id="fB1b" maxlength="30"><textarea class="in" id="fB1c" maxlength="90"></textarea></label>
+          <label class="fld">오른쪽 칸 (작은 제목 / 제목 / 설명)<input class="in" id="fB2a" maxlength="20"><input class="in" id="fB2b" maxlength="30"><textarea class="in" id="fB2c" maxlength="90"></textarea></label>
+          <div class="row"><label class="fld" style="flex:1 1 120px">컨설턴트 이름<input class="in" id="fName" maxlength="12"></label><label class="fld" style="flex:1 1 150px">전화<input class="in" id="fTel" maxlength="16" inputmode="tel"></label></div>
+          <div class="fld">가운데 사진
+            <div class="seg" id="bgSeg">
+              <label><input type="radio" name="bg" value="cafe" checked> 카페 사진</label>
+              <label><input type="radio" name="bg" value="studio"> 흰 배경 기기</label>
+            </div>
+          </div>
+          <label class="small"><input type="checkbox" id="fLogoSide" checked> 가운데 사진에 매장 로고 넣기(기기 반대편 · 로고가 있을 때)</label>
+          <p class="note">제안서 금지사항: 무료체험·무상교체·한시 프로모션·전용가·정책금은 넣지 않습니다. 가격을 넣게 되면 “20,000원 (VAT 포함 22,000원)”처럼.</p>
+        </div>
+      </section>
+    </div>
+
+    <section class="view">
+      <div class="tabs" id="tabs">
+        <button type="button" data-tab="screen" class="on">화면</button>
+        <button type="button" data-tab="front">정면 기기</button>
+        <button type="button" data-tab="side">측면 기기</button>
+        <button type="button" data-tab="circle">원형 거치대</button>
+        <button type="button" data-tab="cafe">카페</button>
+        <button type="button" data-tab="flyer">제안 전단</button>
+      </div>
+      <div class="stage"><canvas id="viewCv" width="1280" height="800"></canvas></div>
+      <p class="small" id="viewNote" style="margin-top:8px"></p>
+      <div class="dl">
+        <button class="btn primary" type="button" id="dlOne">이 그림 받기</button>
+        <button class="btn" type="button" id="dlAll">모두 zip으로</button>
+        <span class="hint" id="dlInfo"></span>
+      </div>
+    </section>
+  </div>
+
+  <footer>
+    네이버 메뉴·사진은 중계 서버를 거쳐 받아 옵니다(가게가 올린 사진만 — 방문자 리뷰·블로그 사진은 받지 않음). 올린 로고·사진은 이 브라우저 안에서만 씁니다.<br>
+    화면은 하이오더 NEW UX 스킨(상품진열수 3)을 본뜬 제안용 그림입니다 — 스킨 색은 비슷하게 그린 것이라 실제와 조금 다를 수 있습니다. 매장 로고는 NEW UX 메뉴판 윗부분에 넣을 수 없어(v21·v45 스킨만) 빈 사진 칸·한 장 화면·전단에만 넣습니다.
+  </footer>
+</div>
+<div id="toast" aria-live="polite"></div>
+<input type="file" id="menuFile" accept="image/*" hidden>
+<script>
+(() => {
+  'use strict';
+  /* ══ 맛보기 v1.00 — 고객 맞춤 하이오더 화면 ══
+     중계 서버(워커) /search·/menu·/img(가게가 올린 네이버 사진)·/lib(공통 사진함)을 차림표와 같이 쓴다. 그 밖은 모두 브라우저 안에서 그린다(AI 없음).
+     화면은 하이오더 NEW UX 스킨(사용자 기본폼 2626×1600 · 상품진열수 3 · 사진 칸 500×372 비율)을 본뜬다. localStorage 등은 쓰지 않는다. */
+  const API_BASE = 'https://kt.roi0925003.workers.dev';
+  const PUBLIC_PASS = 'sk-bbwkqqcpjx4yty';   // 직원 공개용 토큰(밑그림·차림표와 같은 값) — 비밀번호가 아니다
+  const PAGE_VERSION = 'v1.00';
+  const AI = 'https://kt-synergy.com/ai/';
+  /* 기기 틀 — 사용자 제공 사진의 투명 화면 네 꼭짓점(TL·TR·BR·BL). full = 화면 전체(사이드바까지 그림) · 아니면 사이드바가 사진에 박혀 있어 내용 칸만 */
+  const FRAMES = {
+    front: { file: 'hiorder_frame_front.webp', name: '정면', w: 1296, h: 1126, full: true, ratio: 1167 / 697, quad: [[64, 78], [1235, 78], [1235, 779], [64, 779]] },
+    side: { file: 'hiorder_frame_side.webp', name: '측면', w: 2730, h: 1536, full: false, ratio: 912 / 665, quad: [[1508, 426], [2418, 423], [2425, 1089], [1502, 1094]] },
+    circle: { file: 'hiorder_frame_circle.webp', name: '원형 거치대', w: 2346, h: 3049, full: false, ratio: 1282 / 998, quad: [[682, 466], [1968, 466], [1968, 1468], [686, 1468]] },
+    cafe: { file: 'hiorder_frame_cafe.webp', name: '카페', w: 3839, h: 2159, full: true, ratio: 1.6, quad: [[782, 595], [1725, 600], [1770, 1228], [825, 1264]] },
+  };
+  /* KT CI — 흰 바탕엔 BR(01), 색 바탕엔 W(05) (kt-brand-assets 규칙). 없으면 글자로 */
+  const KT_LOGO = { dark: AI + encodeURIComponent('01_KT Wordmark (Standard)_01.png'), white: AI + encodeURIComponent('05_KT Wordmark (1 Color)_White.png') };
+  /* NEW UX 스킨 색 — 하이오더 매뉴얼 9371: RED/GRAY/BLACK/BLUE/GREEN(20260407 기준). 색 값은 비슷하게 그린 것 */
+  const SKIN = {
+    RED: { top: '#F5565E', bot: '#E41D26', btn: '#8E1219', sel: '#E41D26', name: '빨강' },
+    GRAY: { top: '#959BA4', bot: '#646A73', btn: '#373B42', sel: '#4E535B', name: '회색' },
+    BLACK: { top: '#3A3B40', bot: '#18181B', btn: '#000000', sel: '#18181B', name: '검정' },
+    BLUE: { top: '#5E96F3', bot: '#2062D8', btn: '#133F8C', sel: '#2062D8', name: '파랑' },
+    GREEN: { top: '#46C584', bot: '#179B5C', btn: '#0C5C36', sel: '#179B5C', name: '초록' },
+  };
+  const DEFAULT_CATS = ['대표메뉴', '인기메뉴', '사이드메뉴', '음료', '주류', '원산지'];
+  const FONT = "'Pretendard Variable', Pretendard, 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif";
+  const FW = (w, px) => `${w} ${Math.max(1, px)}px ${FONT}`;
+  const RED = '#EE2D2D';
+
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const won = (n) => (n !== null && n !== undefined && n !== '' && Number.isFinite(Number(n))) ? Number(n).toLocaleString('ko-KR') : '';
+  $('#pageVer').textContent = PAGE_VERSION;
+
+  const FLY_DEF = () => ({
+    normal: { head: '부르지 않아도 주문은 들어옵니다', em: '들어', sub1: '', sub2: '처음 온 손님도 사진 메뉴판에서 직접 고르고, 망설임 없이 주문합니다.',
+      b1a: '왜 하이오더인가', b1b: '넓은 홀도 가볍게 운영', b1c: '주문 접수를 태블릿이 대신해, 같은 인원으로 더 많은 테이블을 봅니다.',
+      b2a: '업계 유일 직영 A/S', b2b: '당일 출동 원칙 새벽 2시까지 지원', b2c: '가입부터 설치·수리까지 KT 직영 인력이 직접. 긴급 건은 전용 핫라인으로 즉시 연결됩니다.', pill: '' },
+    mou: { head: '본사가 검증하고 KT가 책임집니다', em: '책임', sub1: '', sub2: '',
+      b1a: 'MOU 전용 혜택', b1b: '가맹점 전용 할인 조건 적용', b1c: '',
+      b2a: '업계 유일 직영 A/S', b2b: '당일 출동 원칙 새벽 2시까지 지원', b2c: '가입부터 설치·수리까지 KT 직영 인력이 직접. 긴급 건은 본사 카톡방 > KT 핫라인 즉시 연결.', pill: '' },
+  });
+  const SUB2 = [
+    ['기본', '처음 온 손님도 사진 메뉴판에서 직접 고르고, 망설임 없이 주문합니다.'],
+    ['고깃집', '처음 온 손님도 사진 메뉴판으로 부위별 특징을 보고, 망설임 없이 주문합니다.'],
+    ['맵기·구성', '처음 온 손님도 사진 메뉴판에서 맵기와 구성을 직접 고르고, 망설임 없이 주문합니다.'],
+    ['외국어', '외국인 손님도 자기 나라 말로 메뉴를 보고, 부르지 않고 바로 주문합니다.'],
+  ];
+  const M = {
+    store: null, name: '', menus: [], cats: [], biz: [], lib: [], cands: [],
+    photos: new Map(),   // 주소 → { bmp, src }
+    logo: null,          // { raw, cv(바탕 지운 것), color }
+    rep: { key: '', bmp: null, upload: null },
+    kind: 'menu', color: 'RED', cat: '', empty: 'logo', photoFirst: true, one: 'rep', oneName: true,
+    slots: [], overrides: new Map(),   // 메뉴 번호 → 올린 사진
+    tab: 'screen', fly: FLY_DEF(), mou: false, bg: 'cafe', logoSide: true, consult: { name: '', tel: '' },
+    frames: new Map(), kt: {}, busy: false,
+  };
+
+  /* ── 공통 ── */
+  async function api(path, { method = 'GET', body, timeout = 25000, raw = false } = {}) {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), timeout);
+    let res;
+    try {
+      res = await fetch(API_BASE + path, { method, cache: 'no-store', signal: ctrl.signal, headers: Object.assign({ 'X-Team-Pass': PUBLIC_PASS }, body ? { 'Content-Type': 'application/json' } : {}), body: body ? JSON.stringify(body) : undefined });
+    } catch (e) {
+      throw new Error(e && e.name === 'AbortError' ? '응답이 너무 늦습니다. 잠시 뒤 다시 해 주세요.' : '중계 서버에 연결하지 못했습니다. 인터넷 연결이나 회사 PC 차단을 확인해 주세요.');
+    } finally { clearTimeout(t); }
+    if (raw) return res;
+    let data = null;
+    try { data = await res.json(); } catch (_) { data = null; }
+    if (!res.ok) { const err = new Error((data && data.error) || `중계 서버 오류 (HTTP ${res.status})`); err.status = res.status; throw err; }
+    return data;
+  }
+  function setMsg(node, text, kind = '') { node.textContent = text || ''; node.className = `msg${kind ? ' ' + kind : ''}`; }
+  function toast(text, kind = '', ms = 5000) {
+    const box = document.createElement('div');
+    box.className = `tst${kind ? ' ' + kind : ''}`; box.textContent = text;
+    $('#toast').appendChild(box);
+    while ($('#toast').children.length > 3) $('#toast').firstChild.remove();
+    setTimeout(() => box.remove(), ms);
+  }
+  function canvasOf(w, h) { const cv = document.createElement('canvas'); cv.width = Math.max(1, Math.round(w)); cv.height = Math.max(1, Math.round(h)); return cv; }
+  async function decode(blob) { try { return await createImageBitmap(blob); } catch (_) { return null; } }
+  function loadImg(url) {
+    return new Promise((res) => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = url; });
+  }
+  async function ensureFonts(text) {
+    if (!document.fonts || !document.fonts.load) return;
+    try { await document.fonts.load(`700 40px "Pretendard Variable"`, String(text || '가').slice(0, 3000)); } catch (_) { /* 기본 글꼴 */ }
+  }
+  function download(blob, name) {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 30000);
+  }
+  const safeName = (s) => String(s || '').replace(/[\\/:*?"<>|\u0000-\u001f]/g, '_').replace(/\s+/g, ' ').trim().slice(0, 60) || '매장';
+  const normName = (s) => String(s || '').normalize('NFC').toLowerCase().replace(/[\s\-_.,·•()[\]{}'"`~!@#$%^&*+=|\\/:;?<>]/g, '');
+  const SIZE_TOKEN = '(?:특대|대|중|소|특|XL|L|M|S|R|라지|레귤러|미디엄|스몰|\\d+(?:\\.\\d+)?\\s*(?:인분|인|g|kg|ml|L|대|마리|개|pcs|p|피스|조각|줄|잔|병|판))';
+  const SIZE_TAIL = new RegExp(`\\s*(?:[(\\[]\\s*${SIZE_TOKEN}\\s*[)\\]]|[-_/·\\s]${SIZE_TOKEN})\\s*$`, 'i');
+  const baseName = (n) => { let s = String(n || '').trim(); for (let i = 0; i < 3; i++) { const t = s.replace(SIZE_TAIL, '').trim(); if (t === s) break; s = t; } return s; };
+  function rrect(ctx, x, y, w, h, r) {
+    r = Math.max(0, Math.min(r, w / 2, h / 2));
+    ctx.beginPath();
+    ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r); ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y); ctx.closePath();
+  }
+  function fitText(ctx, text, maxW) {   // 넘치면 말줄임
+    let s = String(text || '');
+    if (ctx.measureText(s).width <= maxW) return s;
+    while (s.length > 1 && ctx.measureText(s + '…').width > maxW) s = s.slice(0, -1);
+    return s + '…';
+  }
+  function wrapLines(ctx, text, maxW, maxLines = 9) {
+    const out = [];
+    String(text || '').split('\n').forEach((para) => {
+      let line = '';
+      for (const ch of [...para]) {
+        const t = line + ch;
+        if (ctx.measureText(t).width > maxW && line) {
+          const sp = line.lastIndexOf(' ');
+          if (sp > line.length * 0.5) { out.push(line.slice(0, sp)); line = line.slice(sp + 1) + ch; } else { out.push(line); line = ch; }
+        } else line = t;
+      }
+      out.push(line);
+    });
+    if (out.length > maxLines) { const cut = out.slice(0, maxLines); cut[maxLines - 1] = cut[maxLines - 1].replace(/.$/, '…'); return cut; }
+    return out;
+  }
+  function drawCover(ctx, img, x, y, w, h) {
+    const iw = img.width, ih = img.height, s = Math.max(w / iw, h / ih);
+    ctx.drawImage(img, x + (w - iw * s) / 2, y + (h - ih * s) / 2, iw * s, ih * s);
+  }
+  function drawContain(ctx, img, x, y, w, h) {
+    const iw = img.width, ih = img.height, s = Math.min(w / iw, h / ih);
+    ctx.drawImage(img, x + (w - iw * s) / 2, y + (h - ih * s) / 2, iw * s, ih * s);
+  }
+  const rgb = (c) => `rgb(${c[0]},${c[1]},${c[2]})`;
+
+  /* ── 매장 찾기 → 네이버 메뉴 ── */
+  $('#searchForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const q = $('#q').value.trim();
+    if (q.length < 2) { setMsg($('#loadMsg'), '상호를 두 글자 이상 넣어 주세요.', 'bad'); return; }
+    $('#searchBtn').disabled = true;
+    setMsg($('#loadMsg'), '찾는 중…');
+    $('#cands').innerHTML = '';
+    try {
+      const r = await api(`/search?q=${encodeURIComponent(q)}`);
+      M.cands = r.candidates || [];
+      if (!M.cands.length) { setMsg($('#loadMsg'), '찾지 못했습니다. 상호에 동네 이름을 붙여 보세요.', 'bad'); return; }
+      setMsg($('#loadMsg'), `${M.cands.length}곳 — 맞는 매장을 고르세요.`);
+      $('#cands').innerHTML = M.cands.map((c, i) => `<li><div><div class="nm">${esc(c.name)}</div><div class="meta">${esc(c.category || '')} · ${esc(c.roadAddress || c.address || '')}</div></div><button class="btn sm primary" type="button" data-i="${i}">불러오기</button></li>`).join('');
+    } catch (err) { setMsg($('#loadMsg'), err.message, 'bad'); }
+    finally { $('#searchBtn').disabled = false; }
+  });
+  $('#cands').addEventListener('click', (e) => { const b = e.target.closest('button[data-i]'); if (b && !M.busy) loadStore(M.cands[Number(b.dataset.i)]); });
+  async function loadStore(c) {
+    M.busy = true;
+    setMsg($('#loadMsg'), `${c.name} — 네이버 메뉴를 불러오는 중…`);
+    let r;
+    try { r = await api('/menu', { method: 'POST', body: { store: c } }); }
+    catch (err) { M.busy = false; setMsg($('#loadMsg'), err.status === 404 ? '중계 서버가 낮은 버전이라 네이버 메뉴를 부를 수 없습니다(v1.43 이상 필요).' : err.message, 'bad'); return; }
+    M.busy = false;
+    if (!r || !r.ok) { setMsg($('#loadMsg'), `${(r && r.reason) || '네이버 메뉴를 가져오지 못했습니다'}`, 'bad'); return; }
+    M.store = { name: c.name, category: c.category || '', address: c.roadAddress || c.address || '' };
+    M.name = c.name; $('#storeName').value = c.name;
+    M.menus = (r.menus || []).map((m, i) => ({ i, name: m.name || '', price: m.price ?? null, cat: m.category || '', url: m.image || '', rec: Boolean(m.recommend), lib: null }));
+    M.biz = (r.bizPhotos || []).map((b, i) => ({ i, url: b.url }));
+    M.overrides.clear(); M.rep = { key: '', bmp: null, upload: null };
+    M.fly = FLY_DEF();
+    buildCats();
+    $('#cands').innerHTML = '';
+    const withImg = M.menus.filter((m) => m.url).length;
+    setMsg($('#loadMsg'), `네이버 메뉴 ${M.menus.length}개 · 사진 있는 메뉴 ${withImg}개${M.biz.length ? ` · 가게 사진 ${M.biz.length}장` : ''} — 사진을 받는 중…`, 'ok');
+    autoSlots();
+    syncForm(); drawSlots(); redraw();
+    await loadPhotos();
+    await libMatch();
+    pickDefaultRep();
+    autoSlots();
+    drawSlots(); drawRepThumbs(); redraw();
+    const has = M.menus.filter((m) => photoOf(m)).length;
+    setMsg($('#loadMsg'), `네이버 메뉴 ${M.menus.length}개 · 사진 있는 메뉴 ${has}개${M.biz.length ? ` · 가게 사진 ${M.biz.length}장` : ''}${has < 3 ? ' — 사진이 적습니다: 빈 칸은 로고·대표메뉴로 채우거나 ‘한 장 화면’을 고르세요' : ''}`, has < 3 ? 'warn' : 'ok');
+  }
+  function buildCats() {
+    const cats = [];
+    M.menus.forEach((m) => { if (m.cat && !cats.includes(m.cat)) cats.push(m.cat); });
+    const hasRec = M.menus.some((m) => m.rec);
+    let list = [];
+    if (hasRec || !cats.length) list.push('대표메뉴');
+    list = list.concat(cats.filter((c) => c !== '대표메뉴'));
+    if (!cats.length) list = DEFAULT_CATS.slice();
+    M.cats = list;
+    M.cat = list[0];
+  }
+  function menusOf(cat) {
+    if (cat === '대표메뉴') { const rec = M.menus.filter((m) => m.rec || m.cat === '대표메뉴'); return rec.length ? rec : M.menus; }
+    const l = M.menus.filter((m) => m.cat === cat);
+    return l.length ? l : M.menus;
+  }
+  async function fetchPhoto(url) {
+    if (M.photos.has(url)) return M.photos.get(url);
+    const job = (async () => {
+      try {
+        const res = await api(`/img?u=${encodeURIComponent(url)}`, { raw: true });
+        if (!res.ok) return null;
+        const bmp = await decode(await res.blob());
+        return bmp ? { bmp } : null;
+      } catch (_) { return null; }
+    })();
+    M.photos.set(url, job);
+    const v = await job;
+    M.photos.set(url, v);
+    return v;
+  }
+  async function loadPhotos() {
+    const urls = [...new Set([...M.menus.map((m) => m.url), ...M.biz.map((b) => b.url)].filter(Boolean))].slice(0, 70);
+    let k = 0;
+    const jobs = urls.slice();
+    const work = async () => { while (jobs.length) { const u = jobs.shift(); await fetchPhoto(u); k++; if (k % 6 === 0) { drawRepThumbs(); redraw(); } } };
+    await Promise.all([work(), work(), work(), work()]);
+  }
+  /* 공통 사진함 — 네이버 사진이 없는 음료·주류·공깃밥을 이름(다른 이름)으로 채운다 */
+  async function libMatch() {
+    try {
+      const r = await api('/lib', { timeout: 12000 });
+      M.lib = Array.isArray(r.items) ? r.items : [];
+    } catch (_) { M.lib = []; return; }
+    const find = (name) => {
+      const k = normName(name), b = normName(baseName(name));
+      return M.lib.find((it) => normName(it.name) === k || (it.aliases || []).some((a) => normName(a) === k))
+        || M.lib.find((it) => normName(baseName(it.name)) === b || (it.aliases || []).some((a) => normName(baseName(a)) === b)) || null;
+    };
+    const todo = M.menus.filter((m) => !m.url).map((m) => [m, find(m.name)]).filter((x) => x[1]);
+    for (const [m, it] of todo) {
+      const url = `${API_BASE}/lib/img?id=${encodeURIComponent(it.id)}&v=${it.ver || 0}`;
+      if (!M.photos.has(url)) {
+        try { const res = await fetch(url, { cache: 'force-cache' }); const bmp = res.ok ? await decode(await res.blob()) : null; M.photos.set(url, bmp ? { bmp } : null); } catch (_) { M.photos.set(url, null); }
+      }
+      if (M.photos.get(url)) m.lib = url;
+    }
+  }
+  function photoOf(m) {
+    if (!m) return null;
+    const o = M.overrides.get(m.i);
+    if (o) return o;
+    const a = m.url && M.photos.get(m.url);
+    if (a && a.bmp) return a.bmp;
+    const b = m.lib && M.photos.get(m.lib);
+    return b && b.bmp ? b.bmp : null;
+  }
+  function autoSlots() {
+    let list = menusOf(M.cat).slice();
+    if (M.photoFirst) list = list.filter((m) => photoOf(m)).concat(list.filter((m) => !photoOf(m)));
+    M.slots = list.slice(0, 6).map((m) => m.i);
+  }
+  function pickDefaultRep() {
+    if (M.rep.upload) return;
+    const cands = repCands().filter((c) => c.kind !== 'lib');   // 사진함(공산품) 사진은 대표 사진으로 고르지 않는다
+    const recFirst = cands.find((c) => c.menu && c.menu.rec) || cands.find((c) => c.kind === 'menu') || cands[0];
+    M.rep.key = recFirst ? recFirst.key : '';
+    M.rep.bmp = recFirst ? recFirst.bmp : null;
+  }
+  function repCands() {
+    const out = [];
+    M.menus.forEach((m) => {
+      const b = photoOf(m);
+      if (!b) return;
+      const own = M.overrides.get(m.i) || (m.url && M.photos.get(m.url) && M.photos.get(m.url).bmp);
+      out.push({ key: `m${m.i}`, bmp: b, label: m.name, menu: m, kind: own ? 'menu' : 'lib' });
+    });
+    M.biz.forEach((z) => { const p = M.photos.get(z.url); if (p && p.bmp) out.push({ key: `b${z.i}`, bmp: p.bmp, label: `가게 사진 ${z.i + 1}`, kind: 'biz' }); });
+    if (M.rep.upload) out.unshift({ key: 'u', bmp: M.rep.upload, label: '올린 사진', kind: 'upload' });
+    return out;
+  }
+
+  /* ── 로고 — 흰 바탕 지우기 · 여백 떼기 · 대표 색 ── */
+  function processLogo(raw, white) {
+    const k = Math.min(1, 900 / Math.max(raw.width, raw.height));
+    const cv = canvasOf(raw.width * k, raw.height * k), ctx = cv.getContext('2d');
+    ctx.drawImage(raw, 0, 0, cv.width, cv.height);
+    const d = ctx.getImageData(0, 0, cv.width, cv.height), a = d.data;
+    if (white) {
+      for (let i = 0; i < a.length; i += 4) {
+        const m = Math.min(a[i], a[i + 1], a[i + 2]);
+        if (m > 244) a[i + 3] = 0;
+        else if (m > 222) a[i + 3] = Math.round(a[i + 3] * (244 - m) / 22);
+      }
+      ctx.putImageData(d, 0, 0);
+    }
+    // 투명 여백 떼기
+    let x0 = cv.width, y0 = cv.height, x1 = -1, y1 = -1;
+    for (let y = 0; y < cv.height; y++) for (let x = 0; x < cv.width; x++) if (a[(y * cv.width + x) * 4 + 3] > 16) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+    let out = cv;
+    if (x1 >= x0 && y1 >= y0 && (x0 > 2 || y0 > 2 || x1 < cv.width - 3 || y1 < cv.height - 3)) {
+      out = canvasOf(x1 - x0 + 1, y1 - y0 + 1);
+      out.getContext('2d').drawImage(cv, x0, y0, out.width, out.height, 0, 0, out.width, out.height);
+    }
+    // 대표 색(채도 있는 점의 평균)과 바탕색(불투명 로고의 가장자리)
+    const od = out.getContext('2d').getImageData(0, 0, out.width, out.height).data;
+    let n = 0; const s = [0, 0, 0]; let e = 0; const es = [0, 0, 0]; let opaqueEdge = 0, edgeN = 0;
+    for (let y = 0; y < out.height; y++) {
+      for (let x = 0; x < out.width; x++) {
+        const i = (y * out.width + x) * 4;
+        if (od[i + 3] < 128) continue;
+        const r = od[i], g = od[i + 1], b = od[i + 2], mx = Math.max(r, g, b), mn = Math.min(r, g, b);
+        if (mx - mn > 50) { s[0] += r; s[1] += g; s[2] += b; n++; }
+        if (x < 3 || y < 3 || x >= out.width - 3 || y >= out.height - 3) { es[0] += r; es[1] += g; es[2] += b; e++; }
+      }
+    }
+    for (let x = 0; x < out.width; x++) { edgeN += 2; if (od[x * 4 + 3] > 200) opaqueEdge++; if (od[((out.height - 1) * out.width + x) * 4 + 3] > 200) opaqueEdge++; }
+    const color = n > 30 ? s.map((v) => Math.round(v / n)) : null;
+    const bg = e && opaqueEdge / edgeN > 0.9 ? es.map((v) => Math.round(v / e)) : null;   // 네모 로고(바탕이 있는 것)면 그 바탕색
+    return { cv: out, color, bg };
+  }
+  function skinFromColor(c) {
+    if (!c) return 'BLACK';
+    const [r, g, b] = c.map((v) => v / 255), mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2;
+    if (mx - mn < 0.18) return l < 0.45 ? 'BLACK' : 'GRAY';
+    let h = 0;
+    if (mx === r) h = ((g - b) / (mx - mn)) % 6; else if (mx === g) h = (b - r) / (mx - mn) + 2; else h = (r - g) / (mx - mn) + 4;
+    h = (h * 60 + 360) % 360;
+    if (h < 40 || h >= 320) return 'RED';
+    if (h < 170) return 'GREEN';
+    if (h < 280) return 'BLUE';
+    return 'RED';
+  }
+  function drawLogoPreview() {
+    const cv = $('#logoCv'), ctx = cv.getContext('2d');
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    if (M.logo) drawContain(ctx, M.logo.cv, 12, 12, cv.width - 24, cv.height - 24);
+    else { ctx.fillStyle = '#8b93a1'; ctx.font = FW(600, 22); ctx.textAlign = 'center'; ctx.fillText('로고 없음', cv.width / 2, cv.height / 2 + 8); ctx.textAlign = 'left'; }
+    $('#logoClear').hidden = !M.logo;
+  }
+
+  /* ── 하이오더 NEW UX 화면 — 기본폼(2626×1600) 비율로 ── */
+  const T = { W: 2626, H: 1600, SB: 479 };
+  function slotItems() { return M.slots.map((i) => M.menus[i]).filter(Boolean); }
+  const storeTitle = () => (M.name || (M.store && M.store.name) || '우리 매장').trim();
+  function drawKtMark(ctx, x, y, h, dark, align = 'center', tail = '하이오더') {   // kt 워드마크 + 하이오더(글자) — CI가 없으면 글자로
+    const img = dark ? M.kt.dark : M.kt.white;
+    const col = dark ? '#111111' : '#FFFFFF';
+    ctx.font = FW(dark ? 800 : 500, h * 0.9);
+    const tw = tail ? ctx.measureText(tail).width : 0;
+    let mw, draw;
+    if (img) { mw = img.width * (h / img.height); draw = (x0) => ctx.drawImage(img, x0, y - h * 0.86, mw, h); }
+    else { ctx.font = FW(900, h * 1.05); mw = ctx.measureText('kt').width; draw = (x0) => { ctx.fillStyle = dark ? '#111' : '#fff'; ctx.font = FW(900, h * 1.05); ctx.fillText('kt', x0, y); }; }
+    const gap = tail ? h * 0.28 : 0, total = mw + gap + tw;
+    const x0 = align === 'center' ? x - total / 2 : align === 'right' ? x - total : x;
+    draw(x0);
+    if (tail) { ctx.fillStyle = col; ctx.font = FW(dark ? 800 : 500, h * 0.9); ctx.fillText(tail, x0 + mw + gap, y); }
+    return total;
+  }
+  function drawSidebar(ctx, W, H, skin, cats, sel) {
+    const k = H / T.H, w = W * (T.SB / T.W);
+    ctx.save();
+    const g = ctx.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, skin.top); g.addColorStop(0.42, skin.bot); g.addColorStop(1, skin.bot);
+    ctx.shadowColor = 'rgba(0,0,0,.16)'; ctx.shadowBlur = 30 * k; ctx.shadowOffsetX = 8 * k;
+    const r = 44 * k;
+    ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(w - r, 0); ctx.quadraticCurveTo(w, 0, w, r); ctx.lineTo(w, H - r); ctx.quadraticCurveTo(w, H, w - r, H); ctx.lineTo(0, H); ctx.closePath();
+    ctx.fillStyle = g; ctx.fill();
+    ctx.restore();
+    ctx.save();
+    ctx.textBaseline = 'alphabetic';
+    drawKtMark(ctx, w / 2, 152 * k, 50 * k, false);
+    rrect(ctx, w / 2 - 96 * k, 184 * k, 192 * k, 64 * k, 32 * k);
+    ctx.strokeStyle = 'rgba(255,255,255,.6)'; ctx.lineWidth = 2.4 * k; ctx.stroke();
+    ctx.fillStyle = '#fff'; ctx.font = FW(600, 28 * k); ctx.textAlign = 'center'; ctx.fillText('테이블 3', w / 2, 226 * k); ctx.textAlign = 'left';
+    const top = 315 * k, pitch = 129 * k;
+    cats.slice(0, 7).forEach((c, i) => {
+      const y = top + i * pitch, on = c === sel;
+      if (on) { ctx.fillStyle = 'rgba(255,255,255,.97)'; ctx.fillRect(0, y, w, 131 * k); ctx.fillStyle = skin.sel; ctx.fillRect(0, y, 12 * k, 131 * k); }
+      ctx.fillStyle = on ? skin.sel : '#FFFFFF'; ctx.font = FW(on ? 800 : 700, 35 * k);
+      ctx.fillText(fitText(ctx, c, w - 90 * k), 58 * k, y + 80 * k);
+    });
+    // LANGUAGE
+    ctx.font = FW(800, 35 * k);
+    const lw = ctx.measureText('LANGUAGE').width, gx = w / 2 - (lw + 46 * k) / 2 + 17 * k, gy = 1386 * k;
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 3 * k;
+    ctx.beginPath(); ctx.arc(gx, gy, 17 * k, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.ellipse(gx, gy, 7 * k, 17 * k, 0, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(gx - 17 * k, gy); ctx.lineTo(gx + 17 * k, gy); ctx.stroke();
+    ctx.fillStyle = '#fff'; ctx.fillText('LANGUAGE', gx + 29 * k, gy + 12 * k);
+    rrect(ctx, 42 * k, 1469 * k, w - 84 * k, 113 * k, 18 * k); ctx.fillStyle = skin.btn; ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.font = FW(800, 38 * k); ctx.textAlign = 'center'; ctx.fillText('직원호출', w / 2, 1539 * k); ctx.textAlign = 'left';
+    ctx.restore();
+    return w;
+  }
+  function tileBg() { return M.logo && M.logo.bg ? rgb(M.logo.bg) : '#F4F5F7'; }
+  function drawCardImage(ctx, m, x, y, w, h, fill, k, repBmp) {
+    const bmp = photoOf(m);
+    if (bmp) { drawCover(ctx, bmp, x, y, w, h); return 'photo'; }
+    if (fill === 'rep' && repBmp) { drawCover(ctx, repBmp, x, y, w, h); return 'rep'; }
+    if ((fill === 'logo' || fill === 'rep') && M.logo) {
+      ctx.fillStyle = tileBg(); ctx.fillRect(x, y, w, h);
+      drawContain(ctx, M.logo.cv, x + w * 0.18, y + h * 0.2, w * 0.64, h * 0.6);
+      return 'logo';
+    }
+    ctx.fillStyle = '#F2F3F5'; ctx.fillRect(x, y, w, h);
+    ctx.fillStyle = '#8A8F98'; ctx.font = FW(800, 38 * k); ctx.textAlign = 'center';
+    const lines = wrapLines(ctx, m ? baseName(m.name) : '', w * 0.8, 2);
+    lines.forEach((ln, i) => ctx.fillText(ln, x + w / 2, y + h / 2 + (i - (lines.length - 1) / 2) * 48 * k + 13 * k));
+    ctx.textAlign = 'left';
+    return 'text';
+  }
+  /* 화면 그리기 — withSidebar=false면 내용 칸만(사진에 사이드바가 박힌 틀) */
+  function drawNewUX(ctx, W, H, withSidebar, titleCat) {
+    const k = H / T.H;
+    ctx.save();
+    ctx.fillStyle = '#FFFFFF'; ctx.fillRect(0, 0, W, H);
+    const skin = SKIN[M.color] || SKIN.RED;
+    const cats = M.cats.length ? M.cats.slice() : DEFAULT_CATS.slice();
+    if (!cats.includes('원산지')) cats.push('원산지');
+    const sbW = withSidebar ? W * (T.SB / T.W) : 0;
+    const cw = W - sbW;
+    const pad = cw * (139 / (T.W - T.SB)), gap = cw * (83 / (T.W - T.SB));
+    let cardW = (cw - 2 * pad - 2 * gap) / 3, cardH = cardW / 1.344;
+    const top = 200 * k, textH = 226 * k;
+    const maxH = (H - 100 * k - top) / 2 - textH;
+    if (cardH > maxH) { cardH = maxH; cardW = cardH * 1.344; }
+    const gx = sbW + (cw - (3 * cardW + 2 * gap)) / 2;
+    // 머리: 제목 + 알약 두 개
+    ctx.textBaseline = 'alphabetic';
+    ctx.font = FW(600, 30 * k);
+    const chips = ['추가 기능', '와이파이'];
+    let cx = sbW + cw - (cw - (3 * cardW + 2 * gap)) / 2;
+    const chipBox = [];
+    chips.forEach((t) => {
+      const tw = ctx.measureText(t).width + (t === '와이파이' ? 34 * k : 30 * k) + 64 * k;
+      cx -= tw; chipBox.push([cx, t, tw]); cx -= 18 * k;
+    });
+    chipBox.forEach(([x0, t, tw]) => {
+      ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.08)'; ctx.shadowBlur = 10 * k; ctx.shadowOffsetY = 2 * k;
+      rrect(ctx, x0, 62 * k, tw, 80 * k, 40 * k); ctx.fillStyle = '#fff'; ctx.fill(); ctx.restore();
+      rrect(ctx, x0, 62 * k, tw, 80 * k, 40 * k); ctx.strokeStyle = '#E3E5E8'; ctx.lineWidth = 2 * k; ctx.stroke();
+      ctx.fillStyle = '#5B616B'; ctx.font = FW(600, 30 * k); ctx.fillText(t, x0 + 32 * k, 113 * k);
+      const ex = x0 + 32 * k + ctx.measureText(t).width + 10 * k;
+      ctx.strokeStyle = '#8A9099'; ctx.lineWidth = 2.6 * k;
+      if (t === '와이파이') { for (let r = 1; r <= 3; r++) { ctx.beginPath(); ctx.arc(ex + 12 * k, 116 * k, r * 7 * k, Math.PI * 1.25, Math.PI * 1.75); ctx.stroke(); } }
+      else { ctx.beginPath(); ctx.moveTo(ex + 2 * k, 97 * k); ctx.lineTo(ex + 10 * k, 105 * k); ctx.lineTo(ex + 18 * k, 97 * k); ctx.stroke(); }
+    });
+    const titleMax = chipBox[chipBox.length - 1][0] - gx - 30 * k;
+    ctx.fillStyle = '#161616'; ctx.font = FW(800, 52 * k);
+    ctx.fillText(fitText(ctx, `${storeTitle()} ${titleCat}`, titleMax), gx, 124 * k);
+    // 칸 여섯
+    const items = slotItems();
+    let repUsed = false;
+    // 빈 칸에 넣을 대표메뉴 사진 — 이미 다른 칸에 보이는 사진이면 안 보이는 다른 사진으로(없으면 로고)
+    const shown = new Set(items.map((m) => photoOf(m)).filter(Boolean));
+    const repForCard = M.rep.bmp && !shown.has(M.rep.bmp) ? M.rep.bmp : ((repCands().find((c) => c.kind !== 'lib' && !shown.has(c.bmp)) || {}).bmp || null);
+    for (let i = 0; i < 6; i++) {
+      const m = items[i];
+      const x = gx + (i % 3) * (cardW + gap), y = top + Math.floor(i / 3) * (cardH + textH);
+      if (!m) continue;
+      ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.12)'; ctx.shadowBlur = 26 * k; ctx.shadowOffsetY = 8 * k;
+      rrect(ctx, x, y, cardW, cardH, 26 * k); ctx.fillStyle = '#fff'; ctx.fill(); ctx.restore();
+      ctx.save(); rrect(ctx, x, y, cardW, cardH, 26 * k); ctx.clip();
+      const fill = M.empty === 'rep' && repUsed ? 'logo' : M.empty;   // 대표메뉴 사진은 한 칸에만 — 나머지 빈 칸은 로고
+      const got = drawCardImage(ctx, m, x, y, cardW, cardH, fill, k, repForCard);
+      if (got === 'rep') repUsed = true;
+      ctx.restore();
+      ctx.fillStyle = '#1A1A1A'; ctx.font = FW(800, 38 * k);
+      ctx.fillText(fitText(ctx, m.name, cardW - 10 * k), x + 6 * k, y + cardH + 66 * k);
+      if (m.price != null) { ctx.fillStyle = '#2E2E2E'; ctx.font = FW(700, 33 * k); ctx.fillText(`${won(m.price)}원`, x + 6 * k, y + cardH + 114 * k); }
+    }
+    if (withSidebar) drawSidebar(ctx, W, H, skin, cats, titleCat);
+    ctx.restore();
+  }
+  /* 한 장 화면 — 대기화면·첫 주문화면처럼 화면 가득 */
+  function drawOne(ctx, W, H) {
+    ctx.save();
+    const k = H / 800;
+    if (M.one === 'rep' && M.rep.bmp) {
+      drawCover(ctx, M.rep.bmp, 0, 0, W, H);
+      if (M.oneName) {
+        const g = ctx.createLinearGradient(0, H * 0.55, 0, H);
+        g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,.62)');
+        ctx.fillStyle = g; ctx.fillRect(0, H * 0.55, W, H * 0.45);
+        let x = 60 * k;
+        if (M.logo) {
+          const lh = 90 * k, lw = Math.min(260 * k, M.logo.cv.width * (lh / M.logo.cv.height));
+          const s = Math.min(lw / M.logo.cv.width, lh / M.logo.cv.height);
+          ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.35)'; ctx.shadowBlur = 16 * k;
+          ctx.drawImage(M.logo.cv, x, H - 70 * k - M.logo.cv.height * s, M.logo.cv.width * s, M.logo.cv.height * s); ctx.restore();
+          x += M.logo.cv.width * s + 28 * k;
+        }
+        ctx.fillStyle = '#fff'; ctx.font = FW(800, 58 * k);
+        ctx.shadowColor = 'rgba(0,0,0,.35)'; ctx.shadowBlur = 12 * k;
+        ctx.fillText(fitText(ctx, storeTitle(), W - x - 60 * k), x, H - 78 * k);
+      }
+    } else {
+      ctx.fillStyle = M.logo && M.logo.bg ? rgb(M.logo.bg) : '#FFFFFF'; ctx.fillRect(0, 0, W, H);
+      const dark = !(M.logo && M.logo.bg) || (M.logo.bg[0] * 0.299 + M.logo.bg[1] * 0.587 + M.logo.bg[2] * 0.114) > 150;
+      if (M.logo) drawContain(ctx, M.logo.cv, W * 0.22, H * (M.oneName ? 0.16 : 0.2), W * 0.56, H * (M.oneName ? 0.5 : 0.6));
+      if (M.oneName || !M.logo) {
+        ctx.fillStyle = dark ? '#1A1A1A' : '#FFFFFF'; ctx.textAlign = 'center';
+        ctx.font = FW(800, (M.logo ? 56 : 96) * k);
+        ctx.fillText(fitText(ctx, storeTitle(), W * 0.86), W / 2, M.logo ? H * 0.82 : H * 0.55);
+        ctx.textAlign = 'left';
+      }
+    }
+    ctx.restore();
+  }
+  function screenCanvas(W, H, withSidebar, titleCat) {
+    const cv = canvasOf(W, H), ctx = cv.getContext('2d');
+    if (M.kind === 'one') drawOne(ctx, cv.width, cv.height);
+    else drawNewUX(ctx, cv.width, cv.height, withSidebar, titleCat || M.cat || '대표메뉴');
+    return cv;
+  }
+
+  /* ── 기기 틀에 넣기 — 네 꼭짓점으로 원근 맞춤(삼각형 잘게 나눠 그리기) ── */
+  function squareToQuad(q) {
+    const [[x0, y0], [x1, y1], [x2, y2], [x3, y3]] = q;
+    const dx1 = x1 - x2, dx2 = x3 - x2, dx3 = x0 - x1 + x2 - x3, dy1 = y1 - y2, dy2 = y3 - y2, dy3 = y0 - y1 + y2 - y3;
+    let a13 = 0, a23 = 0;
+    if (Math.abs(dx3) > 1e-9 || Math.abs(dy3) > 1e-9) { const den = dx1 * dy2 - dx2 * dy1; a13 = (dx3 * dy2 - dx2 * dy3) / den; a23 = (dx1 * dy3 - dx3 * dy1) / den; }
+    const a11 = x1 - x0 + a13 * x1, a21 = x3 - x0 + a23 * x3, a12 = y1 - y0 + a13 * y1, a22 = y3 - y0 + a23 * y3;
+    return (u, v) => { const w = a13 * u + a23 * v + 1; return [(a11 * u + a21 * v + x0) / w, (a12 * u + a22 * v + y0) / w]; };
+  }
+  function affine(s, d) {   // 원본 삼각형 s → 대상 삼각형 d
+    const [[x0, y0], [x1, y1], [x2, y2]] = s, [[u0, v0], [u1, v1], [u2, v2]] = d;
+    const det = x0 * (y1 - y2) + x1 * (y2 - y0) + x2 * (y0 - y1);
+    const a = (u0 * (y1 - y2) + u1 * (y2 - y0) + u2 * (y0 - y1)) / det;
+    const c = (u0 * (x2 - x1) + u1 * (x0 - x2) + u2 * (x1 - x0)) / det;
+    const e = (u0 * (x1 * y2 - x2 * y1) + u1 * (x2 * y0 - x0 * y2) + u2 * (x0 * y1 - x1 * y0)) / det;
+    const b = (v0 * (y1 - y2) + v1 * (y2 - y0) + v2 * (y0 - y1)) / det;
+    const dd = (v0 * (x2 - x1) + v1 * (x0 - x2) + v2 * (x1 - x0)) / det;
+    const f = (v0 * (x1 * y2 - x2 * y1) + v1 * (x2 * y0 - x0 * y2) + v2 * (x0 * y1 - x1 * y0)) / det;
+    return [a, b, c, dd, e, f];
+  }
+  function warpInto(ctx, src, quad, n = 16) {
+    const rect = Math.abs(quad[0][1] - quad[1][1]) < 1 && Math.abs(quad[1][0] - quad[2][0]) < 1 && Math.abs(quad[3][1] - quad[2][1]) < 1 && Math.abs(quad[0][0] - quad[3][0]) < 1;
+    ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+    if (rect) { ctx.drawImage(src, quad[0][0], quad[0][1], quad[1][0] - quad[0][0], quad[3][1] - quad[0][1]); return; }
+    const H = squareToQuad(quad), W = src.width, Hh = src.height;
+    for (let i = 0; i < n; i++) {
+      for (let j = 0; j < n; j++) {
+        const u0 = j / n, u1 = (j + 1) / n, v0 = i / n, v1 = (i + 1) / n;
+        const s = [[u0 * W, v0 * Hh], [u1 * W, v0 * Hh], [u1 * W, v1 * Hh], [u0 * W, v1 * Hh]];
+        const d = [H(u0, v0), H(u1, v0), H(u1, v1), H(u0, v1)];
+        [[0, 1, 2], [0, 2, 3]].forEach((t) => {
+          const ss = t.map((x) => s[x]), dd = t.map((x) => d[x]);
+          const cx = (dd[0][0] + dd[1][0] + dd[2][0]) / 3, cy = (dd[0][1] + dd[1][1] + dd[2][1]) / 3;
+          ctx.save();
+          ctx.beginPath();
+          dd.forEach(([x, y], q) => { const dx = x - cx, dy = y - cy, L = Math.hypot(dx, dy) || 1, X = x + (dx / L) * 0.9, Y = y + (dy / L) * 0.9; if (q) ctx.lineTo(X, Y); else ctx.moveTo(X, Y); });
+          ctx.closePath(); ctx.clip();
+          ctx.setTransform(...affine(ss, dd));
+          const sx = Math.max(0, u0 * W - 2), sy = Math.max(0, v0 * Hh - 2), sw = Math.min(W - sx, (u1 - u0) * W + 4), sh = Math.min(Hh - sy, (v1 - v0) * Hh + 4);
+          ctx.drawImage(src, sx, sy, sw, sh, sx, sy, sw, sh);
+          ctx.restore();
+        });
+      }
+    }
+  }
+  async function loadFrame(key) {
+    if (M.frames.has(key)) return M.frames.get(key);
+    const im = await loadImg(AI + FRAMES[key].file);
+    M.frames.set(key, im);
+    return im;
+  }
+  const frameOk = (key) => !(M.kind === 'one' && !FRAMES[key].full);
+  async function frameCanvas(key, scale = 1) {
+    const f = FRAMES[key], img = await loadFrame(key);
+    const cv = canvasOf(f.w * scale, f.h * scale), ctx = cv.getContext('2d');
+    ctx.fillStyle = '#FFFFFF'; ctx.fillRect(0, 0, cv.width, cv.height);
+    if (!img) {
+      ctx.fillStyle = '#F3F4F6'; ctx.fillRect(0, 0, cv.width, cv.height);
+      ctx.fillStyle = '#555'; ctx.font = FW(700, Math.max(16, cv.width / 34)); ctx.textAlign = 'center';
+      ctx.fillText(`틀 사진이 아직 없습니다 — kt-synergy.com/ai/${f.file}`, cv.width / 2, cv.height / 2);
+      ctx.textAlign = 'left';
+      return { cv, ok: false };
+    }
+    const quad = f.quad.map(([x, y]) => [x * scale, y * scale]);
+    const qw = Math.hypot(quad[1][0] - quad[0][0], quad[1][1] - quad[0][1]);
+    const sw = Math.min(2600, Math.max(900, Math.round(qw * 1.6))), sh = Math.round(sw / f.ratio);
+    const titleCat = f.full ? (M.cat || '대표메뉴') : '대표메뉴';   // 사이드바가 박힌 틀은 ‘대표메뉴’가 골라져 있다
+    const scr = screenCanvas(sw, sh, f.full, titleCat);
+    warpInto(ctx, scr, quad, key === 'cafe' ? 22 : 10);
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.drawImage(img, 0, 0, cv.width, cv.height);
+    return { cv, ok: true };
+  }
+
+  /* ── 제안 전단 — 사용자 전단 형식(A4 비율) ── */
+  const FLY = { W: 1240, H: 1754 };
+  function autoSub1() {
+    const names = [];
+    slotItems().forEach((m) => { const n = baseName(m.name).replace(/\s*\(.*?\)\s*/g, '').trim(); if (n && !names.includes(n)) names.push(n); });
+    if (!names.length) return '';
+    if (names.length === 1) return `${names[0]} —`;
+    if (names.length === 2) return `${names[0]}부터 ${names[1]}까지 —`;
+    return `${names[0]}부터 ${names.slice(1, 3).join('·')}까지 —`;
+  }
+  function flyVals() {
+    const f = M.mou ? M.fly.mou : M.fly.normal;
+    const brand = storeTitle();
+    const d = new Date();
+    return {
+      ...f,
+      pill: f.pill || (M.mou ? `${d.getFullYear()}. ${d.getMonth() + 1} KT × ${brand} 업무협약(MOU) 체결` : `${brand} · KT 하이오더 도입 제안`),
+      sub1: f.sub1 || (M.mou ? `${brand} 본사가 선택한 공식 테이블오더, KT 하이오더.` : autoSub1()),
+      b1c: f.b1c || (M.mou ? `업무협약에 따른 ${brand} 가맹점만의 도입 조건. 세부 조건은 상담 시 안내드립니다.` : ''),
+    };
+  }
+  function flyText() { const v = flyVals(); return Object.values(v).join(' ') + storeTitle() + `하이오더 전문 컨설턴트 ${M.consult.name} ${M.consult.tel} ×`; }
+  async function flyerCanvas() {
+    await ensureFonts(flyText());
+    const v = flyVals(), W = FLY.W, H = FLY.H;
+    const cv = canvasOf(W, H), ctx = cv.getContext('2d');
+    ctx.fillStyle = '#FFFFFF'; ctx.fillRect(0, 0, W, H);
+    ctx.textBaseline = 'alphabetic';
+    // 머리: 매장 로고 × kt 하이오더 (MOU형은 kt 하이오더 × 브랜드)
+    const headY = 150, lh = 104;
+    const storeMark = (x, align) => {
+      if (M.logo) {
+        const s = Math.min(330 / M.logo.cv.width, lh / M.logo.cv.height), w = M.logo.cv.width * s, h = M.logo.cv.height * s;
+        const x0 = align === 'right' ? x - w : x;
+        ctx.drawImage(M.logo.cv, x0, headY - h / 2 - 8, w, h);
+        return w;
+      }
+      ctx.fillStyle = '#111'; ctx.font = FW(900, 58);
+      const t = fitText(ctx, storeTitle(), 420), w = ctx.measureText(t).width;
+      ctx.fillText(t, align === 'right' ? x - w : x, headY + 12);
+      return w;
+    };
+    ctx.fillStyle = '#C4C6CA'; ctx.font = FW(300, 92); ctx.textAlign = 'center'; ctx.fillText('×', W / 2, headY + 30); ctx.textAlign = 'left';
+    if (M.mou) { drawKtMark(ctx, W / 2 - 70, headY + 22, 62, true, 'right'); ctx.fillStyle = '#111'; ctx.font = FW(800, 58); ctx.fillText(fitText(ctx, storeTitle(), 420), W / 2 + 70, headY + 20); }
+    else { storeMark(W / 2 - 70, 'right'); drawKtMark(ctx, W / 2 + 70, headY + 22, 62, true, 'left'); }
+    // 빨간 알약
+    ctx.font = FW(800, 29);
+    const pw = Math.min(W - 160, ctx.measureText(v.pill).width + 110);
+    rrect(ctx, (W - pw) / 2, 222, pw, 58, 29); ctx.fillStyle = RED; ctx.fill();
+    ctx.fillStyle = '#FFFFFF'; ctx.textAlign = 'center'; ctx.fillText(fitText(ctx, v.pill, pw - 60), W / 2, 261); ctx.textAlign = 'left';
+    // 큰 제목 — 강조 글자만 빨강
+    const head = String(v.head || ''), em = String(v.em || '');
+    let px = 104;
+    ctx.font = FW(900, px);
+    while (ctx.measureText(head).width > W - 120 && px > 50) { px -= 2; ctx.font = FW(900, px); }
+    const hw = ctx.measureText(head).width;
+    let hx = (W - hw) / 2;
+    const at = em ? head.indexOf(em) : -1;
+    const parts = at >= 0 ? [[head.slice(0, at), '#1A1A1A'], [em, RED], [head.slice(at + em.length), '#1A1A1A']] : [[head, '#1A1A1A']];
+    parts.forEach(([t, c]) => { ctx.fillStyle = c; ctx.fillText(t, hx, 400); hx += ctx.measureText(t).width; });
+    // 부제 두 줄
+    ctx.fillStyle = '#2A2A2A'; ctx.font = FW(500, 28);
+    const subAlign = M.mou ? 'center' : 'left', sx = M.mou ? W / 2 : 104;
+    ctx.textAlign = subAlign;
+    ctx.fillText(fitText(ctx, v.sub1, W - 200), sx, 470);
+    ctx.fillText(fitText(ctx, v.sub2, W - 200), sx, 514);
+    ctx.textAlign = 'left';
+    // 가운데 사진
+    const PY = 560, PH = 700;
+    const key = M.bg === 'studio' ? 'side' : 'cafe';
+    const fr = await frameCanvas(key, 0.5);
+    ctx.save(); ctx.beginPath(); ctx.rect(0, PY, W, PH); ctx.clip();
+    drawCover(ctx, fr.cv, 0, PY, W, PH);
+    ctx.restore();
+    if (M.logoSide && M.logo) {
+      const left = M.bg === 'studio';
+      const s = Math.min(430 / M.logo.cv.width, 230 / M.logo.cv.height), w = M.logo.cv.width * s, h = M.logo.cv.height * s;
+      const x = left ? 90 : W - 90 - w, y = PY + PH * 0.52 - h / 2;
+      ctx.save(); ctx.shadowColor = 'rgba(255,255,255,.85)'; ctx.shadowBlur = 18; ctx.drawImage(M.logo.cv, x, y, w, h); ctx.restore();
+    }
+    // 두 칸 설명
+    const BY = 1340, BW2 = 520, cols = [[80, RED, v.b1a, v.b1b, v.b1c], [640, '#1A1A1A', v.b2a, v.b2b, v.b2c]];
+    cols.forEach(([x, col, a, b, c]) => {
+      ctx.fillStyle = col; ctx.fillRect(x, BY, BW2, 5);
+      ctx.fillStyle = col === RED ? RED : '#1A1A1A'; ctx.font = FW(800, 26); ctx.fillText(fitText(ctx, a, BW2), x + 8, BY + 58);
+      let hp = 42; ctx.font = FW(800, hp);
+      while (ctx.measureText(b || '').width > BW2 - 10 && hp > 30) { hp -= 1; ctx.font = FW(800, hp); }   // 제목은 줄여서라도 한 줄에
+      ctx.fillStyle = '#1A1A1A'; ctx.fillText(fitText(ctx, b, BW2 - 6), x + 6, BY + 118);
+      ctx.fillStyle = '#666A70'; ctx.font = FW(600, 26);
+      wrapLines(ctx, c, BW2 - 12, 3).forEach((ln, i) => ctx.fillText(ln, x + 8, BY + 180 + i * 46));
+    });
+    // 빨간 띠 — 컨설턴트
+    ctx.fillStyle = RED; ctx.fillRect(0, H - 104, W, 104);
+    const who = [M.consult.name ? `하이오더 전문 컨설턴트 ${M.consult.name}` : '하이오더 전문 컨설턴트', M.consult.tel].filter(Boolean).join(' · ');
+    ctx.fillStyle = '#FFFFFF'; ctx.font = FW(800, 44); ctx.textAlign = 'center'; ctx.fillText(fitText(ctx, who, W - 100), W / 2, H - 36); ctx.textAlign = 'left';
+    return { cv, ok: fr.ok };
+  }
+
+  /* ── 조작 ── */
+  $('#colorSw').innerHTML = Object.entries(SKIN).map(([k, s]) => `<button type="button" data-c="${k}" title="${s.name}" style="background:linear-gradient(${s.top},${s.bot})"></button>`).join('');
+  $('#fSub2Sel').innerHTML = SUB2.map(([t], i) => `<option value="${i}">${t}</option>`).join('') + '<option value="-1">직접 쓰기</option>';
+  const setVal = (id, v) => { const n = $(`#${id}`); if (n.value !== String(v ?? '')) n.value = String(v ?? ''); };   // 같은 값이면 건드리지 않는다(입력 중 커서 유지)
+  let catSig = '';
+  function syncForm() {
+    $$('#colorSw button').forEach((b) => b.classList.toggle('on', b.dataset.c === M.color));
+    const sig = JSON.stringify([M.cats, M.cat]);
+    if (sig !== catSig) { catSig = sig; $('#catSel').innerHTML = (M.cats.length ? M.cats : DEFAULT_CATS).map((c) => `<option${c === M.cat ? ' selected' : ''}>${esc(c)}</option>`).join(''); }
+    $('#menuOpts').style.display = M.kind === 'menu' ? 'grid' : 'none';
+    $('#oneOpts').style.display = M.kind === 'one' ? 'grid' : 'none';
+    $('#slotCard').hidden = M.kind !== 'menu';
+    $('#colorFromLogo').disabled = !(M.logo && (M.logo.color || M.logo.bg));
+    const f = M.mou ? M.fly.mou : M.fly.normal, v = flyVals();
+    $('#mouWarn').hidden = !M.mou; $('#mouRow').hidden = !M.mou;
+    setVal('fMouPill', M.mou ? (f.pill || '') : ''); $('#fMouPill').placeholder = v.pill;
+    setVal('fHead', f.head); setVal('fEm', f.em);
+    setVal('fSub1', f.sub1); $('#fSub1').placeholder = v.sub1;
+    setVal('fSub2', f.sub2);
+    const si = SUB2.findIndex(([, t]) => t === f.sub2); setVal('fSub2Sel', String(si));
+    setVal('fB1a', f.b1a); setVal('fB1b', f.b1b); setVal('fB1c', f.b1c); $('#fB1c').placeholder = v.b1c;
+    setVal('fB2a', f.b2a); setVal('fB2b', f.b2b); setVal('fB2c', f.b2c);
+    $$('#tabs button').forEach((b) => {
+      b.classList.toggle('on', b.dataset.tab === M.tab);
+      b.disabled = FRAMES[b.dataset.tab] ? !frameOk(b.dataset.tab) : false;
+      b.title = b.disabled ? '사이드바가 사진에 박혀 있는 틀이라 한 장 화면은 정면·카페 틀만 됩니다' : '';
+    });
+    const has = M.menus.filter((m) => photoOf(m)).length, items = slotItems(), empty = items.filter((m) => !photoOf(m)).length;
+    $('#photoNote').textContent = M.menus.length
+      ? `사진 있는 메뉴 ${has}개 · 첫 화면 여섯 칸 중 빈 사진 ${empty}칸${empty ? ` → ${{ logo: M.logo ? '로고' : '로고(아직 없음 — 글자로)', rep: '대표메뉴 사진 한 칸 + 나머지 로고', text: '글자' }[M.empty]}` : ''}${has <= 2 ? ' · 사진이 적으면 ‘한 장 화면’이 더 낫습니다' : ''}`
+      : '';
+  }
+  function drawSlots() {
+    const opts = (sel) => `<option value="-1">(비움)</option>` + (M.cats.length ? M.cats : ['']).map((c) => {
+      const list = c === '대표메뉴' ? M.menus.filter((m) => m.rec || m.cat === '대표메뉴') : M.menus.filter((m) => m.cat === c);
+      return list.length ? `<optgroup label="${esc(c || '메뉴')}">${list.map((m) => `<option value="${m.i}"${m.i === sel ? ' selected' : ''}>${esc(m.name)}${m.price != null ? ` · ${won(m.price)}원` : ''}</option>`).join('')}</optgroup>` : '';
+    }).join('') + (M.menus.some((m) => !m.cat && !m.rec) ? `<optgroup label="구분 없음">${M.menus.filter((m) => !m.cat && !m.rec).map((m) => `<option value="${m.i}"${m.i === sel ? ' selected' : ''}>${esc(m.name)}</option>`).join('')}</optgroup>` : '');
+    const src = (m) => { if (!m) return ['', '']; if (M.overrides.get(m.i)) return ['올린 사진', '']; if (m.url && M.photos.get(m.url) && M.photos.get(m.url).bmp) return ['네이버 사진', '']; if (m.lib) return ['사진함', '']; return ['사진 없음', 'bad']; };
+    $('#slots').innerHTML = M.menus.length ? [0, 1, 2, 3, 4, 5].map((k) => {
+      const mi = M.slots[k] ?? -1, m = M.menus[mi], [t, c] = src(m);
+      return `<div class="slot" data-k="${k}"><span class="no">${k + 1}</span><select class="in" data-k="${k}">${opts(mi)}</select><span class="row" style="gap:4px"><span class="ph ${c}">${t}</span>${m ? `<button class="btn sm" type="button" data-up="${k}">사진</button>` : ''}</span></div>`;
+    }).join('') : '<p class="hint">매장을 불러오면 여섯 칸이 채워집니다</p>';
+  }
+  function drawRepThumbs() {
+    const list = repCands();
+    $('#repThumbs').innerHTML = list.length ? list.slice(0, 40).map((c) => {
+      const cv = canvasOf(96, 96); drawCover(cv.getContext('2d'), c.bmp, 0, 0, 96, 96);
+      return `<button type="button" data-rep="${c.key}" class="${c.key === M.rep.key ? 'on' : ''}" title="${esc(c.label)}"><img src="${cv.toDataURL('image/jpeg', 0.7)}" alt=""><i>${esc({ upload: '올림', biz: '가게', lib: '사진함', menu: '메뉴' }[c.kind] || '메뉴')}</i></button>`;
+    }).join('') : '<p class="hint" style="grid-column:1/-1">매장을 불러오거나 사진을 올리세요</p>';
+  }
+  let rafId = 0, drawSeq = 0;
+  function redraw() { cancelAnimationFrame(rafId); rafId = requestAnimationFrame(() => drawView()); }
+  async function drawView() {
+    const seq = ++drawSeq;
+    syncForm();
+    await ensureFonts(`${storeTitle()} ${M.cats.join(' ')} ${M.menus.map((m) => m.name).join(' ')} 테이블 3 LANGUAGE 직원호출 와이파이 추가 기능 0123456789원,하이오더`);
+    let cv, note = '';
+    if (M.tab === 'screen') { cv = screenCanvas(1280, 800, true); note = M.kind === 'one' ? '한 장 화면 1280×800 — 대기화면·첫 주문화면 이미지로 그대로 쓸 수 있습니다' : '하이오더 NEW UX 메뉴판 1280×800 — 상품진열수 3 · 사진 칸은 메뉴 이미지 500×500 가운데 500×372(매뉴얼 9081 신 스킨)'; }
+    else if (M.tab === 'flyer') { const r = await flyerCanvas(); cv = r.cv; note = `제안 전단 ${FLY.W}×${FLY.H}(A4 비율)${r.ok ? '' : ' — 가운데 사진 틀이 아직 없어 빈칸으로 보입니다'}`; }
+    else { const r = await frameCanvas(M.tab, 0.5); cv = r.cv; note = `${FRAMES[M.tab].name} 기기 사진 — 받을 때는 원래 크기 ${FRAMES[M.tab].w}×${FRAMES[M.tab].h}${FRAMES[M.tab].full ? '' : ' · 이 틀은 사이드바가 사진에 박혀 있어 내용 칸만 바뀝니다(대표메뉴)'}`; }
+    if (seq !== drawSeq) return;
+    const view = $('#viewCv');
+    view.width = cv.width; view.height = cv.height;
+    view.getContext('2d').drawImage(cv, 0, 0);
+    $('#viewNote').textContent = note;
+    $('#dlInfo').textContent = M.menus.length ? '' : '매장을 불러오지 않아도 로고·이름만으로 만들 수 있습니다';
+  }
+  $('#kindSeg').addEventListener('change', (e) => { M.kind = e.target.value; if (FRAMES[M.tab] && !frameOk(M.tab)) M.tab = 'screen'; redraw(); });
+  $('#colorSw').addEventListener('click', (e) => { const b = e.target.closest('button[data-c]'); if (!b) return; M.color = b.dataset.c; redraw(); });
+  $('#colorFromLogo').addEventListener('click', () => { if (!M.logo) return; M.color = skinFromColor(M.logo.color || M.logo.bg); redraw(); toast(`로고 색에 가까운 ‘${SKIN[M.color].name}’으로 바꿨습니다`, 'ok'); });
+  $('#catSel').addEventListener('change', () => { M.cat = $('#catSel').value; autoSlots(); drawSlots(); redraw(); });
+  $('#emptySeg').addEventListener('change', (e) => { M.empty = e.target.value; redraw(); });
+  $('#photoFirst').addEventListener('change', () => { M.photoFirst = $('#photoFirst').checked; autoSlots(); drawSlots(); redraw(); });
+  $('#oneSeg').addEventListener('change', (e) => { M.one = e.target.value; redraw(); });
+  $('#oneName').addEventListener('change', () => { M.oneName = $('#oneName').checked; redraw(); });
+  $('#storeName').addEventListener('input', () => { M.name = $('#storeName').value; redraw(); });
+  $('#slots').addEventListener('change', (e) => {
+    const s = e.target.closest('select[data-k]');
+    if (!s) return;
+    M.slots[Number(s.dataset.k)] = Number(s.value);
+    drawSlots(); redraw();
+  });
+  let upSlot = -1;
+  $('#slots').addEventListener('click', (e) => { const b = e.target.closest('button[data-up]'); if (!b) return; upSlot = Number(b.dataset.up); $('#slotFile').click(); });
+  $('#slotFile').addEventListener('change', async () => {
+    const f = $('#slotFile').files[0]; $('#slotFile').value = '';
+    const mi = M.slots[upSlot];
+    if (!f || mi === undefined || mi < 0) return;
+    const bmp = await decode(f);
+    if (!bmp) { toast('사진을 열지 못했습니다(HEIC는 jpg로 바꿔 주세요)', 'bad'); return; }
+    M.overrides.set(mi, bmp);
+    drawSlots(); drawRepThumbs(); redraw();
+  });
+  $('#repThumbs').addEventListener('click', (e) => {
+    const b = e.target.closest('button[data-rep]');
+    if (!b) return;
+    const c = repCands().find((x) => x.key === b.dataset.rep);
+    if (!c) return;
+    M.rep.key = c.key; M.rep.bmp = c.bmp;
+    drawRepThumbs(); redraw();
+  });
+  $('#repPick').addEventListener('click', () => $('#repFile').click());
+  $('#repFile').addEventListener('change', async () => {
+    const f = $('#repFile').files[0]; $('#repFile').value = '';
+    if (!f) return;
+    const bmp = await decode(f);
+    if (!bmp) { toast('사진을 열지 못했습니다', 'bad'); return; }
+    M.rep.upload = bmp; M.rep.key = 'u'; M.rep.bmp = bmp;
+    drawRepThumbs(); redraw();
+  });
+  $('#logoPick').addEventListener('click', () => $('#logoFile').click());
+  $('#logoFile').addEventListener('change', async () => {
+    const f = $('#logoFile').files[0]; $('#logoFile').value = '';
+    if (!f) return;
+    const raw = await decode(f);
+    if (!raw) { toast('로고를 열지 못했습니다(PNG·JPG)', 'bad'); return; }
+    $('#logoWhite').checked = !/png/i.test(f.type || f.name);   // JPG는 흰 바탕이 있으니 기본으로 지운다
+    M.logo = { raw, ...processLogo(raw, $('#logoWhite').checked) };
+    drawLogoPreview(); redraw();
+    toast(`로고를 넣었습니다${M.logo.color ? ` — [로고 색으로]를 누르면 스킨 색을 ‘${SKIN[skinFromColor(M.logo.color)].name}’으로 맞춥니다` : ''}`, 'ok', 6000);
+  });
+  $('#logoWhite').addEventListener('change', () => { if (!M.logo) return; M.logo = { raw: M.logo.raw, ...processLogo(M.logo.raw, $('#logoWhite').checked) }; drawLogoPreview(); redraw(); });
+  $('#logoClear').addEventListener('click', () => { M.logo = null; drawLogoPreview(); redraw(); });
+  /* 전단 입력 */
+  $('#mou').addEventListener('change', () => { M.mou = $('#mou').checked; redraw(); });
+  const flyKeys = { fHead: 'head', fEm: 'em', fSub1: 'sub1', fSub2: 'sub2', fB1a: 'b1a', fB1b: 'b1b', fB1c: 'b1c', fB2a: 'b2a', fB2b: 'b2b', fB2c: 'b2c', fMouPill: 'pill' };
+  Object.entries(flyKeys).forEach(([id, key]) => $(`#${id}`).addEventListener('input', () => { (M.mou ? M.fly.mou : M.fly.normal)[key] = $(`#${id}`).value; if (M.tab === 'flyer') redraw(); }));
+  $('#fSub2Sel').addEventListener('change', () => { const i = Number($('#fSub2Sel').value); if (i >= 0) { (M.mou ? M.fly.mou : M.fly.normal).sub2 = SUB2[i][1]; $('#fSub2').value = SUB2[i][1]; } redraw(); });
+  $('#fName').addEventListener('input', () => { M.consult.name = $('#fName').value.trim(); if (M.tab === 'flyer') redraw(); });
+  $('#fTel').addEventListener('input', () => { M.consult.tel = $('#fTel').value.trim(); if (M.tab === 'flyer') redraw(); });
+  $('#bgSeg').addEventListener('change', (e) => { M.bg = e.target.value; redraw(); });
+  $('#fLogoSide').addEventListener('change', () => { M.logoSide = $('#fLogoSide').checked; redraw(); });
+  $('#tabs').addEventListener('click', (e) => { const b = e.target.closest('button[data-tab]'); if (!b || b.disabled) return; M.tab = b.dataset.tab; redraw(); });
+
+  /* ── 받기 ── */
+  async function outputOf(tab) {
+    const base = safeName(storeTitle());
+    if (tab === 'screen') { const cv = screenCanvas(1280, 800, true); return { blob: await new Promise((r) => cv.toBlob(r, 'image/png')), name: `${base}_하이오더_화면.png` }; }
+    if (tab === 'flyer') { const r = await flyerCanvas(); return { blob: await new Promise((res) => r.cv.toBlob(res, 'image/jpeg', 0.92)), name: `${base}_하이오더_제안.jpg`, ok: r.ok }; }
+    const r = await frameCanvas(tab, 1);
+    return { blob: await new Promise((res) => r.cv.toBlob(res, 'image/jpeg', 0.9)), name: `${base}_하이오더_${FRAMES[tab].name.replace(/\s+/g, '')}.jpg`, ok: r.ok };
+  }
+  $('#dlOne').addEventListener('click', async () => {
+    if (M.busy) return;
+    M.busy = true;
+    try {
+      await ensureFonts(flyText() + M.menus.map((m) => m.name).join(' '));
+      const o = await outputOf(M.tab);
+      if (o.ok === false) toast('틀 사진이 아직 올라가 있지 않습니다 — 받은 그림에 빈칸이 있습니다', 'bad', 7000);
+      download(o.blob, o.name);
+    } catch (e) { toast(`만들지 못했습니다 — ${e.message || e}`, 'bad'); }
+    finally { M.busy = false; }
+  });
+  $('#dlAll').addEventListener('click', async () => {
+    if (M.busy) return;
+    if (!window.JSZip) { toast('zip 도구를 불러오지 못했습니다 — 인터넷 연결을 확인해 주세요', 'bad'); return; }
+    M.busy = true;
+    try {
+      await ensureFonts(flyText() + M.menus.map((m) => m.name).join(' '));
+      const z = new window.JSZip();
+      const tabs = ['screen', ...Object.keys(FRAMES).filter(frameOk), 'flyer'];
+      let missing = 0;
+      for (const t of tabs) { const o = await outputOf(t); if (o.ok === false) { missing++; if (t !== 'flyer') continue; } z.file(o.name, o.blob); }
+      download(await z.generateAsync({ type: 'blob', compression: 'STORE' }), `${safeName(storeTitle())}_하이오더_맛보기.zip`);
+      toast(`zip을 받았습니다${missing ? ` — 틀 사진이 없는 ${missing}개는 뺐습니다` : ''}`, missing ? 'bad' : 'ok', 7000);
+    } catch (e) { toast(`만들지 못했습니다 — ${e.message || e}`, 'bad'); }
+    finally { M.busy = false; }
+  });
+
+  /* ── 시작 ── */
+  (async () => {
+    const [dark, white] = await Promise.all([loadImg(KT_LOGO.dark), loadImg(KT_LOGO.white)]);
+    M.kt = { dark, white };
+    redraw();
+  })();
+  syncForm(); drawSlots(); drawRepThumbs(); drawLogoPreview(); redraw();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(redraw);
+  window.__mat = { M, FRAMES, processLogo, skinFromColor, squareToQuad, flyVals, version: PAGE_VERSION };
+})();
+</script>
+</body>
+</html>
