@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>차림표 — 메뉴 사진 정리 | kt-synergy</title>
+<meta name="description" content="네이버 메뉴와 작업대 사진을 메뉴명에 맞춰 500×500 [메뉴명].jpg로 한 번에 저장합니다.">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" defer></script>
+<style>
+/* ══ 차림표 — kt-synergy.com 공통 다크 테마(cal.html 디자인 언어) ══ */
+:root{
+  --bg:#020204; --panel:#0a0c10; --card:#15181d; --card2:#1b1f26; --line:#262b33; --line2:#353c47;
+  --text:#e4e8ee; --sub:#c6cdd8; --muted:#8b93a1; --faint:#5a6270;
+  --accent:#4facfe; --accent2:#7cc4ff; --accentD:#2f7fd6; --ok:#4ade80; --warn:#fbbf24; --bad:#ff8a80;
+  --r:12px; --r2:8px;
+  --font:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;line-height:1.55;min-height:100vh;letter-spacing:-.01em}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:var(--accent2)}
+.wrap{max-width:1440px;margin:0 auto;padding:22px 20px 60px}
+/* 머리글 */
+.top{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+.top h1{font-size:26px;font-weight:800;letter-spacing:-.03em;display:flex;align-items:baseline;gap:8px}
+.top h1 .ver{font-size:11px;font-weight:500;color:#aaa;letter-spacing:0}
+.top .sub{color:var(--muted);font-size:13px;margin-top:2px}
+.top .how{color:var(--muted);font-size:12.5px;max-width:560px}
+.top .how b{color:var(--sub);font-weight:600}
+/* 카드 */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+.load{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;margin-bottom:12px}
+.load h2,.pane h2{font-size:14px;font-weight:700;color:var(--sub);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.load h2 .n,.pane h2 .n{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--accentD);color:#fff;font-size:11px;font-weight:700}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.in{background:var(--panel);border:1px solid var(--line2);border-radius:var(--r2);padding:9px 12px;min-width:0;outline:none}
+.in:focus{border-color:var(--accent)}
+#q{flex:1 1 220px}
+.btn{background:var(--card2);border:1px solid var(--line2);border-radius:var(--r2);padding:8px 14px;font-weight:600;font-size:13px;transition:background .15s,border-color .15s}
+.btn:hover{border-color:var(--accent)}
+.btn:disabled{opacity:.4;cursor:default}
+.btn.primary{background:var(--accentD);border-color:var(--accentD);color:#fff}
+.btn.primary:hover{background:#3b8fe6}
+.btn.ghost{background:transparent}
+.btn.sm{padding:5px 10px;font-size:12px}
+.msg{font-size:12.5px;color:var(--muted);margin-top:8px;min-height:1.2em}
+.msg.ok{color:var(--ok)} .msg.bad{color:var(--bad)} .msg.warn{color:var(--warn)}
+.cands{list-style:none;margin-top:8px;display:grid;gap:6px;max-height:260px;overflow:auto}
+.cands li{display:flex;justify-content:space-between;gap:10px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:var(--r2);padding:8px 10px}
+.cands .nm{font-weight:700}
+.cands .meta{color:var(--muted);font-size:12px}
+.cands .tag{font-size:10.5px;border:1px solid var(--line2);border-radius:20px;padding:0 6px;margin-left:4px;color:var(--muted);font-weight:500}
+textarea.in{width:100%;min-height:92px;resize:vertical;line-height:1.5}
+.hint{font-size:12px;color:var(--faint)}
+/* 상태줄 (붙어 다님) */
+.bar{position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+  background:rgba(2,2,4,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 0;margin-bottom:12px}
+.stats{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.stats b{color:var(--text);font-weight:700}
+.stats .st-store{color:var(--sub);font-weight:600}
+.pickBanner{display:none;align-items:center;gap:8px;background:#0b2440;border:1px solid var(--accentD);color:var(--accent2);border-radius:var(--r2);padding:6px 10px;font-size:12.5px;font-weight:600}
+body.picking .pickBanner,body.copying .pickBanner{display:flex}
+/* 작업 영역 */
+.work{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(300px,1fr);gap:14px;align-items:start}
+.pane{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px}
+.paneHead{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.paneHead h2{margin:0}
+/* 메뉴 표 */
+table.menu{width:100%;border-collapse:separate;border-spacing:0}
+table.menu th{font-size:11.5px;color:var(--muted);font-weight:600;text-align:left;padding:6px 6px;border-bottom:1px solid var(--line2);position:sticky;top:0}
+table.menu td{padding:6px 6px;border-bottom:1px solid var(--line);vertical-align:middle}
+table.menu tr:last-child td{border-bottom:none}
+td.no{color:var(--faint);font-size:12px;width:30px;text-align:right}
+td.cat{width:17%} td.pr{width:13%}
+td.ph{width:96px} td.act{width:1%;white-space:nowrap;text-align:right}
+.cellin{width:100%;background:transparent;border:1px solid transparent;border-radius:6px;padding:6px 7px;outline:none}
+.cellin:hover{border-color:var(--line2)} .cellin:focus{border-color:var(--accent);background:var(--panel)}
+td.nm .cellin{font-weight:600}
+td.pr .cellin{text-align:right;color:var(--sub);font-variant-numeric:tabular-nums}
+.dup{font-size:10.5px;color:var(--warn);margin-left:7px}
+.cell{position:relative;width:84px;height:84px;border-radius:10px;border:1.5px dashed var(--line2);display:grid;place-items:center;cursor:pointer;
+  background:var(--panel);overflow:hidden;transition:border-color .12s,box-shadow .12s,transform .12s}
+.cell.full{border-style:solid;border-color:var(--line2)}
+.cell .th{position:absolute;inset:0;background-color:#fff;background-repeat:no-repeat}
+.cell .empty{font-size:11px;color:var(--faint);text-align:center;line-height:1.3;pointer-events:none}
+.cell .bd{position:absolute;left:3px;bottom:3px;font-size:9.5px;font-style:normal;font-weight:700;padding:1px 5px;border-radius:5px;background:rgba(2,2,4,.78);color:var(--sub);pointer-events:none}
+.cell .bd.warn{left:auto;right:3px;top:3px;bottom:auto;color:#1a1300;background:var(--warn)}
+.cell.target{border-color:var(--accent)!important;box-shadow:0 0 0 3px rgba(79,172,254,.35);transform:scale(1.04)}
+body.picking .cell,body.copying .cell{border-color:var(--accentD)}
+body.picking .cell:hover,body.copying .cell:hover{box-shadow:0 0 0 3px rgba(79,172,254,.35)}
+tr.copyFrom .cell{box-shadow:0 0 0 3px rgba(251,191,36,.5)}
+.err{display:block;font-size:10.5px;color:var(--bad);margin-top:3px}
+.act .btn{margin-left:4px}
+.act .del{color:var(--muted)}
+.tableFoot{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.emptyTable{padding:28px 10px;text-align:center;color:var(--muted);font-size:13px}
+/* 작업대 */
+.tray{position:sticky;top:64px;max-height:calc(100vh - 80px);display:flex;flex-direction:column}
+.trayTools{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin-bottom:8px}
+.trayTools label{display:flex;gap:5px;align-items:center;cursor:pointer}
+.trayTools select{padding:5px 8px}
+.drop{border:1.5px dashed var(--line2);border-radius:10px;padding:14px;text-align:center;color:var(--muted);font-size:12.5px;margin-bottom:10px;transition:border-color .12s,background .12s}
+.drop.over{border-color:var(--accent);background:#0b1a2b;color:var(--accent2)}
+.drop b{color:var(--sub)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px;overflow:auto;padding:2px;min-height:60px;flex:1}
+.tp{position:relative;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:var(--panel);cursor:grab;user-select:none}
+.tp img{display:block;width:100%;aspect-ratio:1/1;object-fit:cover;pointer-events:none;background:#fff}
+.tp figcaption{font-size:10.5px;color:var(--muted);padding:3px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tp.sel{border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,172,254,.45)}
+.tp.used{filter:grayscale(1);opacity:.5}
+.tp .bd{position:absolute;left:4px;top:4px;font-size:9.5px;font-style:normal;font-weight:700;padding:1px 5px;border-radius:5px;background:rgba(2,2,4,.8);color:var(--sub)}
+.tp .bd.warn{background:var(--warn);color:#1a1300;left:auto;right:4px}
+.tp .x{position:absolute;right:3px;bottom:22px;width:22px;height:22px;border-radius:50%;border:none;background:rgba(2,2,4,.8);color:var(--sub);font-size:13px;line-height:22px;display:none}
+.tp:hover .x{display:block}
+.trayEmpty{grid-column:1/-1;color:var(--faint);font-size:12.5px;text-align:center;padding:18px 6px}
+/* 알림 */
+#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:80;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;width:min(640px,calc(100vw - 24px))}
+.tst{pointer-events:auto;background:#10141a;border:1px solid var(--line2);border-radius:10px;padding:10px 12px;font-size:13px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;box-shadow:0 8px 30px rgba(0,0,0,.5)}
+.tst.ok{border-color:#1f5c3a} .tst.bad{border-color:#6b2c2c} .tst.ask{border-color:var(--accentD)}
+.tst .acts{display:flex;gap:6px;margin-left:auto}
+/* 자르기 창 */
+dialog{border:none;padding:0;background:transparent;color:var(--text);margin:auto;max-width:100vw;max-height:calc(100dvh - 12px);overflow:auto}
+dialog::backdrop{background:rgba(0,0,0,.72)}
+.cropWrap{background:var(--card);border:1px solid var(--line2);border-radius:14px;padding:16px;display:grid;grid-template-columns:auto 280px;gap:16px;width:min(880px,96vw)}
+.cropWrap header{grid-column:1/-1;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.cropWrap h3{font-size:16px;font-weight:800}
+.cropWrap header span{color:var(--muted);font-size:12.5px}
+.stage{position:relative;width:min(500px,86vw);aspect-ratio:1/1;background:#fff;border-radius:6px;overflow:hidden;touch-action:none;cursor:grab}
+.stage canvas{position:absolute;inset:0;width:100%;height:100%}
+.stage #guideCv{pointer-events:none}
+.side{display:flex;flex-direction:column;gap:12px;font-size:13px}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.seg button{background:var(--panel);border:1px solid var(--line2);border-radius:7px;padding:7px 4px;font-size:12px;font-weight:600}
+.seg button.on{background:var(--accentD);border-color:var(--accentD);color:#fff}
+.side input[type=range]{width:100%}
+.guides{border:1px solid var(--line);border-radius:9px;padding:8px 10px;display:grid;gap:5px}
+.guides legend{font-size:11.5px;color:var(--muted);padding:0 4px}
+.guides label{display:flex;gap:7px;align-items:center;font-size:12px;cursor:pointer}
+.guides i{display:inline-block;width:14px;height:0;border-top:2px dashed}
+.small{font-size:12px;color:var(--muted)}
+.small.warn{color:var(--warn)}
+.side .btns{margin-top:auto;display:flex;gap:8px;justify-content:flex-end}
+footer{margin-top:20px;color:var(--faint);font-size:12px;line-height:1.7}
+/* 좁은 화면 — 작업대는 아래 서랍 */
+@media (max-width:900px){
+  .wrap{padding:14px 12px 44vh}
+  .load{grid-template-columns:1fr}
+  .work{grid-template-columns:1fr}
+  .tray{position:fixed;left:0;right:0;bottom:0;top:auto;max-height:40vh;border-radius:14px 14px 0 0;z-index:40;box-shadow:0 -10px 30px rgba(0,0,0,.6)}
+  .tray.min{max-height:52px;overflow:hidden}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(78px,1fr))}
+  td.cat{display:none} th.cat{display:none}
+  td.pr,th.pr{display:none}
+  td.ph{width:78px} .cell{width:70px;height:70px}
+  .act .btn{padding:4px 7px;font-size:11px;margin-left:2px}
+  .cropWrap{grid-template-columns:1fr;padding:12px}
+  .stage{width:min(100%,54vh);margin:0 auto}
+  .top h1{font-size:22px}
+}
+@media (max-width:600px){
+  table.menu thead{display:none}
+  table.menu,table.menu tbody{display:block}
+  table.menu tr{display:grid;grid-template-columns:18px 72px minmax(0,1fr);grid-template-areas:"no ph nm" "no ph act";column-gap:8px;row-gap:4px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+  table.menu tr:last-child{border-bottom:none}
+  table.menu td{display:block;padding:0;border:none}
+  td.no{grid-area:no;width:auto;text-align:left}
+  td.ph{grid-area:ph;width:auto}
+  td.nm{grid-area:nm}
+  td.act{grid-area:act;width:auto;text-align:left;white-space:normal}
+  .act .btn{margin:0 4px 0 0}
+  table.menu td.cat,table.menu td.pr{display:none}
+}
+@media (min-width:901px){ .trayMin{display:none} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>차림표 <span class="ver" id="pageVer">v1.00</span></h1>
+      <p class="sub">메뉴 사진 정리 — 사진을 메뉴명 칸에 넣으면 500×500 [메뉴명].jpg로 한 번에 저장합니다</p>
+    </div>
+    <p class="how"><b>1</b> 매장을 찾으면 네이버 메뉴와 사진이 먼저 들어옵니다 · <b>2</b> 나머지 사진은 작업대로(끌어다 놓기·파일 고르기·Ctrl+V) · <b>3</b> 사진을 메뉴 칸으로 끌거나, 사진을 누르고 칸을 누릅니다 · <b>4</b> 전체 저장</p>
+  </header>
+
+  <section class="load">
+    <div class="card">
+      <h2><span class="n">1</span>매장 찾기 — 네이버 메뉴 불러오기</h2>
+      <form id="searchForm" class="row" autocomplete="off">
+        <input id="q" class="in" type="search" placeholder="상호 (예: 우대포 명동점)" aria-label="상호">
+        <button class="btn primary" id="searchBtn" type="submit">찾기</button>
+      </form>
+      <ul class="cands" id="cands"></ul>
+      <p class="msg" id="loadMsg"></p>
+    </div>
+    <div class="card">
+      <h2><span class="n">1</span>또는 메뉴명 붙여넣기</h2>
+      <textarea id="pasteArea" class="in" placeholder="한 줄에 메뉴 하나 — 엑셀에서 [구분] [메뉴명] [가격] 칸을 복사해 그대로 붙여도 됩니다"></textarea>
+      <div class="row" style="margin-top:8px;justify-content:space-between">
+        <span class="hint">표에 이미 메뉴가 있으면 뒤에 붙습니다</span>
+        <button class="btn" id="pasteAdd" type="button">표에 넣기</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="bar" id="bar">
+    <div class="stats" id="stats"></div>
+    <div class="pickBanner" id="pickBanner"><span id="pickText"></span><button class="btn sm" type="button" id="pickEnd">끝</button></div>
+    <div class="row">
+      <button class="btn" id="undoBtn" type="button" disabled title="Ctrl+Z">되돌리기</button>
+      <button class="btn primary" id="saveBtn" type="button" disabled>전체 저장 (zip)</button>
+    </div>
+  </div>
+
+  <main class="work">
+    <section class="pane" id="tablePane">
+      <div class="paneHead">
+        <h2><span class="n">3</span>메뉴</h2>
+        <span class="hint">빈 칸을 누르면 파일을 바로 고를 수 있고, 사진이 든 칸을 누르면 자르기 창이 열립니다</span>
+      </div>
+      <table class="menu" id="menuTable">
+        <thead><tr><th>#</th><th class="cat">구분</th><th>메뉴명</th><th class="pr">가격</th><th>사진</th><th></th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+      <div class="emptyTable" id="emptyTable">매장을 찾거나 메뉴명을 붙여 넣으면 여기에 메뉴가 줄지어 섭니다.</div>
+      <div class="tableFoot">
+        <button class="btn sm" id="addRow" type="button">+ 줄 추가</button>
+        <button class="btn sm ghost" id="clearTable" type="button">표 비우기</button>
+      </div>
+    </section>
+
+    <aside class="pane tray" id="trayPane">
+      <div class="paneHead">
+        <h2><span class="n">2</span>작업대 <span class="hint" id="trayCount"></span></h2>
+        <button class="btn sm trayMin" id="trayMin" type="button">접기</button>
+      </div>
+      <div class="trayTools">
+        <label><input type="checkbox" id="showUsed"> 쓴 사진 보기</label>
+        <select id="traySort" class="in" aria-label="정렬">
+          <option value="time">저장 시간순</option>
+          <option value="name">파일 이름순</option>
+        </select>
+        <button class="btn sm" id="fillOrder" type="button">순서대로 채우기</button>
+      </div>
+      <div class="drop" id="drop">사진·zip·폴더를 여기로 끌어다 놓거나 <button class="btn sm" id="pickFiles" type="button">파일 고르기</button><br><span class="hint">스크린샷은 Ctrl+V로 바로 붙일 수 있습니다</span></div>
+      <input type="file" id="fileInput" multiple accept="image/*,.zip,.heic,.heif" hidden>
+      <div class="grid" id="grid"></div>
+    </aside>
+  </main>
+
+  <footer>
+    사진은 이 브라우저 안에서만 자르고 저장합니다 — 서버로 올리지 않습니다. 네이버 메뉴 사진만 중계 서버를 거쳐 받아 옵니다(가게가 올린 메뉴 사진만, 리뷰·블로그 사진은 받지 않음).<br>
+    하이오더 메뉴 이미지는 모든 스킨이 500×500입니다 — 스킨마다 보이는 곳이 달라 자르기 창에 선으로 보여 드립니다(하이오더 매뉴얼 9081). 페이지를 닫거나 새로 고치면 작업이 사라집니다.
+  </footer>
+</div>
+
+<div id="toast" aria-live="polite"></div>
+
+<dialog id="cropDlg" aria-labelledby="cropTitle">
+  <div class="cropWrap">
+    <header><h3 id="cropTitle">사진 자르기</h3><span id="cropName"></span></header>
+    <div class="stage" id="stage">
+      <canvas id="cropCv" width="500" height="500"></canvas>
+      <canvas id="guideCv" width="500" height="500"></canvas>
+    </div>
+    <div class="side">
+      <div class="seg" id="modeSeg">
+        <button type="button" data-mode="cover">꽉 채우기</button>
+        <button type="button" data-mode="fit">여백 맞추기</button>
+        <button type="button" data-mode="safe">안전 영역</button>
+      </div>
+      <label class="small">확대 <input type="range" id="zoom" min="1" max="4" step="0.01" value="1"></label>
+      <div class="row"><button class="btn sm" type="button" id="cropCenter">가운데로</button><span class="small">끌어서 옮기고, 휠로 확대합니다</span></div>
+      <fieldset class="guides" id="guides"><legend>스킨별로 보이는 곳</legend></fieldset>
+      <p class="small" id="cropInfo"></p>
+      <div class="btns">
+        <button class="btn" type="button" id="cropCancel">취소</button>
+        <button class="btn primary" type="button" id="cropApply">적용</button>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<script>
+(() => {
+  'use strict';
+  /* ══ 차림표 v1.00 — 메뉴 사진 정리 ══
+     중계 서버(워커) v1.43의 /menu(네이버 메뉴)·/img(가게가 올린 메뉴 사진) 창구를 쓴다. 그 밖의 처리는 모두 브라우저 안에서 규칙으로만(AI 없음).
+     저장소(localStorage 등)는 쓰지 않는다 — 페이지를 닫으면 작업이 사라지므로 닫기 전에 묻는다. */
+  const API_BASE = 'https://kt.roi0925003.workers.dev';
+  const PUBLIC_PASS = 'sk-bbwkqqcpjx4yty';   // 직원 공개용 토큰 — 비밀번호가 아니다(밑그림과 같은 값). 중계 서버의 PUBLIC_PASS와 같아야 한다
+  const PAGE_VERSION = 'v1.00';
+  const NEED_WORKER = 'v1.43';
+  const OUT = 500, JPEG_Q = 0.9, THUMB = 360;
+  /* 하이오더 매뉴얼 9081 — 스킨별 메뉴 이미지: 모두 500×500, 보이는 곳만 다르다. 안전 영역 350×350(매뉴얼 권장) */
+  const GUIDES = [
+    { key: 'v21', label: '기본 스킨 500×309', w: 500, h: 309, color: '#4facfe' },
+    { key: 'new', label: '신 스킨 500×372', w: 500, h: 372, color: '#fbbf24' },
+    { key: 'v13', label: '세로 스킨 360×500', w: 360, h: 500, color: '#4ade80' },
+    { key: 'safe', label: '안전 영역 350×350', w: 350, h: 350, color: '#ff8a80' },
+  ];
+
+  const $ = (s, r = document) => r.querySelector(s);
+  const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const won = (n) => (n !== null && n !== undefined && n !== '' && Number.isFinite(Number(n))) ? Number(n).toLocaleString('ko-KR') : '';
+  const S = { store: null, rows: [], photos: new Map(), sel: null, undo: [], seq: 0, busy: false, cands: [], dirty: false };
+  const uid = (p) => `${p}${++S.seq}`;
+  const newCrop = () => ({ mode: 'cover', zoom: 1, cx: 0.5, cy: 0.5 });
+  const el = {
+    q: $('#q'), searchForm: $('#searchForm'), searchBtn: $('#searchBtn'), cands: $('#cands'), loadMsg: $('#loadMsg'),
+    pasteArea: $('#pasteArea'), pasteAdd: $('#pasteAdd'), stats: $('#stats'), undoBtn: $('#undoBtn'), saveBtn: $('#saveBtn'),
+    pickText: $('#pickText'), pickEnd: $('#pickEnd'), tbody: $('#tbody'), emptyTable: $('#emptyTable'), addRow: $('#addRow'), clearTable: $('#clearTable'),
+    trayPane: $('#trayPane'), trayCount: $('#trayCount'), showUsed: $('#showUsed'), traySort: $('#traySort'), fillOrder: $('#fillOrder'),
+    drop: $('#drop'), pickFiles: $('#pickFiles'), fileInput: $('#fileInput'), grid: $('#grid'), toast: $('#toast'), trayMin: $('#trayMin'),
+    dlg: $('#cropDlg'), cropName: $('#cropName'), stage: $('#stage'), cropCv: $('#cropCv'), guideCv: $('#guideCv'), modeSeg: $('#modeSeg'),
+    zoom: $('#zoom'), cropCenter: $('#cropCenter'), guides: $('#guides'), cropInfo: $('#cropInfo'), cropCancel: $('#cropCancel'), cropApply: $('#cropApply'),
+  };
+  $('#pageVer').textContent = PAGE_VERSION;
+
+  /* ── 중계 서버 ── */
+  async function api(path, { method = 'GET', body, timeout = 25000, raw = false } = {}) {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), timeout);
+    let res;
+    try {
+      res = await fetch(API_BASE + path, {
+        method, cache: 'no-store', signal: ctrl.signal,
+        headers: Object.assign({ 'X-Team-Pass': PUBLIC_PASS }, body ? { 'Content-Type': 'application/json' } : {}),
+        body: body ? JSON.stringify(body) : undefined,
+      });
+    } catch (e) {
+      throw new Error(e && e.name === 'AbortError' ? '응답이 너무 늦습니다. 잠시 뒤 다시 해 주세요.' : '중계 서버에 연결하지 못했습니다. 인터넷 연결이나 회사 PC 차단을 확인해 주세요.');
+    } finally { clearTimeout(t); }
+    if (raw) return res;
+    let data = null;
+    try { data = await res.json(); } catch (_) { data = null; }
+    if (!res.ok) { const err = new Error((data && data.error) || `중계 서버 오류 (HTTP ${res.status})`); err.status = res.status; throw err; }
+    return data;
+  }
+
+  /* ── 알림 ── */
+  function setMsg(node, text, kind = '') { node.textContent = text || ''; node.className = `msg${kind ? ' ' + kind : ''}`; }
+  function toast(text, kind = '', actions = [], ms = 5000) {
+    const box = document.createElement('div');
+    box.className = `tst${kind ? ' ' + kind : ''}`;
+    box.innerHTML = `<span>${esc(text)}</span>${actions.length ? `<span class="acts">${actions.map((a, i) => `<button class="btn sm${i === 0 ? ' primary' : ''}" type="button" data-i="${i}">${esc(a.label)}</button>`).join('')}</span>` : ''}`;
+    let timer = null;
+    const close = () => { clearTimeout(timer); box.remove(); };
+    box.addEventListener('click', (e) => { const b = e.target.closest('button[data-i]'); if (!b) return; const a = actions[Number(b.dataset.i)]; close(); if (a && a.fn) a.fn(); });
+    el.toast.appendChild(box);
+    while (el.toast.children.length > 3) el.toast.firstChild.remove();
+    timer = setTimeout(close, ms);
+    return close;
+  }
+  /* 오래 걸리는 일의 진행 표시 — 한 줄을 고쳐 쓴다 */
+  function progress(text) {
+    if (!S.prog) { S.prog = document.createElement('div'); S.prog.className = 'tst'; el.toast.appendChild(S.prog); }
+    S.prog.textContent = text;
+  }
+  function progressEnd() { if (S.prog) { S.prog.remove(); S.prog = null; } }
+
+  /* ── 되돌리기 ── */
+  function snap() {
+    S.undo.push(JSON.stringify(S.rows));
+    if (S.undo.length > 60) S.undo.shift();
+    S.dirty = true;
+  }
+  function undo() {
+    const s = S.undo.pop();
+    if (!s) return;
+    S.rows = JSON.parse(s).map((r) => ({ ...r, photo: r.photo && S.photos.has(r.photo) ? r.photo : null }));
+    endPick();
+    render();
+    toast('한 단계 되돌렸습니다', '', [], 1800);
+  }
+
+  /* ── 이름 다루기 ── */
+  const normName = (s) => String(s || '').toLowerCase().replace(/\.[a-z0-9]{2,5}$/i, '').replace(/[\s\-_.,·•()[\]{}'"`~!@#$%^&*+=|\\/:;?<>]/g, '');
+  const SIZE_TOKEN = '(?:특대|대|중|소|특|XL|L|M|S|R|라지|레귤러|미디엄|스몰|\\d+(?:\\.\\d+)?\\s*(?:인분|인|g|kg|ml|L|대|마리|개|pcs|p|피스|조각|줄|잔|병|판))';
+  const SIZE_TAIL = new RegExp(`\\s*(?:[(\\[]\\s*${SIZE_TOKEN}\\s*[)\\]]|[-_/·\\s]${SIZE_TOKEN})\\s*$`, 'i');
+  /* 크기만 다른 메뉴 찾기 — '부대찌개 (대)'·'부대찌개 중'·'왕갈비 (2대)'·'한우 등심 (130g)' → 크기 표기를 떼고 비교 */
+  function baseOf(name) {
+    let s = String(name || '').trim();
+    for (let i = 0; i < 3; i++) { const t = s.replace(SIZE_TAIL, '').trim(); if (t === s) break; s = t; }
+    return normName(s);
+  }
+  function safeName(name) {
+    let s = String(name || '').replace(/[\\/:*?"<>|\u0000-\u001f]/g, '_').replace(/\s+/g, ' ').trim().replace(/[. ]+$/, '');
+    if (/^(con|prn|aux|nul|com\d|lpt\d)$/i.test(s)) s += '_';
+    return s.slice(0, 80);
+  }
+  const baseFile = (n) => String(n || '').split(/[\\/]/).pop().replace(/\.[^.]+$/, '');
+  const mimeOf = (n) => (/\.png$/i.test(n) ? 'image/png' : /\.webp$/i.test(n) ? 'image/webp' : /\.gif$/i.test(n) ? 'image/gif' : /\.bmp$/i.test(n) ? 'image/bmp' : /\.avif$/i.test(n) ? 'image/avif' : 'image/jpeg');
+  const IMG_EXT = /\.(jpe?g|png|webp|gif|bmp|avif)$/i;
+  const HEIC_RE = /\.(heic|heif)$/i;
+
+  /* ── 자르기 계산 — 결과 500×500 안에서 사진이 놓이는 크기(W,H)와 자리(x0,y0) ── */
+  function layout(w, h, c) {
+    if (c.mode === 'fit' || c.mode === 'safe') {
+      const box = c.mode === 'safe' ? 350 : OUT;
+      const s = box / Math.max(w, h);
+      const W = w * s, H = h * s;
+      return { W, H, x0: (OUT - W) / 2, y0: (OUT - H) / 2, s, cover: false };
+    }
+    const s = (OUT / Math.min(w, h)) * c.zoom;
+    const W = w * s, H = h * s;
+    let x0 = OUT / 2 - c.cx * W, y0 = OUT / 2 - c.cy * H;
+    x0 = Math.min(0, Math.max(OUT - W, x0));
+    y0 = Math.min(0, Math.max(OUT - H, y0));
+    return { W, H, x0, y0, s, cover: true };
+  }
+  const upscaled = (p, c) => layout(p.w, p.h, c).s > 1.05;
+
+  /* ── 사진 들이기 ── */
+  async function decode(blob, opts) {
+    try { return await createImageBitmap(blob, opts); } catch (_) { /* 옛 브라우저 — 옵션 없이 */ }
+    if (opts) { try { return await createImageBitmap(blob); } catch (_) { return null; } }
+    return null;
+  }
+  async function addPhotoBlob(blob, name, time, source) {
+    const bmp = await decode(blob);
+    if (!bmp) return null;
+    const w = bmp.width, h = bmp.height;
+    const k = Math.min(1, THUMB / Math.max(w, h));
+    const cv = document.createElement('canvas');
+    cv.width = Math.max(1, Math.round(w * k)); cv.height = Math.max(1, Math.round(h * k));
+    const cx = cv.getContext('2d');
+    cx.imageSmoothingEnabled = true; cx.imageSmoothingQuality = 'high';
+    cx.drawImage(bmp, 0, 0, cv.width, cv.height);
+    if (bmp.close) bmp.close();
+    const thumb = cv.toDataURL('image/jpeg', 0.82);
+    const img = new Image(); img.src = thumb;
+    const p = { id: uid('p'), name: String(name || '사진'), blob, w, h, time: Number(time) || 0, source, thumb, img };
+    S.photos.set(p.id, p);
+    S.dirty = true;
+    return p;
+  }
+  /* 끌어다 놓은 폴더도 연다 — DataTransfer 항목은 이벤트 안에서 바로 꺼내 둬야 한다 */
+  function dropEntries(dt) {
+    const items = dt && dt.items ? [...dt.items] : [];
+    return items.map((i) => (i.kind === 'file' && i.webkitGetAsEntry ? i.webkitGetAsEntry() : null)).filter(Boolean);
+  }
+  async function filesFromEntries(entries, fallback) {
+    if (!entries.length || !entries.some((e) => e.isDirectory)) return [...(fallback || [])];
+    const out = [];
+    const walk = async (entry, depth) => {
+      if (entry.isFile) { try { out.push(await new Promise((res, rej) => entry.file(res, rej))); } catch (_) { /* 못 읽는 파일은 건너뜀 */ } return; }
+      if (entry.isDirectory && depth < 4) {
+        const reader = entry.createReader();
+        for (;;) {
+          const batch = await new Promise((res) => reader.readEntries(res, () => res([])));
+          if (!batch.length) break;
+          for (const en of batch) await walk(en, depth + 1);
+        }
+      }
+    };
+    for (const en of entries) await walk(en, 0);
+    return out;
+  }
+  async function importFiles(fileList, { target = null } = {}) {
+    const files = [...(fileList || [])];
+    if (!files.length) return;
+    const added = []; let heic = 0, skipped = 0, zips = 0, excel = 0, k = 0;
+    progress(`사진을 여는 중… (${files.length}개)`);
+    for (const f of files) {
+      k++;
+      if (k % 3 === 0) progress(`사진을 여는 중… ${k}/${files.length}`);
+      const name = f.name || '붙여 넣은 사진';
+      if (/\.zip$/i.test(name) || /zip/i.test(f.type || '')) {
+        if (!window.JSZip) { skipped++; toast('zip을 여는 도구를 불러오지 못했습니다 — 인터넷 연결을 확인하거나 압축을 풀어서 넣어 주세요', 'bad'); continue; }
+        zips++;
+        try {
+          const z = await window.JSZip.loadAsync(f);
+          const entries = Object.values(z.files).filter((e) => !e.dir && !/(^|\/)(__MACOSX|\.)/.test(e.name));
+          for (const e of entries) {
+            if (HEIC_RE.test(e.name)) { heic++; continue; }
+            if (!IMG_EXT.test(e.name)) { skipped++; continue; }
+            const blob = new Blob([await e.async('arraybuffer')], { type: mimeOf(e.name) });
+            const p = await addPhotoBlob(blob, baseFile(e.name), e.date ? e.date.getTime() : f.lastModified, 'file');
+            if (p) added.push(p); else skipped++;
+          }
+        } catch (_) { skipped++; }
+        continue;
+      }
+      if (HEIC_RE.test(name) || /hei[cf]/i.test(f.type || '')) { heic++; continue; }
+      if (/\.(xlsx|xlsm|xls|csv)$/i.test(name)) { excel++; continue; }
+      if (!(String(f.type || '').startsWith('image/') || IMG_EXT.test(name))) { skipped++; continue; }
+      const p = await addPhotoBlob(f, baseFile(name), f.lastModified || Date.now(), 'file');
+      if (p) added.push(p); else skipped++;
+    }
+    progressEnd();
+    const excelTip = excel ? `엑셀 파일 ${excel}개는 열지 않습니다 — 메뉴명은 엑셀에서 칸을 복사해 ‘메뉴명 붙여넣기’에 붙여 넣어 주세요` : '';
+    if (!added.length) {
+      toast([`넣을 수 있는 사진이 없습니다${heic ? ` · HEIC(아이폰 사진) ${heic}장은 브라우저에서 열리지 않아 뺐습니다 — jpg로 바꿔 넣어 주세요` : ''}`, excelTip].filter(Boolean).join(' · '), 'bad', [], 8000);
+      render(); return;
+    }
+    snap();
+    let tgt = 0;
+    if (target && S.rows.includes(target)) {
+      assign(target, added[0].id, 'file');
+      tgt = 1;
+    }
+    const matched = autoMatch(added.slice(tgt));
+    render();
+    const parts = [`사진 ${added.length}장을 올렸습니다${zips ? ` (zip ${zips}개 포함)` : ''}`];
+    if (tgt) parts.push(`‘${target.name || '빈 이름'}’ 칸에 넣음`);
+    if (matched) parts.push(`파일 이름이 메뉴명과 같아 ${matched}칸에 자동으로 넣음 — 칸의 ‘이름’ 표시를 확인하세요`);
+    if (heic) parts.push(`HEIC ${heic}장은 열 수 없어 뺐습니다(jpg로 바꿔 주세요)`);
+    if (skipped) parts.push(`열지 못한 파일 ${skipped}개`);
+    if (excelTip) parts.push(excelTip);
+    toast(parts.join(' · '), heic || skipped || excel ? 'bad' : 'ok', [], 6500);
+    if (tgt) offerSiblings(target);
+  }
+  /* 파일 이름이 메뉴명과 같으면(띄어쓰기·기호 무시) 빈 칸에 바로 넣는다. 애매하면(여러 메뉴에 걸리면) 넣지 않는다 */
+  function autoMatch(photos) {
+    let n = 0;
+    for (const p of photos) {
+      const pn = normName(p.name);
+      if (pn.length < 2 || usage(p.id)) continue;
+      const empties = S.rows.filter((r) => !r.photo && normName(r.name).length >= 2);
+      let hit = empties.filter((r) => normName(r.name) === pn);
+      if (!hit.length) hit = empties.filter((r) => pn.includes(normName(r.name)));
+      if (!hit.length) continue;
+      const same = hit.every((h) => normName(h.name) === normName(hit[0].name));
+      if (!same) continue;
+      hit.forEach((r) => assign(r, p.id, 'name'));
+      n += hit.length;
+    }
+    return n;
+  }
+
+  /* ── 배치 ── */
+  const usage = (pid) => S.rows.reduce((a, r) => a + (r.photo === pid ? 1 : 0), 0);
+  function assign(row, pid, how) { row.photo = pid; row.how = how; row.crop = newCrop(); row.err = ''; }
+  function offerSiblings(row) {
+    if (!row || !row.photo) return;
+    const b = baseOf(row.name);
+    if (!b) return;
+    const sib = S.rows.filter((r) => r !== row && !r.photo && baseOf(r.name) === b);
+    if (!sib.length) return;
+    const names = sib.slice(0, 3).map((r) => `‘${r.name}’`).join(', ') + (sib.length > 3 ? ` 외 ${sib.length - 3}칸` : '');
+    toast(`크기만 다른 ${names}에도 같은 사진을 넣을까요?`, 'ask', [
+      { label: `${sib.length}칸에 넣기`, fn: () => { snap(); sib.forEach((r) => { if (!r.photo) assign(r, row.photo, 'copy'); }); render(); } },
+      { label: '괜찮아요' },
+    ], 10000);
+  }
+  function place(row, pid, how) {
+    snap();
+    assign(row, pid, how);
+    endPick();
+    render();
+    offerSiblings(row);
+  }
+  function startPick(pid) {
+    S.sel = { kind: 'photo', id: pid };
+    document.body.classList.add('picking'); document.body.classList.remove('copying');
+    el.pickText.textContent = '사진을 골랐습니다 — 넣을 칸을 누르세요 (Esc 취소)';
+    render();
+  }
+  function startCopy(row) {
+    S.sel = { kind: 'copy', id: row.photo, from: row.id };
+    document.body.classList.add('copying'); document.body.classList.remove('picking');
+    el.pickText.textContent = `‘${row.name || '이 칸'}’ 사진 복사 중 — 같은 사진을 넣을 칸을 차례로 누르세요 (Esc로 끝)`;
+    render();
+  }
+  function endPick() {
+    S.sel = null;
+    document.body.classList.remove('picking', 'copying');
+  }
+  function cellClick(row) {
+    if (S.sel && S.sel.kind === 'photo') { place(row, S.sel.id, 'pick'); return; }
+    if (S.sel && S.sel.kind === 'copy') {
+      if (row.id === S.sel.from) return;
+      snap(); assign(row, S.sel.id, 'copy'); render(); return;
+    }
+    if (row.photo) { openCrop(row); return; }
+    el.fileInput.dataset.target = row.id;
+    el.fileInput.click();
+  }
+
+  /* ── 그리기 ── */
+  function thumbStyle(p, c, box) {
+    const L = layout(p.w, p.h, c), k = box / OUT;
+    return `background-image:url('${p.thumb}');background-size:${(L.W * k).toFixed(1)}px ${(L.H * k).toFixed(1)}px;background-position:${(L.x0 * k).toFixed(1)}px ${(L.y0 * k).toFixed(1)}px`;
+  }
+  const HOW = { naver: '네이버', name: '이름', copy: '복사', order: '순서', file: '파일', drag: '', pick: '' };
+  function renderTable() {
+    const box = (window.matchMedia('(max-width:900px)').matches ? 70 : 84) - 3;   // 칸 테두리(1.5px×2)를 뺀 안쪽
+    const names = new Map();
+    S.rows.forEach((r) => { const k = normName(r.name); if (k) names.set(k, (names.get(k) || 0) + 1); });
+    el.tbody.innerHTML = S.rows.map((r, i) => {
+      const p = r.photo ? S.photos.get(r.photo) : null;
+      const dup = normName(r.name) && names.get(normName(r.name)) > 1 ? '<span class="dup">같은 이름</span>' : '';
+      const how = p && HOW[r.how] ? `<i class="bd">${HOW[r.how]}</i>` : '';
+      const small = p && upscaled(p, r.crop) ? '<i class="bd warn">작은 사진</i>' : '';
+      const cell = p
+        ? `<div class="cell full" draggable="true" data-cell title="누르면 자르기 · 다른 칸으로 끌면 옮기기(Ctrl을 누르고 끌면 복사)"><span class="th" style="${thumbStyle(p, r.crop, box)}"></span>${how}${small}</div>`
+        : `<div class="cell" data-cell title="사진을 끌어다 놓거나, 누르면 파일 고르기"><span class="empty">여기로<br>끌어 놓기</span></div>`;
+      const err = r.err ? `<span class="err">${esc(r.err)}</span>` : '';
+      const acts = p
+        ? `<button class="btn sm" data-a="crop" type="button">자르기</button><button class="btn sm" data-a="copy" type="button">복사</button><button class="btn sm" data-a="clear" type="button">비우기</button>`
+        : '';
+      return `<tr data-id="${r.id}" class="${S.sel && S.sel.kind === 'copy' && S.sel.from === r.id ? 'copyFrom' : ''}">
+        <td class="no">${i + 1}</td>
+        <td class="cat"><input class="cellin" data-f="cat" value="${esc(r.cat)}" aria-label="구분" placeholder="구분"></td>
+        <td class="nm"><input class="cellin" data-f="name" value="${esc(r.name)}" aria-label="메뉴명" placeholder="메뉴명">${dup}${err}</td>
+        <td class="pr"><input class="cellin" data-f="price" value="${esc(won(r.price))}" aria-label="가격" inputmode="numeric" placeholder="가격"></td>
+        <td class="ph">${cell}</td>
+        <td class="act">${acts}<button class="btn sm ghost del" data-a="del" type="button" title="줄 삭제">삭제</button></td>
+      </tr>`;
+    }).join('');
+    el.emptyTable.style.display = S.rows.length ? 'none' : '';
+  }
+  function sortedPhotos() {
+    const all = [...S.photos.values()];
+    if (el.traySort.value === 'name') return all.sort((a, b) => a.name.localeCompare(b.name, 'ko', { numeric: true }));
+    return all.sort((a, b) => (a.time - b.time) || a.name.localeCompare(b.name, 'ko', { numeric: true }));
+  }
+  function renderTray() {
+    const show = el.showUsed.checked;
+    const list = sortedPhotos();
+    const free = list.filter((p) => !usage(p.id));
+    const vis = show ? list : free;
+    el.trayCount.textContent = S.photos.size ? `남은 사진 ${free.length}장${S.photos.size - free.length ? ` · 쓴 사진 ${S.photos.size - free.length}장` : ''}` : '';
+    if (!vis.length) {
+      el.grid.innerHTML = `<div class="trayEmpty">${S.photos.size ? '남은 사진이 없습니다 — 쓴 사진은 ‘쓴 사진 보기’로 흑백으로 볼 수 있습니다' : '사진이 여기에 격자로 펼쳐집니다'}</div>`;
+      return;
+    }
+    el.grid.innerHTML = vis.map((p) => {
+      const u = usage(p.id);
+      const sel = S.sel && S.sel.kind === 'photo' && S.sel.id === p.id;
+      const small = Math.min(p.w, p.h) < OUT ? '<i class="bd warn">작은 사진</i>' : '';
+      return `<figure class="tp${u ? ' used' : ''}${sel ? ' sel' : ''}" draggable="true" data-pid="${p.id}" title="${esc(p.name)} · ${p.w}×${p.h}">
+        <img src="${p.thumb}" alt="">${u ? `<i class="bd">쓴 사진 · ${u}칸</i>` : ''}${small}
+        <figcaption>${esc(p.source === 'naver' ? p.name.replace(/^네이버_/, '네이버 · ') : p.name)}</figcaption>
+        <button class="x" type="button" data-x="${p.id}" title="작업대에서 빼기" aria-label="작업대에서 빼기">×</button>
+      </figure>`;
+    }).join('');
+  }
+  function renderStats() {
+    const n = S.rows.length, has = S.rows.filter((r) => r.photo).length;
+    const free = [...S.photos.values()].filter((p) => !usage(p.id)).length;
+    const store = S.store ? `<span class="st-store">${esc(S.store.name)}</span>` : '';
+    el.stats.innerHTML = `${store}<span>메뉴 <b>${n}</b></span><span>사진 있음 <b>${has}</b></span><span>빈 칸 <b>${n - has}</b></span><span>작업대 남은 사진 <b>${free}</b></span>`;
+    el.undoBtn.disabled = !S.undo.length;
+    el.saveBtn.disabled = !has || S.busy;
+  }
+  function render() { renderTable(); renderTray(); renderStats(); }
+
+  /* ── 매장 찾기 → 네이버 메뉴 ── */
+  el.searchForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const q = el.q.value.trim();
+    if (q.length < 2) { setMsg(el.loadMsg, '상호를 두 글자 이상 넣어 주세요.', 'bad'); return; }
+    el.searchBtn.disabled = true;
+    setMsg(el.loadMsg, '찾는 중…');
+    el.cands.innerHTML = '';
+    try {
+      const r = await api(`/search?q=${encodeURIComponent(q)}`);
+      S.cands = r.candidates || [];
+      if (!S.cands.length) { setMsg(el.loadMsg, '찾지 못했습니다. 상호에 동네 이름을 붙여 보세요.', 'bad'); return; }
+      setMsg(el.loadMsg, `${S.cands.length}곳 — 맞는 매장을 고르세요.`);
+      el.cands.innerHTML = S.cands.map((c, i) => `<li><div><div class="nm">${esc(c.name)}${(c.sources || []).map((s) => `<span class="tag">${esc(s)}</span>`).join('')}</div>
+        <div class="meta">${esc(c.category || c.naverCategory || '')} · ${esc(c.roadAddress || c.address || '')}</div></div>
+        <button class="btn sm primary" type="button" data-i="${i}">메뉴 불러오기</button></li>`).join('');
+    } catch (err) { setMsg(el.loadMsg, err.message, 'bad'); }
+    finally { el.searchBtn.disabled = false; }
+  });
+  el.cands.addEventListener('click', (e) => {
+    const b = e.target.closest('button[data-i]');
+    if (b && !S.busy) loadMenus(S.cands[Number(b.dataset.i)]);
+  });
+  async function loadMenus(c) {
+    if (!c) return;
+    S.busy = true; renderStats();
+    setMsg(el.loadMsg, `${c.name} — 네이버 메뉴를 불러오는 중…`);
+    let r = null;
+    try { r = await api('/menu', { method: 'POST', body: { store: c } }); }
+    catch (err) {
+      S.busy = false; renderStats();
+      if (err.status === 404) setMsg(el.loadMsg, `중계 서버가 아직 ${NEED_WORKER}보다 낮아 네이버 메뉴를 부를 수 없습니다. 워커를 올린 뒤 다시 하거나, 메뉴명을 붙여 넣어 주세요.`, 'bad');
+      else setMsg(el.loadMsg, err.message, 'bad');
+      return;
+    }
+    if (!r || !r.ok) {
+      S.busy = false; renderStats();
+      setMsg(el.loadMsg, `${(r && r.reason) || '네이버 메뉴를 가져오지 못했습니다'}${r && r.candidates && r.candidates.length ? ` (비슷한 곳: ${r.candidates.join(', ')})` : ''} — 메뉴명을 붙여 넣어 주세요.`, 'bad');
+      return;
+    }
+    const menus = r.menus || [];
+    if (!menus.length) {
+      S.busy = false; renderStats();
+      setMsg(el.loadMsg, '네이버에 등록된 메뉴가 없습니다 — 메뉴명을 붙여 넣어 주세요.', 'warn');
+      return;
+    }
+    let replace = true;
+    if (S.rows.length) replace = window.confirm(`표에 메뉴 ${S.rows.length}개가 있습니다.\n[확인] 새 매장 메뉴로 바꾸기 · [취소] 뒤에 붙이기`);
+    snap();
+    S.store = { name: c.name, address: c.roadAddress || c.address || '', place: r.place || null };
+    const rows = menus.map((m) => ({ id: uid('r'), cat: m.category || '', name: m.name || '', price: m.price ?? null, photo: null, crop: newCrop(), how: '', naverUrl: m.image || '', err: '' }));
+    S.rows = replace ? rows : S.rows.concat(rows);
+    el.cands.innerHTML = '';
+    render();
+    const upd = r.menuUpdated ? ` · 네이버 메뉴 최근 업데이트 ${r.menuUpdated}` : '';
+    setMsg(el.loadMsg, `네이버 메뉴 ${menus.length}개 · 사진 있는 메뉴 ${r.withImage || 0}개${upd}${r.withImage ? ' — 사진을 받는 중…' : ''}`, 'ok');
+    if (r.withImage) await fetchNaverPhotos(rows, menus.length, upd);
+    S.busy = false; render();
+  }
+  async function fetchNaverPhotos(rows, menuCount, upd) {
+    const todo = rows.filter((x) => x.naverUrl && !x.photo);
+    const total = todo.length, byUrl = new Map();
+    let done = 0, failed = 0, old = false;
+    const work = async () => {
+      while (todo.length) {
+        const row = todo.shift();
+        try {
+          // 같은 사진을 쓰는 메뉴(이원화 등)는 한 번만 받는다 — 받는 중인 것도 기다려 같이 쓴다
+          let job = byUrl.get(row.naverUrl);
+          if (!job) {
+            job = (async () => {
+              const res = await api(`/img?u=${encodeURIComponent(row.naverUrl)}`, { raw: true, timeout: 25000 });
+              if (res.status === 404) { const e = new Error('old'); e.old = true; throw e; }
+              if (!res.ok) throw new Error(`HTTP ${res.status}`);
+              const p = await addPhotoBlob(await res.blob(), `네이버_${row.name}`, 0, 'naver');
+              if (!p) throw new Error('사진을 열지 못함');
+              return p;
+            })();
+            byUrl.set(row.naverUrl, job);
+          }
+          const p = await job;
+          if (!row.photo) assign(row, p.id, 'naver');
+        } catch (e) {
+          failed++;
+          if (e && e.old) { old = true; failed += todo.length; done += todo.length; todo.length = 0; }   // 옛 중계 서버 — 나머지는 부르지 않는다
+          row.err = e && e.old ? '' : '네이버 사진을 받지 못했습니다';
+        }
+        done++;
+        setMsg(el.loadMsg, `네이버 메뉴 ${menuCount}개 — 사진 받는 중 ${done}/${total}`, 'ok');
+        if (done % 4 === 0) render();
+      }
+    };
+    await Promise.all([work(), work(), work(), work()]);
+    render();
+    const got = total - failed;
+    if (old) setMsg(el.loadMsg, `네이버 메뉴 ${menuCount}개를 불러왔습니다. 사진은 중계 서버가 ${NEED_WORKER}보다 낮아 받지 못했습니다 — 작업대로 넣어 주세요.`, 'warn');
+    else setMsg(el.loadMsg, `네이버 메뉴 ${menuCount}개 · 네이버 사진을 ${got}칸에 넣었습니다${failed ? ` · 못 받은 칸 ${failed}개` : ''}${upd} — 빈 칸은 작업대에서 채우세요.`, failed ? 'warn' : 'ok');
+  }
+
+  /* ── 메뉴명 붙여넣기 ── */
+  const priceNum = (v) => { const n = Number(String(v || '').replace(/[^0-9]/g, '')); return n > 0 ? n : null; };
+  el.pasteAdd.addEventListener('click', () => {
+    const lines = el.pasteArea.value.split(/\r?\n/).map((l) => l.replace(/\s+$/, '')).filter((l) => l.trim());
+    if (!lines.length) { toast('붙여 넣은 메뉴가 없습니다', 'bad'); return; }
+    const rows = [];
+    lines.forEach((line, i) => {
+      const c = line.split('\t').map((x) => x.trim());
+      if (c.length >= 3 && /^\d{1,3}$/.test(c[0])) c.shift();   // 엑셀 번호 칸
+      if (i === 0 && /메뉴/.test(line) && /(구분|분류|가격|판매가)/.test(line)) return;   // 엑셀 머리글 줄
+      let cat = '', name = '', price = null;
+      if (c.length >= 3) { cat = c[0]; name = c[1]; price = priceNum(c[2]); }
+      else if (c.length === 2) { if (priceNum(c[1]) && !/[가-힣a-z]/i.test(c[1].replace(/원/g, ''))) { name = c[0]; price = priceNum(c[1]); } else { cat = c[0]; name = c[1]; } }
+      else name = c[0];
+      if (name) rows.push({ id: uid('r'), cat, name, price, photo: null, crop: newCrop(), how: '', naverUrl: '', err: '' });
+    });
+    if (!rows.length) { toast('메뉴명을 찾지 못했습니다', 'bad'); return; }
+    snap();
+    S.rows = S.rows.concat(rows);
+    el.pasteArea.value = '';
+    render();
+    toast(`메뉴 ${rows.length}개를 표에 넣었습니다`, 'ok');
+  });
+
+  /* ── 표 조작 ── */
+  el.tbody.addEventListener('input', (e) => {
+    const inp = e.target.closest('input[data-f]');
+    if (!inp) return;
+    const row = rowOf(inp);
+    if (!row) return;
+    if (!inp.dataset.snapped) { snap(); inp.dataset.snapped = '1'; renderStats(); }
+    const f = inp.dataset.f;
+    if (f === 'price') row.price = priceNum(inp.value);
+    else row[f] = inp.value;
+  });
+  el.tbody.addEventListener('change', (e) => { const inp = e.target.closest('input[data-f]'); if (inp) delete inp.dataset.snapped; });   // 다시 그리지 않는다 — Tab으로 옮겨 간 칸의 입력이 끊기지 않게
+  const rowOf = (node) => { const tr = node.closest('tr[data-id]'); return tr ? S.rows.find((r) => r.id === tr.dataset.id) : null; };
+  el.tbody.addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-a]');
+    const row = rowOf(e.target);
+    if (!row) return;
+    if (btn) {
+      const a = btn.dataset.a;
+      if (a === 'crop') openCrop(row);
+      else if (a === 'copy') startCopy(row);
+      else if (a === 'clear') { snap(); row.photo = null; row.how = ''; row.crop = newCrop(); render(); }
+      else if (a === 'del') { snap(); S.rows = S.rows.filter((r) => r !== row); if (S.sel && S.sel.from === row.id) endPick(); render(); }
+      return;
+    }
+    if (e.target.closest('[data-cell]')) cellClick(row);
+  });
+  el.addRow.addEventListener('click', () => {
+    snap();
+    const r = { id: uid('r'), cat: '', name: '', price: null, photo: null, crop: newCrop(), how: '', naverUrl: '', err: '' };
+    S.rows.push(r);
+    render();
+    const inp = el.tbody.querySelector(`tr[data-id="${r.id}"] input[data-f="name"]`);
+    if (inp) inp.focus();
+  });
+  el.clearTable.addEventListener('click', () => {
+    if (!S.rows.length) return;
+    snap(); S.rows = []; S.store = null; endPick(); render();
+    toast('표를 비웠습니다', '', [{ label: '되돌리기', fn: undo }]);
+  });
+
+  /* ── 작업대 조작 ── */
+  el.grid.addEventListener('click', (e) => {
+    const x = e.target.closest('button[data-x]');
+    if (x) {
+      const pid = x.dataset.x, u = usage(pid);
+      if (u && !window.confirm(`이 사진이 들어간 ${u}칸도 비워집니다. 뺄까요?`)) return;
+      snap();
+      S.rows.forEach((r) => { if (r.photo === pid) { r.photo = null; r.how = ''; r.crop = newCrop(); } });
+      S.photos.delete(pid);
+      if (S.sel && S.sel.id === pid) endPick();
+      render();
+      return;
+    }
+    const fig = e.target.closest('figure[data-pid]');
+    if (!fig) return;
+    if (S.sel && S.sel.kind === 'photo' && S.sel.id === fig.dataset.pid) { endPick(); render(); return; }
+    startPick(fig.dataset.pid);
+  });
+  el.showUsed.addEventListener('change', renderTray);
+  el.traySort.addEventListener('change', renderTray);
+  el.fillOrder.addEventListener('click', () => {
+    const empty = S.rows.filter((r) => !r.photo);
+    const free = sortedPhotos().filter((p) => !usage(p.id));
+    const n = Math.min(empty.length, free.length);
+    if (!n) { toast(empty.length ? '작업대에 남은 사진이 없습니다' : '빈 칸이 없습니다', 'bad'); return; }
+    const how = el.traySort.value === 'name' ? '파일 이름' : '저장 시간';
+    if (!window.confirm(`빈 칸 ${empty.length}개에 남은 사진 ${free.length}장을 ${how} 순서대로 ${n}칸 넣습니다.\n(표 위에서부터 차례로 · 되돌리기로 취소할 수 있습니다)`)) return;
+    snap();
+    for (let i = 0; i < n; i++) assign(empty[i], free[i].id, 'order');
+    render();
+    toast(`${n}칸에 넣었습니다 — 틀린 칸은 끌어서 바꾸세요`, 'ok', [{ label: '되돌리기', fn: undo }], 8000);
+  });
+  el.pickFiles.addEventListener('click', () => { delete el.fileInput.dataset.target; el.fileInput.click(); });
+  el.fileInput.addEventListener('change', async () => {
+    const files = [...el.fileInput.files];
+    const tid = el.fileInput.dataset.target;
+    delete el.fileInput.dataset.target;
+    el.fileInput.value = '';
+    const target = tid ? S.rows.find((r) => r.id === tid) : null;
+    await importFiles(files, { target });
+  });
+  el.pickEnd.addEventListener('click', () => { endPick(); render(); });
+  el.trayMin.addEventListener('click', () => { el.trayPane.classList.toggle('min'); el.trayMin.textContent = el.trayPane.classList.contains('min') ? '펼치기' : '접기'; });
+
+  /* ── 끌어다 놓기 ── */
+  const types = (e) => [...((e.dataTransfer && e.dataTransfer.types) || [])];
+  el.grid.addEventListener('dragstart', (e) => {
+    const fig = e.target.closest('figure[data-pid]');
+    if (!fig) return;
+    e.dataTransfer.setData('text/x-photo', fig.dataset.pid);
+    e.dataTransfer.effectAllowed = 'copyMove';
+    const img = fig.querySelector('img'); if (img) e.dataTransfer.setDragImage(img, 40, 40);
+  });
+  el.tbody.addEventListener('dragstart', (e) => {
+    const cell = e.target.closest('.cell.full');
+    const row = cell && rowOf(cell);
+    if (!row) return;
+    e.dataTransfer.setData('text/x-row', row.id);
+    e.dataTransfer.effectAllowed = 'copyMove';
+  });
+  el.tbody.addEventListener('dragover', (e) => {
+    const cell = e.target.closest('[data-cell]');
+    if (!cell) return;
+    const t = types(e);
+    if (!t.includes('text/x-photo') && !t.includes('text/x-row') && !t.includes('Files')) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = (e.ctrlKey || e.altKey || e.metaKey || t.includes('text/x-photo') || t.includes('Files')) ? 'copy' : 'move';
+    document.querySelectorAll('.cell.target').forEach((c) => { if (c !== cell) c.classList.remove('target'); });
+    cell.classList.add('target');
+  });
+  el.tbody.addEventListener('dragleave', (e) => { const cell = e.target.closest('[data-cell]'); if (cell && !cell.contains(e.relatedTarget)) cell.classList.remove('target'); });
+  el.tbody.addEventListener('drop', (e) => {
+    const cell = e.target.closest('[data-cell]');
+    if (!cell) return;
+    e.preventDefault();
+    cell.classList.remove('target');
+    const row = rowOf(cell);
+    if (!row) return;
+    const dt = e.dataTransfer;
+    const pid = dt.getData('text/x-photo'), rid = dt.getData('text/x-row');
+    if (pid && S.photos.has(pid)) { place(row, pid, 'drag'); return; }
+    if (rid) {
+      const src = S.rows.find((r) => r.id === rid);
+      if (!src || src === row || !src.photo) return;
+      const copy = e.ctrlKey || e.altKey || e.metaKey;
+      snap();
+      row.photo = src.photo; row.crop = { ...src.crop }; row.how = copy ? 'copy' : 'drag'; row.err = '';
+      if (!copy) { src.photo = null; src.how = ''; src.crop = newCrop(); }
+      render();
+      return;
+    }
+    if (types(e).includes('Files')) {
+      const entries = dropEntries(dt), files = [...dt.files];
+      filesFromEntries(entries, files).then((fs) => importFiles(fs, { target: row }));
+    }
+  });
+  // 작업대: 칸의 사진을 되돌려 놓거나(칸 비우기) 새 파일을 받는다
+  el.trayPane.addEventListener('dragover', (e) => {
+    const t = types(e);
+    if (!t.includes('text/x-row') && !t.includes('Files')) return;
+    e.preventDefault();
+    el.drop.classList.add('over');
+  });
+  el.trayPane.addEventListener('dragleave', (e) => { if (!el.trayPane.contains(e.relatedTarget)) el.drop.classList.remove('over'); });
+  el.trayPane.addEventListener('drop', (e) => {
+    const t = types(e);
+    if (!t.includes('text/x-row') && !t.includes('Files')) return;
+    e.preventDefault();
+    el.drop.classList.remove('over');
+    const rid = e.dataTransfer.getData('text/x-row');
+    if (rid) {
+      const r = S.rows.find((x) => x.id === rid);
+      if (r && r.photo) { snap(); r.photo = null; r.how = ''; r.crop = newCrop(); render(); }
+      return;
+    }
+    const entries = dropEntries(e.dataTransfer), files = [...e.dataTransfer.files];
+    filesFromEntries(entries, files).then((fs) => importFiles(fs));
+  });
+  // 칸·작업대 밖에 떨어뜨린 파일을 브라우저가 열어 버리지 않게, 끄는 동안 화면 끝에 가면 저절로 넘어가게
+  let scrollDir = 0, scrollRAF = 0;
+  const stepScroll = () => { if (!scrollDir) { scrollRAF = 0; return; } window.scrollBy(0, scrollDir * 16); scrollRAF = requestAnimationFrame(stepScroll); };
+  window.addEventListener('dragover', (e) => {
+    if (types(e).includes('Files')) e.preventDefault();
+    const edge = 80, y = e.clientY;
+    scrollDir = y < edge ? -1 : (y > window.innerHeight - edge ? 1 : 0);
+    if (el.trayPane.contains(e.target) && window.matchMedia('(max-width:900px)').matches) scrollDir = 0;
+    if (scrollDir && !scrollRAF) scrollRAF = requestAnimationFrame(stepScroll);
+  });
+  window.addEventListener('drop', (e) => { scrollDir = 0; if (types(e).includes('Files')) e.preventDefault(); });
+  window.addEventListener('dragend', () => { scrollDir = 0; document.querySelectorAll('.cell.target').forEach((c) => c.classList.remove('target')); });
+
+  /* ── 붙여넣기(Ctrl+V) — 스크린샷을 바로 작업대로 ── */
+  document.addEventListener('paste', (e) => {
+    const cd = e.clipboardData;
+    if (!cd) return;
+    const text = (cd.getData('text/plain') || '').trim();
+    if (text) {   // 엑셀·메모장 글자 — 입력 칸이면 그대로 붙고, 빈 곳이면 메뉴명 표로 넣을지 묻는다
+      const inField = /^(INPUT|TEXTAREA|SELECT)$/.test((e.target && e.target.tagName) || '') || (e.target && e.target.isContentEditable);
+      if (!inField && /\n/.test(text)) {
+        toast(`붙여 넣은 글자 ${text.split(/\r?\n/).filter((l) => l.trim()).length}줄을 메뉴명으로 표에 넣을까요?`, 'ask',
+          [{ label: '표에 넣기', fn: () => { el.pasteArea.value = text; el.pasteAdd.click(); } }], 9000);
+      }
+      return;
+    }
+    const items = [...(cd.items || [])].filter((i) => i.kind === 'file' && /^image\//.test(i.type));
+    if (!items.length) return;
+    e.preventDefault();
+    const now = Date.now();
+    const files = items.map((i, k) => { const f = i.getAsFile(); return f ? new File([f], `붙여넣기 ${new Date(now).toTimeString().slice(0, 8).replace(/:/g, '')}-${k + 1}.png`, { type: f.type, lastModified: now + k }) : null; }).filter(Boolean);
+    importFiles(files);
+  });
+  document.addEventListener('keydown', (e) => {
+    const inField = /^(INPUT|TEXTAREA|SELECT)$/.test((e.target && e.target.tagName) || '');
+    if (e.key === 'Escape' && S.sel && !el.dlg.open) { endPick(); render(); }
+    if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key.toLowerCase() === 'z' && !inField && !el.dlg.open) { e.preventDefault(); undo(); }
+  });
+  el.undoBtn.addEventListener('click', undo);
+  window.addEventListener('beforeunload', (e) => { if (S.dirty && (S.rows.length || S.photos.size)) { e.preventDefault(); e.returnValue = ''; } });
+
+  /* ── 자르기 창 ── */
+  const C = { row: null, crop: null, bmp: null, p: null, drag: null, show: new Set(GUIDES.map((g) => g.key)) };
+  el.guides.insertAdjacentHTML('beforeend', GUIDES.map((g) => `<label><input type="checkbox" data-g="${g.key}" checked><i style="border-color:${g.color}"></i>${esc(g.label)}</label>`).join(''));
+  async function openCrop(row) {
+    const p = row.photo && S.photos.get(row.photo);
+    if (!p) return;
+    endPick();
+    C.row = row; C.p = p; C.crop = { ...row.crop };
+    el.cropName.textContent = `${row.name || '이름 없음'} · 원본 ${p.w}×${p.h}`;
+    const k = Math.min(1, 1400 / Math.max(p.w, p.h));
+    C.bmp = await decode(p.blob, k < 1 ? { resizeWidth: Math.round(p.w * k), resizeHeight: Math.round(p.h * k), resizeQuality: 'high' } : undefined);
+    if (!C.bmp) { toast('사진을 열지 못했습니다', 'bad'); return; }
+    syncCropUI(); drawCrop(); drawGuides();
+    el.dlg.showModal();
+  }
+  function closeCrop(apply) {
+    if (apply && C.row) { snap(); C.row.crop = { ...C.crop }; render(); }
+    if (C.bmp && C.bmp.close) C.bmp.close();
+    C.bmp = null; C.row = null; C.p = null;
+    if (el.dlg.open) el.dlg.close();
+  }
+  function syncCropUI() {
+    [...el.modeSeg.querySelectorAll('button')].forEach((b) => b.classList.toggle('on', b.dataset.mode === C.crop.mode));
+    el.zoom.value = String(C.crop.zoom);
+    el.zoom.disabled = C.crop.mode !== 'cover';
+    el.cropCenter.disabled = C.crop.mode !== 'cover';
+    const L = layout(C.p.w, C.p.h, C.crop);
+    el.cropInfo.className = `small${L.s > 1.05 ? ' warn' : ''}`;
+    el.cropInfo.textContent = L.s > 1.05
+      ? `원본보다 ${L.s.toFixed(1)}배 키워집니다 — 흐릴 수 있습니다. 더 큰 사진이 있으면 바꿔 넣으세요.`
+      : (C.crop.mode === 'cover' ? '사진이 500×500을 꽉 채웁니다. 선 안쪽이 스킨별로 보이는 곳입니다.' : C.crop.mode === 'fit' ? '사진 전체가 보이고 남는 곳은 흰 여백입니다.' : '사진을 가운데 350×350 안에 넣어, 어느 스킨에서도 잘리지 않게 합니다(매뉴얼 9081 권장).');
+    el.stage.style.cursor = C.crop.mode === 'cover' ? 'grab' : 'default';
+  }
+  function drawCrop() {
+    const ctx = el.cropCv.getContext('2d');
+    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, OUT, OUT);
+    const L = layout(C.p.w, C.p.h, C.crop);
+    ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(C.bmp, L.x0, L.y0, L.W, L.H);
+  }
+  function drawGuides() {
+    const ctx = el.guideCv.getContext('2d');
+    ctx.clearRect(0, 0, OUT, OUT);
+    ctx.lineWidth = 2; ctx.setLineDash([8, 6]);
+    GUIDES.forEach((g) => {
+      if (!C.show.has(g.key)) return;
+      const x = (OUT - g.w) / 2, y = (OUT - g.h) / 2;
+      ctx.strokeStyle = g.color; ctx.strokeRect(x + 1, y + 1, g.w - 2, g.h - 2);
+    });
+  }
+  el.modeSeg.addEventListener('click', (e) => {
+    const b = e.target.closest('button[data-mode]');
+    if (!b) return;
+    C.crop.mode = b.dataset.mode;
+    if (C.crop.mode !== 'cover') { C.crop.zoom = 1; C.crop.cx = 0.5; C.crop.cy = 0.5; }
+    syncCropUI(); drawCrop();
+  });
+  el.zoom.addEventListener('input', () => { C.crop.zoom = Math.min(4, Math.max(1, Number(el.zoom.value) || 1)); fixCenter(); syncCropUI(); drawCrop(); });
+  el.cropCenter.addEventListener('click', () => { C.crop.cx = 0.5; C.crop.cy = 0.5; drawCrop(); });
+  el.guides.addEventListener('change', (e) => { const cb = e.target.closest('input[data-g]'); if (!cb) return; if (cb.checked) C.show.add(cb.dataset.g); else C.show.delete(cb.dataset.g); drawGuides(); });
+  function fixCenter() {   // 가장자리 밖으로 나간 중심을 되돌린다
+    const L = layout(C.p.w, C.p.h, C.crop);
+    C.crop.cx = (OUT / 2 - L.x0) / L.W; C.crop.cy = (OUT / 2 - L.y0) / L.H;
+  }
+  el.stage.addEventListener('pointerdown', (e) => {
+    if (!C.p || C.crop.mode !== 'cover') return;
+    el.stage.setPointerCapture(e.pointerId);
+    const r = el.stage.getBoundingClientRect();
+    C.drag = { x: e.clientX, y: e.clientY, k: OUT / r.width, L: layout(C.p.w, C.p.h, C.crop) };
+    el.stage.style.cursor = 'grabbing';
+  });
+  el.stage.addEventListener('pointermove', (e) => {
+    if (!C.drag) return;
+    const d = C.drag, dx = (e.clientX - d.x) * d.k, dy = (e.clientY - d.y) * d.k;
+    const x0 = Math.min(0, Math.max(OUT - d.L.W, d.L.x0 + dx)), y0 = Math.min(0, Math.max(OUT - d.L.H, d.L.y0 + dy));
+    C.crop.cx = (OUT / 2 - x0) / d.L.W; C.crop.cy = (OUT / 2 - y0) / d.L.H;
+    drawCrop();
+  });
+  const endDrag = () => { if (C.drag) { C.drag = null; el.stage.style.cursor = 'grab'; } };
+  el.stage.addEventListener('pointerup', endDrag);
+  el.stage.addEventListener('pointercancel', endDrag);
+  el.stage.addEventListener('wheel', (e) => {
+    if (!C.p || C.crop.mode !== 'cover') return;
+    e.preventDefault();
+    C.crop.zoom = Math.min(4, Math.max(1, C.crop.zoom * (e.deltaY < 0 ? 1.08 : 1 / 1.08)));
+    fixCenter(); syncCropUI(); drawCrop();
+  }, { passive: false });
+  el.cropApply.addEventListener('click', () => closeCrop(true));
+  el.cropCancel.addEventListener('click', () => closeCrop(false));
+  el.dlg.addEventListener('cancel', (e) => { e.preventDefault(); closeCrop(false); });
+  el.dlg.addEventListener('keydown', (e) => {
+    if (!C.p) return;
+    if (e.key === 'Enter' && !/^(BUTTON|INPUT)$/.test(e.target.tagName)) { e.preventDefault(); closeCrop(true); return; }
+    if (C.crop.mode !== 'cover') return;
+    const L = layout(C.p.w, C.p.h, C.crop);
+    // 화살표 방향으로 사진이 6px씩 움직인다 (끌기와 같은 방향)
+    const mv = { ArrowLeft: [6, 0], ArrowRight: [-6, 0], ArrowUp: [0, 6], ArrowDown: [0, -6] }[e.key];
+    if (mv) { e.preventDefault(); C.crop.cx += mv[0] / L.W; C.crop.cy += mv[1] / L.H; fixCenter(); drawCrop(); }
+  });
+
+  /* ── 저장 — [메뉴명].jpg 500×500 + 목록.csv + 확인용_목록.jpg ── */
+  async function renderJpeg(row) {
+    const p = S.photos.get(row.photo);
+    const L = layout(p.w, p.h, row.crop);
+    const cv = document.createElement('canvas'); cv.width = OUT; cv.height = OUT;
+    const ctx = cv.getContext('2d');
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, OUT, OUT);
+    const Wi = Math.max(1, Math.ceil(L.W)), Hi = Math.max(1, Math.ceil(L.H));
+    let x = Math.round(L.x0), y = Math.round(L.y0);
+    if (L.cover) { x = Math.min(0, Math.max(OUT - Wi, x)); y = Math.min(0, Math.max(OUT - Hi, y)); }
+    let bmp = await decode(p.blob, { resizeWidth: Wi, resizeHeight: Hi, resizeQuality: 'high' });
+    if (bmp && (bmp.width !== Wi || bmp.height !== Hi)) { ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high'; ctx.drawImage(bmp, x, y, Wi, Hi); }
+    else if (bmp) ctx.drawImage(bmp, x, y);
+    if (bmp && bmp.close) bmp.close();
+    return await new Promise((res) => cv.toBlob(res, 'image/jpeg', JPEG_Q));
+  }
+  function csvOf(lines) {
+    const q = (v) => { const s = String(v ?? ''); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+    return '﻿' + lines.map((l) => l.map(q).join(',')).join('\r\n') + '\r\n';
+  }
+  async function contactSheet(items, missing) {
+    const cols = 5, cw = 204, ch = 262, pad = 28, head = 92, box = 180;
+    const rowsN = Math.max(1, Math.ceil(items.length / cols));
+    const missH = missing.length ? 30 + Math.ceil(missing.join(', ').length / 70) * 18 : 0;
+    const cv = document.createElement('canvas');
+    cv.width = pad * 2 + cols * cw; cv.height = head + rowsN * ch + missH + pad;
+    const ctx = cv.getContext('2d');
+    const F = "'Pretendard Variable', Pretendard, 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif";
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, cv.width, cv.height);
+    ctx.fillStyle = '#111'; ctx.font = `800 22px ${F}`;
+    ctx.fillText(`${S.store ? S.store.name + ' — ' : ''}메뉴 사진 ${items.length}장 (500×500)`, pad, 44);
+    ctx.fillStyle = '#666'; ctx.font = `500 13px ${F}`;
+    ctx.fillText(`차림표 ${PAGE_VERSION} · ${new Date().toLocaleString('ko-KR')} · 파일 이름 = 메뉴명 · 확인용 목록`, pad, 70);
+    for (let i = 0; i < items.length; i++) {
+      const { row, p, fname } = items[i];
+      const x = pad + (i % cols) * cw + (cw - box) / 2, y = head + Math.floor(i / cols) * ch;
+      try { if (p.img && p.img.decode) await p.img.decode(); } catch (_) { /* 이미 풀렸거나 못 푸는 경우 */ }
+      const L = layout(p.w, p.h, row.crop), k = box / OUT;
+      ctx.save(); ctx.beginPath(); ctx.rect(x, y, box, box); ctx.clip();
+      ctx.fillStyle = '#fff'; ctx.fillRect(x, y, box, box);
+      ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(p.img, x + L.x0 * k, y + L.y0 * k, L.W * k, L.H * k);
+      ctx.restore();
+      ctx.strokeStyle = '#d0d4da'; ctx.lineWidth = 1; ctx.strokeRect(x + 0.5, y + 0.5, box - 1, box - 1);
+      ctx.fillStyle = '#111'; ctx.font = `700 13px ${F}`;
+      wrapText(ctx, `${i + 1}. ${row.name || '(이름 없음)'}`, x, y + box + 20, box, 17, 2);
+      ctx.fillStyle = '#888'; ctx.font = `500 11px ${F}`;
+      wrapText(ctx, fname, x, y + box + 58, box, 14, 1);
+    }
+    if (missing.length) {
+      const y0 = head + rowsN * ch + 8;
+      ctx.fillStyle = '#b3261e'; ctx.font = `700 13px ${F}`;
+      ctx.fillText(`사진 없는 메뉴 ${missing.length}개`, pad, y0);
+      ctx.fillStyle = '#444'; ctx.font = `500 12.5px ${F}`;
+      wrapText(ctx, missing.join(', '), pad, y0 + 22, cv.width - pad * 2, 18, 20);
+    }
+    return await new Promise((res) => cv.toBlob(res, 'image/jpeg', 0.9));
+  }
+  function wrapText(ctx, text, x, y, maxW, lh, maxLines) {
+    const chars = [...String(text || '')];
+    let line = '', lines = 0;
+    for (let i = 0; i < chars.length; i++) {
+      const test = line + chars[i];
+      if (ctx.measureText(test).width > maxW && line) {
+        lines++;
+        if (lines >= maxLines) { ctx.fillText(line.replace(/.$/, '…'), x, y); return; }
+        ctx.fillText(line, x, y); y += lh; line = chars[i];
+      } else line = test;
+    }
+    if (line) ctx.fillText(line, x, y);
+  }
+  const ymd = () => { const d = new Date(); return `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`; };
+  el.saveBtn.addEventListener('click', async () => {
+    if (S.busy) return;
+    if (!window.JSZip) { toast('zip 도구를 불러오지 못했습니다 — 인터넷 연결을 확인하고 새로 고침 없이 잠시 뒤 다시 눌러 주세요', 'bad', [], 8000); return; }
+    const withPhoto = S.rows.filter((r) => r.photo && S.photos.has(r.photo));
+    if (!withPhoto.length) { toast('사진이 들어간 메뉴가 없습니다', 'bad'); return; }
+    S.busy = true; renderStats();
+    progress('저장 준비 중…');
+    try {
+      const zip = new window.JSZip();
+      const usedNames = new Map(), items = [], missing = [];
+      const lines = [['번호', '구분', '메뉴명', '가격', '파일 이름', '사진 출처', '원본 크기', '자르기']];
+      let done = 0;
+      for (let i = 0; i < S.rows.length; i++) {
+        const r = S.rows[i];
+        const p = r.photo ? S.photos.get(r.photo) : null;
+        if (!p) { missing.push(r.name || `${i + 1}번`); lines.push([i + 1, r.cat, r.name, r.price ?? '', '(사진 없음)', '', '', '']); continue; }
+        const base = safeName(r.name) || `메뉴${i + 1}`;
+        const n = (usedNames.get(base) || 0) + 1; usedNames.set(base, n);
+        const fname = n === 1 ? `${base}.jpg` : `${base}_${n}.jpg`;
+        zip.file(fname, await renderJpeg(r));
+        items.push({ row: r, p, fname });
+        const src = p.source === 'naver' ? '네이버 메뉴' : '작업대';
+        const cropTxt = r.crop.mode === 'cover' ? (r.crop.zoom > 1.01 || Math.abs(r.crop.cx - 0.5) > 0.01 || Math.abs(r.crop.cy - 0.5) > 0.01 ? '직접 자름' : '가운데') : r.crop.mode === 'fit' ? '여백 맞추기' : '안전 영역';
+        lines.push([i + 1, r.cat, r.name, r.price ?? '', fname, src, `${p.w}×${p.h}`, cropTxt]);
+        done++;
+        progress(`저장 중 ${done}/${withPhoto.length}`);
+      }
+      progress('목록 만드는 중…');
+      zip.file('목록.csv', csvOf(lines));
+      zip.file('확인용_목록.jpg', await contactSheet(items, missing));
+      const blob = await zip.generateAsync({ type: 'blob', compression: 'STORE' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `차림표_${safeName(S.store ? S.store.name : '메뉴사진') || '메뉴사진'}_${ymd()}.zip`;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 30000);
+      progressEnd();
+      toast(`zip을 내려받았습니다 — 사진 ${items.length}장${missing.length ? ` · 사진 없는 메뉴 ${missing.length}개(목록.csv에 표시)` : ''}`, 'ok', [], 7000);
+      S.dirty = false;
+    } catch (err) {
+      progressEnd();
+      toast(`저장하지 못했습니다 — ${err && err.message ? err.message : err}`, 'bad', [], 8000);
+    } finally { S.busy = false; renderStats(); }
+  });
+
+  window.addEventListener('resize', () => { if (S.rows.length) renderTable(); });
+  render();
+  /* 시험용 창구 — 화면 동작에는 쓰지 않는다 */
+  window.__charim = { S, layout, baseOf, safeName, normName, version: PAGE_VERSION };
+})();
+</script>
+</body>
+</html>
