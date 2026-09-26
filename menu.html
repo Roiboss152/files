@@ -630,11 +630,15 @@ footer{margin-top:20px;color:var(--faint);font-size:12px;line-height:1.7}
      그 밖의 처리(자르기·보정·배너·문서 4종)는 모두 브라우저 안에서 규칙으로만 한다(AI 없음 — 설명은 AI 요청문을 복사해 사람이 붙여 넣는다).
      저장소(localStorage 등)는 쓰지 않는다 — 작업은 저장한 zip(차림표_작업.json)을 다시 넣어 이어서 고친다.
      v1.02: 네이버 메뉴판이 비어 있으면(배민 연동 포장·배달 주문 메뉴만 있는 매장) 밑그림과 같은 경로(/direct)로 메뉴를 다시 받는다.
-            그런 매장의 메뉴 사진은 배민 사진 서버에 있어 사진 중계(kt-img 워커)로 받는다 — 설치 전이면 사진함·작업대로 채운다. */
+            그런 매장의 메뉴 사진은 배민 사진 서버에 있어 사진 중계(kt-img 워커)로 받는다 — 설치 전이면 사진함·작업대로 채운다.
+     v1.03: 네이버 메뉴판이 5개 미만이어도(대표 메뉴만 올린 매장 — 교촌 구미송정점: 1개) 같은 경로의 주문 메뉴나 카카오맵 메뉴로 채운다.
+            네이버에 올린 설명·사진·대표 표시·가격은 이름이 같은 메뉴에 붙인다. 가게가 메뉴에 적은 설명은 상품 설명 칸에 바로 넣는다.
+            배민 메뉴 사진은 중계 서버 v1.45부터 /img가 받는다 — 옛 서버(400)일 때만 kt-img로. v1.45가 보내는 진단값은 [진단 복사]로. */
   const API_BASE = 'https://kt.roi0925003.workers.dev';
   const PUBLIC_PASS = 'sk-bbwkqqcpjx4yty';   // 직원 공개용 토큰 — 비밀번호가 아니다(밑그림과 같은 값). 중계 서버의 PUBLIC_PASS와 같아야 한다
-  const PAGE_VERSION = 'v1.02';
-  const IMG_BASE = 'https://kt-img.roi0925003.workers.dev';   // v1.02: 배민 메뉴 사진 중계(kt-img) — 기존 중계 서버 /img는 네이버 사진만 받는다
+  const PAGE_VERSION = 'v1.03';
+  const IMG_BASE = 'https://kt-img.roi0925003.workers.dev';   // v1.02: 배민 메뉴 사진 중계(kt-img). v1.03: 중계 서버 v1.45부터는 /img가 배민 사진도 받아, 옛 서버일 때만 쓴다
+  const FEW_MENUS = 5;   // v1.03: 네이버 메뉴판이 이보다 적으면 주문 메뉴·카카오맵 메뉴로 채워 본다
   const EXT_IMG_HOSTS = ['imagefarm.baemin.com'];
   const isExtImg = (u) => { try { return EXT_IMG_HOSTS.includes(new URL(u).hostname); } catch (_) { return false; } };
   const NEED_WORKER = 'v1.43';   // 네이버 메뉴·사진
@@ -1484,19 +1488,24 @@ footer{margin-top:20px;color:var(--faint);font-size:12px;line-height:1.7}
     let r = null;
     try { r = await api('/menu', { method: 'POST', body: { store: c } }); }
     catch (err) {
-      S.busy = false; renderStats();
-      if (err.status === 404) setMsg(el.loadMsg, `중계 서버가 아직 ${NEED_WORKER}보다 낮아 네이버 메뉴를 부를 수 없습니다. 워커를 올린 뒤 다시 하거나, 메뉴명을 붙여 넣어 주세요.`, 'bad');
-      else setMsg(el.loadMsg, err.message, 'bad');
-      return;
+      if (!(err.status >= 500)) {
+        S.busy = false; renderStats();
+        if (err.status === 404) setMsg(el.loadMsg, `중계 서버가 아직 ${NEED_WORKER}보다 낮아 네이버 메뉴를 부를 수 없습니다. 워커를 올린 뒤 다시 하거나, 메뉴명을 붙여 넣어 주세요.`, 'bad');
+        else setMsg(el.loadMsg, err.message, 'bad');
+        return;
+      }
+      r = null;   // v1.03: 중계 서버가 메뉴를 읽다 멈추면(5xx) 아래에서 밑그림 경로로 한 번 더
     }
-    /* v1.02: 메뉴판이 비었거나 못 읽으면 밑그림과 같은 경로로 한 번 더 — 배민 연동 매장은 메뉴가 포장·배달 주문 메뉴에만 있다 */
-    let alt = '';
-    if (!r || !r.ok || !(r.menus || []).length) {
-      setMsg(el.loadMsg, `${c.name} — 네이버 메뉴판이 비어 있어 주문 메뉴를 찾는 중…`);
-      const dm = await directMenus(c);
-      if (dm.length) {
-        alt = r && r.ok ? 'empty' : 'fail';
-        r = { ...(r && r.ok ? r : {}), ok: true, menus: dm, withImage: dm.filter((m) => m.image).length, menuUpdated: '', bizPhotos: (r && r.ok && r.bizPhotos) || [] };
+    /* v1.02: 메뉴판이 비었거나 못 읽으면 밑그림과 같은 경로로 한 번 더 — 배민 연동 매장은 메뉴가 포장·배달 주문 메뉴에만 있다
+       v1.03: 5개 미만이어도(대표 메뉴만 올린 매장) — 주문 메뉴나 카카오맵 메뉴가 더 많으면 그것으로 채우고 네이버 설명·사진·대표 표시를 붙인다 */
+    let altInfo = null;
+    const got = r && r.ok ? (r.menus || []) : [];
+    if (!r || !r.ok || got.length < FEW_MENUS) {
+      setMsg(el.loadMsg, got.length ? `${c.name} — 네이버 메뉴판이 ${got.length}개뿐이라 주문 메뉴·카카오맵 메뉴를 찾는 중… (1분까지 걸릴 수 있음)` : `${c.name} — 네이버 메뉴판이 비어 있어 주문 메뉴를 찾는 중…`);
+      const pk = pickMenus(got, await directAlt(c));
+      if (pk) {
+        altInfo = { kind: pk.kind, few: got.length, fail: !(r && r.ok), upd: pk.upd };
+        r = { ...(r && r.ok ? r : {}), ok: true, menus: pk.menus, withImage: pk.menus.filter((m) => m.image).length, menuUpdated: pk.kind === 'kakao' ? '' : ((r && r.ok && r.menuUpdated) || ''), bizPhotos: (r && r.ok && r.bizPhotos) || [] };
       }
     }
     if (!r || !r.ok) {
@@ -1518,15 +1527,22 @@ footer{margin-top:20px;color:var(--faint);font-size:12px;line-height:1.7}
       renderBanners();
     }
     S.store = { name: c.name, address: c.roadAddress || c.address || '', category: c.category || c.naverCategory || '', place: r.place || null };
-    const rows = menus.map((m) => newRow({ cat: m.category || '', name: m.name || '', price: m.price ?? null, naverUrl: m.image || '', naverDesc: m.desc || '', rec: Boolean(m.recommend) }));
+    let descN = 0;   // v1.03: 가게가 메뉴에 적은 설명 → 상품 설명 칸(하이오더 메뉴판·요청서에 들어감)
+    const rows = menus.map((m) => {
+      const d = String(m.desc || '').replace(/\s+/g, ' ').trim().slice(0, 400);
+      if (d) descN++;
+      return newRow({ cat: m.category || '', name: m.name || '', price: m.price ?? null, naverUrl: m.image || '', naverDesc: m.desc || '', rec: Boolean(m.recommend), opt: Object.assign(newOpt(), { desc: d }) });
+    });
     S.rows = replace ? rows : S.rows.concat(rows);
     if (replace) S.selIds.clear();
     el.cands.innerHTML = '';
     render();
     const upd = r.menuUpdated ? ` · 네이버 메뉴 최근 업데이트 ${r.menuUpdated}` : '';
     const withImage = r.withImage || 0;
-    const altNote = alt === 'empty' ? ' (메뉴판이 비어 주문 메뉴에서 가져옴 · 구분은 비어 있음)' : alt === 'fail' ? ' (밑그림과 같은 경로로 가져옴 · 구분은 비어 있음)' : '';
-    setMsg(el.loadMsg, `네이버 메뉴 ${menus.length}개${altNote} 중 사진이 등록된 메뉴는 ${withImage}개입니다${withImage ? ' — 사진을 받는 중…' : ''}`, 'ok');
+    const altNote = menuNote(altInfo, menus);
+    const descNote = descN ? ` · 상품 설명 ${descN}개는 가게가 올린 설명으로 채움` : '';
+    const lead = altInfo && altInfo.kind === 'kakao' ? '메뉴' : '네이버 메뉴';   // v1.03: 카카오맵 메뉴로 채웠으면 '네이버 메뉴'라 부르지 않는다
+    setMsg(el.loadMsg, `${lead} ${menus.length}개${altNote} 중 사진이 등록된 메뉴는 ${withImage}개입니다${withImage ? ' — 사진을 받는 중…' : ''}`, 'ok');
     const nv = withImage ? await fetchNaverPhotos(rows, menus.length) : { got: 0, failed: 0, old: false };
     // 같은 이름(이원화)·공통 사진함·작업대 파일 이름으로 빈 칸 채우기 — 한 번에 되돌릴 수 있게
     const before = S.undo.length;
@@ -1538,26 +1554,84 @@ footer{margin-top:20px;color:var(--faint);font-size:12px;line-height:1.7}
     render();
     const extra = [lib ? `공통 사진함 ${lib}칸` : '', same ? `같은 이름 ${same}칸` : '', files ? `파일 이름 ${files}칸` : ''].filter(Boolean);
     const main = nv.old
-      ? `네이버 메뉴 ${menus.length}개를 불러왔습니다. 사진은 중계 서버가 ${NEED_WORKER}보다 낮아 받지 못했습니다 — 작업대로 넣어 주세요.`
-      : `네이버 메뉴 ${menus.length}개${altNote} 중 사진이 등록된 메뉴는 ${withImage}개입니다 — ${nv.got}칸에 넣었습니다${nv.failed ? ` · 못 받은 칸 ${nv.failed}개` : ''}${nv.ext ? ' (배민 연동 메뉴 사진은 사진 중계 kt-img를 설치하면 받습니다)' : ''}${upd}`;
-    setMsg(el.loadMsg, `${main}${extra.length ? ` · 더 채움: ${extra.join(' · ')}` : ''} — 빈 칸은 작업대에서 채우세요.`, nv.failed || nv.old ? 'warn' : 'ok');
+      ? `${lead} ${menus.length}개를 불러왔습니다. 사진은 중계 서버가 ${NEED_WORKER}보다 낮아 받지 못했습니다 — 작업대로 넣어 주세요.`
+      : `${lead} ${menus.length}개${altNote} 중 사진이 등록된 메뉴는 ${withImage}개입니다 — ${nv.got}칸에 넣었습니다${nv.failed ? ` · 못 받은 칸 ${nv.failed}개` : ''}${nv.ext ? ' (배민 연동 메뉴 사진은 중계 서버를 v1.45로 올리면 받습니다)' : ''}${upd}`;
+    setMsg(el.loadMsg, `${main}${extra.length ? ` · 더 채움: ${extra.join(' · ')}` : ''}${descNote} — 빈 칸은 작업대에서 채우세요.`, nv.failed || nv.old ? 'warn' : 'ok');
+    /* v1.03: 중계 서버 v1.45가 진단값을 주면(메뉴판 5개 미만 · 주문 메뉴 설명을 못 찾음) 복사 단추 — 자료 이름표·칸 이름만, 가게 값은 없다 */
+    const om = r.orderMenus || null;
+    if (r.diag || (om && (om.error || (om.found && !om.descs)))) addDiagBtn({ store: c.name, worker: r.version || '', menus: menus.length, naverMenus: got.length, filled: altInfo ? altInfo.kind : '', orderMenus: om, diag: r.diag || null });
     if (extra.length) toast(`빈 칸을 더 채웠습니다 — ${extra.join(' · ')}`, 'ok', [{ label: '되돌리기', fn: undo }], 8000);
     S.busy = false; render();
     if (r.bizPhotos && r.bizPhotos.length && !nv.old) fetchBizPhotos(r.bizPhotos);
   }
-  /* v1.02: 밑그림과 같은 경로(/direct)의 네이버 메뉴 — 밑그림과 같은 거름(값이 절반 넘게 있어야 메뉴 목록 · 다른 매장으로 잡히면 버림) */
-  async function directMenus(c) {
+  /* v1.02: 밑그림과 같은 경로(/direct)의 네이버 메뉴 — 밑그림과 같은 거름(값이 절반 넘게 있어야 메뉴 목록 · 다른 매장으로 잡히면 버림)
+     v1.03: 같은 응답의 카카오맵 메뉴도 같이 받는다 — 네이버에 대표 메뉴만 올린 매장은 카카오맵에 전체 메뉴가 있는 경우가 많다 */
+  async function directAlt(c) {
     try {
       const d = await api('/direct', { method: 'POST', body: { store: c, radius: 500 }, timeout: 60000 });
       const p = d && d.modules && d.modules.place;
-      if (!p || !p.ok || !p.data || p.data.matched === false) return [];
-      const nm = (p.data.naverMenus || []).filter((x) => x && x.name);
-      if (!nm.length || nm.filter((x) => Number(x.price) > 0).length < nm.length / 2) return [];
-      return nm.map((x) => ({ name: x.name, price: x.price ?? null, category: x.category || '', image: x.image || '', recommend: Boolean(x.recommend), desc: x.desc || '' }));
-    } catch (_) { return []; }
+      if (!p || !p.ok || !p.data || p.data.matched === false) return null;
+      const ok = (l) => l.length > 0 && l.filter((x) => Number(x.price) > 0).length >= l.length / 2;
+      const map = (x) => ({ name: String(x.name), price: x.price ?? null, category: x.category || '', image: x.image || '', recommend: Boolean(x.recommend), desc: x.desc || '', from: x.from || (isExtImg(x.image) ? 'order' : '') });
+      const nm = (p.data.naverMenus || []).filter((x) => x && x.name), km = (p.data.menus || []).filter((x) => x && x.name);
+      return { naver: ok(nm) ? nm.map(map) : [], kakao: ok(km) ? km.map((x) => ({ ...map(x), image: '', desc: '', from: 'kakao' })) : [], kakaoUpdated: String(p.data.menuUpdated || '') };
+    } catch (_) { return null; }
   }
-  /* v1.02: 배민 메뉴 사진은 사진 중계(kt-img)로 — 설치 전(연결 실패)이면 한 번 실패한 뒤로는 부르지 않는다 */
-  let extDown = false;
+  /* v1.03: 더 긴 목록을 고른다 — 밑그림 경로의 네이버 메뉴(주문 메뉴 포함) 먼저, 모자라면 카카오맵 메뉴. 지금보다 많고 5개 이상일 때만 바꾼다 */
+  function pickMenus(got, alt) {
+    if (!alt) return null;
+    const need = Math.max(FEW_MENUS, got.length + 1);
+    const nv = alt.naver, kk = alt.kakao, nvKind = () => (nv.some((m) => m.from === 'order') ? 'order' : 'naver');
+    let list = null, kind = '';
+    if (nv.length >= need) { list = nv; kind = nvKind(); }
+    else if (kk.length >= need && kk.length > nv.length) { list = kk; kind = 'kakao'; }
+    else if (!got.length && (nv.length || kk.length)) { if (nv.length >= kk.length) { list = nv; kind = nvKind(); } else { list = kk; kind = 'kakao'; } }
+    if (!list) return null;
+    return { menus: mergeMenus(list, kind === 'kakao' ? got.concat(alt.naver) : got), kind, upd: kind === 'kakao' ? alt.kakaoUpdated : '' };
+  }
+  /* v1.03: 채울 목록(list)에 네이버 메뉴판(extra)을 이름으로 붙인다 — 설명·사진·대표 표시·가격은 가게가 네이버에 직접 올린 값이 먼저.
+     네이버에만 있는 메뉴는 맨 앞에(가게가 고른 대표 메뉴라서) */
+  function mergeMenus(list, extra) {
+    const byK = new Map();
+    extra.forEach((m) => { const x = normName(m && m.name); if (x && !byK.has(x)) byK.set(x, m); });
+    const used = new Set(), seen = new Set(), out = [];
+    list.forEach((m) => {
+      const x = normName(m && m.name);
+      if (!x || seen.has(x)) return;
+      seen.add(x);
+      const n = byK.get(x);
+      if (!n) { out.push(m); return; }
+      used.add(x);
+      out.push({ ...m, price: n.price ?? m.price, desc: n.desc || m.desc || '', image: n.image || m.image || '', recommend: Boolean(n.recommend || m.recommend), category: m.category || n.category || '', from: n.from || '' });
+    });
+    return [...byK.entries()].filter(([x]) => !used.has(x) && !seen.has(x)).map(([, n]) => n).concat(out);
+  }
+  /* v1.03: 어디서 채웠는지 · 가격을 확인할 메뉴(주문 메뉴는 배달 가격일 수 있다) */
+  function menuNote(a, menus) {
+    const orderN = menus.filter((m) => m.from === 'order').length;
+    const kakaoN = menus.filter((m) => m.from === 'kakao').length;
+    let t = '';
+    if (a && a.few) t = a.kind === 'kakao' ? `네이버 메뉴판이 ${a.few}개뿐이라 카카오맵 메뉴 ${kakaoN}개로 채움${a.upd ? ` · 카카오 ${a.upd} 갱신` : ''}` : `네이버 메뉴판이 ${a.few}개뿐이라 ${a.kind === 'order' ? '포장·배달 주문 메뉴' : '밑그림 경로의 네이버 메뉴'}로 채움`;
+    else if (a && a.kind === 'kakao') t = `${a.fail ? '네이버 메뉴를 못 읽어' : '메뉴판이 비어'} 카카오맵 메뉴에서 가져옴${a.upd ? ` · ${a.upd} 갱신` : ''}`;
+    else if (a && a.fail) t = '밑그림과 같은 경로로 가져옴 · 구분은 비어 있음';
+    else if (a) t = `메뉴판이 비어 ${a.kind === 'order' ? '포장·배달 주문 메뉴' : '밑그림 경로'}에서 가져옴 · 구분은 비어 있음`;
+    else if (orderN) t = `포장·배달 주문 메뉴 ${orderN}개 포함`;
+    const chk = orderN ? '주문 메뉴 가격은 배달 가격일 수 있어 확인' : kakaoN ? '카카오맵 가격은 매장에서 확인' : '';
+    return t || chk ? ` (${[t, chk].filter(Boolean).join(' — ')})` : '';
+  }
+  function addDiagBtn(info) {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'btn sm'; b.textContent = '진단 복사';
+    b.title = '메뉴를 어디서 읽었는지(자료 이름표·칸 이름만, 가게 값 없음) 복사합니다 — 메뉴 읽기를 고칠 때 보내 주세요';
+    b.addEventListener('click', async () => {
+      const ok = await copyText(JSON.stringify({ app: `차림표 ${PAGE_VERSION}`, at: new Date().toISOString(), ...info }));
+      toast(ok ? '진단값을 복사했습니다 — 대화창에 붙여 넣어 보내 주세요' : '복사하지 못했습니다 — 브라우저가 클립보드를 막았습니다', ok ? 'ok' : 'bad');
+    });
+    el.loadMsg.append(' ', b);
+  }
+  /* v1.02: 배민 메뉴 사진은 사진 중계(kt-img)로 — 설치 전(연결 실패)이면 한 번 실패한 뒤로는 부르지 않는다
+     v1.03: 중계 서버 v1.45부터는 /img가 배민 사진도 받는다 — 거기서 400(옛 서버)이 오면 그때부터 kt-img로 */
+  let extDown = false, mainExt = null;   // mainExt: null 모름 · true 중계 서버가 받음 · false 옛 서버
   async function fetchExtBlob(u) {
     const fail = () => { const e = new Error('ext'); e.ext = true; return e; };
     if (extDown) throw fail();
@@ -1571,10 +1645,13 @@ footer{margin-top:20px;color:var(--faint);font-size:12px;line-height:1.7}
     return await res.blob();
   }
   async function fetchImgBlob(u) {
-    if (isExtImg(u)) return await fetchExtBlob(u);
+    const ext = isExtImg(u);
+    if (ext && mainExt === false) return await fetchExtBlob(u);
     const res = await api(`/img?u=${encodeURIComponent(u)}`, { raw: true, timeout: 25000 });
     if (res.status === 404) { const e = new Error('old'); e.old = true; throw e; }
+    if (ext && res.status === 400 && mainExt !== true) { mainExt = false; return await fetchExtBlob(u); }   // 옛 중계 서버 — 이제부터 kt-img로
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    if (ext) mainExt = true;
     return await res.blob();
   }
   async function fetchNaverPhotos(rows, menuCount) {
@@ -1600,7 +1677,7 @@ footer{margin-top:20px;color:var(--faint);font-size:12px;line-height:1.7}
         } catch (e) {
           failed++;
           if (e && e.old) { old = true; failed += todo.length; done += todo.length; todo.length = 0; }   // 옛 중계 서버 — 나머지는 부르지 않는다
-          row.err = e && e.old ? '' : e && e.ext ? '배민 사진 — 사진 중계(kt-img) 설치 후 받습니다' : '네이버 사진을 받지 못했습니다';
+          row.err = e && e.old ? '' : e && e.ext ? '배민 사진 — 중계 서버를 v1.45로 올리면 받습니다' : '네이버 사진을 받지 못했습니다';
         }
         done++;
         setMsg(el.loadMsg, `네이버 메뉴 ${menuCount}개 — 사진 받는 중 ${done}/${total}`, 'ok');
