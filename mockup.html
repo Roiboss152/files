@@ -218,7 +218,7 @@ footer{margin-top:20px;color:var(--faint);font-size:12px;line-height:1.7}
   </div>
 
   <footer>
-    네이버 메뉴·사진은 중계 서버를 거쳐 받아 옵니다(가게가 올린 사진만 — 방문자 리뷰·블로그 사진은 받지 않음). 올린 로고·사진은 이 브라우저 안에서만 씁니다.<br>
+    네이버 메뉴·사진은 중계 서버를 거쳐 받아 옵니다(가게가 올린 사진만 — 방문자 리뷰·블로그 사진은 받지 않음). 배민 연동 매장의 메뉴 사진은 사진 중계(kt-img)로 받습니다. 올린 로고·사진은 이 브라우저 안에서만 씁니다.<br>
     화면은 하이오더 NEW UX 스킨(상품진열수 3)을 본뜬 제안용 그림입니다 — 스킨 색은 비슷하게 그린 것이라 실제와 조금 다를 수 있습니다. 매장 로고는 NEW UX 메뉴판 윗부분에 넣을 수 없어(v21·v45 스킨만) 빈 사진 칸·한 장 화면·전단에만 넣습니다.
   </footer>
 </div>
@@ -229,10 +229,15 @@ footer{margin-top:20px;color:var(--faint);font-size:12px;line-height:1.7}
   'use strict';
   /* ══ 맛보기 v1.00 — 고객 맞춤 하이오더 화면 ══
      중계 서버(워커) /search·/menu·/img(가게가 올린 네이버 사진)·/lib(공통 사진함)을 차림표와 같이 쓴다. 그 밖은 모두 브라우저 안에서 그린다(AI 없음).
-     화면은 하이오더 NEW UX 스킨(사용자 기본폼 2626×1600 · 상품진열수 3 · 사진 칸 500×372 비율)을 본뜬다. localStorage 등은 쓰지 않는다. */
+     화면은 하이오더 NEW UX 스킨(사용자 기본폼 2626×1600 · 상품진열수 3 · 사진 칸 500×372 비율)을 본뜬다. localStorage 등은 쓰지 않는다.
+     v1.01: 네이버 메뉴판이 비어 있으면(배민 연동 포장·배달 주문 메뉴만 있는 매장) 밑그림과 같은 경로(/direct)로 메뉴를 다시 받는다.
+            그런 매장의 메뉴 사진은 배민 사진 서버에 있어 사진 중계(kt-img 워커)로 받는다 — 설치 전이면 지금처럼 빈 칸(사진함·로고로 채움). */
   const API_BASE = 'https://kt.roi0925003.workers.dev';
   const PUBLIC_PASS = 'sk-bbwkqqcpjx4yty';   // 직원 공개용 토큰(밑그림·차림표와 같은 값) — 비밀번호가 아니다
-  const PAGE_VERSION = 'v1.00';
+  const PAGE_VERSION = 'v1.01';
+  const IMG_BASE = 'https://kt-img.roi0925003.workers.dev';   // v1.01: 배민 메뉴 사진 중계(kt-img) — 기존 중계 서버 /img는 네이버 사진만 받는다
+  const EXT_IMG_HOSTS = ['imagefarm.baemin.com'];
+  const isExtImg = (u) => { try { return EXT_IMG_HOSTS.includes(new URL(u).hostname); } catch (_) { return false; } };
   const AI = 'https://kt-synergy.com/ai/';
   /* 기기 틀 — 사용자 제공 사진의 투명 화면 네 꼭짓점(TL·TR·BR·BL). full = 화면 전체(사이드바까지 그림) · 아니면 사이드바가 사진에 박혀 있어 내용 칸만 */
   const FRAMES = {
@@ -395,6 +400,13 @@ footer{margin-top:20px;color:var(--faint);font-size:12px;line-height:1.7}
     let r;
     try { r = await api('/menu', { method: 'POST', body: { store: c } }); }
     catch (err) { M.busy = false; setMsg($('#loadMsg'), err.status === 404 ? '중계 서버가 낮은 버전이라 네이버 메뉴를 부를 수 없습니다(v1.43 이상 필요).' : err.message, 'bad'); return; }
+    /* v1.01: 메뉴판이 비었거나 못 읽으면 밑그림과 같은 경로로 한 번 더 — 배민 연동 매장은 메뉴가 포장·배달 주문 메뉴에만 있다 */
+    let alt = '';
+    if (!r || !r.ok || !(r.menus || []).length) {
+      setMsg($('#loadMsg'), `${c.name} — 네이버 메뉴판이 비어 있어 주문 메뉴를 찾는 중…`);
+      const dm = await directMenus(c);
+      if (dm.length) { alt = r && r.ok ? 'empty' : 'fail'; r = { ...(r && r.ok ? r : {}), ok: true, menus: dm, bizPhotos: (r && r.ok && r.bizPhotos) || [] }; }
+    }
     M.busy = false;
     if (!r || !r.ok) { setMsg($('#loadMsg'), `${(r && r.reason) || '네이버 메뉴를 가져오지 못했습니다'}`, 'bad'); return; }
     M.store = { name: c.name, category: c.category || '', address: c.roadAddress || c.address || '' };
@@ -406,7 +418,8 @@ footer{margin-top:20px;color:var(--faint);font-size:12px;line-height:1.7}
     buildCats();
     $('#cands').innerHTML = '';
     const withImg = M.menus.filter((m) => m.url).length;
-    setMsg($('#loadMsg'), `네이버 메뉴 ${M.menus.length}개 · 사진 있는 메뉴 ${withImg}개${M.biz.length ? ` · 가게 사진 ${M.biz.length}장` : ''} — 사진을 받는 중…`, 'ok');
+    const altNote = alt === 'empty' ? ' (메뉴판이 비어 주문 메뉴에서 가져옴 · 메뉴 구분 없음)' : alt === 'fail' ? ' (밑그림과 같은 경로로 가져옴 · 메뉴 구분 없음)' : '';
+    setMsg($('#loadMsg'), `네이버 메뉴 ${M.menus.length}개${altNote} · 사진 있는 메뉴 ${withImg}개${M.biz.length ? ` · 가게 사진 ${M.biz.length}장` : ''} — 사진을 받는 중…`, 'ok');
     autoSlots();
     syncForm(); drawSlots(); redraw();
     await loadPhotos();
@@ -415,7 +428,29 @@ footer{margin-top:20px;color:var(--faint);font-size:12px;line-height:1.7}
     autoSlots();
     drawSlots(); drawRepThumbs(); redraw();
     const has = M.menus.filter((m) => photoOf(m)).length;
-    setMsg($('#loadMsg'), `네이버 메뉴 ${M.menus.length}개 · 사진 있는 메뉴 ${has}개${M.biz.length ? ` · 가게 사진 ${M.biz.length}장` : ''}${has < 3 ? ' — 사진이 적습니다: 빈 칸은 로고·대표메뉴로 채우거나 ‘한 장 화면’을 고르세요' : ''}`, has < 3 ? 'warn' : 'ok');
+    const extMiss = extDown && M.menus.some((m) => m.url && isExtImg(m.url) && !photoOf(m));
+    setMsg($('#loadMsg'), `네이버 메뉴 ${M.menus.length}개${altNote} · 사진 있는 메뉴 ${has}개${M.biz.length ? ` · 가게 사진 ${M.biz.length}장` : ''}${extMiss ? ' — 배민 연동 메뉴 사진은 사진 중계(kt-img)를 설치하면 받습니다' : ''}${has < 3 ? ' — 사진이 적습니다: 빈 칸은 로고·대표메뉴로 채우거나 ‘한 장 화면’을 고르세요' : ''}`, has < 3 || extMiss ? 'warn' : 'ok');
+  }
+  /* v1.01: 밑그림과 같은 경로(/direct)의 네이버 메뉴 — 밑그림과 같은 거름(값이 절반 넘게 있어야 메뉴 목록 · 다른 매장으로 잡히면 버림) */
+  async function directMenus(c) {
+    try {
+      const d = await api('/direct', { method: 'POST', body: { store: c, radius: 500 }, timeout: 60000 });
+      const p = d && d.modules && d.modules.place;
+      if (!p || !p.ok || !p.data || p.data.matched === false) return [];
+      const nm = (p.data.naverMenus || []).filter((x) => x && x.name);
+      if (!nm.length || nm.filter((x) => Number(x.price) > 0).length < nm.length / 2) return [];
+      return nm.map((x) => ({ name: x.name, price: x.price ?? null, category: x.category || '', image: x.image || '', recommend: Boolean(x.recommend), desc: x.desc || '' }));
+    } catch (_) { return []; }
+  }
+  /* v1.01: 배민 메뉴 사진은 사진 중계(kt-img)로 — 설치 전(연결 실패)이면 한 번 실패한 뒤로는 부르지 않는다 */
+  let extDown = false;
+  async function extImg(url) {
+    if (extDown) return null;
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 20000);
+    try { return await fetch(`${IMG_BASE}/img?u=${encodeURIComponent(url)}`, { headers: { 'X-Team-Pass': PUBLIC_PASS }, signal: ctrl.signal }); }
+    catch (e) { if (!(e && e.name === 'AbortError')) extDown = true; return null; }
+    finally { clearTimeout(t); }
   }
   function buildCats() {
     const cats = [];
@@ -437,8 +472,8 @@ footer{margin-top:20px;color:var(--faint);font-size:12px;line-height:1.7}
     if (M.photos.has(url)) return M.photos.get(url);
     const job = (async () => {
       try {
-        const res = await api(`/img?u=${encodeURIComponent(url)}`, { raw: true });
-        if (!res.ok) return null;
+        const res = isExtImg(url) ? await extImg(url) : await api(`/img?u=${encodeURIComponent(url)}`, { raw: true });
+        if (!res || !res.ok) return null;
         const bmp = await decode(await res.blob());
         return bmp ? { bmp } : null;
       } catch (_) { return null; }
@@ -466,7 +501,8 @@ footer{margin-top:20px;color:var(--faint);font-size:12px;line-height:1.7}
       return M.lib.find((it) => normName(it.name) === k || (it.aliases || []).some((a) => normName(a) === k))
         || M.lib.find((it) => normName(baseName(it.name)) === b || (it.aliases || []).some((a) => normName(baseName(a)) === b)) || null;
     };
-    const todo = M.menus.filter((m) => !m.url).map((m) => [m, find(m.name)]).filter((x) => x[1]);
+    const got = (m) => { const p = m.url && M.photos.get(m.url); return Boolean(p && p.bmp); };   // v1.01: 사진 주소가 있어도 못 받았으면 사진함으로 채운다
+    const todo = M.menus.filter((m) => !got(m)).map((m) => [m, find(m.name)]).filter((x) => x[1]);
     for (const [m, it] of todo) {
       const url = `${API_BASE}/lib/img?id=${encodeURIComponent(it.id)}&v=${it.ver || 0}`;
       if (!M.photos.has(url)) {

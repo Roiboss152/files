@@ -625,12 +625,18 @@ footer{margin-top:20px;color:var(--faint);font-size:12px;line-height:1.7}
 (() => {
   'use strict';
   /* ══ 차림표 v1.01 — 메뉴 사진·설정 정리 ══
-     중계 서버(워커) v1.44: /menu(네이버 메뉴·가게 사진 목록) · /img(가게가 올린 네이버 사진) · /lib(공통 사진함).
+     중계 서버(워커) v1.44: /menu(네이버 메뉴·가게 사진 목록) · /img(가게가 올린 네이버 사진) · /lib(공통 사진함) · /direct(밑그림 경로 — 메뉴판이 빌 때만).
+     사진 중계(kt-img 워커) v1.00: 배민 메뉴 사진(imagefarm.baemin.com)만.
      그 밖의 처리(자르기·보정·배너·문서 4종)는 모두 브라우저 안에서 규칙으로만 한다(AI 없음 — 설명은 AI 요청문을 복사해 사람이 붙여 넣는다).
-     저장소(localStorage 등)는 쓰지 않는다 — 작업은 저장한 zip(차림표_작업.json)을 다시 넣어 이어서 고친다. */
+     저장소(localStorage 등)는 쓰지 않는다 — 작업은 저장한 zip(차림표_작업.json)을 다시 넣어 이어서 고친다.
+     v1.02: 네이버 메뉴판이 비어 있으면(배민 연동 포장·배달 주문 메뉴만 있는 매장) 밑그림과 같은 경로(/direct)로 메뉴를 다시 받는다.
+            그런 매장의 메뉴 사진은 배민 사진 서버에 있어 사진 중계(kt-img 워커)로 받는다 — 설치 전이면 사진함·작업대로 채운다. */
   const API_BASE = 'https://kt.roi0925003.workers.dev';
   const PUBLIC_PASS = 'sk-bbwkqqcpjx4yty';   // 직원 공개용 토큰 — 비밀번호가 아니다(밑그림과 같은 값). 중계 서버의 PUBLIC_PASS와 같아야 한다
-  const PAGE_VERSION = 'v1.01';
+  const PAGE_VERSION = 'v1.02';
+  const IMG_BASE = 'https://kt-img.roi0925003.workers.dev';   // v1.02: 배민 메뉴 사진 중계(kt-img) — 기존 중계 서버 /img는 네이버 사진만 받는다
+  const EXT_IMG_HOSTS = ['imagefarm.baemin.com'];
+  const isExtImg = (u) => { try { return EXT_IMG_HOSTS.includes(new URL(u).hostname); } catch (_) { return false; } };
   const NEED_WORKER = 'v1.43';   // 네이버 메뉴·사진
   const NEED_LIB = 'v1.44';      // 공통 사진함·가게 사진
   const OUT = 500, JPEG_Q = 0.9, THUMB = 360, CLEAN_PAD = 0.06;
@@ -1483,6 +1489,16 @@ footer{margin-top:20px;color:var(--faint);font-size:12px;line-height:1.7}
       else setMsg(el.loadMsg, err.message, 'bad');
       return;
     }
+    /* v1.02: 메뉴판이 비었거나 못 읽으면 밑그림과 같은 경로로 한 번 더 — 배민 연동 매장은 메뉴가 포장·배달 주문 메뉴에만 있다 */
+    let alt = '';
+    if (!r || !r.ok || !(r.menus || []).length) {
+      setMsg(el.loadMsg, `${c.name} — 네이버 메뉴판이 비어 있어 주문 메뉴를 찾는 중…`);
+      const dm = await directMenus(c);
+      if (dm.length) {
+        alt = r && r.ok ? 'empty' : 'fail';
+        r = { ...(r && r.ok ? r : {}), ok: true, menus: dm, withImage: dm.filter((m) => m.image).length, menuUpdated: '', bizPhotos: (r && r.ok && r.bizPhotos) || [] };
+      }
+    }
     if (!r || !r.ok) {
       S.busy = false; renderStats();
       setMsg(el.loadMsg, `${(r && r.reason) || '네이버 메뉴를 가져오지 못했습니다'}${r && r.candidates && r.candidates.length ? ` (비슷한 곳: ${r.candidates.join(', ')})` : ''} — 메뉴명을 붙여 넣어 주세요.`, 'bad');
@@ -1509,7 +1525,8 @@ footer{margin-top:20px;color:var(--faint);font-size:12px;line-height:1.7}
     render();
     const upd = r.menuUpdated ? ` · 네이버 메뉴 최근 업데이트 ${r.menuUpdated}` : '';
     const withImage = r.withImage || 0;
-    setMsg(el.loadMsg, `네이버 메뉴 ${menus.length}개 중 사진이 등록된 메뉴는 ${withImage}개입니다${withImage ? ' — 사진을 받는 중…' : ''}`, 'ok');
+    const altNote = alt === 'empty' ? ' (메뉴판이 비어 주문 메뉴에서 가져옴 · 구분은 비어 있음)' : alt === 'fail' ? ' (밑그림과 같은 경로로 가져옴 · 구분은 비어 있음)' : '';
+    setMsg(el.loadMsg, `네이버 메뉴 ${menus.length}개${altNote} 중 사진이 등록된 메뉴는 ${withImage}개입니다${withImage ? ' — 사진을 받는 중…' : ''}`, 'ok');
     const nv = withImage ? await fetchNaverPhotos(rows, menus.length) : { got: 0, failed: 0, old: false };
     // 같은 이름(이원화)·공통 사진함·작업대 파일 이름으로 빈 칸 채우기 — 한 번에 되돌릴 수 있게
     const before = S.undo.length;
@@ -1522,13 +1539,39 @@ footer{margin-top:20px;color:var(--faint);font-size:12px;line-height:1.7}
     const extra = [lib ? `공통 사진함 ${lib}칸` : '', same ? `같은 이름 ${same}칸` : '', files ? `파일 이름 ${files}칸` : ''].filter(Boolean);
     const main = nv.old
       ? `네이버 메뉴 ${menus.length}개를 불러왔습니다. 사진은 중계 서버가 ${NEED_WORKER}보다 낮아 받지 못했습니다 — 작업대로 넣어 주세요.`
-      : `네이버 메뉴 ${menus.length}개 중 사진이 등록된 메뉴는 ${withImage}개입니다 — ${nv.got}칸에 넣었습니다${nv.failed ? ` · 못 받은 칸 ${nv.failed}개` : ''}${upd}`;
+      : `네이버 메뉴 ${menus.length}개${altNote} 중 사진이 등록된 메뉴는 ${withImage}개입니다 — ${nv.got}칸에 넣었습니다${nv.failed ? ` · 못 받은 칸 ${nv.failed}개` : ''}${nv.ext ? ' (배민 연동 메뉴 사진은 사진 중계 kt-img를 설치하면 받습니다)' : ''}${upd}`;
     setMsg(el.loadMsg, `${main}${extra.length ? ` · 더 채움: ${extra.join(' · ')}` : ''} — 빈 칸은 작업대에서 채우세요.`, nv.failed || nv.old ? 'warn' : 'ok');
     if (extra.length) toast(`빈 칸을 더 채웠습니다 — ${extra.join(' · ')}`, 'ok', [{ label: '되돌리기', fn: undo }], 8000);
     S.busy = false; render();
     if (r.bizPhotos && r.bizPhotos.length && !nv.old) fetchBizPhotos(r.bizPhotos);
   }
+  /* v1.02: 밑그림과 같은 경로(/direct)의 네이버 메뉴 — 밑그림과 같은 거름(값이 절반 넘게 있어야 메뉴 목록 · 다른 매장으로 잡히면 버림) */
+  async function directMenus(c) {
+    try {
+      const d = await api('/direct', { method: 'POST', body: { store: c, radius: 500 }, timeout: 60000 });
+      const p = d && d.modules && d.modules.place;
+      if (!p || !p.ok || !p.data || p.data.matched === false) return [];
+      const nm = (p.data.naverMenus || []).filter((x) => x && x.name);
+      if (!nm.length || nm.filter((x) => Number(x.price) > 0).length < nm.length / 2) return [];
+      return nm.map((x) => ({ name: x.name, price: x.price ?? null, category: x.category || '', image: x.image || '', recommend: Boolean(x.recommend), desc: x.desc || '' }));
+    } catch (_) { return []; }
+  }
+  /* v1.02: 배민 메뉴 사진은 사진 중계(kt-img)로 — 설치 전(연결 실패)이면 한 번 실패한 뒤로는 부르지 않는다 */
+  let extDown = false;
+  async function fetchExtBlob(u) {
+    const fail = () => { const e = new Error('ext'); e.ext = true; return e; };
+    if (extDown) throw fail();
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 25000);
+    let res;
+    try { res = await fetch(`${IMG_BASE}/img?u=${encodeURIComponent(u)}`, { headers: { 'X-Team-Pass': PUBLIC_PASS }, signal: ctrl.signal }); }
+    catch (e) { if (!(e && e.name === 'AbortError')) extDown = true; throw fail(); }
+    finally { clearTimeout(t); }
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.blob();
+  }
   async function fetchImgBlob(u) {
+    if (isExtImg(u)) return await fetchExtBlob(u);
     const res = await api(`/img?u=${encodeURIComponent(u)}`, { raw: true, timeout: 25000 });
     if (res.status === 404) { const e = new Error('old'); e.old = true; throw e; }
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -1557,7 +1600,7 @@ footer{margin-top:20px;color:var(--faint);font-size:12px;line-height:1.7}
         } catch (e) {
           failed++;
           if (e && e.old) { old = true; failed += todo.length; done += todo.length; todo.length = 0; }   // 옛 중계 서버 — 나머지는 부르지 않는다
-          row.err = e && e.old ? '' : '네이버 사진을 받지 못했습니다';
+          row.err = e && e.old ? '' : e && e.ext ? '배민 사진 — 사진 중계(kt-img) 설치 후 받습니다' : '네이버 사진을 받지 못했습니다';
         }
         done++;
         setMsg(el.loadMsg, `네이버 메뉴 ${menuCount}개 — 사진 받는 중 ${done}/${total}`, 'ok');
@@ -1566,7 +1609,7 @@ footer{margin-top:20px;color:var(--faint);font-size:12px;line-height:1.7}
     };
     await Promise.all([work(), work(), work(), work()]);
     render();
-    return { got: total - failed, failed: old ? 0 : failed, old };
+    return { got: total - failed, failed: old ? 0 : failed, old, ext: extDown && rows.some((x) => x.naverUrl && isExtImg(x.naverUrl) && !x.photo) };
   }
   /* 가게가 올린 네이버 사진 — 작업대 후보로만(칸에는 넣지 않는다) */
   async function fetchBizPhotos(list) {
