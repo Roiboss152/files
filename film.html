@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>필름 스튜디오 · KT 인천지사 시너지영업3팀</title>
-<meta name="description" content="기획·촬영·편집까지 시너지영업3팀이 직접 제작한 영상입니다. 협약식장, 사내 행사, 매장 단말과 옥외 전광판 — 실제로 상영된 결과물만 모았습니다.">
+<meta name="description" content="기획·촬영·편집에 AI 영상 생성까지, 시너지영업3팀이 직접 만든 영상입니다. 밑그림 소개 영상과 협약식장·사내 행사·매장 단말·옥외 전광판에서 상영한 영상을 모았습니다.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="필름 스튜디오 · KT 인천지사 시너지영업3팀">
-<meta property="og:description" content="협약식장, 사내 행사, 매장 단말과 옥외 전광판 — 실제로 상영된 영상만 모았습니다.">
-<meta property="og:image" content="https://kt-synergy.com/assets/image/files/thum01.webp">
+<meta property="og:description" content="밑그림 소개 영상 — 매장을 먼저 읽는 영업. 협약식장·사내 행사·매장 단말·옥외 전광판에서 상영한 영상도 함께 모았습니다.">
+<meta property="og:image" content="https://kt-synergy.com/assets/image/files/thum05.jpg">
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 <style>
 :root{
@@ -24,6 +24,7 @@ body{
   background:var(--bg); color:var(--text);
   font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,sans-serif;
   -webkit-font-smoothing:antialiased; line-height:1.6;
+  word-break:keep-all; overflow-wrap:break-word; /* 한글은 어절 단위로 줄바꿈 */
 }
 img{display:block;max-width:100%}
 a{color:inherit}
@@ -92,7 +93,7 @@ a{color:inherit}
 }
 .page-ver{
   display:inline-block; margin-left:2px;
-  font-size:13.2px; font-weight:500; color:#5a6270; letter-spacing:0; vertical-align:middle;
+  font-size:11px; font-weight:500; color:#aaa; letter-spacing:0; vertical-align:middle;
 }
 .hero-desc{
   margin:10px 0 0;
@@ -180,12 +181,75 @@ a{color:inherit}
   border:1px solid rgba(79,172,254,.35); border-radius:6px; padding:4px 9px;
 }
 
-/* ── 하위 2편 그리드 ── */
-.sub-grid{
-  display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
-  gap:32px; margin-top:32px;
+/* ── 메인(신작): 밑그림 소개 영상 ── */
+.new-tag{
+  display:inline-block; margin-right:10px; padding:2px 7px 1px;
+  border-radius:4px; background:var(--accent); color:#020204;
+  font-style:normal; font-size:.62rem; letter-spacing:1.4px; vertical-align:1px;
 }
-.sub-grid .reel-body{padding:28px 30px 32px}
+/* 밝은 종이 썸네일 — 가운데 글자를 가리지 않게 재생 버튼을 왼쪽 아래 알약형으로 */
+.stage--paper::after{display:none}
+.stage--paper .play{
+  top:auto; left:24px; bottom:22px; transform:none;
+  width:auto; height:auto; gap:10px; padding:11px 20px 11px 16px;
+  border-radius:999px;
+}
+.stage--paper .play svg{margin-left:0}
+.stage--paper:hover .play,.stage--paper:focus-visible .play{transform:scale(1.06)}
+.play-label{font-size:.9rem; font-weight:700; color:#fff; letter-spacing:.2px}
+.feature-body{
+  display:grid; grid-template-columns:minmax(0,1fr) 272px;
+  gap:24px 44px; align-items:start;
+}
+.feature-body .screened{grid-column:1 / -1; margin-top:4px}
+
+/* 밑그림 바로 가기 */
+.sketch-cta{
+  margin-top:2px; padding:24px 22px 20px;
+  border:1px solid var(--line); border-radius:16px;
+  background:linear-gradient(160deg,rgba(255,255,255,0.05),rgba(255,255,255,0.01));
+}
+.sketch-cta .kicker{
+  display:block; font-family:var(--mono); font-size:.68rem; font-weight:700;
+  letter-spacing:2.4px; color:var(--text-3);
+}
+.sketch-cta strong{display:block; margin-top:8px; font-size:1.6rem; font-weight:800; letter-spacing:-.5px; line-height:1.2}
+.sketch-cta .sub{display:block; margin-top:4px; color:var(--text-2); font-size:.9rem}
+.sketch-btn{
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  margin-top:20px; padding:13px 18px; border-radius:12px;
+  background:#ececea; color:#111; text-decoration:none;
+  font-size:.95rem; font-weight:700;
+  transition:background .25s, transform .25s, box-shadow .25s;
+}
+.sketch-btn:hover{background:#fff; transform:translateY(-1px); box-shadow:0 8px 24px rgba(0,0,0,.35)}
+.sketch-btn:focus-visible{outline:2px solid var(--accent); outline-offset:3px}
+.sketch-btn svg{transition:transform .25s}
+.sketch-btn:hover svg{transform:translateX(3px)}
+.sketch-cta .url{
+  display:block; margin-top:12px; text-align:center;
+  font-family:var(--mono); font-size:.68rem; letter-spacing:.4px; color:var(--text-3);
+  overflow-wrap:anywhere;
+}
+
+/* ── 지난 작품 ── */
+.section-label{
+  display:flex; align-items:center; gap:16px;
+  margin:88px 0 0;
+  font-size:1.05rem; font-weight:700; letter-spacing:-.2px; color:var(--text-2);
+}
+.section-label::after{content:""; flex:1; height:1px; background:linear-gradient(90deg,var(--line),transparent)}
+
+/* 2×2 그리드 — 상영 정보 줄을 카드 바닥에 맞춤 */
+.sub-grid{
+  display:grid; grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:32px; margin-top:24px;
+}
+.sub-grid .reel{display:flex; flex-direction:column}
+.sub-grid .stage{flex:none}
+.sub-grid .reel-body{flex:1; display:flex; flex-direction:column; padding:30px 34px 32px}
+.sub-grid .reel-text{flex:1}
+.sub-grid .reel h3{font-size:1.4rem}
 
 /* ── 스크롤 등장 ── */
 .reveal{
@@ -196,14 +260,32 @@ a{color:inherit}
 .reveal.d1{transition-delay:.08s}
 .reveal.d2{transition-delay:.16s}
 
+@media (max-width:900px){
+  .feature-body{grid-template-columns:1fr}
+  /* 밑그림 바로 가기: 좁은 화면에선 글 왼쪽 · 버튼 오른쪽 한 줄로 */
+  .sketch-cta{display:grid; grid-template-columns:1fr auto; column-gap:24px; align-items:center}
+  .sketch-cta > *{grid-column:1}
+  .sketch-cta .sketch-btn{grid-column:2; grid-row:1 / span 3; margin-top:0; padding:13px 22px}
+  .sketch-cta .url{grid-column:1 / -1; text-align:left}
+  .sub-grid{grid-template-columns:1fr}
+}
 @media (max-width:768px){
   .topbar{padding:14px 20px}
   .wrap{padding:0 20px 100px}
   .hero{padding:64px 0 48px}
   .reel-body,.sub-grid .reel-body{padding:26px 22px 30px}
   .reel h2{font-size:1.35rem}
+  .sub-grid .reel h3{font-size:1.25rem}
   .play{width:60px;height:60px}
-  .sub-grid{gap:24px; margin-top:24px}
+  .stage--paper .play{left:14px; bottom:12px; gap:8px; padding:8px 15px 8px 12px}
+  .play-label{font-size:.8rem}
+  .section-label{margin-top:64px}
+  .sub-grid{gap:24px; margin-top:20px}
+}
+@media (max-width:520px){
+  .sketch-cta{display:block}
+  .sketch-cta .sketch-btn{margin-top:18px}
+  .sketch-cta .url{text-align:center}
 }
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
@@ -227,51 +309,100 @@ a{color:inherit}
 <main class="wrap">
 
   <section class="hero reveal">
-    <h1>Film <span class="shim">Studio</span> <span class="page-ver">v1.09</span></h1>
+    <h1>Film <span class="shim">Studio</span> <span class="page-ver">v1.10</span></h1>
     <p class="hero-desc">
-      필요한 영상은, 직접 만듭니다 — 기획·촬영·편집까지 시너지영업3팀 안에서 제작했습니다.
-      협약식장, 사내 행사, 매장 단말과 옥외 전광판에서 실제로 상영된 결과물만 모았습니다.
+      필요한 영상은, 직접 만듭니다 — 기획·촬영·편집에 이제는 AI 영상 생성까지 시너지영업3팀 안에서 해결합니다.
+      협약식장·사내 행사·매장 단말·옥외 전광판에서 상영한 영상과, 팀이 만든 도구를 소개하는 영상을 모았습니다.
     </p>
   </section>
 
-  <!-- 메인: 업무협약 식전 영상 -->
+  <!-- 메인: 밑그림 소개 영상 (v1.10 신작) -->
   <article class="reel reveal">
-    <button class="stage" type="button" data-id="tHoQe0W3yE0" aria-label="업무협약 식전 영상 재생">
-      <img src="assets/image/files/thum01.webp"
-           onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/tHoQe0W3yE0/maxresdefault.jpg';"
-           alt="업무협약 식전 영상 썸네일">
+    <button class="stage stage--paper" type="button" data-id="LW2ick1C-QI" aria-label="밑그림 소개 영상 재생">
+      <img src="assets/image/files/thum05.webp"
+           onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/LW2ick1C-QI/maxresdefault.jpg';"
+           alt="밑그림 — 매장을 먼저 읽는 영업, KT 인천지사 시너지영업3팀">
       <span class="play" aria-hidden="true">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="#fff"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
+        <span class="play-label">영상 보기</span>
       </span>
     </button>
-    <div class="reel-body">
-      <span class="reel-role">협약식 상영본</span>
-      <h2>인천광역시소상공인연합회 업무협약 식전 영상</h2>
-      <p>
-        협약식 시작 전 상영을 위해 자체 제작했습니다. 예비 소상공인 대상 사업설명회,
-        프랜차이즈 본사와의 협약 체결, 고객 매장 홍보 영상 촬영, 지역 상인회와의 상생 협업까지 —
-        팀이 현장에서 해온 일을 하나의 흐름으로 엮었습니다.
-      </p>
-      <ul class="chips">
-        <li>신규 채널 발굴 사업설명회</li>
-        <li>프랜차이즈 MOU 체결</li>
-        <li>소상공인 홍보 동반성장</li>
-        <li>지역 기반 상생 협업</li>
-      </ul>
-      <p class="reel-quote">“드디어 더 큰 미래를 향한 MOU를 맺게 되었습니다.”</p>
+    <div class="reel-body feature-body">
+      <div>
+        <span class="reel-role"><em class="new-tag">NEW</em>도구 소개 영상</span>
+        <h2>밑그림 소개 영상</h2>
+        <p>
+          매장 문을 열기 전에 그 매장부터 읽고 들어가자는 생각으로 만든 페이지, 「밑그림」을 소개합니다.
+          매장 이름으로 찾으면 상권과 경쟁 점포, 주변 시설, 손님 리뷰, 메뉴 검색 추이, 받을 수 있는 지원사업까지 모아
+          진단서 한 묶음으로 정리해 줍니다. 매장을 처음 보는 사람도 이 종이 한 장이면 사장님과 이야기를 시작할 수 있습니다.
+        </p>
+        <ul class="chips">
+          <li>상권·경쟁 점포</li>
+          <li>주변 시설·인구</li>
+          <li>손님 리뷰</li>
+          <li>메뉴 검색 추이</li>
+          <li>지원사업 안내</li>
+          <li>진단서 인쇄</li>
+        </ul>
+        <p class="reel-quote">“매장을 먼저 읽는 영업”</p>
+      </div>
+      <aside class="sketch-cta" aria-label="밑그림 바로 가기">
+        <span class="kicker">SKETCH</span>
+        <strong>밑그림</strong>
+        <span class="sub">매장운영진단 기초자료</span>
+        <a class="sketch-btn" href="./sketch.html">
+          밑그림 열기
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </a>
+        <span class="url">kt-synergy.com/sketch.html</span>
+      </aside>
       <div class="screened">
-        <span><b>상영</b> 업무협약식장</span>
-        <span><b>제작</b> 시너지영업3팀 기획·촬영·편집</span>
+        <span><b>제작</b> 시너지영업3팀 콘티·AI 영상 생성·편집</span>
       </div>
     </div>
   </article>
 
+  <h2 class="section-label reveal">지난 작품</h2>
+
   <div class="sub-grid">
+
+    <!-- 업무협약 식전 영상 -->
+    <article class="reel reveal">
+      <button class="stage" type="button" data-id="tHoQe0W3yE0" aria-label="업무협약 식전 영상 재생">
+        <img src="assets/image/files/thum01.webp" loading="lazy" decoding="async"
+             onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/tHoQe0W3yE0/maxresdefault.jpg';"
+             alt="업무협약 식전 영상 썸네일">
+        <span class="play" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
+        </span>
+      </button>
+      <div class="reel-body">
+        <div class="reel-text">
+          <span class="reel-role">협약식 상영본</span>
+          <h3>인천광역시소상공인연합회 업무협약 식전 영상</h3>
+          <p>
+            협약식 시작 전 상영을 위해 자체 제작했습니다. 예비 소상공인 대상 사업설명회,
+            프랜차이즈 본사와의 협약 체결, 고객 매장 홍보 영상 촬영, 지역 상인회와의 상생 협업까지 —
+            팀이 현장에서 해온 일을 하나의 흐름으로 엮었습니다.
+          </p>
+          <ul class="chips">
+            <li>신규 채널 발굴 사업설명회</li>
+            <li>프랜차이즈 MOU 체결</li>
+            <li>소상공인 홍보 동반성장</li>
+            <li>지역 기반 상생 협업</li>
+          </ul>
+        </div>
+        <div class="screened">
+          <span><b>상영</b> 업무협약식장</span>
+          <span><b>제작</b> 시너지영업3팀 기획·촬영·편집</span>
+        </div>
+      </div>
+    </article>
 
     <!-- 토크콘서트 -->
     <article class="reel reveal d1">
       <button class="stage" type="button" data-id="_amC5OLJCQg" aria-label="KT인천지사 토크콘서트 영상 재생">
-        <img src="assets/image/files/thum02.webp"
+        <img src="assets/image/files/thum02.webp" loading="lazy" decoding="async"
              onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/_amC5OLJCQg/maxresdefault.jpg';"
              alt="KT인천지사 토크콘서트 영상 썸네일">
         <span class="play" aria-hidden="true">
@@ -279,12 +410,14 @@ a{color:inherit}
         </span>
       </button>
       <div class="reel-body">
-        <span class="reel-role">사내 행사 기록</span>
-        <h3>KT인천지사 토크콘서트</h3>
-        <p>
-          지사 임직원이 한자리에 모인 토크콘서트 현장을 편집한 기록 영상입니다.
-          포상, 환송, 레크리에이션, 그리고 오찬 — 서로의 노고를 확인하고 축하한 하루의 기록입니다.
-        </p>
+        <div class="reel-text">
+          <span class="reel-role">사내 행사 기록</span>
+          <h3>KT인천지사 토크콘서트</h3>
+          <p>
+            지사 임직원이 한자리에 모인 토크콘서트 현장을 편집한 기록 영상입니다.
+            포상, 환송, 레크리에이션, 그리고 오찬 — 서로의 노고를 확인하고 축하한 하루의 기록입니다.
+          </p>
+        </div>
         <div class="screened">
           <span><b>상영</b> 지사 사내 행사</span>
         </div>
@@ -292,9 +425,9 @@ a{color:inherit}
     </article>
 
     <!-- 평창막국수 인트로 -->
-    <article class="reel reveal d2">
+    <article class="reel reveal">
       <button class="stage" type="button" data-id="QgY3EYBa04w" aria-label="평창막국수 매장 인트로 영상 재생">
-        <img src="assets/image/files/thum03.webp"
+        <img src="assets/image/files/thum03.webp" loading="lazy" decoding="async"
              onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/QgY3EYBa04w/maxresdefault.jpg';"
              alt="평창막국수 매장 인트로 영상 썸네일">
         <span class="play" aria-hidden="true">
@@ -303,13 +436,15 @@ a{color:inherit}
         <span class="runtime">30초</span>
       </button>
       <div class="reel-body">
-        <span class="reel-role">매장 상영용 인트로</span>
-        <h3>평창막국수 매장 인트로</h3>
-        <p>
-          하이오더 단말이 1분간 조작되지 않으면 자동 재생되는 30초 인트로입니다.
-          외관과 간판, 내부, 시그니처 메뉴를 담아 매장주에게 제공했고, 영상은 옥외 전광판 게시와
-          다른 매장 하이오더 추가 계약으로 이어졌습니다. 콘텐츠 제공이 곧 영업이 된 사례입니다.
-        </p>
+        <div class="reel-text">
+          <span class="reel-role">매장 상영용 인트로</span>
+          <h3>평창막국수 매장 인트로</h3>
+          <p>
+            하이오더 단말이 1분간 조작되지 않으면 자동 재생되는 30초 인트로입니다.
+            외관과 간판, 내부, 시그니처 메뉴를 담아 매장주에게 제공했고, 영상은 옥외 전광판 게시와
+            다른 매장 하이오더 추가 계약으로 이어졌습니다. 콘텐츠 제공이 곧 영업이 된 사례입니다.
+          </p>
+        </div>
         <div class="screened">
           <span><b>상영</b> 하이오더 단말 · 옥외 전광판</span>
         </div>
@@ -317,9 +452,9 @@ a{color:inherit}
     </article>
 
     <!-- 청라 빨간돼지 인트로 -->
-    <article class="reel reveal d2">
+    <article class="reel reveal d1">
       <button class="stage" type="button" data-id="zZCz0YJ46Ow" aria-label="청라 빨간돼지 매장 인트로 영상 재생">
-        <img src="assets/image/files/thum04.webp"
+        <img src="assets/image/files/thum04.webp" loading="lazy" decoding="async"
              onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/zZCz0YJ46Ow/maxresdefault.jpg';"
              alt="청라 빨간돼지 매장 인트로 영상 썸네일">
         <span class="play" aria-hidden="true">
@@ -328,13 +463,15 @@ a{color:inherit}
         <span class="runtime">1분 10초</span>
       </button>
       <div class="reel-body">
-        <span class="reel-role">매장 상영용 인트로</span>
-        <h3>청라 빨간돼지 인트로</h3>
-        <p>
-          청라동 고깃집의 하이오더 단말에 올린 인트로입니다. 메뉴판을 넘기듯
-          접시가 테이블 위로 툭 떨어져 등장하는 연출로 대표 메뉴를 차례로 보여줍니다.
-          단말에서는 소리가 나지 않아 무음으로 제작했고, 따로 만든 두 편을 하나로 이어 붙인 합본입니다.
-        </p>
+        <div class="reel-text">
+          <span class="reel-role">매장 상영용 인트로</span>
+          <h3>청라 빨간돼지 인트로</h3>
+          <p>
+            청라동 고깃집의 하이오더 단말에 올린 인트로입니다. 메뉴판을 넘기듯
+            접시가 테이블 위로 툭 떨어져 등장하는 연출로 대표 메뉴를 차례로 보여줍니다.
+            단말에서는 소리가 나지 않아 무음으로 제작했고, 따로 만든 두 편을 하나로 이어 붙인 합본입니다.
+          </p>
+        </div>
         <div class="screened">
           <span><b>상영</b> 하이오더 단말</span>
         </div>

@@ -8,7 +8,7 @@
 <title>하이오더 전자청약</title>
 <!--
   ============================================================
-  KT HIORDER 전자청약  ·  contract.html  v1.32
+  KT HIORDER 전자청약  ·  contract.html  v1.33
   ------------------------------------------------------------
   · 원본 가입신청서 PDF(14p)를 화면에 렌더 → 고객이 태블릿에서
     서명란마다 "각각" 직접 서명 + 동의함/않음 선택
@@ -325,7 +325,7 @@ audio{width:100%;margin-top:9px;height:34px}
 <body>
 
 <header class="topbar">
-  <div class="brand"><b>하이오더 전자청약</b><span class="ver">v1.32</span></div>
+  <div class="brand"><b>하이오더 전자청약</b><span class="ver">v1.33</span></div>
   <div class="seg" id="modeSeg">
     <button data-mode="hi" class="on">하이오더</button>
     <button data-mode="full">+ 안심매입</button>
@@ -351,7 +351,7 @@ audio{width:100%;margin-top:9px;height:34px}
   <aside id="rail" aria-label="진행 체크리스트">
     <div class="rail-h">서명 · <span id="cntSig">0/0</span></div>
     <div id="railSig"></div>
-    <div class="cap" style="margin-top:6px">위임장·광고할인·명의변경 등 <b>선택 서명</b>과 빈칸·○ 표시는 문서에서 직접 탭해 입력</div>
+    <div class="cap" style="margin-top:6px">위임장·명의변경 등 <b>선택 서명</b>과 빈칸·○ 표시는 문서에서 직접 탭해 입력</div>
     <div class="rail-h">동의 확인 · <span id="cntCon">0/5</span></div>
     <div id="railCon"></div>
     <div class="rail-h">본인 확인 서류</div>
@@ -492,7 +492,7 @@ const SIG = [
  {id:'s_p12_c',   pg:12,box:[337.0,699.1,535.3,717.8], draw:[408,700.3,502,716.5],lab:'제3자 제공 동의 서명',    sub:'안심매입 개인정보 (필수)', grp:'safe', dg:'d12c', req:true},
  {id:'s_p1_dg', pg:1, box:[413.6,172.1,567.4,189.4], draw:[452,173.5,563,188],   lab:'위임하는 고객 서명',    sub:'위임장 · 해당 시', grp:'hi', dg:null, req:false},
  {id:'s_p1_dr', pg:1, box:[413.6,191.5,567.4,209.2], draw:[452,193,563,207.7],  lab:'위임받는 고객 서명',    sub:'위임장 · 해당 시', grp:'hi', dg:null, req:false},
- {id:'s_p1_ad', pg:1, box:[440.3,732.2,569.2,749.5], draw:[464,733.6,566,748],  lab:'광고할인 성명·서명',    sub:'광고 할인 신청 시', grp:'hi', dg:null, req:false},
+ {id:'s_p1_ad', pg:1, box:[440.3,732.2,569.2,749.5], draw:[464,733.6,566,748],  lab:'광고할인 성명·서명',    sub:'광고 할인 신청 확인', grp:'hi', dg:null, req:true},
  {id:'s_p2_oa', pg:2, box:[418.0,211.0,571.7,228.2], draw:[455,212.4,568,226.8],lab:'명의 주는 고객 서명',   sub:'명의변경 시', grp:'hi', dg:null, req:false},
  {id:'s_p2_ob', pg:2, box:[418.0,257.8,571.3,275.0], draw:[455,259.2,568,273.6],lab:'명의 받는 고객 서명',   sub:'명의변경 시', grp:'hi', dg:null, req:false},
 ];
@@ -710,6 +710,7 @@ const STEPS=[
  {f:'f_pay_mon',lab:'단말 월 납부액'},
  {f:'f_svc_mon',lab:'서비스 월 납부액'},
  {sig:'s_p1_acct',lab:'예금주 성명·서명'},
+ {sig:'s_p1_ad',lab:'광고할인 성명·서명'},
  {con:'c1',lab:'개인정보 수집·이용 동의'},
  {con:'c2',lab:'마케팅 활용 (선택)'},
  {con:'c3',lab:'혜택 제공 (선택)'},
