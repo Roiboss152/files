@@ -300,8 +300,7 @@ body.dropping::after{content:'묶음(.json)을 놓으면 그 매장이 열립니
 @media (max-width:560px){.prog{flex-direction:column;align-items:flex-start}.pfr{width:100%;height:auto;aspect-ratio:8/5}}
 /* v3.29: 장 제목이 길면 오른쪽 출처 글씨와 겹쳤다(412px에서 3·11장, 360px에서 일곱 장) — 폰에서는 출처를 제목 아래 줄로 */
 @media (max-width:560px){.sec>.hd{flex-wrap:wrap;row-gap:6px}.sec>.hd .meta{flex-basis:100%;text-align:right;white-space:normal;line-height:1.5}}
-.skhero{margin:4px 0 22px;max-height:600px;overflow:hidden;transition:max-height .55s ease,opacity .4s ease,margin .55s ease}
-.skhero video,.skhero img.heroanim{display:block;width:100%;height:auto;mix-blend-mode:multiply;background:transparent}
+.skhero{margin:4px 0 22px;max-height:600px;overflow:hidden;transition:max-height .55s ease,opacity .4s ease,margin .55s ease}   /* max-height·transition 은 접힐 때(.away) 쓰인다 */
 .skhero.away{max-height:0;opacity:0;margin:0}
 /* ══ v3.37 첫 화면 SVG 스케치 — 무대는 종이(페이지) 그대로. 제목은 가운데 크게 그렸다가 마스트 제목 자리로 내려앉고, 팀명은 오른쪽에 써진다 ══ */
 .skhero{--tH:44px}
@@ -323,9 +322,13 @@ body.dropping::after{content:'묶음(.json)을 놓으면 그 매장이 열립니
 .skhero:not(.away)+.mast .name{opacity:0;transition:opacity .4s}
 .skhero.away+.mast .name{opacity:1;transition:opacity .6s .3s}
 .mast .name{cursor:pointer}
-@media (max-width:640px){.skhero{--tH:26px}.skstage{aspect-ratio:16/8}.skstage #team{width:40%}}
+/* v3.38: 폰 기준을 640 → 660 으로 — 마스트 제목이 26px 로 줄어드는 기준(660)과 맞춘다. 641~660px 에서 44px 크기로 내려앉아 'SKETCH' 줄과 버전을 덮었다 */
+@media (max-width:660px){.skhero{--tH:26px}.skstage{aspect-ratio:16/8}.skstage #team{width:40%}}
+/* v3.38: 폰에서는 연필이 팀명을 쓰고 오른쪽 밖으로 빠질 때 문서 폭이 30~50px 넓어져 화면 전체가 잠깐 줄었다 — 종이(=화면 폭)에서 가로만 자른다.
+   clip 은 스크롤 상자를 만들지 않아 세로는 그대로 보이고, 이 폭에서 종이는 화면 폭 그대로라 연필은 화면 끝에서 자연스럽게 사라진다 */
+@media screen and (max-width:660px){.page{overflow-x:clip}}   /* 인쇄 폭(약 590px)도 660 이하라 screen 으로 묶는다 */
 @media (prefers-reduced-motion:reduce){.skstage #title{transition:none}}
-@media print{.skhero{display:none!important}}
+@media print{.skhero{display:none!important}.skhero+.mast .name{opacity:1!important;transition:none!important}}   /* v3.38: 그림이 펼쳐진 채 인쇄해도 마스트 제목은 찍히게 */
 
 
 .prog[hidden]{display:none}
@@ -1409,7 +1412,7 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
 
   // ▼ 배포 후 Cloudflare Worker 주소로 바꾸세요 (끝에 / 없이)
   const API_BASE = 'https://kt.roi0925003.workers.dev';
-  const PAGE_VERSION = 'v3.37';
+  const PAGE_VERSION = 'v3.38';
   const WORKER_VERSION = 'v1.41';   // 이 페이지와 짝이 되는 worker.js 버전 (이보다 낮으면 경고)
   /* 직원 공개용 토큰 — 비밀번호가 아닙니다. 소스 보기로 누구나 볼 수 있습니다.
      중계 서버의 PUBLIC_PASS와 같은 값이어야 하고, 남이 긁는 게 보이면
@@ -6142,6 +6145,14 @@ ${GUARD}`,
   function heroAway(){ if (el.hero && !el.hero.classList.contains('away')) el.hero.classList.add('away'); }
   function heroBack(){ if (el.hero) el.hero.classList.remove('away'); }
   /* v3.37: 영상 heroInit 은 SVG 스케치로 대체 — 파일 끝의 스크립트 참조 */
+  /* v3.38: heroInit 을 지우면서 같이 빠진 두 가지를 되살린다 — 영상과 상관없는 일이다
+     ① 검색어를 치면 첫 화면 그림을 접는다. 안 접으면 후보 목록이 화면 아래로 밀리고, 수집을 누를 때 접히는 0.6초를 기다려 로딩 칸을 가운데로 옮기느라 늦는다
+     ② v3.29: 로딩 그림(3840×2000, 640KB)은 수집을 누른 뒤에야 받기 시작해 폰에서는 받는 동안 빈칸이었다 — 첫 화면이 뜨면 미리 받아 둔다 */
+  el.q.addEventListener('input', () => { if (el.q.value.trim()) heroAway(); });
+  (() => {
+    const pre = () => setTimeout(() => { try { const im = new Image(); im.decoding = 'async'; im.src = 'sketch_prog.webp'; } catch (_) {} }, 400);
+    if (document.readyState === 'complete') pre(); else window.addEventListener('load', pre, { once: true });
+  })();
   /* v3.29: 0장 칩 — 폰(마우스 없음)에서는 누르면 근거가 칩 아래 한 줄로 뜬다. 다시 누르면 닫힌다 */
   document.addEventListener('click', (e) => {
     if (!matchMedia('(hover: none)').matches) return;
@@ -6960,14 +6971,31 @@ ${navigator.userAgent}`; }
   }
   // 페이지를 열 때 한 번, 그 뒤엔 '밑그림' 제목(마스트의 빗금 제목 또는 내려앉은 그림)을 누를 때만
   let playing=false;
-  function once(){ if(playing) return; playing=true; draw(()=>{playing=false;}); }
+  function once(cb){ if(playing) return; playing=true; draw(()=>{playing=false; cb&&cb();}); }
   // 비밀번호 팝업(#login)이 닫힌 뒤에 그린다 — 팝업 뒤에서 미리 돌아 버리지 않게
+  // v3.38: 자동 연결은 팝업을 먼저 숨기고 연결하므로 그림은 바로 시작한다. 연결이 실패하면 팝업이 다시 열려 그림이 그 뒤에서 돈다 —
+  //        첫 그림을 다 보기 전에 팝업이 열렸으면 팝업이 닫힐 때 처음부터 다시 그린다. 다 본 뒤에 다시 열린 팝업(비밀번호 만료)은 건드리지 않는다
   (function start(){
     const lg=document.getElementById('login');
-    if(!lg || lg.classList.contains('done') || getComputedStyle(lg).display==='none'){ once(); return; }
-    const mo=new MutationObserver(()=>{ if(lg.classList.contains('done')){ mo.disconnect(); setTimeout(once,250); } });
-    mo.observe(lg,{attributes:true,attributeFilter:['class']});
+    const open=()=>!!lg && !lg.classList.contains('done') && getComputedStyle(lg).display!=='none';
+    let seen=false, again=open();
+    const first=()=>once(()=>{ if(!open()) seen=true; });
+    if(!again) first();
+    if(!lg) return;
+    new MutationObserver(()=>{
+      if(open()){ if(!seen) again=true; return; }
+      if(!again) return; again=false;
+      setTimeout(()=>{ if(seen || open() || paper.classList.contains('away')) return; playing=false; first(); },250);   // 돌던 그림은 draw()→reset()이 멈춘다
+    }).observe(lg,{attributes:true,attributeFilter:['class']});
   })();
+  // v3.38: 접힌 뒤(.away — 검색어 입력·수집 시작·묶음 열기)에는 보이지 않는 그림을 끝까지 돌리지 않는다(폰에서 로딩 화면과 겹쳐 돈다).
+  //        접히는 0.55초 동안은 그대로 두고 다 접히면 멈춘다. 다시 펼치면(제목 누르기) 처음부터 그린다
+  let stopT=null;
+  new MutationObserver(()=>{
+    clearTimeout(stopT);
+    if(!paper.classList.contains('away')) return;
+    stopT=setTimeout(()=>{ if(!playing || !paper.classList.contains('away')) return; cancelAnimationFrame(raf); clearTimeout(raf2); pen1.hide(); pen2.hide(); playing=false; },650);
+  }).observe(paper,{attributes:true,attributeFilter:['class']});
   const replay=()=>{ if(paper.classList.contains('away')) paper.classList.remove('away'); once(); };
   document.getElementById('title').addEventListener('click',replay);
   const mn=document.querySelector('.mast .name'); if(mn) mn.addEventListener('click',replay);
