@@ -8,7 +8,7 @@
 <title>하이오더 전자청약</title>
 <!--
   ============================================================
-  KT HIORDER 전자청약  ·  contract.html  v1.46
+  KT HIORDER 전자청약  ·  contract.html  v1.47
   ------------------------------------------------------------
   · 원본 가입신청서 PDF(14p)를 화면에 렌더 → 고객이 태블릿에서
     서명란마다 "각각" 직접 서명 + 동의함/않음 선택
@@ -57,6 +57,14 @@
     예금주 사업자번호 = 사업자등록번호(칸을 누르면 사업자번호/생년월일 선택).
     채움 연출: 사진 반영 시 네온 스캔이 지나가며 채운 칸이 차례로 빛나고,
     따라 채우기(휴대폰·이메일·주소·사업자번호…)는 값이 해당 칸으로 날아감.
+  · v1.47 — PDF 저장 단추는 늘 켜짐: 서명·동의·판매자 확인이 덜 끝났으면 컬러
+    「작성중」 PDF(원본 벡터 + 회색 + 형광펜 + 넣은 값, 첨부 없음, 파일명 _작성중)
+    → 공유 창. 제출용(흑백·첨부)과 인쇄는 지금처럼 다 채워야 나옴.
+    요금 자동 계산(cal.html v1.12 가격표, 정책금 반영 없는 정가·VAT 별도):
+    메뉴판·알림판(10/15인치) 대수 → 단말 일시납·월 납·3년 할부 총액·서비스
+    월 납(칸을 누르면 선납 10% 할인으로), 「※ 요금은 VAT 별도」 표기.
+    컬러 출력(서명받기·작성중·에셋스튜디오 양식): 서명란은 칠하지 않고 빨간
+    박스 바깥에 연두 형광 테두리, 동의·날짜 노랑, 고객이 안 쓰는 부분 회색.
   · 서버 저장 없음. 사진·글자 인식은 단말(브라우저) 안에서만 수행.
     단, 음성 입력을 쓰면 음성은 브라우저 음성인식 서버(안드로이드
     크롬은 구글)를 거친다 — 화면에 늘 안내.
@@ -179,6 +187,7 @@ input{font-family:inherit}
 .mk.on{border-color:transparent;background:none}
 .mk svg{position:absolute;inset:-14%;width:128%;height:128%;pointer-events:none}
 .mk svg path{fill:none;stroke:#0d1117;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.mk.pulse{animation:pulse .9s 2}
 
 /* ── 단계별 입력 가이드 ── */
 .stepGlow{animation:stepPulse 1.5s ease-in-out infinite;border-radius:4px;z-index:5}
@@ -545,7 +554,7 @@ body.fxbusy .stepGlow:not(.neon){animation:none;box-shadow:none}
 <body>
 
 <header class="topbar">
-  <div class="brand"><b>하이오더 전자청약</b><span class="ver">v1.46</span></div>
+  <div class="brand"><b>하이오더 전자청약</b><span class="ver">v1.47</span></div>
   <div class="seg" id="modeSeg">
     <button data-mode="hi" class="on">하이오더</button>
     <button data-mode="full">+ 안심<span class="full">매입</span></button>
@@ -562,7 +571,7 @@ body.fxbusy .stepGlow:not(.neon){animation:none;box-shadow:none}
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15.5 4.5l4 4L9 19l-5 1 1-5z"/><path d="M13 7l4 4"/></svg><span>서명받기 출력</span></button>
     <button class="btn ghost" id="btnPrint" disabled>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9V3h12v6M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v7H6z"/></svg><span>인쇄</span></button>
-    <button class="btn pri" id="btnPdf" disabled>
+    <button class="btn pri" id="btnPdf" title="서명·동의가 덜 끝났으면 작성중 PDF(컬러·첨부 없음)로 저장">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16"/></svg><span>PDF 저장</span></button>
   </div>
 </header>
@@ -865,6 +874,7 @@ const FIELDS=[
  {id:'f_pay_tot',fmt:1,pg:1,r:[324,674,428,686.5],t:'num',s:9},
  {id:'f_svc_pre',fmt:1,pg:1,r:[136,694,236,706.5],t:'num',s:9},
  {id:'f_svc_mon',fmt:1,pg:1,r:[136,710,236,722.5],t:'num',s:9},
+ {id:'f_vatnote',pg:1,r:[444,674,566,686.5],t:'text',s:7},          /* v1.47 요금 자동 계산 시 「※ 요금은 VAT 별도」 */
  {id:'f2_svcno',pg:2,r:[114,76,566,95],t:'text',s:9},
  {id:'f2_etc',a:'c',pg:2,r:[463,103.5,512,120],t:'text',s:8},
  {id:'f2_now',pg:2,r:[112,128.5,566,150.5],t:'text',s:9},
@@ -981,7 +991,8 @@ const MK=[
 
 /* v1.44 한 줄에 하나만 고르는 ○ — 신청사항 · 고객 성별 · 신청자 성별 · 구분 · 납부방법 · 납부일 · 명세서 · 약정기간 */
 const MK_GRP=[['m1_0','m1_1','m1_2'],['m1_3','m1_4'],['m1_5','m1_6'],['m1_7','m1_8','m1_9'],['m1_10','m1_11','m1_12'],
-              ['m1_13','m1_14','m1_15'],['m1_16','m1_17','m1_18','m1_19'],['m1_20','m1_21','m1_22']];
+              ['m1_13','m1_14','m1_15'],['m1_16','m1_17','m1_18','m1_19'],['m1_20','m1_21','m1_22'],
+              ['m1_37','m1_40']];                       /* v1.47 알림판 10·15인치 — 신청서 수량 칸이 하나라 하나만 */
 /* v1.44 따라 채우기 — 자동으로 채운 칸만 따라가고, 손으로 고친 칸은 그대로 */
 const FLD_GRP=[['f_phone1','f_appphone','f_mgrphone','f11_phone'],['f_appemail','f_msgmail']];   /* 어느 칸이든 처음 넣은 값이 나머지로 */
 const FLD_FOLLOW={f_addr:['f_msgaddr','f11_addr'], f_appname:['f_mgrname'], f_bizname:['f11_name'], f_bizregno:['f11_regno'],
@@ -989,10 +1000,18 @@ const FLD_FOLLOW={f_addr:['f_msgaddr','f11_addr'], f_appname:['f_mgrname'], f_bi
 /* v1.46 조건부 따라 채우기 — 자동이체 '고객과의 관계'가 본인이면 예금(카드)주 사업자번호 = 사업자등록번호.
    관계를 바꾸면 자동으로 넣은 값만 비우고, 손으로 넣은 값(생년월일 선택 포함)은 그대로 */
 const FLD_COND=[{dst:'f_acctbirth', src:'f_bizno', keys:['f_bizno','f_rel2'], when:()=>(S.fld.f_rel2||'').replace(/\s/g,'')==='본인'}];
+/* v1.47 단말·서비스 요금 자동 계산 — cal.html v1.12 가격표 그대로, 정책금 반영 없는 정가 · VAT 별도.
+   메뉴판(10인치)·알림판(10/15인치) 대수 → 단말 일시납 · 월 납 · 3년 할부 총액(월 납 × 36) · 서비스 월 납(또는 선납 36개월 −10%).
+   할부/일시납 대수를 안 나누면 3년 약정은 전부 할부, 무약정은 전부 일시납(cal: 무약정은 일시납만).
+   2년 재약정은 cal에 요금 규칙이 없어 서비스 요금은 계산하지 않음. 손으로 고친 칸은 그대로(자동으로 넣은 값만 다시 계산).
+   단가가 바뀌면 FEE만 고친다 */
+const FEE={d10:{mon:5000,lump:170000}, d15:{mon:7000,lump:237000}, svc:{y3:15000,free:21000}, prepayOff:.10, months:36};
+const FEE_KEYS=['f_menu_cnt','f_menu_hb','f_menu_on','f_alarm_cnt','f_alarm_hb','f_alarm_on','f_pay_mon'];
+const FEE_MK=['m1_20','m1_21','m1_22','m1_37','m1_40'];
 
 /* 참조본과 동일한 부분 회색 처리 존 (x0,top,x1,bottom pt) */
 const GRAYZONES={
-  1:[[44.6,171.4,567.4,218.2],[45.4,383,270,452.2],[31.7,522,100.8,552.2],[45.4,617.8,436.9,648],[31.7,654.5,569.5,754.6]],
+  1:[[44.6,171.4,569,218.2],[45.4,383,270,452.2],[31.7,522,100.8,552.2],[45.4,617.8,436.9,648],[31.7,654.5,569.5,754.6]],
   2:[[0,0,595.3,841.9]],
   3:[[24.5,72,571,85.7],[24.5,501.1,571,514.8]],
   4:[[24.5,72,571,85.7],[24.5,293.8,571,307.4]],
@@ -1041,6 +1060,8 @@ const S = {
   fld:{},                 // fieldId → 값
   auto:{},                // v1.44 자동으로 채운 값(기본값·따라 채우기) — 지금 값이 이것과 같으면 '자동'
   mk:{},                  // markId → 1
+  mkAuto:{},              // v1.47 요금 계산이 자동으로 체크한 □ (대수를 지우면 같이 해제)
+  svcMode:'mon',          // v1.47 서비스 요금 — 'mon' 월 납 | 'pre' 선납(10% 할인)
   texts:[],               // {tid,pg,x,y,txt,size}
   bw:true,                // 흑백 출력(전체) / 해제 시 참조 스타일 부분 회색
   step:0,                 // 입력 가이드 인덱스
@@ -1172,7 +1193,12 @@ function drawOverlay(pg){
       if(S.mk[m.id]) delete S.mk[m.id];
       else{ const g=MK_GRP.find(g=>g.includes(m.id)); if(g) for(const id of g) if(id!==m.id&&S.mk[id]){ delete S.mk[id]; paintMk(id); }
         S.mk[m.id]=1; }
+      delete S.mkAuto[m.id];                          /* v1.47 손으로 누른 □는 자동 체크가 아님 */
       S.dirty=true; paintMk(m.id);
+      if(FEE_MK.includes(m.id)){                      /* v1.47 약정·알림판 인치 → 요금 다시 계산 */
+        const out=[]; feeSync(out); showFlds(out);
+        flyFill(out.filter(k=>S.fld[k]&&k!=='f_vatnote').map(k=>({from:'mk_'+m.id,to:k,v:S.fld[k]}))); feeNote(); renderStepUI();
+      }
     };
     ov.appendChild(el); paintMk(m.id);
   }
@@ -1309,6 +1335,7 @@ function setFld(k,v){
       if(ny!==y){ S.fld.f_dueyy=ny; S.auto.f_dueyy=ny; out.push('f_dueyy'); } }
   }
   condSync(k,out);
+  if(FEE_KEYS.includes(k)) feeSync(out);             /* v1.47 대수 → 요금 */
   return out;
 }
 function condSync(k,out){                           /* v1.46 FLD_COND — 원본 칸이나 조건 칸이 바뀔 때만 맞춘다 */
@@ -1328,6 +1355,74 @@ function acctIdOpts(){                               /* v1.46 예금주 칸 빠�
   let b=six(S.fld.f_bizregno); if(b.length!==6) b=six(S.fld.f_appbirth);
   if(b.length===6) o.push({lab:'생년월일',v:b});
   return o;
+}
+
+/* ── v1.47 단말·서비스 요금 자동 계산 (FEE 참고) ── */
+function setAuto(k,v,out){                           /* 자동으로 넣은 칸만 바꿈 — 손으로 넣은 값은 그대로 */
+  const cur=S.fld[k], auto=cur!=null&&S.auto[k]===cur;
+  if(cur!=null&&!auto) return;
+  if(v){ if(cur!==v){ S.fld[k]=v; S.auto[k]=v; out.push(k); } }
+  else if(auto){ delete S.fld[k]; delete S.auto[k]; out.push(k); }
+}
+const nOf=k=>parseInt(String(S.fld[k]||'').replace(/\D/g,''),10)||0;
+const wonN=n=>n>0?Math.round(n).toLocaleString('ko-KR'):'';
+const isMan=k=>S.fld[k]!=null&&S.auto[k]!==S.fld[k];
+function feeRow(cnt,hb,on,free){                     /* 한 줄(메뉴판/알림판) — 전체 N · 할부 H · 일시납 O */
+  const mN=isMan(cnt), mH=isMan(hb), mO=isMan(on);
+  let N=nOf(cnt), H=nOf(hb), O=nOf(on);
+  if(!mH&&!mO) return !N?{N:0,H:0,O:0}:free?{N,H:0,O:N}:{N,H:N,O:0};   /* 안 나눴으면 약정대로 전부 할부/일시납 */
+  if(mH&&!mO) O=mN?Math.max(N-H,0):0;                /* 한쪽만 적으면 나머지가 다른 쪽 */
+  if(mO&&!mH) H=mN?Math.max(N-O,0):0;
+  if(!mN) N=H+O;                                     /* ( )대를 손으로 안 넣었으면 합계 */
+  return {N,H,O,man:true,mH,mO,bad:mN&&H+O!==N};
+}
+function feeCalc(){
+  const free=!!S.mk.m1_21, re2=!!S.mk.m1_22, inch=S.mk.m1_40?15:S.mk.m1_37?10:0;
+  const m=feeRow('f_menu_cnt','f_menu_hb','f_menu_on',free), a=feeRow('f_alarm_cnt','f_alarm_hb','f_alarm_on',free);
+  const aOK=!a.N||!!inch, pA=inch===15?FEE.d15:FEE.d10;                /* 알림판은 인치를 골라야 계산 */
+  return {free,re2,inch,m,a,aOK,dev:m.N+(aOK?a.N:0),rate:free?FEE.svc.free:FEE.svc.y3,
+    lump:m.O*FEE.d10.lump+(aOK?a.O*pA.lump:0), mon:m.H*FEE.d10.mon+(aOK?a.H*pA.mon:0)};
+}
+function feeSync(out){                               /* 대수·약정·인치가 바뀔 때 — 요금 칸 다시 계산 */
+  const c=feeCalc();
+  for(const [row,cnt,hb,on,f11] of [[c.m,'f_menu_cnt','f_menu_hb','f_menu_on','f11_menu'],[c.a,'f_alarm_cnt','f_alarm_hb','f_alarm_on','f11_alarm']]){
+    if(!row.mH) setAuto(hb,row.H?String(row.H):'',out);
+    if(!row.mO) setAuto(on,row.O?String(row.O):'',out);
+    if(row.man&&!isMan(cnt)){ setAuto(cnt,row.N?String(row.N):'',out); setAuto(f11,row.N?String(row.N):'',out); }
+  }
+  setAuto('f_pay_once',wonN(c.lump),out);
+  setAuto('f_pay_mon',wonN(c.mon),out);
+  setAuto('f_pay_tot',wonN(nOf('f_pay_mon')*FEE.months),out);   /* 손으로 고친 월 납도 총액에 반영 */
+  const pre=S.svcMode==='pre'&&!c.free;                /* 2년 재약정은 규칙이 없어 비움(손으로 넣은 값은 그대로) */
+  setAuto('f_svc_mon',c.re2||pre?'':wonN(c.dev*c.rate),out);
+  setAuto('f_svc_pre',!c.re2&&pre?wonN(c.dev*c.rate*FEE.months*(1-FEE.prepayOff)):'',out);
+  const any=['f_pay_once','f_pay_mon','f_pay_tot','f_svc_mon','f_svc_pre'].some(k=>S.fld[k]&&S.auto[k]===S.fld[k]);
+  setAuto('f_vatnote',any?'※ 요금은 VAT 별도':'',out);
+  const autoMk=(id,on)=>{ if(on){ if(!S.mk[id]){ S.mk[id]=1; S.mkAuto[id]=1; paintMk(id); } }
+                          else if(S.mkAuto[id]){ delete S.mk[id]; delete S.mkAuto[id]; paintMk(id); } };
+  autoMk('m1_35',c.m.N>0); autoMk('m1_33',c.m.N>0); autoMk('m1_39',c.a.N>0);   /* □메뉴판·□하이오더 2·□알림판 */
+  S.feeWarn= c.a.N&&!c.inch ? '알림판 인치(10·15)를 골라 주세요 — 고르면 요금에 더합니다'
+           : c.free&&(c.m.H||c.a.H) ? '무약정은 일시납만 가능해요(cal 기준) — 할부 대수를 확인하세요'
+           : c.m.bad||c.a.bad ? `${c.m.bad?'메뉴판':'알림판'} ( )대와 할부·일시납 대수 합이 달라요 — 확인해 주세요`
+           : c.re2&&c.dev ? '2년 재약정 서비스 요금은 자동 계산하지 않아요 — 직접 넣어 주세요' : '';
+}
+function feeNote(){                                  /* 계산하다 걸린 것 안내 */
+  const w=S.feeWarn; S.feeWarn=''; if(!w) return;
+  toast(w);
+  if(w.startsWith('알림판')) ['m1_37','m1_40'].forEach(id=>{ const e=$('#mk_'+id); if(e){ e.classList.remove('pulse'); void e.offsetWidth; e.classList.add('pulse'); } });
+}
+function svcOpts(){                                  /* 서비스 요금 칸 빠른 선택 — 월 납 / 선납(3년 약정만) */
+  const c=feeCalc(); if(c.re2||!c.dev) return [];
+  const o=[{lab:'월 납',v:wonN(c.dev*c.rate)+'원/월',act:()=>svcMode('mon')}];
+  if(!c.free) o.push({lab:'선납 10% 할인',v:wonN(c.dev*c.rate*FEE.months*(1-FEE.prepayOff))+'원',act:()=>svcMode('pre')});
+  return o;
+}
+function svcMode(md){                                /* 고르면 두 칸 모두 계산기에 맡김(손으로 고친 값도 다시 계산) */
+  S.svcMode=md;
+  for(const k of ['f_svc_mon','f_svc_pre']) if(S.fld[k]!=null) S.auto[k]=S.fld[k];
+  const out=[]; feeSync(out); S.dirty=true; showFlds(out);
+  flyFill(out.filter(k=>S.fld[k]&&k!=='f_vatnote').map(k=>({from:md==='pre'?'f_svc_mon':'f_svc_pre',to:k,v:S.fld[k]})));
+  renderStepUI();
 }
 function showFlds(keys){ for(const k of keys){ const f=FIELDS.find(x=>x.id===k); if(f) updateFld(f); } }
 
@@ -1444,8 +1539,8 @@ function openField(fd){
     mic.onclick=e=>{ e.stopPropagation(); startVoice(inp,fd,mic); };
     ov.appendChild(mic); inp._mic=mic;
   }
-  if(fd.id==='f_acctbirth'){                          /* v1.46 예금주 사업자번호 — 개인 통장이면 생년월일로 한 번에 */
-    const opts=acctIdOpts();
+  {                                                   /* 빠른 선택 — v1.46 예금주 사업자번호/생년월일 · v1.47 서비스 요금 월 납/선납 */
+    const opts=fd.id==='f_acctbirth'?acctIdOpts():(fd.id==='f_svc_mon'||fd.id==='f_svc_pre')?svcOpts():[];
     if(opts.length){
       const bx=document.createElement('div'); bx.className='fchips';
       bx.style.left=`${x0/PW*100}%`; bx.style.top=`${y1/PH*100}%`;
@@ -1454,7 +1549,8 @@ function openField(fd){
         b.innerHTML=`${o.lab}<b>${esc(o.v)}</b>`;
         b.addEventListener('pointerdown',e=>e.preventDefault());   // 입력칸 포커스 유지
         b.addEventListener('mousedown',e=>e.preventDefault());
-        b.onclick=e=>{ e.stopPropagation(); inp.value=o.v; inp.blur(); };
+        b.onclick=e=>{ e.stopPropagation();
+          if(o.act){ inp.value=S.fld[fd.id]||''; inp.blur(); o.act(); } else { inp.value=o.v; inp.blur(); } };
         bx.appendChild(b);
       }
       ov.appendChild(bx); inp._chips=bx;
@@ -1474,7 +1570,8 @@ function openField(fd){
     const ch=setFld(fd.id,v);                        /* v1.44: 같은 종류 칸 따라 채우기 */
     const others=ch.filter(k=>k!==fd.id);
     S.dirty=true; updateFld(fd); showFlds(others);
-    flyFill(others.filter(k=>S.fld[k]).map(k=>({from:flySrc(k,fd.id), to:k, v:S.fld[k]})));   /* v1.46 값이 따라 채운 칸으로 날아감 */
+    flyFill(others.filter(k=>S.fld[k]&&k!=='f_vatnote').map(k=>({from:flySrc(k,fd.id), to:k, v:S.fld[k]})));   /* v1.46 값이 따라 채운 칸으로 날아감 */
+    feeNote();
     if(tabTo){ const nx=tabTo; tabTo=null; renderStepUI(); tabOpen(nx); }
     else if(v) stepAdvance('f',fd.id);
     else renderStepUI();
@@ -1754,7 +1851,9 @@ function refresh(){
   $('#cntSig').textContent=`${sd}/${sigs.length}`; $('#cntCon').textContent=`${cd}/${CON.length}`;
   const left=sigs.length-sd, rs=$('#railSeq'); if(rs){ rs.hidden=!left; rs.textContent=`✍ 서명 이어서 하기 · 남은 ${left}곳`; }
   const ok= sd===sigs.length && cd===CON.length && $('#sellerOk').checked;
-  $('#btnPrint').disabled=$('#btnPdf').disabled=!ok;
+  $('#btnPrint').disabled=!ok; $('#btnPdf').disabled=false;                /* v1.47 PDF는 늘 켜짐 — 덜 끝났으면 작성중 */
+  const pl=$('#btnPdf span'); if(pl) pl.textContent=ok?'PDF 저장':'PDF 저장(작성중)';
+  $('#btnPdf').title=ok?'제출용 PDF 저장(첨부 포함) + 고객 사본 공유':'서명·동의가 덜 끝나 작성중 PDF(컬러·첨부 없음)로 저장';
   $('#pillTxt').textContent= ok?'전 항목 완료 — 출력 가능':`서명 ${sd}/${sigs.length} · 동의 ${cd}/${CON.length}`;
   $('#pill').classList.toggle('ok',ok);
   updScript();
@@ -1954,41 +2053,73 @@ $('#btnPrint').onclick=async()=>{
   await printCanvases(cvs);
   toast('인쇄 대화상자를 확인하세요. 출력 후 애니팩스로 발송합니다.');
 };
-/* 서명받기 출력 (v1.44) — 다 채우지 않아도 컬러로 인쇄. 넣은 값은 그대로, 빈 주요 칸은 화면처럼 연두,
-   필수 서명 자리·동의 ○·서명 날짜는 노랑 형광. 첨부 서류는 넣지 않는다 */
+/* 서명받기 출력 (v1.44) — 다 채우지 않아도 컬러로 인쇄. 넣은 값은 그대로 + 형광펜(아래 규칙). 첨부 서류는 넣지 않는다 */
 async function composePrep(pg){
   const cv=await renderMarked(pg,FAX_SCALE,false);
   paintOverlay(cv.getContext('2d'),pg,FAX_SCALE);
   return cv;
 }
-/* v1.46 형광펜 규칙 — 「서명받기 출력」과 양식 출력 모드(에셋스튜디오)가 같이 쓴다. 한 곳을 고치면 둘 다 바뀜.
-   blank=빈 양식: 연두(빈 주요 칸)는 빼고 필수 서명·동의·서명 날짜 전부 */
-const HL={lime:[132,255,0,.42], sig:[255,226,0,.6], con:[255,226,0,.45]};
-function markList(pg,blank){                         /* [{r:[x0,y0,x1,y1]pt, c:[r,g,b,a], part?:아래쪽 비율, corner?:빨간 모서리}] */
+/* 형광펜 규칙 — 컬러 출력 전부(서명받기 출력 · 작성중 PDF · 에셋스튜디오 양식 출력)가 같이 쓴다. 한 곳을 고치면 모두 바뀜.
+   v1.47: 서명란은 칠하지 않고 원본 빨간 박스 바깥에 연두 형광 테두리(서명·인감이 가려지지 않게),
+   동의 ○·서명 날짜는 노랑, 빈 주요 칸은 연두 밑줄(blank=빈 양식이면 뺌). 고객이 안 쓰는 부분은 회색(화면과 같은 GRAYZONES) */
+const HL={lime:[132,255,0,.42], con:[255,226,0,.45], date:[255,226,0,.6], ring:[132,255,0,.95]};
+const RING={gap:2.2, w:2.6, rad:3.5};                /* pt — 빨간 박스에서 띄우는 간격 · 테두리 두께 · 모서리 둥글기 */
+function markList(pg,blank){                         /* 칠하기 {r:[x0,y0,x1,y1]pt, c:[r,g,b,a], part?:아래쪽 비율} · 테두리 {ring:[x0,y0,x1,y1]} */
   const L=[], sigs=blank?SIG.filter(z=>z.req&&z.pg===pg):reqSig().filter(z=>z.pg===pg&&!S.sig[z.id]);
   if(!blank) for(const fd of FIELDS.filter(f=>f.pg===pg&&MAINF.has(f.id)&&!S.fld[f.id])) L.push({r:fd.r,c:HL.lime,part:.4});
-  for(const z of sigs) L.push({r:slotRect(z),c:HL.sig,corner:1});
   for(const c of CON.filter(c=>c.pg===pg&&(blank||!S.con[c.id]))) L.push({r:c.hot,c:HL.con});
   for(const [k,d] of Object.entries(DATES)){
     const owner=SIG.find(z=>z.dg===k); if(d.pg!==pg||!owner||!sigs.includes(owner)) continue;
-    for(const part of ['yy','mm','dd']){ const [cx,by,fp]=d[part]; L.push({r:[cx-fp*1.15,by-fp*1.05,cx+fp*1.15,by+fp*.35],c:HL.sig}); }
+    for(const part of ['yy','mm','dd']){ const [cx,by,fp]=d[part]; L.push({r:[cx-fp*1.15,by-fp*1.05,cx+fp*1.15,by+fp*.35],c:HL.date}); }
   }
+  for(const z of sigs){ const [x0,y0,x1,y1]=z.box, g=RING.gap; L.push({ring:[x0-g,y0-g,x1+g,y1+g]}); }
   return L;
+}
+function rrPath(ctx,x0,y0,x1,y1,r){                  /* 둥근 사각형 경로 */
+  r=Math.min(r,(x1-x0)/2,(y1-y0)/2); ctx.beginPath(); ctx.moveTo(x0+r,y0); ctx.lineTo(x1-r,y0); ctx.quadraticCurveTo(x1,y0,x1,y0+r);
+  ctx.lineTo(x1,y1-r); ctx.quadraticCurveTo(x1,y1,x1-r,y1); ctx.lineTo(x0+r,y1); ctx.quadraticCurveTo(x0,y1,x0,y1-r);
+  ctx.lineTo(x0,y0+r); ctx.quadraticCurveTo(x0,y0,x0+r,y0); ctx.closePath();
+}
+function rrSvg(x0,y0,x1,y1,r){                       /* 같은 모양의 SVG 경로(pdf-lib) */
+  r=Math.min(r,(x1-x0)/2,(y1-y0)/2); const f=n=>n.toFixed(2);
+  return `M ${f(x0+r)} ${f(y0)} L ${f(x1-r)} ${f(y0)} Q ${f(x1)} ${f(y0)} ${f(x1)} ${f(y0+r)} L ${f(x1)} ${f(y1-r)} Q ${f(x1)} ${f(y1)} ${f(x1-r)} ${f(y1)} `+
+         `L ${f(x0+r)} ${f(y1)} Q ${f(x0)} ${f(y1)} ${f(x0)} ${f(y1-r)} L ${f(x0)} ${f(y0+r)} Q ${f(x0)} ${f(y0)} ${f(x0+r)} ${f(y0)} Z`;
 }
 function paintMarks(ctx,L,s){
   ctx.save(); ctx.globalCompositeOperation='multiply';   /* 형광펜처럼 — 인쇄된 글자는 그대로 보이게 */
-  for(const m of L){ const [x0,y0,x1,y1]=m.r, h=(y1-y0)*s, t=m.part?h*(1-m.part):0, [r,g,b,a]=m.c;
+  for(const m of L){ if(m.ring) continue; const [x0,y0,x1,y1]=m.r, h=(y1-y0)*s, t=m.part?h*(1-m.part):0, [r,g,b,a]=m.c;
     ctx.fillStyle=`rgba(${r},${g},${b},${a})`; ctx.fillRect(x0*s,y0*s+t,(x1-x0)*s,h-t); }
+  const [r,g,b,a]=HL.ring; ctx.strokeStyle=`rgba(${r},${g},${b},${a})`; ctx.lineWidth=RING.w*s;
+  for(const m of L){ if(!m.ring) continue; const [x0,y0,x1,y1]=m.ring; rrPath(ctx,x0*s,y0*s,x1*s,y1*s,(RING.rad+RING.gap)*s); ctx.stroke(); }
   ctx.restore();
-  ctx.fillStyle='#E60012';                              /* 필수 서명 자리 오른쪽 위 빨간 모서리 — 화면과 같은 표시 */
-  for(const m of L){ if(!m.corner) continue; const x=m.r[2]*s, y=m.r[1]*s, k=Math.max(8,s*3.2);
-    ctx.beginPath(); ctx.moveTo(x-k,y); ctx.lineTo(x,y); ctx.lineTo(x,y+k); ctx.fill(); }
 }
-async function renderMarked(pg,s,blank){             /* 원본 쪽 + 형광펜 (컬러) */
+function vecGray(page,pg){                           /* pdf-lib 회색 — 채도만 0으로 섞어 글자·선은 벡터 그대로.
+                                                        원본 밑에 흰 바탕을 깔아야 빈 곳이 회색으로 뜨지 않음(투명 바탕 방지) */
+  const zs=GRAYZONES[pg]; if(!zs) return;
+  const P=window.PDFLib, ctx=page.doc.context, W=page.getWidth(), H=page.getHeight(), Cn=P.PDFName.of('Contents');
+  const C=page.node.get(Cn); if(!(C instanceof P.PDFArray)) page.node.set(Cn,ctx.obj([C]));
+  page.node.wrapContentStreams(
+    ctx.register(ctx.contentStream([P.pushGraphicsState(),P.setFillingGrayscaleColor(1),P.rectangle(0,0,W,H),P.fill(),P.popGraphicsState()])),
+    ctx.register(ctx.contentStream([])));
+  const gs=page.node.newExtGState('GSat',ctx.obj({Type:'ExtGState',BM:'Saturation'}));   /* pdf-lib 기본 섞기 목록엔 Saturation이 없어 직접 */
+  page.pushOperators(...zs.flatMap(([x0,y0,x1,y1])=>[P.pushGraphicsState(),P.setGraphicsState(gs),P.setFillingGrayscaleColor(.5),
+    P.rectangle(x0,H-y1,x1-x0,y1-y0),P.fill(),P.popGraphicsState()]));
+}
+function vecMarks(page,pg,L){                        /* pdf-lib 쪽에 회색 + 형광펜 */
+  const {rgb,BlendMode}=window.PDFLib, H=page.getHeight();
+  vecGray(page,pg);
+  for(const m of L){ if(m.ring) continue; const [x0,y0,x1,y1]=m.r, [r,g,b,a]=m.c, h=(y1-y0)*(m.part||1);
+    page.drawRectangle({x:x0,y:H-y1,width:x1-x0,height:h,color:rgb(r/255,g/255,b/255),opacity:a,blendMode:BlendMode.Multiply}); }
+  const [r,g,b,a]=HL.ring;
+  for(const m of L){ if(!m.ring) continue; const [x0,y0,x1,y1]=m.ring;
+    page.drawSvgPath(rrSvg(x0,y0,x1,y1,RING.rad+RING.gap),{x:0,y:H,borderColor:rgb(r/255,g/255,b/255),borderWidth:RING.w,borderOpacity:a,blendMode:BlendMode.Multiply}); }
+}
+async function renderMarked(pg,s,blank){             /* 원본 쪽 + 회색 + 형광펜 (컬러) */
   const page=await S.doc.getPage(pg), vp=page.getViewport({scale:s});
   const cv=document.createElement('canvas'); cv.width=Math.round(vp.width); cv.height=Math.round(vp.height);
   const ctx=cv.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,cv.width,cv.height);
   await page.render({canvasContext:ctx,viewport:vp}).promise;
+  grayRegions(ctx,cv,pg,s);                          /* v1.47 고객이 안 쓰는 부분 회색 — 화면과 같은 구역 */
   paintMarks(ctx,markList(pg,blank),s);
   return cv;
 }
@@ -1999,12 +2130,14 @@ $('#btnPrep').onclick=async()=>{
   const pages=MODE_PAGES[S.mode], out=[];
   for(let i=0;i<pages.length;i++){ toast(`서명받기 출력 준비 ${i+1}/${pages.length}p…`); out.push(await composePrep(pages[i])); }
   await printCanvases(out);
-  toast('컬러로 인쇄하세요 — 노란 칸에 고객 서명·동의·날짜를 받습니다');
+  toast('컬러로 인쇄하세요 — 연두 테두리 칸에 서명, 노란 칸에 동의·날짜를 받습니다');
 };
 
-/* PDF 저장 — 제출용(기기 저장·애니팩스, 첨부 포함 — 신분증은 가리지 않음)과 고객용(공유, 신청서만) */
+/* PDF 저장 — 제출용(기기 저장·애니팩스, 첨부 포함 — 신분증은 가리지 않음)과 고객용(공유, 신청서만)
+   v1.47: 단추는 늘 켜짐. 서명·동의·판매자 확인이 덜 끝났으면 컬러 「작성중」 PDF(첨부 없음)로 저장 */
 $('#btnPdf').onclick=async()=>{
-  if(!gate()) return;
+  document.querySelector('.finp')?.blur();
+  if(firstMissing()){ await saveDraftPdf(); return; }
   const cvs=await composeAll('PDF 생성 중');
   const {jsPDF}=window.jspdf;
   const urls=cvs.map(cv=>cv.toDataURL('image/jpeg',.9));
@@ -2019,6 +2152,52 @@ $('#btnPdf').onclick=async()=>{
   S.lastPdf={blob: nAtt?mkPdf(urls.slice(0,cvs.formCount)):blob, fn:fname('pdf','고객용'), att:nAtt, saved:fn, id:!!S.att.id};
   openSendSheet();
 };
+function leftSummary(){                              /* 남은 것 — 「서명 3곳·동의 2건·판매자 확인」 */
+  const s=reqSig().filter(z=>!S.sig[z.id]).length, c=CON.filter(c=>!S.con[c.id]).length, k=!$('#sellerOk').checked;
+  return [s&&`서명 ${s}곳`, c&&`동의 ${c}건`, k&&'판매자 확인'].filter(Boolean).join('·');
+}
+function hasOverlay(pg){                             /* 이 쪽에 넣은 값·서명·체크·텍스트가 있나 (없으면 그림 레이어 생략) */
+  return FIELDS.some(f=>f.pg===pg&&S.fld[f.id]) || SIG.some(z=>z.pg===pg&&S.sig[z.id]) || CON.some(c=>c.pg===pg&&S.con[c.id])
+      || MK.some(m=>m.pg===pg&&(m.safe?S.mode==='full':S.mk[m.id])) || S.texts.some(t=>t.pg===pg);
+}
+async function pdfVector(pages,blank,overlay){       /* 원본 쪽 복사(글자·선 벡터) + 회색 + 형광펜 + (작성중) 넣은 값·서명 그림 레이어 */
+  const {PDFDocument,BlendMode}=await loadPdfLib();
+  const src=await PDFDocument.load(await S.doc.getData());
+  const out=await PDFDocument.create();
+  const cp=await out.copyPages(src,pages.map(p=>p-1));
+  for(let i=0;i<cp.length;i++){
+    const page=cp[i], pg=pages[i]; out.addPage(page);
+    vecMarks(page,pg,markList(pg,blank));
+    if(overlay&&hasOverlay(pg)){
+      const s=FAX_SCALE, cv=document.createElement('canvas'); cv.width=Math.round(PW*s); cv.height=Math.round(PH*s);
+      paintOverlay(cv.getContext('2d'),pg,s);
+      const buf=await new Promise((res,rej)=>cv.toBlob(b=>b?b.arrayBuffer().then(res,rej):rej(new Error('png')),'image/png'));
+      cv.width=cv.height=0;
+      page.drawImage(await out.embedPng(buf),{x:0,y:0,width:page.getWidth(),height:page.getHeight(),blendMode:BlendMode.Multiply});
+    }
+  }
+  return out;
+}
+async function saveDraftPdf(){                       /* v1.47 작성중 PDF — 컬러, 남은 서명(연두 테두리)·동의·날짜(노랑), 첨부 없음 */
+  await document.fonts.ready;
+  try{ await document.fonts.load("12px 'GeuriunXGukhanbakDaheul'","가나다0123"); }catch(e){}
+  const pages=MODE_PAGES[S.mode], fn=fname('pdf','작성중');
+  toast('작성중 PDF 만드는 중…');
+  let blob=null;
+  try{ const doc=await pdfVector(pages,false,true); doc.setTitle(fn.replace(/\.pdf$/,'')); doc.setCreator('kt-synergy.com contract.html v1.47');
+       blob=new Blob([await doc.save()],{type:'application/pdf'}); }
+  catch(e){                                         /* 대체: 200dpi 이미지 PDF */
+    try{ const {jsPDF}=window.jspdf, pdf=new jsPDF({unit:'pt',format:'a4',compress:true});
+      for(let i=0;i<pages.length;i++){ toast(`작성중 PDF 만드는 중 ${i+1}/${pages.length}쪽…`);
+        const cv=await composePrep(pages[i]); if(i) pdf.addPage(); pdf.addImage(cv.toDataURL('image/jpeg',.88),'JPEG',0,0,PW,PH); cv.width=cv.height=0; }
+      blob=pdf.output('blob'); }catch(e2){}
+  }
+  if(!blob){ toast('PDF를 만들지 못했습니다 — 다시 눌러 주세요'); return; }
+  saveBlob(blob,fn);
+  S.lastPdf={blob,fn,att:0,saved:fn,id:false,draft:true};
+  openSendSheet();
+  toast(`${leftSummary()}이 남아 「작성중」 PDF로 저장했어요 — 연두 테두리·노란 칸이 남은 자리`);
+}
 
 /* ── 본인인증 사진 촬영 — v1.40: 맨 처음 찍고 → 글자 인식 → 확인 → 자동 기입 ── */
 let camStream=null, camKind=null;
@@ -2705,7 +2884,9 @@ function openSendSheet(){
   const {mail,tel}=custContacts();
   $('#sendTo').textContent=[tel&&('📞 '+tel), mail&&('✉ '+mail)].filter(Boolean).join('   ')||'연락처 미입력 (문서의 연락처·이메일 칸을 채우면 자동 표시)';
   const store=$('#mStore').value.trim()||'고객';
-  const body=encodeURIComponent(`[KT 하이오더] ${store}님, 신청서 사본을 전달드립니다. 문의: KT 담당자`);
+  const draft=!!S.lastPdf?.draft;
+  const body=encodeURIComponent(draft?`[KT 하이오더] ${store}님, 작성 중인 신청서를 미리 보내드립니다. 확인 부탁드립니다. 문의: KT 담당자`
+                                     :`[KT 하이오더] ${store}님, 신청서 사본을 전달드립니다. 문의: KT 담당자`);
   $('#sendSms').href= tel? `sms:${tel}?body=${body}` : '#';
   $('#sendSms').style.opacity=tel?'1':'.4';
   $('#sendMailto').href= mail? `mailto:${mail}?subject=${encodeURIComponent('[KT 하이오더] 신청서 사본')}&body=${body}` : '#';
@@ -2713,9 +2894,10 @@ function openSendSheet(){
   const canFile=navigator.canShare&&navigator.canShare({files:[new File([new Blob()],'t.pdf',{type:'application/pdf'})]});
   $('#sendShare').style.display=canFile?'':'none';
   const att=S.lastPdf?.att;
-  $('#sendNote').innerHTML=(att?'고객 사본에는 <b>신청서만</b> 담깁니다(신분증·사업자등록증 제외). ':'')+'문자·메일 앱에는 안내문이 미리 채워집니다. 첨부가 필요하면 <b>공유하기</b>를 사용하세요.';
+  $('#sendNote').innerHTML=(draft?'<b>작성중</b> 사본입니다 — 서명·동의가 끝나기 전 상태예요. ':att?'고객 사본에는 <b>신청서만</b> 담깁니다(신분증·사업자등록증 제외). ':'')+'문자·메일 앱에는 안내문이 미리 채워집니다. 첨부가 필요하면 <b>공유하기</b>를 사용하세요.';
   const sv=S.lastPdf?.saved||'제출용 PDF';
-  $('#sendDel').textContent= S.lastPdf?.id ? `기기에 저장된 ${sv}에는 주민등록번호 전체가 보이는 신분증이 들어 있습니다 — 애니팩스로 보낸 뒤 바로 지우세요.`
+  $('#sendDel').textContent= draft ? `${sv}에는 신분증·사업자등록증이 들어 있지 않습니다 — 서명·동의를 모두 받은 뒤 다시 저장하면 제출용이 만들어집니다.`
+                           : S.lastPdf?.id ? `기기에 저장된 ${sv}에는 주민등록번호 전체가 보이는 신분증이 들어 있습니다 — 애니팩스로 보낸 뒤 바로 지우세요.`
                            : att ? `기기에 저장된 ${sv}(사업자등록증 포함)는 애니팩스로 보낸 뒤 지우세요.`
                                  : `기기에 저장된 ${sv}는 발송 뒤 보관 기준에 따라 지우세요.`;
   $('#sendVeil').classList.add('on');
@@ -2908,10 +3090,10 @@ function flyFill(pairs){                             /* [{from,to,v}] — 넣은
 }
 function flyOne(lay,p,far){
   return new Promise(res=>{
-    const src=$('#fld_'+p.from), dst0=$('#fld_'+p.to);
+    const src=$(p.from.startsWith('mk_')?'#'+p.from:'#fld_'+p.from), dst0=$('#fld_'+p.to);
     const a=(inView(src)?src:(dst0&&dst0.isConnected?dst0:null))?.getBoundingClientRect();
     if(!a||!a.width){ dst0?.classList.remove('await'); res(); return; }
-    const tpg=pgOfFld(p.to), spg=pgOfFld(p.from), off=!inView(dst0);
+    const tpg=pgOfFld(p.to), spg=pgOfFld(p.from)??MK.find(m=>'mk_'+m.id===p.from)?.pg??tpg, off=!inView(dst0);
     const down= dst0&&dst0.isConnected ? dst0.getBoundingClientRect().top>a.top : tpg>=spg;
     const g=document.createElement('div'); g.className='flyv'; g.textContent=p.v; lay.appendChild(g);
     const gw=g.offsetWidth, gh=g.offsetHeight, x0=a.left+Math.min(a.width/2,70), y0=a.top+a.height/2;
@@ -3012,7 +3194,7 @@ function blankStart(){
   v.innerHTML=`<header class="bvh">
     <div class="bvt"><b>${B.name} 양식</b><span class="ver">${B.ver()}</span></div>
     <div class="bva"><button class="btn pri" id="bvPrint">인쇄</button><button class="btn ghost" id="bvPdf">PDF 저장</button><a class="btn ghost" href="contract.html">계약서 작성 →</a></div>
-    <div class="bvl"><span><i style="background:#FFEE66"></i>고객 서명·동의·날짜 자리</span><span><i style="background:linear-gradient(225deg,#E60012 0 32%,#FFEE66 32%)"></i>빨간 모서리 = 필수 서명</span><span>컬러로 인쇄하세요 · 계약서 도구와 같은 원본</span></div>
+    <div class="bvl"><span><i style="border:2.5px solid #84FF00;background:none"></i>연두 테두리 = 고객 서명</span><span><i style="background:#FFEE66"></i>노랑 = 동의·날짜</span><span><i style="background:#9aa0a8"></i>회색 = 고객이 안 쓰는 부분</span><span>컬러로 인쇄하세요 · 계약서 도구와 같은 원본</span></div>
   </header><div class="bvpages" id="bvPages"></div>`;
   document.body.appendChild(v);
   const box=$('#bvPages');
@@ -3046,7 +3228,7 @@ async function blankPrint(){
       const cv=await renderMarked(B.pages[i],FAX_SCALE,true); urls.push(cv.toDataURL('image/jpeg',.92)); cv.width=cv.height=0;
     }
     await printUrls(urls);
-    toast('컬러로 인쇄하세요 — 노란 칸이 고객 서명·동의·날짜 자리입니다');
+    toast('컬러로 인쇄하세요 — 연두 테두리 칸에 서명, 노란 칸에 동의·날짜');
   }catch(e){ toast('인쇄 준비 중 오류 — 다시 눌러 주세요'); }
   bvBusy=false;
 }
@@ -3059,20 +3241,9 @@ function loadPdfLib(){
     document.head.appendChild(s);
   }));
 }
-async function blankPdfVector(B){                    /* 원본 쪽을 그대로 복사(글자·선 벡터) + 형광펜 레이어만 얹음 */
-  const {PDFDocument,rgb,BlendMode}=await loadPdfLib();
-  const src=await PDFDocument.load(await S.doc.getData());
-  const out=await PDFDocument.create();
-  const cp=await out.copyPages(src,B.pages.map(p=>p-1));
-  cp.forEach((page,i)=>{
-    out.addPage(page);
-    const H=page.getHeight(), L=markList(B.pages[i],true);
-    for(const m of L){ const [x0,y0,x1,y1]=m.r, [r,g,b,a]=m.c, h=(y1-y0)*(m.part||1);
-      page.drawRectangle({x:x0,y:H-y1,width:x1-x0,height:h,color:rgb(r/255,g/255,b/255),opacity:a,blendMode:BlendMode.Multiply}); }
-    for(const m of L){ if(!m.corner) continue; const k=3.2, x=m.r[2], y=m.r[1];
-      page.drawSvgPath(`M ${x-k} ${y} L ${x} ${y} L ${x} ${y+k} Z`,{x:0,y:H,color:rgb(230/255,0,18/255)}); }
-  });
-  out.setTitle(`${B.name} ${B.ver()}`); out.setCreator('kt-synergy.com contract.html v1.46');
+async function blankPdfVector(B){                    /* 원본 쪽을 그대로 복사(글자·선 벡터) + 회색 + 형광펜 레이어 */
+  const out=await pdfVector(B.pages,true,false);
+  out.setTitle(`${B.name} ${B.ver()}`); out.setCreator('kt-synergy.com contract.html v1.47');
   return new Blob([await out.save()],{type:'application/pdf'});
 }
 async function blankPdfRaster(B){                    /* 대체: 200dpi 이미지 PDF */
@@ -3093,7 +3264,7 @@ async function blankPdf(){
   let blob=null;
   try{ blob=await blankPdfVector(B); }
   catch(e){ try{ blob=await blankPdfRaster(B); }catch(e2){} }
-  if(blob){ saveBlob(blob,B.file()); toast(`${B.file()} 저장 — 노란 칸이 고객 서명·동의·날짜 자리입니다`); }
+  if(blob){ saveBlob(blob,B.file()); toast(`${B.file()} 저장 — 연두 테두리 칸에 서명, 노란 칸에 동의·날짜`); }
   else toast('PDF를 만들지 못했습니다 — 다시 눌러 주세요');
   bvBusy=false;
 }
