@@ -105,7 +105,7 @@ footer{margin-top:20px;color:var(--faint);font-size:12px;line-height:1.7}
 <div class="wrap">
   <header class="top">
     <div>
-      <h1>맛보기 <span class="ver" id="pageVer">v1.00</span></h1>
+      <h1>맛보기 <span class="ver" id="pageVer">v1.03</span></h1>
       <p class="sub">고객 맞춤 하이오더 화면 — 네이버 메뉴로 화면 이미지·기기 사진·제안 전단을 만듭니다</p>
     </div>
     <p class="how"><b>1</b> 매장을 찾으면 메뉴·사진이 화면에 들어갑니다 · <b>2</b> 로고를 올리고 칸을 고릅니다(사진이 적으면 로고·대표메뉴로 채움) · <b>3</b> 기기 틀·전단을 골라 받습니다. 계약 뒤 실제 세팅은 차림표로.</p>
@@ -188,7 +188,8 @@ footer{margin-top:20px;color:var(--faint);font-size:12px;line-height:1.7}
           <div class="row"><label class="fld" style="flex:1 1 120px">컨설턴트 이름<input class="in" id="fName" maxlength="12"></label><label class="fld" style="flex:1 1 150px">전화<input class="in" id="fTel" maxlength="16" inputmode="tel"></label></div>
           <div class="fld">가운데 사진
             <div class="seg" id="bgSeg">
-              <label><input type="radio" name="bg" value="cafe" checked> 카페 사진</label>
+              <label><input type="radio" name="bg" value="front" checked> 정면 기기 사진</label>
+              <label><input type="radio" name="bg" value="cafe"> 카페 사진</label>
               <label><input type="radio" name="bg" value="studio"> 흰 배경 기기</label>
             </div>
           </div>
@@ -233,10 +234,13 @@ footer{margin-top:20px;color:var(--faint);font-size:12px;line-height:1.7}
      v1.01: 네이버 메뉴판이 비어 있으면(배민 연동 포장·배달 주문 메뉴만 있는 매장) 밑그림과 같은 경로(/direct)로 메뉴를 다시 받는다.
             그런 매장의 메뉴 사진은 배민 사진 서버에 있어 사진 중계(kt-img 워커)로 받는다 — 설치 전이면 지금처럼 빈 칸(사진함·로고로 채움).
      v1.02: 네이버 메뉴판이 5개 미만이어도(대표 메뉴만 올린 매장 — 교촌 구미송정점: 1개) 같은 경로의 주문 메뉴나 카카오맵 메뉴로 채우고,
-            네이버에 올린 사진·대표 표시·가격은 이름이 같은 메뉴에 붙인다. 배민 메뉴 사진은 중계 서버 v1.45부터 /img가 받는다 — 옛 서버(400)일 때만 kt-img로. */
+            네이버에 올린 사진·대표 표시·가격은 이름이 같은 메뉴에 붙인다. 배민 메뉴 사진은 중계 서버 v1.45부터 /img가 받는다 — 옛 서버(400)일 때만 kt-img로.
+     v1.03: 정면 기기는 창가 테이블 위 기기 사진(hiorder_frame_front_room.webp — 화면 칸이 반듯한 네모)으로 바꾼다.
+            제안 전단 가운데 사진도 이 사진이 기본(로고는 기기 반대편 왼쪽) — 카페·흰 배경 기기도 그대로 고를 수 있다. 옛 정면 사진(hiorder_frame_front.webp)은 더 쓰지 않는다.
+            kt 로고는 사이트 ai 폴더의 KT CI(KT_CI_BR01·KT_CI_W01)로 그린다 — 전에는 파일 이름이 달라 ‘kt’ 글자로 그려졌다. */
   const API_BASE = 'https://kt.roi0925003.workers.dev';
   const PUBLIC_PASS = 'sk-bbwkqqcpjx4yty';   // 직원 공개용 토큰(밑그림·차림표와 같은 값) — 비밀번호가 아니다
-  const PAGE_VERSION = 'v1.02';
+  const PAGE_VERSION = 'v1.03';
   const IMG_BASE = 'https://kt-img.roi0925003.workers.dev';   // v1.01: 배민 메뉴 사진 중계(kt-img). v1.02: 중계 서버 v1.45부터는 /img가 배민 사진도 받아, 옛 서버일 때만 쓴다
   const FEW_MENUS = 5;   // v1.02: 네이버 메뉴판이 이보다 적으면 주문 메뉴·카카오맵 메뉴로 채워 본다
   const EXT_IMG_HOSTS = ['imagefarm.baemin.com'];
@@ -244,13 +248,13 @@ footer{margin-top:20px;color:var(--faint);font-size:12px;line-height:1.7}
   const AI = 'https://kt-synergy.com/ai/';
   /* 기기 틀 — 사용자 제공 사진의 투명 화면 네 꼭짓점(TL·TR·BR·BL). full = 화면 전체(사이드바까지 그림) · 아니면 사이드바가 사진에 박혀 있어 내용 칸만 */
   const FRAMES = {
-    front: { file: 'hiorder_frame_front.webp', name: '정면', w: 1296, h: 1126, full: true, ratio: 1167 / 697, quad: [[64, 78], [1235, 78], [1235, 779], [64, 779]] },
+    front: { file: 'hiorder_frame_front_room.webp', name: '정면', w: 2730, h: 1532, full: true, ratio: 1133 / 659, quad: [[1304, 438], [2441, 438], [2441, 1101], [1304, 1101]] },   // v1.03: 창가 테이블 위 기기 — 화면 칸 1306~2438 × 440~1098(반듯한 네모), 둘레 2px는 틀이 덮는다
     side: { file: 'hiorder_frame_side.webp', name: '측면', w: 2730, h: 1536, full: false, ratio: 912 / 665, quad: [[1508, 426], [2418, 423], [2425, 1089], [1502, 1094]] },
     circle: { file: 'hiorder_frame_circle.webp', name: '원형 거치대', w: 2346, h: 3049, full: false, ratio: 1282 / 998, quad: [[682, 466], [1968, 466], [1968, 1468], [686, 1468]] },
     cafe: { file: 'hiorder_frame_cafe.webp', name: '카페', w: 3839, h: 2159, full: true, ratio: 1.6, quad: [[782, 595], [1725, 600], [1770, 1228], [825, 1264]] },
   };
   /* KT CI — 흰 바탕엔 BR(01), 색 바탕엔 W(05) (kt-brand-assets 규칙). 없으면 글자로 */
-  const KT_LOGO = { dark: AI + encodeURIComponent('01_KT Wordmark (Standard)_01.png'), white: AI + encodeURIComponent('05_KT Wordmark (1 Color)_White.png') };
+  const KT_LOGO = { dark: AI + 'KT_CI_BR01.png', white: AI + 'KT_CI_W01.png' };   // v1.03: KT CI — 흰 바탕(전단 머리)은 검정·빨강(BR), 스킨 색 사이드바는 흰색(W)
   /* NEW UX 스킨 색 — 하이오더 매뉴얼 9371: RED/GRAY/BLACK/BLUE/GREEN(20260407 기준). 색 값은 비슷하게 그린 것 */
   const SKIN = {
     RED: { top: '#F5565E', bot: '#E41D26', btn: '#8E1219', sel: '#E41D26', name: '빨강' },
@@ -291,7 +295,7 @@ footer{margin-top:20px;color:var(--faint);font-size:12px;line-height:1.7}
     rep: { key: '', bmp: null, upload: null },
     kind: 'menu', color: 'RED', cat: '', empty: 'logo', photoFirst: true, one: 'rep', oneName: true,
     slots: [], overrides: new Map(),   // 메뉴 번호 → 올린 사진
-    tab: 'screen', fly: FLY_DEF(), mou: false, bg: 'cafe', logoSide: true, consult: { name: '', tel: '' },
+    tab: 'screen', fly: FLY_DEF(), mou: false, bg: 'front', logoSide: true, consult: { name: '', tel: '' },
     frames: new Map(), kt: {}, busy: false,
   };
 
@@ -672,7 +676,7 @@ footer{margin-top:20px;color:var(--faint);font-size:12px;line-height:1.7}
     ctx.font = FW(dark ? 800 : 500, h * 0.9);
     const tw = tail ? ctx.measureText(tail).width : 0;
     let mw, draw;
-    if (img) { mw = img.width * (h / img.height); draw = (x0) => ctx.drawImage(img, x0, y - h * 0.86, mw, h); }
+    if (img) { const ih = h * 0.96; mw = img.width * (ih / img.height); draw = (x0) => ctx.drawImage(img, x0, y - ih, mw, ih); }   // v1.03: CI는 여백 없이 잘린 그림 — 아랫단을 글자 밑줄(기준선)에 맞춘다
     else { ctx.font = FW(900, h * 1.05); mw = ctx.measureText('kt').width; draw = (x0) => { ctx.fillStyle = dark ? '#111' : '#fff'; ctx.font = FW(900, h * 1.05); ctx.fillText('kt', x0, y); }; }
     const gap = tail ? h * 0.28 : 0, total = mw + gap + tw;
     const x0 = align === 'center' ? x - total / 2 : align === 'right' ? x - total : x;
@@ -979,15 +983,15 @@ footer{margin-top:20px;color:var(--faint);font-size:12px;line-height:1.7}
     ctx.fillText(fitText(ctx, v.sub1, W - 200), sx, 470);
     ctx.fillText(fitText(ctx, v.sub2, W - 200), sx, 514);
     ctx.textAlign = 'left';
-    // 가운데 사진
+    // 가운데 사진 — v1.03: 기본은 정면 기기 사진(창가 테이블 · 기기가 오른쪽)
     const PY = 560, PH = 700;
-    const key = M.bg === 'studio' ? 'side' : 'cafe';
+    const key = M.bg === 'studio' ? 'side' : M.bg === 'cafe' ? 'cafe' : 'front';
     const fr = await frameCanvas(key, 0.5);
     ctx.save(); ctx.beginPath(); ctx.rect(0, PY, W, PH); ctx.clip();
     drawCover(ctx, fr.cv, 0, PY, W, PH);
     ctx.restore();
     if (M.logoSide && M.logo) {
-      const left = M.bg === 'studio';
+      const left = key !== 'cafe';   // 기기 반대편 — 정면·흰 배경 사진은 기기가 오른쪽이라 로고는 왼쪽
       const s = Math.min(430 / M.logo.cv.width, 230 / M.logo.cv.height), w = M.logo.cv.width * s, h = M.logo.cv.height * s;
       const x = left ? 90 : W - 90 - w, y = PY + PH * 0.52 - h / 2;
       ctx.save(); ctx.shadowColor = 'rgba(255,255,255,.85)'; ctx.shadowBlur = 18; ctx.drawImage(M.logo.cv, x, y, w, h); ctx.restore();
