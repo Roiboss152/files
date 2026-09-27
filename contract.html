@@ -8,14 +8,28 @@
 <title>하이오더 전자청약</title>
 <!--
   ============================================================
-  KT HIORDER 전자청약  ·  contract.html  v1.33
+  KT HIORDER 전자청약  ·  contract.html  v1.42
   ------------------------------------------------------------
   · 원본 가입신청서 PDF(14p)를 화면에 렌더 → 고객이 태블릿에서
     서명란마다 "각각" 직접 서명 + 동의함/않음 선택
   · 필수 서명·동의가 전부 완료되기 전에는 인쇄/PDF 버튼 잠금
   · 출력물은 원본 서식 그대로(안내 오버레이 미포함) + 서명·체크·
     날짜만 순흑색 평면화 → 종이 출력 후 애니팩스 발송용
-  · 서버 저장 없음. 모든 처리는 단말(브라우저) 내에서만 수행.
+  · v1.40 — 신분증·사업자등록증을 먼저 촬영 → 기기 안 글자 인식
+    (Tesseract.js 한국어, CDN에서 엔진만 내려받음)으로 칸 자동 기입
+    → 확인 창에서 고친 뒤 적용. 주민번호 뒷자리는 인식 위치에
+    검은 막대 → 확인·조정 후 가린 사진만 보관(원본은 버림).
+    출력 순서는 그대로(신청서 → 신분증 → 사업자등록증).
+    고객 사본(공유)은 신청서만, 저장 PDF(애니팩스용)는 첨부 포함.
+    🎤 음성 입력 — 계좌·생년월일·등록번호 칸은 제외.
+  · v1.41 — 연속 서명: 필수 서명(예금주 → 납부금액·광고할인 → 약관 →
+    신청인, 안심매입이면 +5)을 차례로 띄움. 칸마다 따로 서명(복사 없음),
+    창마다 해당 신청서 부분(입력값 포함)을 잘라 보여 줌. 빈 서명칸을
+    누르면 그 칸부터 이어지고, 다시 서명·선택 서명은 하나만.
+  · v1.42 — 체크리스트에 「법적 근거」(contract-law.html, 새 탭) 연결
+  · 서버 저장 없음. 사진·글자 인식은 단말(브라우저) 안에서만 수행.
+    단, 음성 입력을 쓰면 음성은 브라우저 음성인식 서버(안드로이드
+    크롬은 구글)를 거친다 — 화면에 늘 안내.
   ------------------------------------------------------------
   배포: kt-synergy.com 루트에 업로드.
   원본 PDF 경로가 다르면 아래 PDF_URL 만 수정.
@@ -43,6 +57,7 @@
   --topbar-h:60px;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
 html{font-size:16px}
 html{overscroll-behavior-y:none}
 body{font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif;background:var(--ink);color:#E8ECF4;overflow-x:hidden;overscroll-behavior-y:none}
@@ -154,6 +169,7 @@ input{font-family:inherit}
   align-items:center;box-shadow:0 6px 18px rgba(0,0,0,.4)}
 .stepChip b{color:var(--lime)}
 .stepChip.hide{display:none}
+@media (max-width:640px){.stepChip{bottom:calc(88px + env(safe-area-inset-bottom))}}   /* 휴대폰: 진행 배지에 가리지 않게 */
 
 /* ── 본인인증 촬영 ── */
 #camVeil{background:#fff}
@@ -172,6 +188,55 @@ input{font-family:inherit}
 .camshot{width:66px;height:66px;border-radius:50%;background:var(--kt);border:5px solid #fff;
   box-shadow:0 0 0 2.5px var(--kt),0 6px 18px rgba(0,0,0,.25);cursor:pointer}
 .camshot:active{transform:scale(.93)}
+.cambar #camPick{min-width:74px;justify-content:center}
+
+/* 흰 시트 안의 단추·안내문 (흐린 글자 보정) */
+.sigbox .btn.ghost{border-color:#dde2ea;color:#2a3342;background:#fff}
+.sigbox .attbtn{font-size:14px}
+.sigbox .attbtn:active{background:#f4f6fa}
+.sigbox .cap{font-size:12px;line-height:1.6;color:#667085}
+.sigbox .cap b{color:#1a2230}
+#rail>.cap{font-size:10.5px;color:var(--steel);line-height:1.5}
+
+/* ── 글자 인식 확인 창 ── */
+.ocrbox{max-width:540px}
+.ocrbody{padding:12px 16px 4px;max-height:calc(100vh - 150px);max-height:calc(100dvh - 150px);overflow-y:auto;overscroll-behavior:contain}
+.ocrimgw{text-align:center}
+.ocrimg{position:relative;display:inline-block;max-width:100%;vertical-align:top}
+.ocrimg canvas{display:block;max-width:100%;max-height:24vh;width:auto;height:auto;border-radius:10px;border:1px solid #e3e7ee}
+.ocrimg.id canvas{max-height:32vh}
+.ocrmask{position:absolute;background:#000;border:2px dashed #ff5a5a;border-radius:3px;touch-action:none;cursor:move;box-sizing:border-box}
+.ocrmask::before{content:'끌어서 조정';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:10px;font-weight:700;color:#ffb3b3;white-space:nowrap;pointer-events:none}
+.ocrmask i{position:absolute;right:-11px;bottom:-11px;width:22px;height:22px;border-radius:50%;background:#fff;border:2.5px solid var(--kt);cursor:nwse-resize;touch-action:none}
+.ocrstat{display:flex;align-items:center;justify-content:center;gap:8px;font-size:12.5px;font-weight:700;color:#3a4353;padding:10px 4px 4px;text-align:center;line-height:1.45}
+.ocrstat.warn{color:#c25e00}
+.ocrstat .spin{flex:none;width:15px;height:15px;border:2.5px solid #dfe5ee;border-top-color:var(--kt);border-radius:50%;animation:spin .8s linear infinite}
+.ocrstat:not(.busy) .spin{display:none}
+.orow{display:grid;grid-template-columns:22px 96px 1fr;align-items:center;gap:4px 9px;padding:7px 0;border-bottom:1px solid #eef1f5}
+.orow:last-child{border-bottom:0}
+.orow input[type=checkbox]{width:18px;height:18px;accent-color:var(--kt);margin:0}
+.orow .ol{font-size:12px;font-weight:700;color:#3a4353;line-height:1.3;word-break:keep-all}
+.orow .ov{width:100%;min-width:0;border:1.5px solid #dde2ea;border-radius:8px;padding:8px 9px;font-size:14.5px;color:#101418;background:#fff;font-family:inherit;outline:none}
+.orow .ov:focus{border-color:var(--accent)}
+.orow textarea.ov{resize:none;line-height:1.4}
+.orow .on{grid-column:3;font-size:11px;color:#8a93a6;line-height:1.35}
+.orow.warn .ov{border-color:#e39a2b;background:#fff8ec}
+.orow.warn .on{color:#c25e00;font-weight:700}
+.orow.off .ov{opacity:.45}
+
+/* ── 음성 입력 ── */
+.fmic{position:absolute;z-index:7;width:32px;height:32px;margin-top:-16px;border-radius:50%;background:#fff;border:1.5px solid var(--kt);color:var(--kt);
+  display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(0,0,0,.28);touch-action:manipulation}
+.fmic svg{width:16px;height:16px}
+.fmic.on{background:var(--kt);color:#fff;animation:pulse .9s infinite}
+#vbub{position:fixed;left:50%;top:calc(var(--topbar-h) + 10px);transform:translateX(-50%);z-index:115;display:none;align-items:center;gap:11px;
+  background:#fff;color:#101418;border-radius:14px;padding:9px 10px 9px 14px;box-shadow:0 12px 34px rgba(0,0,0,.45);width:max-content;max-width:min(92vw,560px)}
+#vbub.on{display:flex}
+#vbub .vdot{flex:none;width:10px;height:10px;border-radius:50%;background:var(--kt);animation:blink 1s infinite}
+#vbub .vt{min-width:0}
+#vbub b{display:block;font-size:14.5px;font-weight:800;letter-spacing:-.01em;word-break:keep-all}
+#vbub small{display:block;font-size:10.5px;color:#7c8698;margin-top:2px;line-height:1.4;word-break:keep-all}
+#vbub button{flex:none;font-size:12px;font-weight:700;color:#5a6474;border:1px solid #dde2ea;border-radius:9px;padding:7px 11px}
 
 /* 동의 행 */
 .crow{position:absolute;border-radius:6px;transition:.2s}
@@ -259,6 +324,12 @@ audio{width:100%;margin-top:9px;height:34px}
 .sigbox footer .btn.ghost{border-color:#dde2ea;color:#5a6474}
 .sigbox footer .grow{flex:1;justify-content:center}
 .sigbox footer .btn.pri[disabled]{opacity:.35}
+.sigstep{flex:none;font-style:normal;font-size:11px;font-weight:800;color:#fff;background:var(--kt);border-radius:20px;padding:2px 9px;letter-spacing:.02em}
+.sigctx{background:#f3f5f8;border-bottom:1px solid #edf0f5;padding:9px 12px 7px;text-align:center}
+.sigctx canvas{display:block;margin:0 auto;max-width:100%;width:auto;height:auto;border-radius:6px;background:#fff;box-shadow:0 1px 5px rgba(0,0,0,.14)}
+.sigctx small{display:block;margin-top:6px;font-size:11px;color:#6b7486;line-height:1.4}
+@media (max-width:560px){.sigbox footer{gap:6px;padding:11px 10px}.sigbox footer .btn{padding:11px 10px;font-size:13px}
+  .sigbox header{flex-wrap:wrap;row-gap:4px}.sigbox header .dotr{margin-left:0}.sigbox header #sigWho{flex-basis:100%;margin-left:0;text-align:left}.sigbox header #sigWho br{display:none}}
 
 /* 동의 선택 시트 */
 .sheet{width:min(94vw,420px);background:#fff;border-radius:20px;color:#101418;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.6)}
@@ -325,7 +396,7 @@ audio{width:100%;margin-top:9px;height:34px}
 <body>
 
 <header class="topbar">
-  <div class="brand"><b>하이오더 전자청약</b><span class="ver">v1.33</span></div>
+  <div class="brand"><b>하이오더 전자청약</b><span class="ver">v1.42</span></div>
   <div class="seg" id="modeSeg">
     <button data-mode="hi" class="on">하이오더</button>
     <button data-mode="full">+ 안심매입</button>
@@ -351,6 +422,7 @@ audio{width:100%;margin-top:9px;height:34px}
   <aside id="rail" aria-label="진행 체크리스트">
     <div class="rail-h">서명 · <span id="cntSig">0/0</span></div>
     <div id="railSig"></div>
+    <button class="btn pri" id="railSeq" style="width:100%;justify-content:center;margin-top:8px" hidden>✍ 서명 이어서 하기</button>
     <div class="cap" style="margin-top:6px">위임장·명의변경 등 <b>선택 서명</b>과 빈칸·○ 표시는 문서에서 직접 탭해 입력</div>
     <div class="rail-h">동의 확인 · <span id="cntCon">0/5</span></div>
     <div id="railCon"></div>
@@ -361,12 +433,12 @@ audio{width:100%;margin-top:9px;height:34px}
         <button class="btn ghost" id="railAttId">🪪 신분증 촬영</button>
         <button class="btn ghost" id="railAttBiz">📄 등록증 촬영</button>
       </div>
-      <div class="cap">p.7 약관 서명 완료 시 자동 안내됩니다. 촬영본은 PDF 마지막 장에 첨부.</div>
+      <div class="cap">찍으면 글자를 읽어 신청서 칸을 채웁니다(기기 안에서 처리). 주민번호 뒷자리는 자동으로 가려지고, 촬영본은 PDF 마지막 장에 첨부.</div>
     </div>
     <div class="rail-h">판매자 확인</div>
     <div class="rail-card">
       <label><input type="checkbox" id="sellerOk">
-        요금·약정·위약금·해지 조건 등 중요사항을 <b>빠짐없이 설명</b>하였고, 위 서명은 <b>신청 고객 본인이 직접</b> 하였음을 확인합니다.</label>
+        <span>요금·약정·위약금·해지 조건 등 중요사항을 <b>빠짐없이 설명</b>하였고, 위 서명은 <b>신청 고객 본인이 직접</b> 하였음을 확인합니다.</span></label>
     </div>
     <div class="rail-h">동의 녹취 <span style="font-weight:600;color:#5b6478">(선택)</span></div>
     <div class="rail-card">
@@ -379,8 +451,10 @@ audio{width:100%;margin-top:9px;height:34px}
       </div>
       <audio id="recPlay" controls style="display:none"></audio>
     </div>
+    <a class="btn ghost" id="lawLink" href="contract-law.html" target="_blank" rel="noopener"
+       style="width:100%;justify-content:center;margin-top:12px;text-decoration:none;font-size:12.5px">⚖ 법적 근거 — 서명·인감·개인정보 Q&amp;A</a>
     <div class="rail-card" style="margin-top:10px">
-      <div class="cap" style="margin-top:0">완료 후: <b style="color:#DFE5F0">인쇄 → 고객·판매자 최종 확인 → 애니팩스 발송</b>. 신분증은 뒷자리 마스킹 후 별도 첨부. 새로고침 시 입력 내용이 사라지니 완료 전 이탈에 주의하세요.</div>
+      <div class="cap" style="margin-top:0">완료 후: <b style="color:#DFE5F0">인쇄 → 고객·판매자 최종 확인 → 애니팩스 발송</b>. 고객 사본(공유)에는 신분증·사업자등록증이 빠지고, 기기에 저장된 PDF는 <b style="color:#DFE5F0">발송 뒤 삭제</b>하세요. 🎤 음성 입력은 브라우저 음성인식 서버를 거칩니다(계좌·생년월일 칸 제외). 새로고침 시 입력 내용이 사라지니 완료 전 이탈에 주의하세요.</div>
     </div>
   </aside>
 </div>
@@ -391,9 +465,10 @@ audio{width:100%;margin-top:9px;height:34px}
 <div class="veil" id="sigVeil">
   <div class="sigbox" role="dialog" aria-modal="true">
     <header>
-      <span class="dotr"></span><b id="sigTitle">서명</b>
-      <span>신청 고객 <b>본인이 직접</b><br>손가락 또는 펜으로 서명</span>
+      <span class="dotr"></span><i class="sigstep" id="sigStep" hidden></i><b id="sigTitle">서명</b>
+      <span id="sigWho">신청 고객 <b>본인이 직접</b><br>손가락 또는 펜으로 서명</span>
     </header>
+    <div class="sigctx" id="sigCtxW" hidden><canvas id="sigCtx"></canvas><small id="sigSub"></small></div>
     <div class="padwrap">
       <canvas id="pad"></canvas>
       <div class="padline"></div>
@@ -401,6 +476,7 @@ audio{width:100%;margin-top:9px;height:34px}
     </div>
     <footer>
       <button class="btn ghost" id="sigClear">지우기</button>
+      <button class="btn ghost" id="sigSkip" hidden>건너뛰기</button>
       <button class="btn ghost" id="sigCancel">취소</button>
       <button class="btn pri grow" id="sigOk" disabled>서명 완료</button>
     </footer>
@@ -412,19 +488,20 @@ audio{width:100%;margin-top:9px;height:34px}
 <div class="veil" id="attVeil">
   <div class="sigbox" role="dialog" aria-modal="true" style="max-width:440px">
     <header>
-      <span class="dotr"></span><b>본인인증 사진 촬영</b>
-      <span>서명 완료! 신분증·사업자등록증을<br>촬영해 신청서 PDF에 함께 담습니다</span>
+      <span class="dotr"></span><b id="attHead">서류 촬영으로 시작</b>
+      <span id="attSub">찍으면 글자를 읽어<br>신청서 칸을 채웁니다</span>
     </header>
     <div style="padding:16px 18px;display:flex;flex-direction:column;gap:10px">
       <button class="btn ghost attbtn" id="attIdBtn" style="justify-content:space-between;padding:13px 15px">
-        <span>🪪 신분증 촬영 <small style="color:#8b95a8;font-weight:600">· 뒷자리 가리고</small></span><b id="attIdSt" style="color:var(--kt)">미촬영</b>
+        <span>① 🪪 신분증 촬영 <small style="color:#8b95a8;font-weight:600">· 뒷자리 자동 가림</small></span><b id="attIdSt" style="color:var(--kt)">미촬영</b>
       </button>
       <button class="btn ghost attbtn" id="attBizBtn" style="justify-content:space-between;padding:13px 15px">
-        <span>📄 사업자등록증 촬영</span><b id="attBizSt" style="color:var(--kt)">미촬영</b>
+        <span>② 📄 사업자등록증 촬영</span><b id="attBizSt" style="color:var(--kt)">미촬영</b>
       </button>
-      <div class="cap" style="margin:0">촬영본은 서버 전송 없이 이 기기에서만 처리되며, 신청서 PDF 마지막 장에 자동 첨부됩니다. 신분증은 <b>실물 크기</b>로 출력돼 애니팩스 검증에 그대로 쓸 수 있어요.</div>
+      <div class="cap" style="margin:0">사진과 글자 인식은 <b>서버로 보내지 않고 이 기기 안에서만</b> 처리합니다. 읽은 내용은 확인 창에서 고친 뒤 넣고, 사진은 신청서 PDF 마지막 장에 붙습니다. 신분증은 <b>실물 크기</b>로 나와 애니팩스 검증에 그대로 쓸 수 있어요.</div>
+      <div class="cap" id="ocrState" style="margin:0"></div>
     </div>
-    <footer><button class="btn ghost grow" id="attLater">나중에 (건너뛰기)</button></footer>
+    <footer><button class="btn ghost grow" id="attLater">직접 입력하기</button></footer>
   </div>
 </div>
 <div class="veil" id="camVeil">
@@ -435,11 +512,32 @@ audio{width:100%;margin-top:9px;height:34px}
     <div class="cambar">
       <button class="btn ghost" id="camCancel">취소</button>
       <button class="camshot" id="camShot" aria-label="촬영"></button>
-      <span style="width:74px"></span>
+      <button class="btn ghost" id="camPick">앨범</button>
     </div>
   </div>
 </div>
 <input type="file" id="camFile" accept="image/*" capture="environment" style="display:none">
+<input type="file" id="camAlbum" accept="image/*" style="display:none">
+<!-- 글자 인식 확인 창 (바깥 탭으로 닫히지 않음) -->
+<div class="veil" id="ocrVeil" data-lock="1">
+  <div class="sigbox ocrbox" role="dialog" aria-modal="true">
+    <header>
+      <span class="dotr"></span><b id="ocrTitle">읽은 내용 확인</b>
+      <span id="ocrSub"></span>
+    </header>
+    <div class="ocrbody">
+      <div class="ocrimgw"><div class="ocrimg" id="ocrImg"><canvas id="ocrPrev"></canvas><div class="ocrmask" id="ocrMask" hidden><i></i></div></div></div>
+      <div class="ocrstat busy" id="ocrStat"><span class="spin"></span><span id="ocrMsg">글자 읽는 중…</span></div>
+      <div id="ocrRows"></div>
+    </div>
+    <footer>
+      <button class="btn ghost" id="ocrRetake">다시 촬영</button>
+      <button class="btn pri grow" id="ocrApply" disabled>신청서에 넣기</button>
+    </footer>
+  </div>
+</div>
+<!-- 음성 입력 상태 -->
+<div id="vbub" aria-live="polite"><span class="vdot"></span><div class="vt"><b id="vtxt">말씀하세요…</b><small id="vnote"></small></div><button type="button" id="vstop">그만</button></div>
 <div class="veil" id="sendVeil">
   <div class="sigbox" role="dialog" aria-modal="true" style="max-width:440px">
     <header>
@@ -456,12 +554,13 @@ audio{width:100%;margin-top:9px;height:34px}
         <a class="btn ghost" id="sendSms" style="flex:1;justify-content:center;text-decoration:none">문자 앱 열기</a>
         <a class="btn ghost" id="sendMailto" style="flex:1;justify-content:center;text-decoration:none">메일 앱 열기</a>
       </div>
-      <div class="cap" style="margin:0">문자·메일 앱에는 안내문이 미리 채워집니다. 첨부가 필요하면 <b>공유하기</b>를 사용하세요. PDF는 기기에도 저장되었습니다.</div>
+      <div class="cap" style="margin:0" id="sendNote">문자·메일 앱에는 안내문이 미리 채워집니다. 첨부가 필요하면 <b>공유하기</b>를 사용하세요.</div>
+      <div class="cap" style="margin:0;color:#b45f06;font-weight:700" id="sendDel">기기에 저장된 PDF(신분증 포함)는 애니팩스 발송 뒤 삭제하세요.</div>
     </div>
     <footer><button class="btn ghost grow" id="sendClose">닫기</button></footer>
   </div>
 </div>
-<div class="stepChip hide" id="stepChip"><span>입력 가이드 <b id="stepNo">1</b>/<span id="stepTot">0</span></span><button class="btn ghost" id="stepSkip" style="padding:3px 9px;font-size:10.5px">건너뛰기</button></div>
+<div class="stepChip hide" id="stepChip"><span>입력 가이드 <b id="stepNo">1</b>/<span id="stepTot">0</span></span><button class="btn ghost" id="stepMic" style="padding:3px 9px;font-size:10.5px" hidden>🎤 말로</button><button class="btn ghost" id="stepSeq" style="padding:3px 9px;font-size:10.5px;color:#fff;border-color:var(--kt);background:var(--kt)" hidden>✍ 이어서 서명</button><button class="btn ghost" id="stepSkip" style="padding:3px 9px;font-size:10.5px">건너뛰기</button></div>
 <div id="toast"></div>
 
 <div id="boot">
@@ -482,17 +581,17 @@ const FAX_SCALE = 200/72;                  // 200dpi 출력 합성
 
 /* 서명 존 — box: 원본 빨간 박스 / draw: 실제 획이 그려지는 영역 (pt) */
 const SIG = [
- {id:'s_p1_acct', pg:1, box:[438.1,254.8,567.4,272.1], draw:[441,256,564,271],   lab:'예금주(카드주) 성명·서명', sub:'요금 자동이체·결제 동의', grp:'hi', dg:null, req:true},
- {id:'s_p1_apply',pg:1, box:[389.9,790.0,571.7,806.9], draw:[430,791.2,566,805.8],lab:'신청인 서명',            sub:'하이오더 가입 신청 확인', grp:'hi', dg:'d1', req:true},
- {id:'s_p7_terms',pg:7, box:[418.3,781.4,564.8,798.7], draw:[458,782.6,560,797.6],lab:'이용약관 동의 서명',      sub:'하이오더 서비스 이용약관', grp:'hi', dg:null, req:true},
- {id:'s_p11_gd',  pg:11,box:[399.2,180.0,545.0,287.6], draw:[437,186,540,282],   lab:'주요안내 확인 서명',      sub:'안심매입 약관·주요내용 설명', grp:'safe', dg:null, req:true},
- {id:'s_p11_join',pg:11,box:[259.9,788.1,547.2,809.0], draw:[336,789.6,493,807.4],lab:'안심매입 계약 서명',      sub:'가입 계약 체결 확인', grp:'safe', dg:'d11', req:true},
- {id:'s_p12_a',   pg:12,box:[336.2,267.6,533.9,286.7], draw:[408,268.8,502,285.4],lab:'수집·이용 동의 서명',     sub:'안심매입 개인정보 (필수)', grp:'safe', dg:'d12a', req:true},
- {id:'s_p12_b',   pg:12,box:[337.0,414.0,535.3,433.1], draw:[408,415.2,502,431.8],lab:'처리위탁 동의 서명',      sub:'안심매입 개인정보 (필수)', grp:'safe', dg:'d12b', req:true},
- {id:'s_p12_c',   pg:12,box:[337.0,699.1,535.3,717.8], draw:[408,700.3,502,716.5],lab:'제3자 제공 동의 서명',    sub:'안심매입 개인정보 (필수)', grp:'safe', dg:'d12c', req:true},
+ {id:'s_p1_acct', pg:1, box:[438.1,254.8,567.4,272.1], draw:[441,256,564,271],   lab:'예금주(카드주) 성명·서명', sub:'요금 자동이체·결제 동의', grp:'hi', dg:null, req:true, ctx:[28,238,572,322]},
+ {id:'s_p1_apply',pg:1, box:[389.9,790.0,571.7,806.9], draw:[430,791.2,566,805.8],lab:'신청인 서명',            sub:'하이오더 가입 신청 확인', grp:'hi', dg:'d1', req:true, ctx:[28,758,574,812]},
+ {id:'s_p7_terms',pg:7, box:[418.3,781.4,564.8,798.7], draw:[458,782.6,560,797.6],lab:'이용약관 동의 서명',      sub:'하이오더 서비스 이용약관', grp:'hi', dg:null, req:true, ctx:[22,762,574,806]},
+ {id:'s_p11_gd',  pg:11,box:[399.2,180.0,545.0,287.6], draw:[437,186,540,282],   lab:'주요안내 확인 서명',      sub:'안심매입 약관·주요내용 설명', grp:'safe', dg:null, req:true, ctx:[45,160,548,292]},
+ {id:'s_p11_join',pg:11,box:[259.9,788.1,547.2,809.0], draw:[336,789.6,493,807.4],lab:'안심매입 계약 서명',      sub:'가입 계약 체결 확인', grp:'safe', dg:'d11', req:true, ctx:[45,766,552,812]},
+ {id:'s_p12_a',   pg:12,box:[336.2,267.6,533.9,286.7], draw:[408,268.8,502,285.4],lab:'수집·이용 동의 서명',     sub:'안심매입 개인정보 (필수)', grp:'safe', dg:'d12a', req:true, ctx:[45,245,540,291]},
+ {id:'s_p12_b',   pg:12,box:[337.0,414.0,535.3,433.1], draw:[408,415.2,502,431.8],lab:'처리위탁 동의 서명',      sub:'안심매입 개인정보 (필수)', grp:'safe', dg:'d12b', req:true, ctx:[45,395,540,437]},
+ {id:'s_p12_c',   pg:12,box:[337.0,699.1,535.3,717.8], draw:[408,700.3,502,716.5],lab:'제3자 제공 동의 서명',    sub:'안심매입 개인정보 (필수)', grp:'safe', dg:'d12c', req:true, ctx:[45,670,540,722]},
  {id:'s_p1_dg', pg:1, box:[413.6,172.1,567.4,189.4], draw:[452,173.5,563,188],   lab:'위임하는 고객 서명',    sub:'위임장 · 해당 시', grp:'hi', dg:null, req:false},
  {id:'s_p1_dr', pg:1, box:[413.6,191.5,567.4,209.2], draw:[452,193,563,207.7],  lab:'위임받는 고객 서명',    sub:'위임장 · 해당 시', grp:'hi', dg:null, req:false},
- {id:'s_p1_ad', pg:1, box:[440.3,732.2,569.2,749.5], draw:[464,733.6,566,748],  lab:'광고할인 성명·서명',    sub:'광고 할인 신청 확인', grp:'hi', dg:null, req:true},
+ {id:'s_p1_ad', pg:1, box:[440.3,732.2,569.2,749.5], draw:[464,733.6,566,748],  lab:'납부금액·광고할인 서명', sub:'단말·서비스 요금 납부와 광고 할인 확인', grp:'hi', dg:null, req:true, ctx:[28,650,572,756]},
  {id:'s_p2_oa', pg:2, box:[418.0,211.0,571.7,228.2], draw:[455,212.4,568,226.8],lab:'명의 주는 고객 서명',   sub:'명의변경 시', grp:'hi', dg:null, req:false},
  {id:'s_p2_ob', pg:2, box:[418.0,257.8,571.3,275.0], draw:[455,259.2,568,273.6],lab:'명의 받는 고객 서명',   sub:'명의변경 시', grp:'hi', dg:null, req:false},
 ];
@@ -709,13 +808,13 @@ const STEPS=[
  {f:'f_menu_cnt',lab:'메뉴판 신청 대수'},
  {f:'f_pay_mon',lab:'단말 월 납부액'},
  {f:'f_svc_mon',lab:'서비스 월 납부액'},
- {sig:'s_p1_acct',lab:'예금주 성명·서명'},
- {sig:'s_p1_ad',lab:'광고할인 성명·서명'},
  {con:'c1',lab:'개인정보 수집·이용 동의'},
  {con:'c2',lab:'마케팅 활용 (선택)'},
  {con:'c3',lab:'혜택 제공 (선택)'},
  {con:'c4',lab:'이용·제3자 제공 동의'},
  {con:'c5',lab:'신용정보 조회 동의'},
+ {sig:'s_p1_acct',lab:'예금주 성명·서명'},          /* v1.41: 서명은 마지막에 몰아서 — 연속 서명 */
+ {sig:'s_p1_ad',lab:'납부금액·광고할인 서명'},
  {sig:'s_p7_terms',lab:'이용약관 동의 서명'},
  {sig:'s_p1_apply',lab:'신청인 최종 서명'},
 ];
@@ -733,7 +832,10 @@ const S = {
   texts:[],               // {tid,pg,x,y,txt,size}
   bw:true,                // 흑백 출력(전체) / 해제 시 참조 스타일 부분 회색
   step:0,                 // 입력 가이드 인덱스
-  att:{},                 // 본인인증 사진 {id, biz} → canvas
+  att:{},                 // 본인인증 사진 {id, biz} → canvas (신분증은 뒷자리 가린 것만)
+  ocr:{},                 // 읽은 값 {id:{name,birth6,sex}, biz:{...}} — 뒷자리 숫자는 보관하지 않음
+  pend:null, ocrSeq:0,    // 확인 창에 떠 있는 촬영본(확정 전)
+  attMode:'start',
   lastFld:null,
   textMode:false, selText:null, dirty:false, tseq:0,
 };
@@ -771,6 +873,7 @@ async function load(doc){
   if(doc.numPages!==14) toast(`페이지 수가 ${doc.numPages}p입니다. 원본(14p)이 아니면 서명 위치가 어긋날 수 있어요.`);
   $('#boot').style.display='none';
   buildStage(); buildRail(); refresh(); updateAttUI();
+  if(!S.att.id&&!S.att.biz) setTimeout(()=>openAtt('start'),350);   // v1.40: 서류 촬영부터
 }
 
 /* ============================================================
@@ -833,7 +936,7 @@ function drawOverlay(pg){
     el.className='slot'+(S.sig[z.id]?' done':'')+(z.req?'':' opt'); el.id='slot_'+z.id;
     el.style.cssText=P(x0,y0,x1-x0,y1-y0);
     el.innerHTML=S.sig[z.id]? sigSVG(z)+`<span class="redo">다시 서명</span>` : `<span class="cue">${z.req?'탭하여 서명':'선택 서명'}</span>`;
-    el.onclick=()=>openSig(z);
+    el.onclick=()=>slotTap(z);
     ov.appendChild(el);
   }
   /* 입력 필드 */
@@ -945,7 +1048,7 @@ function stepDone(st){
 }
 function stepMeta(st){
   if(st.f){const fd=FIELDS.find(x=>x.id===st.f); return fd?{pg:fd.pg,el:'fld_'+st.f,r:fd.r,verb:'여기에 입력'}:null;}
-  if(st.sig){const z=SIG.find(x=>x.id===st.sig); return z?{pg:z.pg,el:'slot_'+st.sig,r:z.draw,verb:'여기에 서명'}:null;}
+  if(st.sig){const z=SIG.find(x=>x.id===st.sig), n=seqLeft().length; return z?{pg:z.pg,el:'slot_'+st.sig,r:z.draw,verb:n>1?`여기부터 서명 ${n}곳`:'여기에 서명'}:null;}
   if(st.con){const c=CON.find(x=>x.id===st.con); return c?{pg:c.pg,el:'crow_'+st.con,r:c.hot,verb:'동의 선택'}:null;}
   return null;
 }
@@ -966,6 +1069,7 @@ function renderStepUI(){          /* 순수 렌더 — 상태 변경 없음 */
   if(i<0){ chip.classList.add('hide'); return; }
   const st=STEPS[i], m=stepMeta(st); if(!m){chip.classList.add('hide');return;}
   chip.classList.remove('hide');
+  $('#stepMic').hidden=!(SR&&st.f); $('#stepSeq').hidden=!st.sig;          /* 칸이면 🎤, 서명이면 「이어서 서명」 */
   $('#stepNo').textContent=i+1; $('#stepTot').textContent=STEPS.length;
   const tg=$('#'+m.el); if(!tg) return;   // 대상 페이지 미렌더 시 해당 drawOverlay가 재호출
   tg.classList.add('stepGlow');
@@ -1037,6 +1141,17 @@ function openField(fd){
   });
   ov.appendChild(inp); fitOverlayFonts(fd.pg);
   S.lastFld=fd;
+  if(voiceOk(fd)){                      /* 🎤 — 입력칸 오른쪽(오른쪽 끝이면 왼쪽) */
+    const mic=document.createElement('button'); mic.type='button'; mic.className='fmic'; mic.tabIndex=-1;
+    mic.setAttribute('aria-label','음성으로 입력'); mic.innerHTML=MIC_SVG;
+    const right=x0+Math.max(x1-x0,52);
+    mic.style.left= right>PW-30 ? `calc(${x0/PW*100}% - 38px)` : `calc(${right/PW*100}% + 6px)`;
+    mic.style.top=`${((y0+y1)/2)/PH*100}%`;
+    mic.addEventListener('pointerdown',e=>e.preventDefault());   // 입력칸 포커스 유지
+    mic.addEventListener('mousedown',e=>e.preventDefault());
+    mic.onclick=e=>{ e.stopPropagation(); startVoice(inp,fd,mic); };
+    ov.appendChild(mic); inp._mic=mic;
+  }
   requestAnimationFrame(()=>inp.focus());
   let tabTo=null;
   inp.addEventListener('keydown',e=>{
@@ -1045,6 +1160,8 @@ function openField(fd){
     if(e.key==='Tab'){ e.preventDefault(); tabTo=adjField(fd, e.shiftKey?-1:1); inp.blur(); }
   });
   inp.addEventListener('blur',()=>{
+    if(voiceInp===inp) stopVoice();
+    inp._mic?.remove();
     const v=inp.value.trim(); inp.remove();
     if(v) S.fld[fd.id]=v; else delete S.fld[fd.id];
     S.dirty=true; updateFld(fd);
@@ -1052,6 +1169,7 @@ function openField(fd){
     else if(v) stepAdvance('f',fd.id);
     else renderStepUI();
   },{once:true});
+  return inp;
 }
 function fitOverlayFonts(pg){
   const holder=$('#pg'+pg); if(!holder) return;
@@ -1067,15 +1185,90 @@ addEventListener('resize',()=>MODE_PAGES[S.mode].forEach(fitOverlayFonts));
 const pad=$('#pad'), pctx=pad.getContext('2d');
 let curZone=null, curStrokes=[], drawing=false, curPts=null;
 
+/* ── 연속 서명 (v1.41) — 필수 서명을 차례로 띄워 서명칸을 찾아다니지 않고 서명만 이어서 한다.
+   서명은 칸마다 따로 받는다(복사하지 않음). 창마다 그 서명이 들어갈 신청서 부분을 보여 준다. ── */
+const SIG_SEQ=['s_p1_acct','s_p1_ad','s_p7_terms','s_p1_apply','s_p11_gd','s_p11_join','s_p12_a','s_p12_b','s_p12_c'];
+function seqAll(){ const act=new Set(reqSig().map(z=>z.id)); return SIG_SEQ.filter(id=>act.has(id)); }
+function seqLeft(){ return seqAll().filter(id=>!S.sig[id]); }
+function startSeq(firstId){
+  const left=seqLeft(); if(!left.length){ toast('필수 서명이 모두 끝났습니다'); return; }
+  document.querySelector('.finp')?.blur(); $('#rail').classList.remove('open');
+  const list= firstId&&left.includes(firstId) ? [firstId,...left.filter(x=>x!==firstId)] : left;
+  S.seq={list,i:0,done:0,terms:false};
+  openSig(SIG.find(z=>z.id===list[0]));
+}
+function seqNext(){
+  const q=S.seq; if(!q) return;
+  do{ q.i++; }while(q.i<q.list.length&&S.sig[q.list[q.i]]);   /* 그사이 끝난 칸은 건너뜀 */
+  if(q.i>=q.list.length){ endSeq(true); return; }
+  openSig(SIG.find(z=>z.id===q.list[q.i]));
+}
+function endSeq(finished){
+  const q=S.seq; S.seq=null;
+  $('#sigVeil').classList.remove('on'); delete $('#sigVeil').dataset.lock;
+  refresh();
+  if(!q) return;
+  if(!finished){ renderStepUI(); if(q.done) toast(`서명 ${q.done}곳 저장 — 나머지는 「서명 이어서 하기」로`); }
+  else{
+    const n=nextIncomplete(0);
+    const msg=q.done?`서명 ${q.done}곳 완료`:'건너뛴 서명은 「서명 이어서 하기」로 다시 할 수 있어요';
+    if(n<0){ S.stepFin=true; renderStepUI(); toast(q.done?msg+' — 판매자 확인 체크 후 출력하세요':msg); $('#rail').classList.add('open'); }
+    else{ toast(msg); gotoStep(n); }
+  }
+  if(q.terms&&!(S.att.id&&S.att.biz)) setTimeout(()=>openAtt('remind'),650);
+}
+function slotTap(z){                                 /* 빈 필수 칸 → 그 칸부터 연속 · 다시 서명·선택 서명·마지막 한 칸 → 하나만 */
+  if(!S.sig[z.id]&&seqAll().includes(z.id)&&seqLeft().length>1) startSeq(z.id);
+  else openSig(z);
+}
+function sigWho(z){
+  if(z.id==='s_p1_acct') return '예금주(카드주) <b>본인이 직접</b> <br>신청인과 다르면 예금주가 서명';
+  if(!z.req) return '해당 고객 <b>본인이 직접</b> <br>손가락 또는 펜으로 서명';
+  return '신청 고객 <b>본인이 직접</b> <br>손가락 또는 펜으로 서명';
+}
+async function pageCanvas(pg){
+  if(!S.rendered[pg]) await renderPage(pg);
+  for(let i=0;i<60&&!S.canvases[pg];i++) await new Promise(r=>setTimeout(r,50));
+  return S.canvases[pg];
+}
+async function drawSigCtx(z){                        /* 서명할 자리 둘레의 신청서(입력값 포함) + 빨간 테두리 */
+  const w=$('#sigCtxW'), cv=$('#sigCtx'), r=z.ctx;
+  $('#sigSub').textContent=z.sub||'';
+  if(!r){ w.hidden=true; return; }
+  w.hidden=false;
+  const src=await pageCanvas(z.pg);
+  if(curZone!==z) return;
+  if(!src){ cv.width=cv.height=0; return; }
+  const k=src.width/PW, [x0,y0,x1,y1]=r;
+  cv.width=Math.round((x1-x0)*k); cv.height=Math.round((y1-y0)*k);
+  const c=cv.getContext('2d');
+  c.drawImage(src,x0*k,y0*k,(x1-x0)*k,(y1-y0)*k,0,0,cv.width,cv.height);
+  c.save(); c.translate(-x0*k,-y0*k); paintOverlay(c,z.pg,k); c.restore();
+  const b=z.box; c.strokeStyle='#E60012'; c.lineWidth=Math.max(2,k*1.4);
+  c.strokeRect((b[0]-x0-2)*k,(b[1]-y0-2)*k,(b[2]-b[0]+4)*k,(b[3]-b[1]+4)*k);
+}
 function openSig(z){
   curZone=z; curStrokes=[]; drawing=false;
+  const q=S.seq;
   $('#sigTitle').textContent=z.lab;
+  $('#sigStep').hidden=!q; if(q) $('#sigStep').textContent=`${q.i+1}/${q.list.length}`;
+  $('#sigWho').innerHTML=sigWho(z);
+  $('#sigSkip').hidden=!q;
+  $('#sigCancel').textContent=q?'그만':'취소';
+  const more=q&&q.list.slice(q.i+1).some(id=>!S.sig[id]);
+  $('#sigOk').textContent=more?'서명 완료 · 다음':'서명 완료';
+  if(q) $('#sigVeil').dataset.lock='1'; else delete $('#sigVeil').dataset.lock;   /* 연속 중엔 바깥 탭으로 닫히지 않게 */
+  const cw=Math.min(innerWidth*.96,760)-24, capH=Math.round(innerHeight*.26);
+  const ctxH=z.ctx?Math.min(capH, cw*(z.ctx[3]-z.ctx[1])/(z.ctx[2]-z.ctx[0]))+36:0;
+  $('#sigCtx').style.maxHeight=capH+'px';
   const [x0,y0,x1,y1]=z.draw, ar=(x1-x0)/(y1-y0);
   const boxW=Math.min(innerWidth*.9,720);
-  const cssH=Math.max(190,Math.min(innerHeight*.5,boxW/Math.max(ar,1.15)));
+  const room=innerHeight-36-58-72-ctxH;                /* 미리보기를 뺀 남은 높이 */
+  const cssH=Math.max(120,Math.min(190,room),Math.min(room,innerHeight*.5,boxW/Math.max(ar,1.15)));
   const dpr=devicePixelRatio||1;
   pad.style.height=cssH+'px'; pad.style.width='100%';
   $('#sigVeil').classList.add('on');
+  drawSigCtx(z);
   requestAnimationFrame(()=>{
     pad.width=pad.clientWidth*dpr; pad.height=cssH*dpr;
     pctx.setTransform(dpr,0,0,dpr,0,0); repad();
@@ -1106,20 +1299,24 @@ const endStroke=()=>{drawing=false;curPts=null;$('#sigOk').disabled=totalLen()<0
 pad.addEventListener('pointerup',endStroke); pad.addEventListener('pointercancel',endStroke);
 function totalLen(){let L=0;for(const sk of curStrokes)for(let i=1;i<sk.length;i++)L+=Math.hypot(sk[i].u-sk[i-1].u,sk[i].v-sk[i-1].v);return L;}
 $('#sigClear').onclick=()=>{curStrokes=[];repad();$('#padHint').style.display='flex';$('#sigOk').disabled=true;};
-$('#sigCancel').onclick=()=>$('#sigVeil').classList.remove('on');
+$('#sigSkip').onclick=()=>seqNext();
+$('#sigCancel').onclick=()=>{ if(S.seq) endSeq(false); else $('#sigVeil').classList.remove('on'); };
 $('#sigOk').onclick=()=>{
-  S.sig[curZone.id]={strokes:curStrokes.filter(s=>s.length>1)};
-  S.dirty=true; $('#sigVeil').classList.remove('on');
-  drawOverlay(curZone.pg); refresh();
-  stepAdvance('sig',curZone.id);
-  if(curZone.id==='s_p7_terms') setTimeout(openAtt,450);
+  const z=curZone;
+  S.sig[z.id]={strokes:curStrokes.filter(s=>s.length>1)};
+  S.dirty=true;
+  drawOverlay(z.pg); refresh();
+  if(S.seq){ S.seq.done++; if(z.id==='s_p7_terms') S.seq.terms=true; seqNext(); return; }   /* 연속 — 다음 칸으로 */
+  $('#sigVeil').classList.remove('on');
+  stepAdvance('sig',z.id);
+  if(z.id==='s_p7_terms' && !(S.att.id&&S.att.biz)) setTimeout(()=>openAtt('remind'),450);
 };
 
 /* ============================================================
    동의 선택
 ============================================================ */
 
-$$('.veil').forEach(v=>v.addEventListener('click',e=>{if(e.target===v)v.classList.remove('on')}));
+$$('.veil').forEach(v=>v.addEventListener('click',e=>{if(e.target===v&&!v.dataset.lock)v.classList.remove('on')}));
 
 /* ============================================================
    텍스트 도구
@@ -1138,7 +1335,7 @@ $('#btnText').onclick=()=>{
 };
 $('#stage').addEventListener('click',e=>{
   if(!S.textMode) return;
-  if(e.target.closest('.slot,.crow,.titem,.tinput,.fld,.mk,.finp')) return;
+  if(e.target.closest('.slot,.crow,.titem,.tinput,.fld,.mk,.finp,.fmic')) return;
   const pageEl=e.target.closest('.page'); if(!pageEl||!pageEl.querySelector('canvas')) return;
   const ovEl=pageEl.querySelector('.overlay'); if(!ovEl) return;
   const pg=+ovEl.id.slice(2), r=pageEl.getBoundingClientRect();
@@ -1233,6 +1430,7 @@ function refresh(){
     st.querySelector('.seal').textContent=S.con[c.id]?'✓':'확';
     st.querySelector('.st').textContent=S.con[c.id]?(S.con[c.id]==='yes'?'동의':'미동의'):'대기'; }
   $('#cntSig').textContent=`${sd}/${sigs.length}`; $('#cntCon').textContent=`${cd}/${CON.length}`;
+  const left=sigs.length-sd, rs=$('#railSeq'); if(rs){ rs.hidden=!left; rs.textContent=`✍ 서명 이어서 하기 · 남은 ${left}곳`; }
   const ok= sd===sigs.length && cd===CON.length && $('#sellerOk').checked;
   $('#btnPrint').disabled=$('#btnPdf').disabled=!ok;
   $('#pillTxt').textContent= ok?'전 항목 완료 — 출력 가능':`서명 ${sd}/${sigs.length} · 동의 ${cd}/${CON.length}`;
@@ -1310,27 +1508,9 @@ $('#modeSeg').addEventListener('click',e=>{
 /* ============================================================
    출력 합성 (원본 + 흑색 서명·체크·날짜·텍스트)
 ============================================================ */
-async function composePage(pg){
-  const page=await S.doc.getPage(pg);
-  const vp=page.getViewport({scale:FAX_SCALE});
-  const cv=document.createElement('canvas'); cv.width=Math.round(vp.width); cv.height=Math.round(vp.height);
-  const ctx=cv.getContext('2d');
-  ctx.fillStyle='#fff'; ctx.fillRect(0,0,cv.width,cv.height);
-  if(S.bw && 'filter' in ctx){
-    const tmp=document.createElement('canvas'); tmp.width=cv.width; tmp.height=cv.height;
-    const tctx=tmp.getContext('2d'); tctx.fillStyle='#fff'; tctx.fillRect(0,0,tmp.width,tmp.height);
-    await page.render({canvasContext:tctx,viewport:vp}).promise;
-    ctx.filter='grayscale(1)'; ctx.drawImage(tmp,0,0); ctx.filter='none';
-  }else{
-    await page.render({canvasContext:ctx,viewport:vp}).promise;
-    if(S.bw){
-      const d=ctx.getImageData(0,0,cv.width,cv.height), p=d.data;
-      for(let i=0;i<p.length;i+=4){const g=(p[i]*0.299+p[i+1]*0.587+p[i+2]*0.114)|0;p[i]=p[i+1]=p[i+2]=g;}
-      ctx.putImageData(d,0,0);
-    }
-  }
-  if(!S.bw) grayRegions(ctx,cv,pg,FAX_SCALE);
-  const s=FAX_SCALE;
+/* 서명·동의 체크·날짜·입력값·선택 표시·텍스트를 순흑색으로 (pt×s 좌표) — 출력 합성과 서명 창 미리보기 공용 */
+function paintOverlay(ctx,pg,s){
+  ctx.save();
   ctx.strokeStyle=ctx.fillStyle='#000'; ctx.lineCap=ctx.lineJoin='round';
   /* 서명 */
   for(const z of SIG.filter(z=>z.pg===pg&&(S.mode==='full'||z.grp==='hi'))){
@@ -1380,6 +1560,29 @@ async function composePage(pg){
     ctx.font=HANDF(it.size*s);
     it.txt.split('\n').forEach((line,i)=>ctx.fillText(line,it.x*s,(it.y+i*it.size*1.25)*s));
   }
+  ctx.restore();
+}
+async function composePage(pg){
+  const page=await S.doc.getPage(pg);
+  const vp=page.getViewport({scale:FAX_SCALE});
+  const cv=document.createElement('canvas'); cv.width=Math.round(vp.width); cv.height=Math.round(vp.height);
+  const ctx=cv.getContext('2d');
+  ctx.fillStyle='#fff'; ctx.fillRect(0,0,cv.width,cv.height);
+  if(S.bw && 'filter' in ctx){
+    const tmp=document.createElement('canvas'); tmp.width=cv.width; tmp.height=cv.height;
+    const tctx=tmp.getContext('2d'); tctx.fillStyle='#fff'; tctx.fillRect(0,0,tmp.width,tmp.height);
+    await page.render({canvasContext:tctx,viewport:vp}).promise;
+    ctx.filter='grayscale(1)'; ctx.drawImage(tmp,0,0); ctx.filter='none';
+  }else{
+    await page.render({canvasContext:ctx,viewport:vp}).promise;
+    if(S.bw){
+      const d=ctx.getImageData(0,0,cv.width,cv.height), p=d.data;
+      for(let i=0;i<p.length;i+=4){const g=(p[i]*0.299+p[i+1]*0.587+p[i+2]*0.114)|0;p[i]=p[i+1]=p[i+2]=g;}
+      ctx.putImageData(d,0,0);
+    }
+  }
+  if(!S.bw) grayRegions(ctx,cv,pg,FAX_SCALE);
+  paintOverlay(ctx,pg,FAX_SCALE);
   return cv;
 }
 async function composeAll(msg){
@@ -1390,6 +1593,7 @@ async function composeAll(msg){
     toast(`${msg} ${i+1}/${pages.length}p…`);
     out.push(await composePage(pages[i]));
   }
+  out.formCount=out.length;              /* 출력 순서: 신청서 → 신분증 → 사업자등록증 (v1.33과 같음) */
   for(const k of ['id','biz']){
     const c=attCanvas(k);
     if(c){ toast(`${msg} 첨부 서류…`); out.push(c); }
@@ -1418,50 +1622,62 @@ $('#btnPrint').onclick=async()=>{
   toast('인쇄 대화상자를 확인하세요. 출력 후 애니팩스로 발송합니다.');
 };
 
-/* PDF 저장 (보관·이메일 발송용 사본) */
+/* PDF 저장 — 기기 저장본(애니팩스용)은 첨부 포함, 고객 사본(공유)은 신청서만 */
 $('#btnPdf').onclick=async()=>{
   if(!gate()) return;
   const cvs=await composeAll('PDF 생성 중');
   const {jsPDF}=window.jspdf;
-  const pdf=new jsPDF({unit:'pt',format:'a4',compress:true});
-  cvs.forEach((cv,i)=>{ if(i) pdf.addPage();
-    pdf.addImage(cv.toDataURL('image/jpeg',.9),'JPEG',0,0,PW,PH); });
-  const blob=pdf.output('blob'), fn=fname('pdf');
+  const urls=cvs.map(cv=>cv.toDataURL('image/jpeg',.9));
+  const mkPdf=list=>{ const pdf=new jsPDF({unit:'pt',format:'a4',compress:true});
+    list.forEach((u,i)=>{ if(i) pdf.addPage(); pdf.addImage(u,'JPEG',0,0,PW,PH); });
+    return pdf.output('blob'); };
+  const blob=mkPdf(urls), fn=fname('pdf');
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=fn;
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(()=>URL.revokeObjectURL(a.href),4000);
-  S.lastPdf={blob,fn};
+  const nAtt=cvs.length-cvs.formCount;
+  S.lastPdf= nAtt ? {blob:mkPdf(urls.slice(0,cvs.formCount)), fn:fn.replace(/신청서\.pdf$/,'신청서_고객용.pdf'), att:nAtt}
+                  : {blob, fn, att:0};
   openSendSheet();
 };
 
-/* ── 본인인증 사진 촬영 ── */
+/* ── 본인인증 사진 촬영 — v1.40: 맨 처음 찍고 → 글자 인식 → 확인 → 자동 기입 ── */
 let camStream=null, camKind=null;
 function updateAttUI(){
   const set=(el,ok)=>{ if(!el) return; el.textContent=ok?'✓ 완료':'미촬영'; el.style.color=ok?'var(--lime)':'var(--kt)';};
   set($('#attIdSt'),!!S.att.id); set($('#attBizSt'),!!S.att.biz);
   const ra=$('#railAtt');
   if(ra) ra.innerHTML=`신분증 ${S.att.id?'<b style="color:var(--lime)">✓ 완료</b>':'<b style="color:var(--kt)">미촬영</b>'} · 사업자등록증 ${S.att.biz?'<b style="color:var(--lime)">✓ 완료</b>':'<b style="color:var(--kt)">미촬영</b>'}`;
+  $('#attLater').textContent= (S.att.id&&S.att.biz)?'닫기':(S.attMode==='start'?'직접 입력하기':'나중에 (건너뛰기)');
+  ocrStateUI();
 }
-function openAtt(){ updateAttUI(); $('#attVeil').classList.add('on'); }
+function openAtt(mode){
+  S.attMode=mode||'remind';
+  const st=S.attMode==='start';
+  $('#attHead').textContent= st?'서류 촬영으로 시작':'첨부 서류 촬영';
+  $('#attSub').innerHTML= st?'찍으면 글자를 읽어<br>신청서 칸을 채웁니다':'서명 완료! 신분증·사업자등록증을<br>찍어 신청서 PDF에 함께 담습니다';
+  updateAttUI(); $('#attVeil').classList.add('on');
+}
 $('#attLater').onclick=()=>$('#attVeil').classList.remove('on');
 $('#attIdBtn').onclick=()=>openCam('id');
 $('#attBizBtn').onclick=()=>openCam('biz');
 $('#railAttId').onclick=()=>openCam('id');
 $('#railAttBiz').onclick=()=>openCam('biz');
 async function openCam(kind){
-  camKind=kind;
+  camKind=kind; ocrWorker().catch(()=>{});          /* 인식 엔진은 촬영하는 동안 미리 받아 둔다 */
   const mask=$('#camMask');
   if(kind==='id'){
-    mask.style.width='min(80vw,540px)'; mask.style.aspectRatio='856/540';
+    mask.style.width='min(86vw, 640px, calc(62vh * 856 / 540))'; mask.style.aspectRatio='856/540';
     $('#camTitle').textContent='신분증 촬영';
-    $('#camHint').textContent='주민등록번호 뒷자리는 가리고, 빨간 테두리에 꽉 차게';
+    $('#camHint').textContent='빨간 테두리에 꽉 차게 · 주민번호 뒷자리는 자동으로 가려집니다';
   }else{
-    mask.style.width='min(64vw,400px)'; mask.style.aspectRatio='210/297';
+    mask.style.width='min(86vw, calc(70vh * 210 / 297))'; mask.style.aspectRatio='210/297';
     $('#camTitle').textContent='사업자등록증 촬영';
-    $('#camHint').textContent='문서 전체가 테두리 안에 들어오게';
+    $('#camHint').textContent='문서 전체가 테두리 안에 · 태블릿을 세로로 들면 글자가 더 또렷해요';
   }
   try{
-    camStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1920},height:{ideal:1080}},audio:false});
+    /* 글자 인식용으로 가능한 한 높은 해상도(지원 안 하면 브라우저가 가장 가까운 값으로) */
+    camStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:3840},height:{ideal:2160}},audio:false});
     $('#camV').srcObject=camStream;
     $('#camVeil').classList.add('on');
   }catch(err){
@@ -1474,6 +1690,7 @@ function closeCam(){
   $('#camVeil').classList.remove('on');
 }
 $('#camCancel').onclick=closeCam;
+$('#camPick').onclick=()=>{ const fi=$('#camAlbum'); fi.dataset.kind=camKind||'id'; fi.value=''; closeCam(); fi.click(); };
 $('#camShot').onclick=()=>{
   const v=$('#camV'); if(!v.videoWidth) return;
   const box=$('#camMask').getBoundingClientRect();
@@ -1481,32 +1698,330 @@ $('#camShot').onclick=()=>{
   const sc=Math.max(cw/vw, ch/vh), ox=(vw*sc-cw)/2, oy=(vh*sc-ch)/2;
   const sx=(box.left+ox)/sc, sy=(box.top+oy)/sc, sw=box.width/sc, sh=box.height/sc;
   const c=document.createElement('canvas');
-  const outW=camKind==='id'?1400:1240, outH=Math.round(outW*sh/sw);
+  const outW=camKind==='id'?1400:1654, outH=Math.round(outW*sh/sw);
   c.width=outW; c.height=outH;
-  c.getContext('2d').drawImage(v,sx,sy,sw,sh,0,0,outW,outH);
+  const x=c.getContext('2d'); x.imageSmoothingQuality='high';
+  x.drawImage(v,sx,sy,sw,sh,0,0,outW,outH);
   finishShot(c);
 };
-$('#camFile').addEventListener('change',e=>{
+function fromFile(e){
   const f=e.target.files[0]; if(!f) return;
-  const kind=e.target.dataset.kind, img=new Image();
+  const kind=e.target.dataset.kind||camKind||'id', img=new Image(), url=URL.createObjectURL(f);
   img.onload=()=>{
+    URL.revokeObjectURL(url);
     const ar=kind==='id'?856/540:210/297;
     let sw=img.width, sh=sw/ar;
     if(sh>img.height){ sh=img.height; sw=sh*ar; }
     const c=document.createElement('canvas');
-    const outW=kind==='id'?1400:1240; c.width=outW; c.height=Math.round(outW/ar);
-    c.getContext('2d').drawImage(img,(img.width-sw)/2,(img.height-sh)/2,sw,sh,0,0,c.width,c.height);
+    const outW=kind==='id'?1400:1654; c.width=outW; c.height=Math.round(outW/ar);
+    const x=c.getContext('2d'); x.fillStyle='#fff'; x.fillRect(0,0,c.width,c.height); x.imageSmoothingQuality='high';
+    x.drawImage(img,(img.width-sw)/2,(img.height-sh)/2,sw,sh,0,0,c.width,c.height);
     camKind=kind; finishShot(c);
   };
-  img.src=URL.createObjectURL(f);
-});
-function finishShot(c){
-  S.att[camKind]=c; S.dirty=true;
-  closeCam(); updateAttUI();
-  toast(camKind==='id'?'신분증 촬영 완료 — PDF 마지막 장에 실물 크기로 첨부됩니다':'사업자등록증 촬영 완료 — PDF에 첨부됩니다');
-  if(camKind==='id'&&!S.att.biz) setTimeout(()=>openCam('biz'),500);
-  else openAtt();
+  img.onerror=()=>{ URL.revokeObjectURL(url); toast('사진을 열 수 없습니다'); };
+  img.src=url;
 }
+$('#camFile').addEventListener('change',fromFile);
+$('#camAlbum').addEventListener('change',fromFile);
+function finishShot(c){
+  const kind=camKind; closeCam(); $('#attVeil').classList.remove('on');
+  startOcr(kind,c);
+}
+
+/* ── 글자 인식 엔진 (Tesseract.js · 한국어) ──
+   사진은 기기 밖으로 나가지 않는다. CDN에서는 엔진·한국어 사전만 받는다(처음 한 번 약 5MB, 이후 브라우저 캐시). */
+const OCR_JS='https://cdn.jsdelivr.net/npm/tesseract.js@7.0.0/dist/tesseract.min.js';
+const OCR_OPT={
+  workerPath:'https://cdn.jsdelivr.net/npm/tesseract.js@7.0.0/dist/worker.min.js',
+  corePath:'https://cdn.jsdelivr.net/npm/tesseract.js-core@7.0.0',
+  langPath:'https://cdn.jsdelivr.net/npm/@tesseract.js-data/kor@1.0.0/4.0.0_best_int',
+  cacheMethod:'none',                               /* 브라우저 저장소(IndexedDB)는 쓰지 않음 */
+  logger:m=>ocrLog(m),
+};
+let ocrWorkerP=null, ocrReady=false, ocrFail=false;
+function loadScript(src){ return new Promise((ok,no)=>{ const s=document.createElement('script'); s.src=src; s.onload=ok; s.onerror=()=>no(new Error('script')); document.head.appendChild(s); }); }
+function ocrWorker(){
+  if(!ocrWorkerP){
+    ocrFail=false;
+    ocrWorkerP=(async()=>{
+      if(!window.Tesseract) await loadScript(OCR_JS);
+      const w=await Tesseract.createWorker('kor',1,OCR_OPT);
+      ocrReady=true; ocrStateUI(); return w;
+    })().catch(e=>{ ocrWorkerP=null; ocrFail=true; ocrStateUI(); throw e; });
+    ocrStateUI();
+  }
+  return ocrWorkerP;
+}
+const withTimeout=(p,ms)=>Promise.race([p,new Promise((_,no)=>setTimeout(()=>no(new Error('timeout')),ms))]);
+function ocrLog(m){
+  if(!$('#ocrStat').classList.contains('busy')) return;
+  const t={'loading tesseract core':'글자 인식 엔진 내려받는 중','loading language traineddata':'한국어 글자 사전 내려받는 중',
+           'initializing api':'엔진 준비 중','recognizing text':'글자 읽는 중'}[m.status];
+  if(t) $('#ocrMsg').textContent=t+(m.progress!=null&&m.progress<1?` ${Math.round(m.progress*100)}%`:'')+'…';
+}
+function ocrStateUI(){
+  const el=$('#ocrState'); if(!el) return;
+  el.innerHTML= ocrReady?'글자 인식 준비됨 ✓'
+    : ocrFail?'<b style="color:#c25e00">글자 인식 엔진을 불러오지 못했어요</b> — 사진은 그대로 첨부되고, 칸은 직접 입력합니다(인터넷 연결 확인).'
+    : ocrWorkerP?'글자 인식 엔진 내려받는 중… (처음 한 번 약 5MB)'
+    : '촬영하면 글자 인식 엔진을 불러옵니다(처음 한 번 약 5MB 내려받기).';
+}
+
+/* ── 읽은 글자 해석 ── */
+const KNUM={'영':0,'공':0,'일':1,'이':2,'삼':3,'사':4,'오':5,'육':6,'륙':6,'칠':7,'팔':8,'구':9};
+function bizCheck(d){                               /* 사업자등록번호 검증식 */
+  if(!/^\d{10}$/.test(d)) return false;
+  const w=[1,3,7,1,3,7,1,3,5]; let s=0;
+  for(let i=0;i<9;i++) s+=(+d[i])*w[i];
+  s+=Math.floor((+d[8])*5/10);
+  return (10-s%10)%10===+d[9];
+}
+const fmtBiz=d=>d.length===10?`${d.slice(0,3)}-${d.slice(3,5)}-${d.slice(5)}`:d;
+function validYMD(y,m,d){ const t=new Date(y,m-1,d); return y>1900&&y<=new Date().getFullYear()&&t.getFullYear()===y&&t.getMonth()===m-1&&t.getDate()===d; }
+const cleanVal=v=>v.replace(/^[\s:.,|_\-~'"`]+/,'').replace(/[\s|_~'"`]+$/,'').replace(/\s{2,}/g,' ').trim();
+const SIDO=['서울특별시','부산광역시','대구광역시','인천광역시','광주광역시','대전광역시','울산광역시','세종특별자치시','경기도','강원특별자치도','충청북도','충청남도','전북특별자치도','전라남도','경상북도','경상남도','제주특별자치도'];
+function snapSido(a){                               /* 시·도 이름 한 글자 오인식 보정 (서률특별시 → 서울특별시) */
+  const m=a.match(/^([가-힣]{1,5}?)(특별자치시|특별자치도|특별시|광역시|도)(?=\s)/); if(!m) return a;
+  const w=m[1]+m[2]; if(SIDO.includes(w)) return a;
+  let best=null, sc=-1;
+  for(const s of SIDO){ if(s.length!==w.length||!s.endsWith(m[2])) continue;
+    let k=0; for(let i=0;i<w.length;i++) if(s[i]===w[i]) k++;
+    if(k>sc){ sc=k; best=s; } }
+  return best&&sc>=w.length-1 ? best+a.slice(w.length) : a;
+}
+function parseBiz(text){                            /* 사업자등록증 — 등록번호·상호·성명·생년월일·소재지 / 법인명·대표자·법인등록번호 */
+  const L=text.split('\n').map(s=>s.replace(/[：;]/g,':').replace(/[|｜]/g,' ').trim()).filter(Boolean);
+  for(let i=0;i<L.length-1;i++) if(!L[i].includes(':')&&/^:/.test(L[i+1])){ L[i]+=' '+L[i+1]; L.splice(i+1,1); }   /* 이름표·값이 줄로 갈린 경우 */
+  const all=L.join('\n'), r={};
+  r.corp=/법\s*인\s*사\s*업\s*자|법\s*인\s*명|단\s*체\s*명/.test(all);
+  const m=all.match(/(\d{3})\s*[-–—~.ㅡ]\s*(\d{2})\s*[-–—~.ㅡ]\s*(\d{5})/);
+  if(m){ r.bizno=m[1]+m[2]+m[3]; r.biznoOk=bizCheck(r.bizno); }
+  const cm=all.match(/법\s*인\s*등\s*록\s*번\s*호\s*:?\s*(\d{6})\s*[-–—ㅡ]?\s*(\d{7})/);
+  if(cm) r.corpno=cm[1]+'-'+cm[2];
+  const bm=all.match(/생\s*년\s*월\s*일\s*[:.,]?\s*((?:19|20)\d{2})\D{1,4}?(\d{1,2})\D{1,4}?(\d{1,2})/);
+  if(bm){ r.birth=bm[1].slice(2)+bm[2].padStart(2,'0')+bm[3].padStart(2,'0'); r.birthOk=validYMD(+bm[1],+bm[2],+bm[3]); }
+  else{ const jm=all.match(/주\s*민\s*등\s*록\s*번\s*호\s*:?\s*(\d{6})/); if(jm){ r.birth=jm[1]; r.birthOk=true; } }
+  const LAB=[
+    ['corpName',/법\s*인\s*명(?:\s*[(（]\s*단\s*체\s*명\s*[)）])?\s*[:.]?\s*(.+)$/],
+    ['store',/^\S{0,2}\s*[상장싱]\s*호\s*[:.]?\s*(.+)$/],
+    ['owner',/^\S{0,2}\s*(?:성\s*명|대\s*표\s*자(?:\s*성\s*명)?)\s*[:.]?\s*(.+)$/],
+    ['addr',/사\s*업\s*장\s*소\s*재\s*지\s*[:.]?\s*(.+)$/],
+  ];
+  for(const line of L) for(const [k,re] of LAB){
+    if(r[k]) continue; const mm=line.match(re); if(!mm) continue;
+    let v=cleanVal(mm[1]);
+    if(k==='owner'){ v=v.split(/생\s*년|주\s*민|개\s*업/)[0].replace(/[^가-힣]/g,''); if(v.length<2||v.length>5) continue; }
+    if(k==='addr') v=snapSido(v);
+    if(v) r[k]=v;
+  }
+  return r;
+}
+function maskFromLine(line,mode){                   /* 주민번호 뒷자리 7개를 덮는 상자(px)
+                                                       mode full: 13자리 다 읽음 · front: 앞 6자리+'-' · bare: 앞 6자리만 */
+  const sy=[]; for(const w of line.words||[]) for(const s of (w.symbols||[])) sy.push(s);
+  const txt=sy.map(s=>s.text).join('');
+  let x0,x1,y0,y1;
+  if(sy.length&&sy.length===txt.length){
+    const re= mode==='full'?/(\d{6})([-–—~.ㅡ一_=]?)(\d{7})/ : mode==='front'?/(\d{6})([-–—~ㅡ一_=])/ : /(\d{6})(?!\d)/;
+    const m=txt.match(re);
+    if(m){
+      const a=m.index, seg=sy.slice(a,a+6);
+      const pit=[1,2,3,4,5].map(i=>sy[a+i].bbox.x0-sy[a+i-1].bbox.x0).sort((p,q)=>p-q)[2];   /* 숫자 간격(중앙값) */
+      y0=Math.min(...seg.map(s=>s.bbox.y0)); y1=Math.max(...seg.map(s=>s.bbox.y1));
+      if(mode==='full'){ const st=a+m[1].length+m[2].length; x0=sy[st].bbox.x0; x1=sy[st+6].bbox.x1; }
+      else { x0=sy[a].bbox.x0+pit*6.6; x1=x0+pit*7.1; }            /* 앞 6자리 + '-' 다음부터 7자리 */
+    }
+  }
+  if(x0==null){                                      /* 글자 단위 위치가 없으면 단어 상자로 추정 */
+    const w=(line.words||[]).find(w=>/\d{6}/.test(w.text)); if(!w) return null;
+    const b=w.bbox, n=w.text.replace(/\s/g,'').length;
+    if(mode!=='full'||n<13){ const dw=(b.x1-b.x0)/Math.max(6,n); x0=b.x1+dw*(n>6?.15:1.05); x1=x0+dw*7.3; }
+    else { x0=b.x0+(b.x1-b.x0)*((n-7)/n); x1=b.x1; }
+    y0=b.y0; y1=b.y1;
+  }
+  const h=y1-y0; return {x0:x0-h*.22, y0:y0-h*.32, x1:x1+h*.28, y1:y1+h*.32};
+}
+function parseId(data){                             /* 신분증 — 성명·생년월일(앞 6자리)·성별 + 뒷자리 위치. 뒷자리 숫자는 돌려주지 않는다 */
+  const lines=[]; for(const b of data.blocks||[]) for(const p of b.paragraphs||[]) for(const l of p.lines||[]) lines.push(l);
+  const T=lines.map(l=>l.text.replace(/\s/g,''));
+  const okDate=d=>{ const y=+d.slice(0,2), m=+d.slice(2,4), dd=+d.slice(4,6); return validYMD(1900+y,m,dd)||validYMD(2000+y,m,dd); };
+  const r={}; let ri=-1, mm=null, mode='full';
+  for(let i=0;i<T.length&&ri<0;i++){ const m=T[i].match(/(\d{6})[-–—~.ㅡ一_=]?([1-8])(\d{6})/); if(m&&okDate(m[1])){ ri=i; mm=m; } }
+  if(ri<0) for(let i=0;i<T.length&&ri<0;i++){ const m=T[i].match(/(?:^|\D)(\d{6})[-–—~ㅡ一_=]/); if(m&&okDate(m[1])){ ri=i; mm=[m[0],m[1]]; mode='front'; } }
+  if(ri<0) for(let i=0;i<T.length&&ri<0;i++){ const m=T[i].match(/^(\d{6})(?!\d)/); if(m&&okDate(m[1])){ ri=i; mm=[m[0],m[1]]; mode='bare'; } }
+  const BAD=/주민|등록증|운전|면허|대한민국|청장|경찰|자동차|보통|대형|소형|특수/;
+  if(ri>=0){
+    r.birth6=mm[1];
+    const yy=+mm[1].slice(0,2), mo=+mm[1].slice(2,4), dd=+mm[1].slice(4,6);
+    if(mode==='full'){ const g=+mm[2]; r.sex=g%2?'남':'여'; r.birthOk=validYMD(((g<=2||g===5||g===6)?1900:2000)+yy,mo,dd); }
+    else r.birthOk=okDate(mm[1]);
+    r.maskPx=maskFromLine(lines[ri],mode);
+    const before=lines[ri].text.split(/\d{6}/)[0].replace(/[^가-힣]/g,'');
+    if(before.length>=2&&before.length<=5&&!BAD.test(before)) r.name=before;
+  }
+  const nameAt=k=>{ const m=(T[k]||'').match(/^([가-힣]{2,5})(?:\(|$|[^가-힣])/); return m&&!BAD.test(m[1])?m[1]:null; };
+  for(let k=ri-1;ri>=0&&!r.name&&k>=Math.max(0,ri-3);k--) r.name=nameAt(k);
+  if(!r.name){ const t=T.findIndex(l=>/주민등록증|운전면허증/.test(l)); for(let k=t+1;t>=0&&!r.name&&k<=t+3;k++) r.name=nameAt(k); }
+  if(!r.name){ const k=T.findIndex(l=>/^[가-힣]{2,4}\(/.test(l)); if(k>=0) r.name=nameAt(k); }   /* 한자 괄호가 붙은 이름 줄 */
+  return r;
+}
+
+/* ── 확인 창 ── */
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const DEF_MASK={x:.21,y:.34,w:.27,h:.14};           /* 주민등록증 기준 대략 위치 — 못 찾으면 여기서 끌어 맞춤 */
+const ROW11={f_bizname:'f11_name',f_bizregno:'f11_regno',f_bizno:'f11_bizno',f_addr:'f11_addr'};   /* 안심매입 p.11의 같은 칸 */
+const SEXMK={sex_app:['m1_5','m1_6'], sex_cust:['m1_3','m1_4']};                                   /* [남, 여] 표시 */
+function ocrMsg(t,busy,warn){ const s=$('#ocrStat'); s.classList.toggle('busy',!!busy); s.classList.toggle('warn',!!warn); $('#ocrMsg').textContent=t; }
+function scaleTo(c,maxW){
+  if(c.width<=maxW) return c;
+  const t=document.createElement('canvas'); t.width=maxW; t.height=Math.round(c.height*maxW/c.width);
+  const x=t.getContext('2d'); x.imageSmoothingQuality='high'; x.drawImage(c,0,0,t.width,t.height); return t;
+}
+function setMask(m){
+  if(!S.pend) return;
+  const cl=(v,a,b)=>Math.min(b,Math.max(a,v));
+  const w=cl(m.w,.04,1), h=cl(m.h,.03,1);
+  S.pend.mask={w,h,x:cl(m.x,0,1-w),y:cl(m.y,0,1-h)};
+  const b=$('#ocrMask'), q=S.pend.mask;
+  b.style.left=q.x*100+'%'; b.style.top=q.y*100+'%'; b.style.width=q.w*100+'%'; b.style.height=q.h*100+'%';
+}
+(()=>{                                              /* 가림 막대 — 끌어 옮기기·오른쪽 아래 점으로 크기 */
+  const box=$('#ocrMask'), wrap=$('#ocrImg'); let st=null;
+  box.addEventListener('pointerdown',e=>{
+    if(!S.pend?.mask) return; e.preventDefault(); box.setPointerCapture(e.pointerId);
+    st={size:e.target.tagName==='I', sx:e.clientX, sy:e.clientY, r:wrap.getBoundingClientRect(), m:{...S.pend.mask}};
+  });
+  box.addEventListener('pointermove',e=>{
+    if(!st) return;
+    const dx=(e.clientX-st.sx)/st.r.width, dy=(e.clientY-st.sy)/st.r.height, m={...st.m};
+    if(st.size){ m.w=Math.min(m.w+dx,1-m.x); m.h=Math.min(m.h+dy,1-m.y); } else { m.x+=dx; m.y+=dy; }
+    setMask(m);
+  });
+  const end=()=>{ st=null; }; box.addEventListener('pointerup',end); box.addEventListener('pointercancel',end);
+})();
+async function startOcr(kind,canvas){
+  const seq=++S.ocrSeq;
+  S.pend={kind,canvas,mask:null,info:{},rows:[]};
+  const pv=$('#ocrPrev'); pv.width=canvas.width; pv.height=canvas.height; pv.getContext('2d').drawImage(canvas,0,0);
+  $('#ocrImg').classList.toggle('id',kind==='id');
+  $('#ocrTitle').textContent= kind==='id'?'신분증 확인':'사업자등록증 확인';
+  $('#ocrSub').innerHTML= kind==='id'?'검은 막대가 주민번호<br>뒷자리를 가리는지 보세요':'틀린 곳은 고친 뒤<br>신청서에 넣으세요';
+  $('#ocrRows').innerHTML=''; $('#ocrApply').disabled=true;
+  $('#ocrApply').textContent= kind==='id'?'가림 확인하고 넣기':'신청서에 넣기';
+  $('#ocrMask').hidden=kind!=='id'; if(kind==='id') setMask(DEF_MASK);
+  ocrMsg('글자 인식 준비 중…',1);
+  $('#ocrVeil').classList.add('on');
+  let data=null, fail=false;
+  try{
+    const w=await withTimeout(ocrWorker(),60000);
+    if(seq!==S.ocrSeq) return;
+    ocrMsg('글자 읽는 중…',1);
+    ({data}=await withTimeout(w.recognize(kind==='biz'?scaleTo(canvas,1400):canvas,{},{blocks:true,text:true}),90000));
+  }catch(e){ fail=true; }
+  if(seq!==S.ocrSeq||!S.pend) return;
+  const info=data?(kind==='id'?parseId(data):parseBiz(data.text||'')):{};
+  data=null;                                        /* 읽은 전체 글자(뒷자리 포함)는 여기서 버린다 */
+  let found=false;
+  if(kind==='id'&&info.maskPx){
+    const W=canvas.width, H=canvas.height, m=info.maskPx; found=true;
+    setMask({x:m.x0/W, y:m.y0/H, w:(m.x1-m.x0)/W, h:(m.y1-m.y0)/H});
+  }
+  delete info.maskPx;
+  S.pend.info=info;
+  const n=buildRows(kind,info);
+  if(fail) ocrMsg('글자 인식을 못 했어요(인터넷 연결 확인) — 사진만 넣고 칸은 직접 입력하세요'+(kind==='id'?' · 검은 막대를 뒷자리 위로 옮겨 주세요':''),0,1);
+  else if(kind==='id'&&!found) ocrMsg('주민번호 위치를 찾지 못했어요 — 검은 막대를 뒷자리 위로 끌어 맞춰 주세요',0,1);
+  else if(!n) ocrMsg('읽은 내용이 없어요 — 사진만 넣고 칸은 직접 입력하세요',0,1);
+  else ocrMsg(`${n}개 항목을 읽었어요 — 사진과 대조해 확인하세요`+(kind==='id'?' · 막대 위치도 확인':''),0,0);
+  $('#ocrApply').disabled=false;
+}
+function curVal(k){
+  if(k==='mStore'||k==='mOwner') return $('#'+k).value.trim();
+  if(SEXMK[k]){ const [a,b]=SEXMK[k]; return S.mk[a]?'남':S.mk[b]?'여':''; }
+  return S.fld[k]||'';
+}
+function buildRows(kind,info){
+  const R=[], add=(key,lab,val,o={})=>{ if(val) R.push({key,lab,val:String(val),...o}); };
+  const id=kind==='id'?info:(S.ocr.id||{}), bz=kind==='biz'?info:(S.ocr.biz||{});
+  if(kind==='biz'){
+    /* 개인사업자: 고객명 칸 = 상호(대표자) · 법인: 법인명 */
+    const nm= bz.corp ? (bz.corpName||bz.store) : (bz.store&&bz.owner?`${bz.store}(${bz.owner})`:(bz.store||bz.owner));
+    add('f_bizname','고객명 (법인명)',nm);
+    if(bz.corp) add('f_bizregno','법인등록번호',bz.corpno);
+    else{ const same=id.name&&id.name===bz.owner;
+      add('f_bizregno','생년월일 (법인등록번호 칸)', bz.birth||(same?id.birth6:''), {warn:bz.birth&&!bz.birthOk, note:bz.birth?(bz.birthOk?'사진과 대조':'날짜 확인 필요 — 사진과 대조'):'신분증에서'}); }
+    add('f_bizno','사업자등록번호', bz.bizno&&fmtBiz(bz.bizno), {warn:bz.bizno&&!bz.biznoOk, note:bz.bizno?(bz.biznoOk?'번호 검증 통과':'번호 검증 실패 — 사진과 대조해 고치세요'):''});
+    add('f_addr','설치 주소', bz.addr, {area:1, note:'사업장 소재지 — 설치 장소가 다르면 고치세요'});
+    add('mStore','상호 (상단·파일 이름)', bz.corp?(bz.corpName||bz.store):bz.store);
+    add('mOwner','대표자 (상단)', bz.owner);
+  }else{
+    add('f_appname','신청자 성명', id.name);
+    add('f_appbirth','신청자 생년월일', id.birth6, {warn:id.birth6&&!id.birthOk, note:id.birth6&&!id.birthOk?'날짜 확인 필요 — 사진의 앞 6자리와 대조':'사진의 앞 6자리와 대조'});
+    add('sex_app','신청자 성별', id.sex, {sel:1});
+  }
+  if(id.name&&bz.owner&&id.name===bz.owner){         /* 신분증 = 대표자 */
+    add('f_apprel','고객과의 관계', bz.corp?'대표자':'본인');
+    if(!bz.corp) add('sex_cust','고객 성별', id.sex, {sel:1});
+  }
+  S.pend.rows=R;
+  $('#ocrRows').innerHTML=R.map((r,i)=>{
+    const cur=curVal(r.key), same=!cur||cur===r.val;
+    const ctl= r.sel ? `<select class="ov" id="ov${i}">${['남','여'].map(x=>`<option${x===r.val?' selected':''}>${x}</option>`).join('')}</select>`
+               : r.area ? `<textarea class="ov" id="ov${i}" rows="2" spellcheck="false">${esc(r.val)}</textarea>`
+                     : `<input class="ov" id="ov${i}" value="${esc(r.val)}" autocomplete="off" spellcheck="false">`;
+    const note=[r.note, same?'':`지금 칸: ${esc(cur)} — 바꾸려면 체크`].filter(Boolean).join(' · ');
+    return `<div class="orow${r.warn?' warn':''}${same?'':' off'}"><input type="checkbox" id="oc${i}" data-i="${i}"${same?' checked':''}>`+
+           `<label class="ol" for="oc${i}">${r.lab}</label>${ctl}${note?`<span class="on">${note}</span>`:''}</div>`;
+  }).join('');
+  $$('#ocrRows .orow').forEach(row=>{
+    const cb=row.querySelector('input[type=checkbox]'), ov=row.querySelector('.ov');
+    cb.onchange=()=>row.classList.toggle('off',!cb.checked);
+    ov.addEventListener('input',()=>{ cb.checked=true; row.classList.remove('off'); });
+    ov.addEventListener('change',()=>{ cb.checked=true; row.classList.remove('off'); });
+  });
+  return R.length;
+}
+function applyVals(vals){
+  for(const [k,v] of vals){
+    if(k==='mStore'||k==='mOwner'){ $('#'+k).value=v; continue; }
+    if(SEXMK[k]){ const [a,b]=SEXMK[k]; delete S.mk[a]; delete S.mk[b]; S.mk[v==='여'?b:a]=1; continue; }
+    const prev=S.fld[k]; S.fld[k]=v;
+    const k11=ROW11[k]; if(k11&&(!S.fld[k11]||S.fld[k11]===prev)) S.fld[k11]=v;
+  }
+  for(const pg of Object.keys(S.rendered)) if(S.rendered[pg]) drawOverlay(+pg);
+  updScript(); refresh();
+}
+function closeOcr(){ S.pend=null; const pv=$('#ocrPrev'); pv.width=pv.height=0; $('#ocrVeil').classList.remove('on'); }
+$('#ocrApply').onclick=()=>{
+  const P=S.pend; if(!P) return;
+  const kind=P.kind, vals=[];
+  $$('#ocrRows .orow').forEach(row=>{
+    const cb=row.querySelector('input[type=checkbox]'); if(!cb.checked) return;
+    const r=P.rows[+cb.dataset.i], v=row.querySelector('.ov').value.replace(/\s+/g,' ').trim(); if(v) vals.push([r.key,v]);
+  });
+  const got=Object.fromEntries(vals);
+  if(kind==='id'){                                  /* 가림 막대를 사진에 영구히 칠한 뒤에만 보관 */
+    const c=P.canvas, m=P.mask||DEF_MASK, x=c.getContext('2d');
+    x.fillStyle='#000'; x.fillRect(Math.floor(m.x*c.width),Math.floor(m.y*c.height),Math.ceil(m.w*c.width),Math.ceil(m.h*c.height));
+    S.att.id=c;
+    S.ocr.id={...P.info, name:got.f_appname||P.info.name, birth6:got.f_appbirth||P.info.birth6, sex:got.sex_app||P.info.sex};
+  }else{
+    S.att.biz=P.canvas;
+    S.ocr.biz={...P.info, owner:got.mOwner||P.info.owner};
+  }
+  applyVals(vals);
+  closeOcr(); S.dirty=true;
+  if(S.att.id&&S.att.biz&&ocrWorkerP){               /* 두 장 다 끝나면 인식 엔진을 내려 메모리 확보(PDF 합성 대비) */
+    const wp=ocrWorkerP; ocrWorkerP=null; ocrReady=false; wp.then(w=>w.terminate()).catch(()=>{});
+  }
+  updateAttUI();
+  toast(kind==='id'?'신분증 반영 — 뒷자리를 가린 사진만 PDF 마지막 장에 붙습니다'
+                   :(vals.length?`사업자등록증 반영 — ${vals.length}개 항목을 채웠습니다`:'사업자등록증 사진을 첨부했습니다'));
+  if(kind==='id'&&!S.att.biz) setTimeout(()=>openCam('biz'),450);
+  else if(kind==='biz'&&!S.att.id&&S.attMode==='start') setTimeout(()=>openAtt('start'),350);
+  else setTimeout(()=>{ const n=nextIncomplete(0); if(n>=0) gotoStep(n); },300);
+};
+$('#ocrRetake').onclick=()=>{ const k=S.pend?.kind||camKind||'id'; S.ocrSeq++; closeOcr(); openCam(k); };
 /* 첨부 서류 페이지 합성 */
 function attCanvas(kind){
   const img=S.att[kind]; if(!img) return null;
@@ -1547,6 +2062,9 @@ function openSendSheet(){
   $('#sendMailto').style.opacity=mail?'1':'.4';
   const canFile=navigator.canShare&&navigator.canShare({files:[new File([new Blob()],'t.pdf',{type:'application/pdf'})]});
   $('#sendShare').style.display=canFile?'':'none';
+  const att=S.lastPdf?.att;
+  $('#sendNote').innerHTML=(att?'고객 사본에는 <b>신청서만</b> 담깁니다(신분증·사업자등록증 제외). ':'')+'문자·메일 앱에는 안내문이 미리 채워집니다. 첨부가 필요하면 <b>공유하기</b>를 사용하세요.';
+  $('#sendDel').textContent= att?'기기에 저장된 PDF(신분증 포함)는 애니팩스 발송 뒤 삭제하세요.':'기기에 저장된 PDF는 발송 뒤 보관 기준에 따라 삭제하세요.';
   $('#sendVeil').classList.add('on');
 }
 $('#sendShare').onclick=async()=>{
@@ -1574,6 +2092,7 @@ $('#mStore').oninput=$('#mOwner').oninput=updScript;
 $('#recConsent').onchange=e=>{$('#recBtn').disabled=!e.target.checked;};
 $('#recBtn').onclick=async()=>{
   if(rec&&rec.state==='recording'){ rec.stop(); return; }
+  stopVoice();                                      /* 음성 입력과 마이크를 같이 쓰지 않음 */
   try{
     const stream=await navigator.mediaDevices.getUserMedia({audio:true});
     chunks=[]; rec=new MediaRecorder(stream);
@@ -1594,6 +2113,114 @@ $('#recBtn').onclick=async()=>{
 $('#recSave').onclick=()=>{
   const a=document.createElement('a'); a.href=recURL; a.download=fname('webm').replace('신청서','동의녹취');
   a.click(); toast('녹취 파일이 저장되었습니다');
+};
+
+/* ============================================================
+   음성 입력 — 브라우저 음성인식(안드로이드 크롬은 구글 서버 경유, 화면에 늘 안내)
+   계좌번호·생년월일·등록번호 칸은 제외 — 매장에서 소리 내 읽지 않도록
+============================================================ */
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+const NO_VOICE=new Set(['f_bizregno','f_appbirth','f_acctno','f_acctbirth','f2_a_regno','f2_b_regno','f11_regno']);
+const VOICE_VIA=(ua=>/iPhone|iPad|Macintosh/.test(ua)&&!/Chrome\//.test(ua)?'애플':/Chrome\/|Android/.test(ua)?'구글':'브라우저')(navigator.userAgent);
+const MIC_SVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>';
+let voiceRec=null, voiceInp=null, voiceBtn=null;
+function voiceOk(fd){ return !!SR&&!NO_VOICE.has(fd.id); }
+function stopVoice(){
+  const r=voiceRec; voiceRec=null;
+  if(r){ try{ r.abort(); }catch(e){} }
+  $('#vbub').classList.remove('on'); voiceBtn?.classList.remove('on'); voiceBtn=null; voiceInp=null;
+}
+function startVoice(inp,fd,btn){
+  if(voiceRec){ const same=voiceInp===inp; stopVoice(); if(same) return; }   /* 같은 칸 🎤 다시 누르면 멈춤 */
+  if(rec&&rec.state==='recording'){ toast('동의 녹음 중에는 음성 입력을 쓸 수 없어요'); return; }
+  let r; try{ r=new SR(); }catch(e){ toast('이 브라우저에서는 음성 입력을 쓸 수 없어요 — 키보드의 마이크를 쓰세요'); return; }
+  r.lang='ko-KR'; r.interimResults=true; r.continuous=false; r.maxAlternatives=1;
+  voiceRec=r; voiceInp=inp; voiceBtn=btn||null;
+  $('#vtxt').textContent='말씀하세요…';
+  $('#vnote').textContent=`음성은 인식을 위해 ${VOICE_VIA} 음성인식 서버를 거칩니다 · 계좌·생년월일은 키보드로`;
+  $('#vbub').classList.add('on'); btn?.classList.add('on');
+  r.onresult=e=>{
+    if(voiceRec!==r) return;
+    let t=''; for(let i=0;i<e.results.length;i++) t+=e.results[i][0].transcript;
+    $('#vtxt').textContent=t||'말씀하세요…';
+    if(!inp.isConnected){ const ni=openField(fd); if(ni){ inp=ni; voiceInp=ni; } }   /* 🎤 누를 때 입력칸이 닫힌 기기 대비 */
+    if(inp.isConnected){ inp.value=normVoice(t,fd); if(fd.fmt) inp.dispatchEvent(new Event('input')); }
+  };
+  r.onerror=e=>{
+    const m={'not-allowed':'마이크 권한을 허용해 주세요','service-not-allowed':'이 브라우저에서는 음성 입력을 쓸 수 없어요 — 키보드의 마이크를 쓰세요',
+             'no-speech':'말소리가 들리지 않았어요 — 🎤를 다시 누르세요','network':'음성 입력은 인터넷 연결이 필요해요','audio-capture':'마이크를 쓸 수 없어요'}[e.error];
+    if(m) toast(m);
+  };
+  r.onend=()=>{ if(voiceRec===r) stopVoice(); if(inp.isConnected) inp.focus(); };
+  try{ r.start(); }catch(e){ stopVoice(); toast('음성 입력을 시작하지 못했어요'); }
+}
+/* 말 → 칸 값 정리 (전화·이메일·금액·대수) — 결과는 입력칸에 남아 고친 뒤 확정 */
+const KNAT={'하나':1,'한':1,'둘':2,'두':2,'셋':3,'세':3,'넷':4,'네':4,'다섯':5,'여섯':6,'일곱':7,'여덟':8,'아홉':9,'열':10};
+function digitsFrom(t){ let o=''; for(const ch of t){ if(/\d/.test(ch)) o+=ch; else if(ch in KNUM) o+=KNUM[ch]; } return o; }
+function korAmount(t){                              /* "3만 5천", "삼만오천원", "35,000원" → 35000 */
+  const s=t.replace(/[,\s원]/g,''); if(/^\d+$/.test(s)) return +s;
+  const U={'십':10,'백':100,'천':1000}, B={'만':1e4,'억':1e8};
+  let total=0, sec=0, num=null;
+  for(let i=0;i<s.length;i++){
+    const ch=s[i];
+    if(/\d/.test(ch)){ let j=i; while(j<s.length&&/\d/.test(s[j])) j++; num=+s.slice(i,j); i=j-1; continue; }
+    if(ch in KNUM&&ch!=='공'&&ch!=='영'){ num=KNUM[ch]; continue; }
+    if(ch in U){ sec+=(num??1)*U[ch]; num=null; continue; }
+    if(ch in B){ sec+=(num??0); total+=(sec||1)*B[ch]; sec=0; num=null; }
+  }
+  return total+sec+(num??0);
+}
+function fmtTel(d){
+  if(/^02\d{7,8}$/.test(d)) return d.length===9?`02-${d.slice(2,5)}-${d.slice(5)}`:`02-${d.slice(2,6)}-${d.slice(6)}`;
+  if(/^050\d{9}$/.test(d)) return `${d.slice(0,4)}-${d.slice(4,8)}-${d.slice(8)}`;
+  if(/^0\d{9,10}$/.test(d)) return d.length===10?`${d.slice(0,3)}-${d.slice(3,6)}-${d.slice(6)}`:`${d.slice(0,3)}-${d.slice(3,7)}-${d.slice(7)}`;
+  if(/^1\d{7}$/.test(d)) return `${d.slice(0,4)}-${d.slice(4)}`;
+  return d;
+}
+function emailFrom(t){
+  let s=t.toLowerCase();
+  for(const [a,b] of [[/골뱅이|앳|엣/g,'@'],[/닷\s*컴/g,'.com'],[/닷\s*넷/g,'.net'],[/쩜|점|닷/g,'.'],[/지메일|쥐메일/g,'gmail'],
+    [/네이버/g,'naver'],[/한메일/g,'hanmail'],[/다음/g,'daum'],[/네이트/g,'nate'],[/카카오/g,'kakao'],[/핫메일/g,'hotmail'],
+    [/아웃룩/g,'outlook'],[/언더바|언더스코어/g,'_'],[/하이픈|대시/g,'-'],[/컴/g,'com'],[/씨오\s*케이알|코\s*케이알/g,'co.kr'],[/케이알/g,'kr']]) s=s.replace(a,b);
+  for(const [a,b] of [['더블유','w'],['에이치','h'],['에이','a'],['에프','f'],['에스','s'],['엑스','x'],['와이','y'],['브이','v'],['제이','j'],
+    ['케이','k'],['아이','i'],['제트','z']]) s=s.split(a).join(b);
+  const isD=c=>/[0-9공영일이삼사오육칠팔구]/.test(c||'');   /* 이·오는 숫자 사이면 2·5, 아니면 e·o */
+  s=s.replace(/[이오]/g,(ch,i,str)=>{ const p=str.slice(0,i).replace(/\s+$/,'').slice(-1), n=str.slice(i+1).replace(/^\s+/,'')[0];
+    return (isD(p)||isD(n))?(ch==='이'?'2':'5'):(ch==='이'?'e':'o'); });
+  for(const [a,b] of [['쥐','g'],['비','b'],['씨','c'],['디','d'],['지','g'],['엘','l'],['엠','m'],['엔','n'],['피','p'],['큐','q'],['알','r'],['티','t'],['유','u']]) s=s.split(a).join(b);
+  s=s.replace(/\s+/g,'').replace(/[공영일삼사육칠팔구]/g,ch=>String(KNUM[ch]));
+  return s.replace(/\.+$/,'');
+}
+function normVoice(t,fd){
+  t=String(t||'').trim();
+  if(fd.t==='tel') return fmtTel(digitsFrom(t));
+  if(fd.t==='email') return emailFrom(t);
+  if(fd.t==='num'){
+    if(fd.fmt){ const n=korAmount(t); return n?String(n):''; }
+    if(fd.id==='f_bizno'||fd.id==='f11_bizno') return fmtBiz(digitsFrom(t));
+    const s=t.replace(/시월/g,'10').replace(/유월/g,'6').replace(/\s+/g,'');
+    for(const [k,v] of Object.entries(KNAT)) if(s===k||s.startsWith(k+'대')||s.startsWith(k+'개')) return String(v);
+    if(/[십백천만]/.test(s)) return String(korAmount(s.replace(/[^0-9십백천만억일이삼사오육칠팔구]/g,'')));
+    return digitsFrom(s);
+  }
+  return t.replace(/\s+/g,' ').replace(/[.。]$/,'');
+}
+$('#vstop').addEventListener('pointerdown',e=>e.preventDefault());
+$('#vstop').addEventListener('mousedown',e=>e.preventDefault());
+$('#vstop').onclick=()=>stopVoice();
+$('#stepSeq').onclick=()=>{ const i=currentStepIndex(); startSeq(i>=0?STEPS[i].sig:null); };
+$('#railSeq').onclick=()=>startSeq();
+$('#stepMic').onclick=async()=>{                    /* 입력 가이드가 가리키는 칸을 열고 바로 듣기 */
+  document.querySelector('.finp')?.blur();
+  const i=currentStepIndex(); if(i<0){ toast('입력 가이드가 끝났습니다 — 칸을 눌러 🎤를 쓰세요'); return; }
+  const st=STEPS[i];
+  if(!st.f){ toast('서명·동의는 문서에서 직접 해 주세요'); gotoStep(i); return; }
+  const fd=FIELDS.find(x=>x.id===st.f); if(!fd) return;
+  if(!S.rendered[fd.pg]) await renderPage(fd.pg);
+  $('#fld_'+fd.id)?.scrollIntoView({behavior:'smooth',block:'center'});
+  const inp=openField(fd); if(!inp) return;
+  if(NO_VOICE.has(fd.id)){ toast('계좌·생년월일·등록번호는 소리 내지 않도록 키보드로 입력해 주세요'); return; }
+  startVoice(inp,fd,inp._mic);
 };
 
 /* ============================================================
