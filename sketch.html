@@ -281,6 +281,8 @@ body.dropping::after{content:'묶음(.json)을 놓으면 그 매장이 열립니
   padding:16px 0;border-bottom:1px solid var(--line)}
 .cand .nm{font-size:17px;font-weight:700;letter-spacing:-.015em}
 .cand .meta{font-size:11px;color:var(--faint);margin-top:4px}
+.cand .rg{display:inline-block;vertical-align:2px;margin-right:8px;padding:2px 8px;border-radius:6px;background:var(--ink);color:var(--on);
+  font-size:12px;font-weight:700;letter-spacing:0;white-space:nowrap}   /* v3.42: 시·도 — '논현동'이 서울·인천 둘 다 있다 */
 .cand .pick{font:inherit;font-size:12px;font-weight:600;border:1px solid var(--line);background:var(--paper);
   color:var(--ink);border-radius:10px;padding:9px 15px;cursor:pointer;white-space:nowrap;
   transition:background 240ms ease,border-color 240ms ease,transform 240ms cubic-bezier(.2,.8,.2,1)}
@@ -414,6 +416,7 @@ body.dropping::after{content:'묶음(.json)을 놓으면 그 매장이 열립니
 .qtop span{font-size:11px;padding:4px 10px;border-radius:999px;background:var(--panel);color:var(--sub)}
 .qtop span.hi{background:var(--ink);color:#fff}
 @media print{.rx{break-inside:avoid;background:none}}
+@media print{#sec-keyword .mz>.b.s12{break-inside:auto;page-break-inside:auto}#sec-keyword .pchk li{break-inside:avoid;page-break-inside:avoid}}   /* v3.41: 10장 점검표가 한 쪽보다 길어 통째로 다음 쪽으로 밀리던 것 — 줄 단위로 나눔 */
 @media (max-width:660px){.gauge,.sumg .gauge{grid-template-columns:1fr 1fr;grid-auto-rows:auto;column-gap:10px}.sumg .gauge .gl,.sumg .gauge .gt{grid-column:auto}.gauge .gv,.sumg .gauge .gv{grid-column:1/-1}.verdict{font-size:20px}.sumtop .sumph{min-height:280px}.sumtop .sumlead.md{font-size:15px}}
 @media print{.sumph{display:none!important}.sumtop .b.s7{grid-column:1/-1}}
 /* v3.20 0장 요약 */
@@ -1365,7 +1368,7 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
       <div class="name" data-sk="1" data-sk-wide="1">밑그림</div>
       <div class="tag"><span class="en">SKETCH</span><em>밑</em>천이 되는 <em>그림</em></div>
     </div>
-    <div class="ver" id="pageVer">v3.10</div>
+    <div class="ver" id="pageVer">v3.42</div>
   </div>
 
   <section class="tool" id="tool" aria-label="수집 도구">
@@ -1414,7 +1417,13 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
 
   // ▼ 배포 후 Cloudflare Worker 주소로 바꾸세요 (끝에 / 없이)
   const API_BASE = 'https://kt.roi0925003.workers.dev';
-  const PAGE_VERSION = 'v3.40';
+  const PAGE_VERSION = 'v3.42';
+  /* v3.42 (20곳 점검 — 고른 판단 항목): 옆 가게 평점 비교는 3곳 이상 · 「친절해요」 강점은 키워드 3위 안 · '업력' → '인허가 기준' ·
+     상가 등록 업종이 실제와 다르면 경고 · 나들이 손님 판정 · 해장국·곰탕도 빠른 회전 · 검색 후보에 시·도 */
+  /* v3.41 (20곳 실측 점검): 인허가 기록은 주소·상호로 확인된 것만 · 폐업일 표기 · 별점 10건 미만은 평점으로 안 씀 ·
+     브랜드 업종칸 · 업종 못 찾은 0곳 문장 · 0m 이웃 · 동네 인허가 0·0 · 구글 다른 매장 · 못 찾은 매장 안내 · 10장 인쇄 ·
+     회전 유형은 업종이 먼저(국밥·피자가 긴 체류로 나오던 것) · 같은 업종을 못 센 매장에 '사실상 이 집'을 내지 않음 ·
+     옆 가게 평점 비교 기준을 ±0.1로 통일 */
   const WORKER_VERSION = 'v1.41';   // 이 페이지와 짝이 되는 worker.js 버전 (이보다 낮으면 경고)
   /* 직원 공개용 토큰 — 비밀번호가 아닙니다. 소스 보기로 누구나 볼 수 있습니다.
      중계 서버의 PUBLIC_PASS와 같은 값이어야 하고, 남이 긁는 게 보이면
@@ -1644,7 +1653,7 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
       intro: String(d.intro || ''), seats: String(d.seats || ''),
       menus, reviewMenus: (d.reviewMenus || []).map(String).filter(Boolean),
       themes: (d.themes || []).filter(x => x && x.word),
-      name: String(d.name || ''), address: String(d.address || ''), url: safeHref(d.url), phone: String(d.phone || ''), phoneSource: String(d.phoneSource || ''),
+      name: String(d.name || ''), address: String(d.address || ''), url: safeHref(d.url), phone: /\[object /.test(String(d.phone || '')) ? '' : String(d.phone || ''), phoneSource: String(d.phoneSource || ''),
       menuUpdated: naverOnly ? String(d.naverMenuUpdated || '') : String(d.menuUpdated || ''),
       feed: (d.naverFeed || []).filter(x => x && (x.title || x.text)),
       menuSource: naverOnly ? '네이버 플레이스' : ((m.source && m.source.name) || '카카오맵').replace(/ \(.*$/, ''),
@@ -1675,9 +1684,14 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
     const meat = /삼겹|갈비|등심|안심|차돌|살치|목살|항정|곱창|막창|구이|한우|소고기|돼지/.test(names);
     const cat = s_cat(b);
     let type = 'mid', label = '보통 체류';
-    /* 업종이 먼저, 메뉴 단가는 그다음 — 고기집은 사이드 메뉴가 많아 중앙값이 낮게 나온다 */
-    if (/고기|육류|구이|횟집|회$|한정식|코스|오마카세|일식|스테이크|양식|주점|호프|술집|이자카야|샤브/.test(cat) || course || (median !== null && median >= 25000)) { type = 'slow'; label = '긴 체류 (고기·코스·주류)'; }
-    else if (/분식|김밥|국밥|칼국수|국수|치킨|카페|커피|햄버거|피자|패스트|도시락|죽|백반|샌드위치|토스트|떡볶이/.test(cat) || (median !== null && median < 12000 && !meat)) { type = 'fast'; label = '회전 빠른 단품형'; }
+    /* 업종이 먼저, 메뉴 단가는 그다음 — 고기집은 사이드 메뉴가 많아 중앙값이 낮게 나온다
+       v3.41: 실제로는 메뉴의 '코스·세트·모둠'과 단가가 업종보다 먼저 걸렸고(국밥집의 '모둠전' → 긴 체류),
+       '양식·일식' 같은 윗칸이 '피자·햄버거' 같은 아랫칸을 이겼다(고피자 → 긴 체류 (고기·코스·주류)). 업종으로 정해지면 그대로 쓴다 */
+    const byCat = /고기|육류|구이|횟집|회$|한정식|코스|오마카세|스테이크|주점|호프|술집|이자카야|샤브/.test(cat) ? 'slow'
+      : /분식|김밥|국밥|해장국|곰탕|설렁탕|칼국수|국수|치킨|카페|커피|햄버거|피자|패스트|도시락|죽|백반|샌드위치|토스트|떡볶이/.test(cat) ? 'fast'   // v3.42: 해장국·곰탕·설렁탕
+      : /양식|일식/.test(cat) ? 'slow' : null;
+    if (byCat === 'slow' || (!byCat && (course || (median !== null && median >= 25000)))) { type = 'slow'; label = '긴 체류 (고기·코스·주류)'; }
+    else if (byCat === 'fast' || (!byCat && median !== null && median < 12000 && !meat)) { type = 'fast'; label = '회전 빠른 단품형'; }
     const pick = items.slice().sort((a,b) => (Number(b.recommend)-Number(a.recommend)) || 0).slice(0, 10);
     return { items: pick, count: items.length, median, minP, maxP, rec: recItem ? { name: recItem.name, price: Number(recItem.price) } : null,
       alcohol, course, meat, type, label, updated: (P && P.menuUpdated) || '', source: P.menuSource, kakaoMenus: P.kakaoMenus, naverFew: P.naverFew || 0 };
@@ -1757,7 +1771,7 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
     const search = im.ok && im.data ? (im.data.items||[]) : [];
     const shots = board.concat(search).filter(it => imgHref(it.thumbnail)).slice(0, 10);
     const thumbs = shots.length ? `<ul class="thumbs mini" title="메뉴판 사진 (${board.length ? '플레이스 메뉴판 · ' : ''}네이버 이미지 검색 · 참고용 · 화면 전용)">${shots.map((it,i) => `<li${it.board ? ' class="brd"' : ''}><a href="${esc(safeHref(it.image)||safeHref(im.ok && im.data ? im.data.searchUrl : '')||'#')}" target="_blank" rel="noopener noreferrer"><img src="${esc(imgHref(it.thumbnail))}" alt="${esc(it.title||`메뉴판 사진 ${i+1}`)}" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a></li>`).join('')}</ul>` : '';
-    return `<div class="menuwrap">${thumbs}<div class="menutbl"><table class="tbl menu"><tbody>${rows}</tbody></table><p class="deck md" style="margin-top:6px">${line}</p><p class="mline">${line2}</p><p class="src9">${src} · 가운데 값은 메뉴를 가격순으로 세웠을 때 한가운데 가격입니다(주력 메뉴 가격이 아님) · 회전 유형은 업종과 메뉴 단가·주류·코스로 추정한 값입니다 (분식·국밥·카페 = 빠른 회전 / 고기·횟집·코스·주점 = 긴 체류)${shots.length ? `<span class="sale"> · 왼쪽 메뉴판 사진 ${shots.length}장은 ${board.length ? `플레이스 메뉴판 ${Math.min(board.length, shots.length)}장과 ` : ''}네이버 이미지 검색 결과라 참고만 하고, 인쇄·묶음에는 안 나갑니다</span>` : ''}</p></div></div>`;
+    return `<div class="menuwrap">${thumbs}<div class="menutbl"><table class="tbl menu"><tbody>${rows}</tbody></table><p class="deck md" style="margin-top:6px">${line}</p><p class="mline">${line2}</p><p class="src9">${src} · 가운데 값은 메뉴를 가격순으로 세웠을 때 한가운데 가격입니다(주력 메뉴 가격이 아님) · 회전 유형은 업종과 메뉴 단가·주류·코스로 추정한 값입니다 (분식·국밥·해장국·카페 = 빠른 회전 / 고기·횟집·코스·주점 = 긴 체류)${shots.length ? `<span class="sale"> · 왼쪽 메뉴판 사진 ${shots.length}장은 ${board.length ? `플레이스 메뉴판 ${Math.min(board.length, shots.length)}장과 ` : ''}네이버 이미지 검색 결과라 참고만 하고, 인쇄·묶음에는 안 나갑니다</span>` : ''}</p></div></div>`;
   }
 
   /* 요일별 시간을 '월~금 11:00~22:00 · 토 11:00~21:00'처럼 묶는다. 다 같으면 시간만 적는다. */
@@ -1793,7 +1807,61 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
   }
 
   /* 인허가 자료 — Worker가 localdata 모듈을 실어 주면 쓰고, 없으면 조용히 넘어간다 */
-  function licence(b){
+  /* v3.41: 인허가 기록이 이 매장 것인지 — 20곳 점검에서 17곳 중 9곳이 다른 지점(주소 다름)이거나 같은 건물의 다른 상호였다.
+     그러면 면적(→ 소형·대형 홀, 견적 대수)·업력·폐업이 틀린 사실로 나간다. 도로명+건물번호가 같아야 쓰고,
+     같은 건물이면 상호가 겹치거나 중계 서버가 정확히 맞췄다고 할 때만 쓴다. 안 맞으면 1장에 '찾은 기록'만 적고 판정에는 안 쓴다 */
+  const coreName = n => String(n||'').replace(/\(주\)|㈜|주식회사|\(.*?\)|\[.*?\]/g,'').replace(/[\s·.,&'’-]+/g,'').toLowerCase();
+  const brandWord = n => coreName(String(n||'').replace(/\(주\)|㈜|주식회사/g,'').trim().split(/\s+/)[0]);
+  function nameLike(a, b){
+    const A = coreName(a), B = coreName(b); if (A.length < 2 || B.length < 2) return false;
+    if (A.includes(B) || B.includes(A)) return true;
+    const ta = brandWord(a), tb = brandWord(b);
+    return (ta.length >= 2 && B.includes(ta)) || (tb.length >= 2 && A.includes(tb));
+  }
+  function roadKey(a){ const m = String(a||'').replace(/\s+/g,' ').match(/([가-힣A-Za-z0-9·]+(?:로|길))\s?(\d+(?:-\d+)?)/); return m ? m[1] + m[2] : ''; }
+  function ldTrust(st, d){
+    const a = roadKey(st && st.roadAddress), c = roadKey(d && d.addr);
+    const named = nameLike(st && st.name, d && d.bplcNm);
+    if (a && c && a === c) return (d.exact !== false || named) ? 'ok' : 'bldg';
+    if (!a || !c) return (d.exact !== false && named) ? 'ok' : 'addr';
+    return 'addr';
+  }
+  /* 구글에서 잡힌 곳이 이 매장인지 — 이름이 겹치고 300m 안 (신포호호닭강정 → 신포닭강정 본점, 쏠브레드 → 7km 밖 같은 이름) */
+  function googleOk(b, g){
+    if (!g || !g.place || !g.place.name) return false;
+    if (has(g.place.distance) && Number(g.place.distance) > 300) return false;
+    return nameLike(b && b.store && b.store.name, g.place.name);
+  }
+  /* 카카오 업종 끝칸이 브랜드 이름이면(음식점 > 샤브샤브 > 봄담아) 한 칸 위 */
+  function catLeaf(st){
+    const parts = String((st && st.category) || '').split('>').map(x => x.trim()).filter(x => x && x !== '음식점');
+    const nm = coreName(st && st.name);
+    while (parts.length > 1 && coreName(parts[parts.length-1]).length >= 2 && nm.startsWith(coreName(parts[parts.length-1]))) parts.pop();
+    return (parts.pop() || '').replace(/,/g, '·');
+  }
+  function licence(b){ const L = licenceRaw(b); return L && L.trust === 'ok' ? L : null; }
+  /* v3.42: 상가정보에 등록된 업종(소분류)과 카카오 업종의 계열이 다르면 — 같은 업종 수가 실제 경쟁과 다를 수 있다
+     (20곳 실측: 타키 부평점 일본식주점 → ‘백반/한정식’ 112곳 · 고우가 광화문점 한우 → ‘백반/한정식’ 71곳). 카카오가 '한식'처럼 넓으면 견주지 않는다 */
+  const CAT_FAM = [
+    ['고기', /고기|육류|구이|갈비|삼겹|곱창|막창|족발|보쌈|오리|양꼬치|바비큐|숯불/], ['주점', /술집|주점|호프|이자카야|포차|포장마차|와인|맥주|칵테일|펍/],
+    ['일식', /일식|초밥|스시|돈가스|돈까스|라멘|우동|덮밥|카레|일본/], ['중식', /중식|중국|중화|마라|훠궈|짬뽕|양꼬치/],
+    ['양식', /양식|서양|피자|파스타|스테이크|햄버거|버거|레스토랑|브런치|돈가스|돈까스|멕시/], ['카페', /카페|커피|디저트|베이커리|제과|빵|도넛|케이크|비알코올|아이스크림|빙수|떡|한과|찻집/],
+    ['치킨', /치킨|닭강정|통닭|닭/], ['분식', /분식|김밥|떡볶이|만두|토스트|샌드위치|샐러드|도시락/],
+    ['국물', /국밥|해장국|국\/탕|찌개|곰탕|설렁탕|순대|감자탕|추어탕|탕$/], ['면', /국수|칼국수|냉면|밀면|면 요리|막국수/],
+    ['해산물', /해물|생선|해산물|횟집|회$|조개|장어|아귀|대게|꽃게/], ['샤브·뷔페', /샤브|전골|뷔페/], ['전', /부침|빈대떡|파전|^전$|^전·|전\//],
+    ['아시아', /베트남|태국|동남아|인도|쌀국수|아시아/], ['한식', /백반|한정식|한식/] ];
+  const famOf = t => { const x = String(t || ''); return CAT_FAM.filter(([, re]) => re.test(x)).map(([k]) => k); };
+  function sangMismatch(b){
+    const m = mod(b,'competition'); const cd = m.ok ? m.data : null;
+    if (!cd || !cd.matched || !cd.industry || !cd.industry.small) return null;
+    const st = b.store || {}; const leaf = catLeaf(st) || String(st.naverCategory || '').split('>').pop().trim();
+    const kf = famOf(leaf).filter(f => f !== '한식'); if (!kf.length) return null;
+    return famOf(cd.industry.small).some(f => kf.includes(f)) ? null : { small: String(cd.industry.small), kakao: leaf };
+  }
+  /* 동네 인허가 집계 — 매장 매칭과 상관없이 동네 값. 영업·폐업이 다 0이면 못 센 것이라 비운다 */
+  function hoodOf(b){ const m = mod(b,'localdata'); const h = m.ok && m.data ? m.data.hood : null;
+    return h && has(h.active) && ((Number(h.active)||0) + (Number(h.closed)||0)) > 0 ? h : null; }
+  function licenceRaw(b){
     const m = mod(b,'localdata');
     if (!m.ok || !m.data || !m.data.apvPermYmd) return null;
     const y = String(m.data.apvPermYmd).replace(/[^0-9]/g,'').slice(0,8);
@@ -1804,6 +1872,8 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
       years:Math.floor(mo/12), rest:mo%12, state:m.data.trdStateNm || '',
       name:m.data.bplcNm || '', addr:m.data.addr || '', area:m.data.siteArea || '',
       uptae:m.data.uptae || '', hood:m.data.hood || null,
+      trust: ldTrust(b.store, m.data),                                                   // v3.41: ok · bldg(같은 건물 다른 상호) · addr(주소 다름)
+      closed: String(m.data.closedYmd||'').replace(/[^0-9]/g,'').slice(0,8).replace(/^(\d{4})(\d{2})(\d{2})$/,'$1-$2-$3'),
       /* v3.21 (#74): 중계 서버 v1.31부터 영업 중 기록을 우선 고르고, 밀려난 옛 기록은 previous로 온다 */
       open: m.data.open !== undefined ? m.data.open !== false : !/폐업|취소|말소/.test(String(m.data.trdStateNm||'')),
       previous: Array.isArray(m.data.previous) ? m.data.previous : [],
@@ -1918,7 +1988,7 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
       { what: '오픈업 매장 페이지 캡처', why: '추정 매출 범위 · 시간대 · 요일 · 고객 구성', href: 'https://www.openub.com/', btn: '오픈업 열기' },
       { what: '소상공인365 상세분석 캡처', why: '상권 평균 매출 · 유동인구 · 상권 등급', href: 'https://bigdata.sbiz.or.kr/', btn: '소상공인365 열기' },
       { what: '나이스비즈맵 무료 보고서 캡처', why: '업종 비용 구조(식재료·인건비·임차료 %) · 평균/중위/상하위 20% 매출 · 잘 팔리는 메뉴 TOP3 · 시간대별 건수와 금액 — 하루 5회 무료, 로그인 필요', href: 'https://www.nicebizmap.co.kr/', btn: '나이스비즈맵 열기' },
-      lic ? null : { what: "인허가일(업력) 확인", why: "일반음식점 인허가일 · 면적", href: "https://www.data.go.kr/data/15154916/openapi.do", btn: "공공데이터포털 열기" },
+      lic ? null : { what: "인허가일 확인", why: "일반음식점 인허가일 · 면적", href: "https://www.data.go.kr/data/15154916/openapi.do", btn: "공공데이터포털 열기" },
       { what: '코네스트 확인', why: '일본 관광객 사이트에 기사·예약이 있는지. 리뷰 언어 비율과 함께 외국인 손님 신호로 봅니다', href: `https://www.konest.com/contents/article_search.html?q=${enc}`, btn: '코네스트 열기' },
     ].filter(Boolean);
   }
@@ -2483,8 +2553,9 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
       <div class="v" data-sk="1"${roll}>${esc(v)}</div><div class="s">${esc(sub)}</div></div>`;
     };
     const kpis = '<div class="kpis" data-rule="ht,vc">' + [
-      kpi(`같은 업종 (반경 ${dist(R)})`, cd && (cd.matched || cd.fallback) ? num(cd.sameSmall.count) : '—',
-        cd && cd.matched ? `소분류 ‘${cd.industry.small}’, 이 매장 제외`
+      kpi(`같은 업종 (반경 ${dist(R)})`, cd && (cd.matched || (cd.fallback && Number(cd.sameSmall && cd.sameSmall.count) > 0)) ? num(cd.sameSmall.count) : '—',
+        cd && cd.matched ? (sangMismatch(b) ? `상가 등록 업종 ‘${cd.industry.small}’ 기준 — 실제 업종(${sangMismatch(b).kakao})과 다름` : `소분류 ‘${cd.industry.small}’, 이 매장 제외`)
+          : cd && cd.fallback && !(Number(cd.sameSmall && cd.sameSmall.count) > 0) ? `못 셈 — ${cd.fallback.from}${jo(cd.fallback.from,'으로/로')} 고른 ‘${cd.industry.small}’${jo(cd.industry.small,'은/는')} 0곳이라 이 매장 업종이 아닐 수 있음`
           : cd && cd.fallback ? `소분류 ‘${cd.industry.small}’ — ${cd.fallback.from}${jo(cd.fallback.from,'으로/로')} 대체, 이 매장 포함될 수 있음`
           : comp.ok ? '상가정보에서 매장을 못 찾음' : '수집 안 됨'),
       kpi('낮 인구 배율', pd && has(pd.workerPerResident) ? String(pd.workerPerResident) : '—',
@@ -2539,12 +2610,16 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
     if (MP) rows.push(['메뉴 (' + esc(MP.source) + ')', menuTableHTML(MP, b)]);
     const plc = b.modules && b.modules.place;                 // 리뷰를 가져오기 전에는 항목 자체가 없다 — 그때는 줄을 만들지 않는다
     if (!P && plc && plc.ok === false && plc.error) rows.push(['영업일 · 편의시설', badge('fail','수집 안 됨') + ` <span class="src9">${esc(plc.error)}</span>`]);
-    if (lic) rows.push(['인허가일 (업력)', esc(`${lic.ymd} · ${ageText(lic)}`) +
+    if (lic) rows.push(['인허가일', esc(`${lic.ymd} · 인허가 기준 ${ageText(lic)}`) +   // v3.42: 업력 → 인허가 기준
       (lic.state ? ` <span class="src9">${esc(lic.state)}</span>` : '') +
-      (lic.open ? '' : ` ${badge('warn','폐업 기록')}`) +
+      (lic.open ? '' : ` ${badge('warn','폐업 기록')}${lic.closed ? ` <span class="src9">폐업 ${esc(lic.closed)}</span>` : ''}`) +
       (lic.exact ? '' : ' <span class="src9">상호가 비슷한 곳을 골랐습니다 — 확인하세요</span>') +
-      (lic.previous.length ? `<br><span class="src9">같은 자리 이전 인허가 ${esc(lic.previous.map(p => `${String(p.date||'').slice(0,7).replace(/(\d{4})(\d{2})/, '$1-$2')} (${p.state||'기록'})`).join(', '))} — 사업자가 바뀐 흔적입니다</span>` : '')]);
-    else if (ld.ok === false && ld.error) rows.push(['인허가일 (업력)',
+      (lic.previous.length ? `<br><span class="src9">같은 자리 이전 인허가 ${esc(lic.previous.map(p => `${String(p.date||'').slice(0,7).replace(/(\d{4})(\d{2})/, '$1-$2')} (${p.state||'기록'})`).join(', '))} — 사업자가 바뀐 흔적입니다</span>` : '') +
+      `<br><span class="src9">인허가일은 주인이 바뀌어도(지위승계) 그대로라 실제 업력과 다를 수 있습니다</span>`]);
+    else if (licenceRaw(b)) { const R0 = licenceRaw(b);                             // v3.41: 찾은 기록이 이 매장 것이 아니면 판정에 쓰지 않고 여기만 적는다
+      rows.push(['인허가일', badge('warn', R0.trust === 'bldg' ? '같은 건물 다른 상호' : '주소 다름') +
+        ` <span class="src9">찾은 기록: ‘${esc(R0.name)}’ · ${esc(R0.addr)} — ${R0.trust === 'bldg' ? '같은 건물의 다른 상호' : '주소가 달라 다른 지점·가게'}로 보여 면적·인허가 연수에 쓰지 않았습니다. 현장에서 확인하세요</span>`]); }
+    else if (ld.ok === false && ld.error) rows.push(['인허가일',
       badge('fail','수집 안 됨') + ` <span class="src9">${esc(ld.error)}</span>`]);
     const info = tbl(rows);
 
@@ -2606,7 +2681,8 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
     /* 외국인 */
     { const foreign = rv && has(rv.foreign) ? Number(rv.foreign) : 0;
       const share = counted ? foreign / counted : 0;
-      const g = rv && rv.sources && rv.sources.google; const gForeign = g && has(g.foreign) ? Number(g.foreign) : 0;
+      const g0 = rv && rv.sources && rv.sources.google, g = googleOk(b, g0) ? g0 : null;   // v3.41: 이름·거리가 다른 구글 매장은 뺌
+      const gForeign = g && has(g.foreign) ? Number(g.foreign) : 0;
       const tz = inTouristZone(b); const tourN = tour ? Number(tour.total)||0 : 0; const sights = catCount('AT4'), lodging = catCount('AD5');
       const duty = tour ? Number(((tour.list||[]).find(x => x.word === '면세점')||{}).count)||0 : 0;
       /* v3.22 (#104): 외국인은 네이버가 아니라 구글에 리뷰를 쓴다 — 구글 리뷰 총수가 네이버의 1.5배면 신호, 3배면 강한 신호 (우대포 명동점 713 vs 248) */
@@ -2615,6 +2691,7 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
       const ratio = gTotal && nTotal ? gTotal / nTotal : 0;
       let level = 0; const why = [];
       if (counted) why.push(`외국어 리뷰 ${foreign}건/${counted}건 (${Math.round(share*100)}%)`);
+      if (g0 && g0.place && g0.place.name && !g) why.push(`구글에서 잡힌 ‘${g0.place.name}’${jo(g0.place.name,'은/는')} 이름·거리가 달라 뺌`);
       if (gForeign) why.push(`구글 최신 리뷰 ${g.counted}건 중 외국어 ${gForeign}건`);
       if (ratio >= 1.5) why.push(`구글 리뷰 ${num(gTotal,'건')} vs 네이버 ${num(nTotal,'건')} — 구글이 ${ratio.toFixed(1)}배 (외국인은 구글에 씁니다)`);
       if (tourN) why.push(`반경 안 환전소·게스트하우스·관광안내소 ${tourN}곳${duty ? ` (면세점 ${duty}곳은 합계에서 뺌)` : ''}`);
@@ -2624,6 +2701,23 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
       if (share >= 0.2 || gForeign >= 3 || ratio >= 3 || kn >= 10 || (tz && share >= 0.05) || (tz && ratio >= 1.5)) level = 2;
       else if (share >= 0.08 || ratio >= 1.5 || tourN >= 6 || tz || kn >= 3 || (sights >= 15 && lodging >= 10)) level = 1;
       A.foreign = { key:'foreign', label:'외국인 손님', level, why, share, foreign, tourN, tz, ratio, gTotal, nTotal, langs: rv && rv.langs ? rv.langs : null }; }
+
+    /* v3.42: 나들이 손님 — 네이버 방문 목적 태그의 '나들이·여행' 비중과 주말 방문 비중으로 본다.
+       환전소·관광안내소 수는 광화문·강남역 같은 직장가에도 있어 판정에 쓰지 않고 이유에만 적는다.
+       20곳 실측: 차이나타운 연경 나들이·여행 43% · 주말 63%, 월미도 소문난전라도회집 58% · 67% / 나머지는 0~10% */
+    { const PT = rv && rv.visitTags ? vtCats(rv.visitTags).find(c => c.name === '방문 목적') : null;
+      const ptN = PT ? Number(PT.n) || 0 : 0;
+      const trip = PT ? PT.keywords.filter(k => /나들이|여행/.test(k.name)).reduce((a, k) => a + (Number(k.n) || 0), 0) : 0;
+      const tShare = ptN ? trip / ptN : 0;
+      const BZo = rv && rv.busy ? rv.busy : null, wk = BZo && Number(BZo.dayN) >= 20 && has(BZo.weekendPct) ? Number(BZo.weekendPct) : null;
+      const tourO = tour ? Number(tour.total) || 0 : 0;
+      let level = 0; const why = [];
+      if (ptN && trip) why.push(`방문 목적 ‘나들이·여행’ ${trip}건/${ptN}건 (${Math.round(tShare*100)}%)`);
+      if (wk !== null) why.push(`주말 방문 ${wk}% (7일 중 이틀이면 29%)`);
+      if (tourO) why.push(`반경 안 관광안내소·게스트하우스·환전소 ${tourO}곳`);
+      if (ptN >= 20 && tShare >= 0.3 && (wk === null || wk >= 45)) level = 2;
+      else if (ptN >= 10 && tShare >= 0.25) level = 1;
+      A.outing = { key:'outing', label:'나들이 손님', level, why, share: tShare, n: ptN, weekend: wk }; }
 
     /* 직장인 */
     { const r = pd && has(pd.workerPerResident) ? Number(pd.workerPerResident) : null;
@@ -2702,7 +2796,7 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
       const near = cd ? (cd.neighbors||[]).filter(x => x && x.name) : [];
       const bands = cd && cd.sameSmall ? (cd.sameSmall.bands||[]) : [];
       const n100 = bands[0] ? Number(bands[0].count)||0 : 0; const total = cd && cd.sameSmall ? Number(cd.sameSmall.count)||0 : 0;
-      const hood = L && L.hood ? L.hood : null; const newlyRatio = hood && has(hood.newly) && has(hood.active) ? Number(hood.newly)/Math.max(1,Number(hood.active)) : null;
+      const hood = hoodOf(b); const newlyRatio = hood && has(hood.newly) && has(hood.active) ? Number(hood.newly)/Math.max(1,Number(hood.active)) : null;
       const sameBld = near.filter(x => x.sameBldg).length;
       let level = 0; const why = [];
       if (total) why.push(`반경 안 같은 업종 ${total}곳, 100m 안 ${n100}곳`); if (sameBld) why.push(`같은 건물 ${sameBld}곳`);
@@ -2713,23 +2807,27 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
     return A;
   }
 
+  /* v3.41: 네이버 공식 평점이 없을 때 별점 평균은 별점 있는 리뷰가 이만큼은 돼야 평점으로 쓴다 (고피자: 150건 중 별점 1건 = 1점 → '평점 1') */
+  const RATING_MIN = 10;
+  const SCORE_MIN_N = 3;   // v3.42: 옆 가게 평점을 이만큼 읽어야 평균을 내고 견준다 (1곳과 견준 '평균보다 아래'가 나갔다)
+  const ratedCount = rv => rv && rv.ratingCounts ? Object.values(rv.ratingCounts).reduce((a,v) => a + (Number(v)||0), 0) : 0;
   /* 상권 눈금 — 이웃 매장(네이버 목록)의 리뷰 수·평점과 견준다 */
   function rankModel(b){
     const rv = state.reviews && state.reviews.data ? state.reviews.data : null;
     const rk = mod(b,'rank'); const nbs = rk.ok && rk.data ? (rk.data.neighbors||[]).filter(x => has(x.reviews)) : [];
     const pl = rv && rv.sources && rv.sources.naver && rv.sources.naver.place ? rv.sources.naver.place : (rv && rv.place) || null;
     const mine = pl && has(pl.total) ? Number(pl.total) : null;
-    const myScore = pl && has(pl.rating) ? Number(pl.rating) : (rv && has(rv.ratingAvg) ? Number(rv.ratingAvg) : null);
+    const myScore = pl && has(pl.rating) ? Number(pl.rating) : (rv && has(rv.ratingAvg) && ratedCount(rv) >= RATING_MIN ? Number(rv.ratingAvg) : null);   // v3.41
     const list = nbs.map(x => ({ name:x.name, reviews:Number(x.reviews)||0, score: has(x.score) ? Number(x.score) : null }));
     const all = mine !== null ? list.concat([{ name:'이 매장', reviews: mine, score: myScore, me:true }]) : list;
     all.sort((a,b) => b.reviews - a.reviews);
     const pos = all.findIndex(x => x.me) + 1;
     const scores = list.map(x => x.score).filter(v => v !== null);
-    const avgScore = scores.length ? Math.round(scores.reduce((a,v) => a+v,0)/scores.length*100)/100 : null;
+    const avgScore = scores.length >= SCORE_MIN_N ? Math.round(scores.reduce((a,v) => a+v,0)/scores.length*100)/100 : null;   // v3.42: 3곳 미만이면 비교 안 함
     const V = rv && rv.velocity ? rv.velocity : null;
     const pm3 = V && has(V.last3) ? Math.round(Number(V.last3)/3*10)/10 : null;
     const pm12 = V && has(V.perMonth12) ? Number(V.perMonth12) : null;
-    return { mine, myScore, list, pos, n: all.length, avgScore, maxReviews: all.length ? all[0].reviews : null, pm3, pm12,
+    return { mine, myScore, list, pos, n: all.length, avgScore, nScored: scores.length, maxReviews: all.length ? all[0].reviews : null, pm3, pm12,
       top: all[0] || null, runnerUp: all.find(x => !x.me) || null };
   }
 
@@ -2811,15 +2909,19 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
   function rxComp(b){
     const m = mod(b,'competition'); if (!m.ok) return [];
     const R = (b.options && b.options.radius) || 500, A = axesOf(b).comp, out = [];
+    /* v3.41: 상가정보에서 매장을 못 찾았거나, 업종으로 대체한 소분류가 0곳(이 매장조차 없음 = 맞는 소분류가 아님)이면 센 값이 없다 —
+       '0곳 — 경쟁 드묾 · 사실상 이 집'이 틀린 사실로 나갔다 (양평해장국 남동공단 · 강남역 구레스시 · 봄담아 청라) */
+    const SMx = sangMismatch(b), smTag = SMx ? ` <span class="src9">(상가 등록 업종 ‘${esc(SMx.small)}’ 기준)</span>` : '';   // v3.42
+    const cdk = m.data || {}, known = Boolean(cdk.sameSmall && has(cdk.sameSmall.count) && (cdk.matched || Number(cdk.sameSmall.count) > 0));
     const sig = signatureMenu(b), area = areaWord(b), kw = [area, sig].filter(Boolean).join(' ');
     const kwTip = kw ? ` (예: ‘${esc(kw)}’ — 「네이버 플레이스 점검」 장 참고)` : ' (「네이버 플레이스 점검」 장 참고)';
     if (A.sameBld >= 1 || A.n100 >= 2) out.push(rxLine(`100m 안 같은 업종 <b>${num(A.n100,'곳')}</b>${A.sameBld ? ` · 같은 건물 ${num(A.sameBld,'곳')}` : ''} — 문 앞에서 손님이 갈림`,
       `가게 앞에서 고르는 손님을 붙잡는 건 대기와 주문 속도 — 웨이팅 서비스로 줄을 붙잡고, 플레이스 키워드는 옆집과 겹치지 않게 대표 메뉴로${kwTip}`));
-    else if (A.total >= 8) out.push(rxLine(`반경 ${dist(R)} 안 같은 업종 <b>${num(A.total,'곳')}</b> — 촘촘함`,
+    else if (known && A.total >= 8) out.push(rxLine(`반경 ${dist(R)} 안 같은 업종 <b>${num(A.total,'곳')}</b> — 촘촘함${smTag}`,
       `넓은 검색어(‘${esc(area || '동네')} 맛집’)로는 리뷰 수 싸움 — 상권 + 대표 메뉴로 좁힌 키워드로 차별하세요${kwTip}`));
-    else if (A.total <= 2) out.push(rxLine(`반경 ${dist(R)} 안 같은 업종 <b>${num(A.total,'곳')}</b> — 경쟁 드묾`,
+    else if (known && A.total <= 2) out.push(rxLine(`반경 ${dist(R)} 안 같은 업종 <b>${num(A.total,'곳')}</b> — 경쟁 드묾${smTag}`,
       '이 동네에서 이 업종은 사실상 이 집 — 새 손님 찾기보다 단골 지키기: 스탬프·쿠폰으로 재방문'));
-    else out.push(rxLine(`반경 ${dist(R)} 안 같은 업종 <b>${num(A.total,'곳')}</b>${A.near[0] ? ` · 가장 가까운 곳 ${esc(A.near[0].name)} ${dist(A.near[0].distance)}` : ''}`,
+    else if (known) out.push(rxLine(`반경 ${dist(R)} 안 같은 업종 <b>${num(A.total,'곳')}</b>${smTag}${A.near[0] ? ` · 가장 가까운 곳 ${esc(A.near[0].name)} ${dist(A.near[0].distance)}` : ''}`,
       '보통 수준 — 가장 가까운 집과 다른 점(메뉴·가격·대기)을 방문 때 확인하고, 그 차이를 메뉴판 첫 화면에 두세요'));
     const K = rankModel(b);
     if (K.mine !== null && K.n >= 3 && K.top) {
@@ -2830,7 +2932,7 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
       else out.push(rxLine(`${K.n}곳 중 리뷰 수 <b>${K.pos}위</b> (1위 ${esc(K.top.name)} ${num(K.top.reviews,'건')})`,
         `1위와 ${num(K.top.reviews - K.mine,'건')} 차이 — 방문 손님이 리뷰를 남기게 (하이오더 네이버 리뷰 QR)`));
     }
-    if (A.newlyRatio !== null && A.newlyRatio >= 0.12) { const L = licence(b), hood = L && L.hood;
+    if (A.newlyRatio !== null && A.newlyRatio >= 0.12) { const hood = hoodOf(b);
       if (hood) out.push(rxLine(`동네 ${esc(hood.kind||'음식점')} 최근 ${hood.years||2}년 새로 연 곳 <b>${num(hood.newly,'곳')}</b> (영업 중의 ${(A.newlyRatio*100).toFixed(1)}%)`,
         '새 가게가 첫 방문 손님을 나눠 갑니다 — 단골이 한 번 가 보고 돌아오게 스탬프·쿠폰')); }
     return out.slice(0, 3);
@@ -2951,18 +3053,20 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
     const VT = rv && rv.stats && rv.stats.voted ? rv.stats.voted : null;
     const votes = (re) => VT ? (VT.top||[]).filter(k => re.test(String(k.name||''))).reduce((a,k) => a + (Number(k.count)||0), 0) : 0;
     const A = axesOf(b), K = rankModel(b), MP = menuProfile(b), Q = quoteCalc(b);
+    const SM0 = sangMismatch(b);   // v3.42
     const near = A.comp.near;
-    const small = cd && cd.industry ? cd.industry.small + (cd.industry.estimated ? ' (추정)' : '') : '';
-    const kakaoCat = s.category ? String(s.category).split('>').pop().trim() : '';
+    const kakaoCat = catLeaf(s);                                                  // v3.41: 브랜드 칸은 건너뜀
+    const small = !SM0 && cd && cd.industry && cd.industry.small && !(!cd.matched && /^기타/.test(cd.industry.small) && kakaoCat)   // v3.42: 등록 업종이 실제와 다르면 카카오 업종   // 상가정보에서 못 찾은 '기타 ○○ 음식점'보다 카카오 업종
+      ? cd.industry.small + (cd.industry.estimated ? ' (추정)' : '') : '';
 
     /* 1) 사실 문장 */
     const facts = [];
     facts.push(`${dong ? `<b>${esc(dong)}</b>의 ` : ''}${small ? `<b>${esc(small)}</b> 가게` : (kakaoCat ? `<b>${esc(kakaoCat)}</b> 가게` : '가게')}`);
-    if (L) facts.push(L.open ? `인허가 기준 <b>${esc(ageText(L))}째</b>` : `인허가 기록은 <b>${esc(L.state || '폐업')}</b> (${esc(L.ymd)}) — 현장 확인 필요`);
+    if (L) facts.push(L.open ? `인허가 기준 <b>${esc(ageText(L))}째</b>` : `인허가 기록은 <b>${esc(L.state || '폐업')}</b> (${esc(L.closed || L.ymd)}) — 현장 확인 필요`);
     if (L && has(L.area) && Number(L.area) > 0) facts.push(`영업장 <b>${esc(num(Number(L.area)))}㎡</b> (약 ${esc(String(pyeong(L.area)))}평${L.floors ? ` · ${esc(String(L.floors).replace(/\s*,\s*/g,'·'))}층 합` : ''})`);
-    if (cd && (cd.matched || cd.fallback) && has(cd.sameSmall && cd.sameSmall.count)) {
+    if (cd && (cd.matched || cd.fallback) && has(cd.sameSmall && cd.sameSmall.count) && (cd.matched || Number(cd.sameSmall.count) > 0)) {   // v3.41: 업종을 못 찾아 0곳이면 쓰지 않음
       const sameB = near.filter(x => x.sameBldg).length;
-      facts.push(`반경 ${dist(R)} 안 같은 업종 <b>${esc(num(cd.sameSmall.count,'곳'))}</b>${near[0] ? (sameB ? `, 그중 <b>같은 건물에 ${sameB}곳</b>` : `, 가장 가까운 곳 <b>${esc(dist(near[0].distance))}</b>`) : ''}`);
+      facts.push(`반경 ${dist(R)} 안 같은 업종 <b>${esc(num(cd.sameSmall.count,'곳'))}</b>${SM0 ? ` (상가 등록 업종 ‘${esc(SM0.small)}’ 기준 — 실제 업종 ‘${esc(SM0.kakao)}’과 다름)` : ''}${near[0] ? (sameB ? `, 그중 <b>같은 건물에 ${sameB}곳</b>` : (Number(near[0].distance) < 5 ? ', 가장 가까운 곳은 <b>같은 건물(같은 필지)</b>' : `, 가장 가까운 곳 <b>${esc(dist(near[0].distance))}</b>`)) : ''}`);
     }
     if (pd && has(pd.population)) facts.push(`동네 인구 <b>${esc(num(pd.population))}명</b>${has(pd.workerPerResident) ? `, ${esc(dayType(pd.workerPerResident))}` : ''}`);
     if (rv && counted) facts.push(`네이버 리뷰 <b>${esc(num(K.mine !== null ? K.mine : counted,'건'))}</b>${has(K.myScore) ? ` 평점 <b>${esc(String(K.myScore))}</b>` : ''}`);
@@ -2970,25 +3074,27 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
     const sents = [];
     { const idTxt = facts[0];
       if (L && L.open) sents.push(`이 매장은 ${idTxt}로, 인허가 기준 <b>${esc(ageText(L))}째</b>입니다.`);
-      else if (L) sents.push(`이 매장은 ${idTxt}입니다. 인허가 기록은 <b>${esc(L.state || '폐업')}</b> (${esc(L.ymd)})${jo(L.ymd,'이라/라')} 현장 확인이 필요합니다.`);
+      else if (L) sents.push(`이 매장은 ${idTxt}입니다. 인허가 기록은 <b>${esc(L.state || '폐업')}</b> (${esc(L.closed || L.ymd)})${jo(L.closed || L.ymd,'이라/라')} 현장 확인이 필요합니다.`);
       else sents.push(`이 매장은 ${idTxt}입니다.`);
       if (L && has(L.area) && Number(L.area) > 0) sents.push(`영업장은 <b>${esc(num(Number(L.area)))}㎡</b>(약 ${esc(String(pyeong(L.area)))}평${L.floors ? ` · ${esc(String(L.floors).replace(/\s*,\s*/g,'·'))}층 합` : ''})입니다.`);
-      if (cd && (cd.matched || cd.fallback) && has(cd.sameSmall && cd.sameSmall.count)) {
+      if (cd && (cd.matched || cd.fallback) && has(cd.sameSmall && cd.sameSmall.count) && (cd.matched || Number(cd.sameSmall.count) > 0)) {   // v3.41: 업종을 못 찾아 0곳이면 쓰지 않음
         const sameB = near.filter(x => x.sameBldg).length;
-        sents.push(`반경 ${dist(R)} 안 같은 업종은 <b>${esc(num(cd.sameSmall.count,'곳'))}</b>${near[0] ? (sameB ? `이고, 그중 <b>같은 건물에 ${sameB}곳</b>이 있습니다.` : `이고, 가장 가까운 곳은 <b>${esc(dist(near[0].distance))}</b> 거리입니다.`) : '입니다.'}`);
+        sents.push(`반경 ${dist(R)} 안 같은 업종은 <b>${esc(num(cd.sameSmall.count,'곳'))}</b>${SM0 ? ` <span class="src9">(상가 등록 업종 ‘${esc(SM0.small)}’ 기준 — 실제 업종과 다름)</span>` : ''}${near[0] ? (sameB ? `이고, 그중 <b>같은 건물에 ${sameB}곳</b>이 있습니다.` : (Number(near[0].distance) < 5 ? '이고, 가장 가까운 곳은 <b>같은 건물(같은 필지)</b>에 있습니다.' : `이고, 가장 가까운 곳은 <b>${esc(dist(near[0].distance))}</b> 거리입니다.`)) : '입니다.'}`);
       }
       if (pd && has(pd.population)) sents.push(`동네 인구는 <b>${esc(num(pd.population))}명</b>${has(pd.workerPerResident) ? `이고 ${esc(dayType(pd.workerPerResident))}입니다.` : '입니다.'}`);
       if (rv && counted) sents.push(`네이버 리뷰는 <b>${esc(num(K.mine !== null ? K.mine : counted,'건'))}</b>${has(K.myScore) ? `, 평점 <b>${esc(String(K.myScore))}</b>` : ''}입니다.`); }
 
     /* 2) 강점·약점 — 숫자 둘씩. lever는 하이오더 기능, sec은 근거가 있는 장 */
     const strengths = [], weaknesses = [];
-    if (has(K.myScore) && has(K.avgScore) && K.myScore >= K.avgScore + 0.05) strengths.push({ sec:'reviews', text:`평점 <b>${esc(String(K.myScore))}</b> — 옆 가게 ${K.list.filter(x => has(x.score)).length}곳 평균 ${esc(String(K.avgScore))}보다 높음`, keep:'지킬 자산' });
-    else if (has(K.myScore) && has(K.avgScore) && K.myScore < K.avgScore - 0.05) weaknesses.push({ sec:'reviews', text:`평점 <b>${esc(String(K.myScore))}</b> — 옆 가게 ${K.list.filter(x => has(x.score)).length}곳 평균 ${esc(String(K.avgScore))} 아래`, lever:'불만 상위 항목부터 (아래)', w:4 });
+    /* v3.41: 평점 비교는 5장 제안·리뷰 칸과 같은 ±0.1 (반올림한 차이로) — 0.05였어서 같은 숫자가 장마다 다르게 읽혔다 */
+    if (has(K.myScore) && has(K.avgScore) && Math.round((K.myScore - K.avgScore)*100)/100 >= 0.1) strengths.push({ sec:'reviews', text:`평점 <b>${esc(String(K.myScore))}</b> — 옆 가게 ${K.list.filter(x => has(x.score)).length}곳 평균 ${esc(String(K.avgScore))}보다 높음`, keep:'지킬 자산' });
+    else if (has(K.myScore) && has(K.avgScore) && Math.round((K.myScore - K.avgScore)*100)/100 <= -0.1) weaknesses.push({ sec:'reviews', text:`평점 <b>${esc(String(K.myScore))}</b> — 옆 가게 ${K.list.filter(x => has(x.score)).length}곳 평균 ${esc(String(K.avgScore))} 아래`, lever:'불만 상위 항목부터 (아래)', w:4 });
     if (K.pos === 1 && K.n >= 3) strengths.push({ sec:'comp', text:`리뷰 <b>${esc(num(K.mine,'건'))}</b> — 옆 가게 ${K.n-1}곳보다 많음 (1위)`, keep:'손님이 먼저 찾는 집' });
     else if (K.pos >= 1 && K.n >= 3 && K.pos >= K.n - 1) weaknesses.push({ sec:'comp', text:`리뷰 <b>${esc(num(K.mine,'건'))}</b> — 옆 가게 ${K.n-1}곳 중 ${K.pos}위 (1위 ${esc(num(K.maxReviews,'건'))})`, lever:'영수증 리뷰 QR·하이오더 리뷰 유도', w:3 });
     { /* v3.28: 친절은 네이버 전체 키워드 투표로 본다 (가져온 글보다 훨씬 큰 표본) — 없으면 가져온 글의 키워드 */
       const kv = votes(/친절/), base = VT ? Number(VT.reviews)||0 : 0;
-      if (kv >= 20 && base && kv / base >= 0.15) strengths.push({ sec:'reviews', text:`「친절해요」 <b>${esc(num(kv,'표'))}</b> — 키워드를 고른 리뷰 ${esc(num(base,'건'))}의 ${Math.round(kv/base*100)}%`, keep:'직원이 오래도록 친절할 수 있도록, 손님 응대 스트레스를 덜어 줄 필요가 있음' });
+      const kR = kwRank(VT, /친절/);   // v3.42: 상위 3위 안일 때만 강점
+      if (kv >= 20 && base && kR !== null && kR <= 3) strengths.push({ sec:'reviews', text:`「친절해요」 <b>${esc(num(kv,'표'))}</b> — 네이버 키워드 ${kR}위 (키워드를 고른 리뷰 ${esc(num(base,'건'))}의 ${Math.round(kv/base*100)}%)`, keep:'직원이 오래도록 친절할 수 있도록, 손님 응대 스트레스를 덜어 줄 필요가 있음' });
       else if (!VT && A.manner.kind >= Math.max(5, counted*0.3)) strengths.push({ sec:'reviews', text:`「친절해요」 <b>${A.manner.kind}건</b>/${counted}건 — 직원의 응대가 자산`, keep:'직원이 오래도록 친절할 수 있도록, 손님 응대 스트레스를 덜어 줄 필요가 있음' }); }
     if (A.foreign.level >= 2) { const kn = rv && rv.konest ? Number(rv.konest.count)||0 : 0;
       strengths.push({ sec:'reviews', text:(A.foreign.ratio >= 1.5 ? `구글 리뷰 <b>${esc(num(A.foreign.gTotal,'건'))}</b>(네이버 ${esc(num(A.foreign.nTotal,'건'))}의 ${A.foreign.ratio.toFixed(1)}배)` : `외국어 리뷰 <b>${Math.round(A.foreign.share*100)}%</b>`) + `${kn ? ` · 코네스트(일본) 글 ${esc(num(kn,'건'))}` : ''}${A.foreign.tourN && !kn ? ` · 반경 안 관광 시설 ${A.foreign.tourN}곳` : ''} — 관광 수요를 이미 받고 있음`, keep:'다국어 메뉴판으로 굳히기' }); }
@@ -3012,7 +3118,7 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
     if (K.pm3 !== null && K.pm12 !== null && K.pm12 >= 2 && K.pm3 < K.pm12 * 0.6) weaknesses.push({ sec:'reviews', text:`최근 3개월 리뷰 월 <b>${K.pm3}건</b> — 12개월 평균 월 ${K.pm12}건의 ${Math.round(K.pm3/K.pm12*100)}%`, lever:'재방문 유도 (스탬프·쿠폰·리뷰 QR)', w:4 });
     if (rv && rv.velocity && has(rv.velocity.replyRate) && Number(rv.velocity.replyRate) < 20 && counted >= 20) weaknesses.push({ sec:'reviews', text:`사장님 답글 <b>${rv.velocity.replyRate}%</b> — 리뷰를 안 보는 편`, lever:'답글 습관 — 사과·고친 것·다시 오시면 세 줄 (플레이스 점검 장)', w:2, sale:true });
     if (A.comp.sameBld || A.comp.n100 >= 2) weaknesses.push({ sec:'comp', text:`<b>${A.comp.sameBld ? `같은 건물 ${A.comp.sameBld}곳` : `100m 안 ${A.comp.n100}곳`}</b>이 같은 업종 — 문 앞에서 손님이 갈림`, lever:'주문 속도·회전으로 차별', w:3 });
-    if (A.comp.newlyRatio !== null && A.comp.newlyRatio >= 0.15) weaknesses.push({ sec:'comp', text:`동네 ${esc(L.hood.kind||'음식점')} 최근 ${esc(String(L.hood.years||2))}년 새 <b>${esc(num(L.hood.newly,'곳'))}</b> 개업 (영업 중의 ${(A.comp.newlyRatio*100).toFixed(1)}%)`, lever:'재방문 유도 (스탬프·쿠폰)', w:2 });
+    if (A.comp.newlyRatio !== null && A.comp.newlyRatio >= 0.15) weaknesses.push({ sec:'comp', text:`동네 ${esc(hoodOf(b).kind||'음식점')} 최근 ${esc(String(hoodOf(b).years||2))}년 새 <b>${esc(num(hoodOf(b).newly,'곳'))}</b> 개업 (영업 중의 ${(A.comp.newlyRatio*100).toFixed(1)}%)`, lever:'재방문 유도 (스탬프·쿠폰)', w:2 });
     if (L && has(L.area) && Number(L.area) >= 100) weaknesses.push({ sec:'quote', text:`홀 <b>약 ${esc(String(pyeong(L.area)))}평</b>${Q.floors > 1 ? ` · ${Q.floors}개 층` : ''} — 주문받으러 다니는 동선`, lever:`테이블 주문·호출 (${Q.est ? rngN(Q.est.devices,'대') : '대수 추정'})`, w:3 });
     if (L && L.months < 12) weaknesses.push({ sec:'store', text:`연 지 <b>${esc(ageText(L))}</b> — 운영 습관이 굳기 전`, lever:'처음부터 태블릿 주문으로', w:2, sale:true });
     weaknesses.sort((a,b) => b.w - a.w);
@@ -3021,6 +3127,7 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
     /* 3) 판정 한 줄 — 가장 센 축 둘 + 지렛대 둘 */
     const who = [];
     if (A.foreign.level >= 1) who.push('외국인 관광객');
+    if (A.outing && A.outing.level >= 1) who.push('나들이 손님');   // v3.42
     if (A.office.level >= 1) who.push('직장인');
     if (A.group.level >= 1) who.push('단체·회식');
     if (A.family.level >= 1) who.push('가족');
@@ -3059,10 +3166,10 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
     const gauges = [];
     if (K.mine !== null && K.n >= 2) gauges.push(gaugeHTML(`리뷰 수 — ${K.n}곳 중 <b>${K.pos === 1 ? '1위 (이 매장)' : `${K.pos}위`}</b>`, K.mine, K.pos !== 1 && K.top ? K.top.reviews : (K.runnerUp ? K.runnerUp.reviews : null), Math.max(K.maxReviews||1, K.mine), v => num(v,'건'),
       K.pos !== 1 && K.top ? `1위 ${esc(K.top.name)}` : (K.runnerUp ? `2위 ${esc(K.runnerUp.name)}` : '')));
-    if (has(K.myScore)) gauges.push(gaugeHTML('평점 (3.5~5)', K.myScore, K.avgScore, 5, v => String(v), has(K.avgScore) ? `옆 가게 ${K.list.filter(x => has(x.score)).length}곳 평균` : '기준 없음 — 옆 가게 평점을 못 읽음', 3.5));
+    if (has(K.myScore)) gauges.push(gaugeHTML('평점 (3.5~5)', K.myScore, K.avgScore, 5, v => String(v), has(K.avgScore) ? `옆 가게 ${K.list.filter(x => has(x.score)).length}곳 평균` : (K.nScored ? `비교 안 함 — 옆 가게 평점 ${K.nScored}곳뿐 (${SCORE_MIN_N}곳부터 비교)` : '기준 없음 — 옆 가게 평점을 못 읽음'), 3.5));
     if (K.pm3 !== null && K.pm12 !== null) gauges.push(gaugeHTML('최근 3개월 리뷰 (월)', K.pm3, K.pm12, Math.max(K.pm3, K.pm12, 1)*1.25, v => `${v}건`, '12개월 평균'));
     if (pd && has(pd.workerPerResident)) gauges.push(gaugeHTML('낮 인구 배율', Number(pd.workerPerResident), DAYPOP_REF, Math.max(Number(pd.workerPerResident), DAYPOP_REF)*1.2, v => `${v}배`, '전국 평균 약'));
-    if (cd && cd.sameSmall && has(cd.sameSmall.count)) gauges.push(gaugeHTML(`같은 업종 100m 안 / ${dist(R)} 안`, A.comp.n100, null, Math.max(1, Number(cd.sameSmall.count)), v => `${v}곳`, `${dist(R)} 안 ${num(cd.sameSmall.count,'곳')}`));
+    if (cd && cd.sameSmall && has(cd.sameSmall.count) && (cd.matched || Number(cd.sameSmall.count) > 0)) gauges.push(gaugeHTML(`같은 업종 100m 안 / ${dist(R)} 안`, A.comp.n100, null, Math.max(1, Number(cd.sameSmall.count)), v => `${v}곳`, `${dist(R)} 안 ${num(cd.sameSmall.count,'곳')}`));
 
     /* 6) 근거 줄 */
     const okMods = Object.values(b.modules||{}).filter(m => m && m.ok).length;
@@ -3092,13 +3199,19 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
   const VISIT_Q = { '고기 굽기 서비스 못 받음':'층마다 굽는 직원이 따로 있으세요?', '주문·직원 호출이 늦음':'바쁠 때 주문은 몇 분이 받으세요?', '응대 태도':'바쁠 때 홀에는 몇 분이 도세요?',
     '웨이팅·대기 안내':'웨이팅은 어떻게 받으세요?', '메뉴 설명·외국어':'외국 손님께 메뉴 설명은 누가 하세요?', '메뉴·품절 안내가 실제와 다름':'품절이나 시간대 메뉴는 손님께 어떻게 알리세요?',
     '주문 누락·착오':'주문은 받아 적으세요, 포스에 바로 치세요?', '간·먹는 법 안내':'처음 온 손님께 먹는 법은 누가 알려 드리세요?' };
+  /* v3.42: 네이버 키워드 투표에서 이 낱말이 몇 위인가 (없으면 null) — 「친절해요」가 20곳 중 14곳에 강점으로 붙어 매장끼리 구별이 안 됐다 */
+  function kwRank(VT, re){
+    const t = ((VT && VT.top) || []).slice().sort((a, c) => (Number(c.count)||0) - (Number(a.count)||0));
+    const i = t.findIndex(k => re.test(String(k.name || ''))); return i < 0 ? null : i + 1;
+  }
   function visitPlan(b, m){
     const rv = state.reviews && state.reviews.data ? state.reviews.data : null;
     const ref = String(b.collectedAt || '').slice(0, 10), A = (m && m.axes) || {}, firsts = [];
     /* 첫 문장 후보 — 칭찬 → 외국 손님 → 리뷰 답글 → 최근 1년 불만 → 리뷰 수 순위, 앞에서 세 개 */
     const VT = rv && rv.stats && rv.stats.voted ? rv.stats.voted : null;
     const kv = VT ? (VT.top || []).filter(k => /친절/.test(String(k.name || ''))).reduce((a, k) => a + (Number(k.count) || 0), 0) : 0, base = VT ? Number(VT.reviews) || 0 : 0;
-    if (kv >= 20 && base) firsts.push({ s:`손님들이 「친절해요」를 ${num(kv,'번')} 골랐어요. 키워드를 고른 리뷰 ${num(base,'건')}의 ${Math.round(kv / base * 100)}%예요.`, q:'바쁜 저녁에도 그 친절이 이어지나요? 홀에는 몇 분이 도세요?', sec:'reviews' });
+    const kR = kwRank(VT, /친절/);   // v3.42: 강점과 같은 조건 — 키워드 상위 3위 안
+    if (kv >= 20 && base && kR !== null && kR <= 3) firsts.push({ s:`손님들이 「친절해요」를 ${num(kv,'번')} 골랐어요. 키워드를 고른 리뷰 ${num(base,'건')}의 ${Math.round(kv / base * 100)}%예요.`, q:'바쁜 저녁에도 그 친절이 이어지나요? 홀에는 몇 분이 도세요?', sec:'reviews' });
     const QZ = rv && rv.questions ? rv.questions : null;
     if (QZ && Number(QZ.hiorder) >= 3) firsts.push({ s:`코네스트(일본 여행 사이트)에 이 가게 질문이 ${num(QZ.total,'건')} 올라와 있는데, ${num(QZ.hiorder,'건')}이 주문 규칙·메뉴 질문이에요.`, q:'외국 손님이 오시면 주문 규칙은 누가 설명하세요?', sec:'reviews' });
     else if (A.foreign && A.foreign.level >= 2 && A.foreign.ratio >= 1.5) firsts.push({ s:`구글 지도에 이 가게 리뷰가 ${num(A.foreign.gTotal,'건')} 있어요. 네이버(${num(A.foreign.nTotal,'건')})의 ${A.foreign.ratio.toFixed(1)}배예요.`, q:'구글 지도를 보고 오는 외국 손님이 많으세요?', sec:'reviews' });
@@ -3632,11 +3745,17 @@ ${GUARD}`,
 
     /* 매장은 못 찾았지만 업종으로 대체한 경우 — 숫자는 같은 방식으로 그리되, 위에 경고를 달고 '이 매장 제외'라고 쓰지 않는다 */
     const fb = !cd.matched && cd.fallback ? cd.fallback : null;
+    const fbZero = Boolean(fb && !(Number(cd.sameSmall && cd.sameSmall.count) > 0));   // v3.41: 대체 소분류에 이 매장조차 없음 — 맞는 소분류가 아니다
     const nb = cd.nearby || {};
     const nbList = fb ? (nb.list||[]).slice(0,10).map(x => `${esc(x.name)}<span class="src9"> ${esc([x.small||x.large, x.floor?`${x.floor}층`:''].filter(Boolean).join(' '))}</span>`).join(' · ') : '';
+    const SM = sangMismatch(b);   // v3.42: 상가 등록 업종이 실제와 다르면 숫자 위에 경고
+    const smHead = !SM ? '' : state.cust
+      ? `<p class="src9">같은 업종은 상가정보에 등록된 업종 ‘${esc(SM.small)}’ 기준으로 셌습니다. 이 매장의 실제 업종(${esc(SM.kakao)})과 달라 실제로 손님을 나누는 가게와 다를 수 있습니다.</p>`
+      : `<p class="lead-read" style="font-size:15px">${badge('warn','등록 업종 다름')} 상가정보에는 이 매장이 <b>${esc(SM.small)}</b>${jo(SM.small,'으로/로')} 등록돼 있어 같은 업종을 그 기준으로 셌습니다. 카카오 업종은 ‘${esc(SM.kakao)}’ — 실제로 손님을 나누는 가게와 다를 수 있으니 아래 숫자는 참고로 보세요.</p>`;
     const fbHead = !fb ? '' : state.cust
-      ? `<p class="src9">같은 업종은 소분류 ‘${esc(cd.industry.small)}’${jo(cd.industry.small,'으로/로')} 셌습니다. 이 매장이 포함됐을 수 있습니다.</p>`
-      : `<p class="lead-read" style="font-size:15px">${badge('warn','업종으로 대체')} 상가정보에서 이 매장을 찾지 못해, ${esc(fb.from)} ‘${esc(fb.category)}’${jo(fb.category,'으로/로')} 소분류 <b>${esc(cd.industry.small)}</b>${jo(cd.industry.small,'을/를')} 골라 셌습니다. 이 매장이 등록돼 있다면 아래 숫자에 1곳이 포함돼 있습니다.</p>`;
+      ? (fbZero ? `<p class="src9">상가정보에서 이 매장 업종에 맞는 분류를 찾지 못해 같은 업종 수를 세지 못했습니다.</p>`
+        : `<p class="src9">같은 업종은 소분류 ‘${esc(cd.industry.small)}’${jo(cd.industry.small,'으로/로')} 셌습니다. 이 매장이 포함됐을 수 있습니다.</p>`)
+      : `<p class="lead-read" style="font-size:15px">${badge('warn','업종으로 대체')} 상가정보에서 이 매장을 찾지 못해, ${esc(fb.from)} ‘${esc(fb.category)}’${jo(fb.category,'으로/로')} 소분류 <b>${esc(cd.industry.small)}</b>${jo(cd.industry.small,'을/를')} 골라 셌습니다. ${fbZero ? `그런데 <b>0곳</b> — 이 매장조차 없으니 이 소분류는 이 매장 업종이 아닐 가능성이 큽니다. <b>경쟁이 없다는 뜻이 아닙니다</b> — 아래 ‘주변에 등록된 상가’와 지도에서 같은 업종을 눈으로 확인하세요.` : '이 매장이 등록돼 있다면 아래 숫자에 1곳이 포함돼 있습니다.'}</p>`;
     const src = fb
       ? (state.cust ? `자료 기준월 ${esc(ym(cd.stdrYm))}` : `${esc(cd.note||'')}${nbList ? `<br>${esc(nb.from||'주변')}에 등록된 상가 (매장 확인용) — ${nbList}` : ''} · 자료 기준월 ${esc(ym(cd.stdrYm))}`)
       : `상가정보 등록 상호 ‘${esc(cd.matchedName)}’ (좌표 차이 ${esc(dist(cd.matchedDistance))}${cd.floor?`, ${esc(cd.floor)}층`:''})${cd.how?` · ${esc(cd.how)}에서 찾음`:''} · 자료 기준월 ${esc(ym(cd.stdrYm))}${bands.length?'':` · 거리별 — ${esc(bandText(bands,' · '))}`}`;
@@ -3665,13 +3784,13 @@ ${GUARD}`,
         <svg class="maplines" id="skLines" aria-hidden="true"></svg>
       </div>` : '';
     return { html: `<div class="mz">
-        <div class="b s12">${fbHead}${columnsSVG(data)}${legendCols(legend)}</div>
+        <div class="b s12">${smHead}${fbHead}${columnsSVG(data)}${legendCols(legend)}</div>
         <div class="b s12 top"><p class="deck">반경 ${dist(R)} 안 ${esc(cd.industry.large||'음식')} 업소 ${esc(num(cd.sameLarge.count,'곳'))}(상가정보${(cd.industry.large||'음식') === '음식' ? ' · 카페 포함' : ''}) 가운데
           ${esc(cd.industry.middle)} ${esc(num(cd.sameMiddle.count,'곳'))}, 그중 <b>${esc(cd.industry.small)} ${esc(num(cd.sameSmall.count,'곳'))}</b>입니다.</p></div>
         ${nearBox ? `<div class="b s12 top">${nearBox}</div>` : ''}
         ${mtn ? `<div class="b s12 top" style="padding-top:0">${mtn}</div>` : ''}
         ${mix.length >= 2 ? `<div class="b s12 top">${mixHTML(mix, cd.mixTotal, R)}</div>` : ''}
-        ${hoodHTML(licence(b), R)}
+        ${hoodHTML(hoodOf(b), R)}
         <div class="b s12"><p class="src9">${src}</p></div>
       </div>`,
       meta: `${srcText(m).toUpperCase()} · 반경 ${dist(R)}` };
@@ -3714,8 +3833,7 @@ ${GUARD}`,
 
   /* 동네 업력 — 인허가 자료로만 나오는 숫자. 새로 여는 곳과 닫은 곳이 경쟁 압력이다.
      v3.10: 큰 숫자 두 개(왼쪽) + 세로 누적 기둥(오른쪽). 폐업 누계는 자료가 쌓인 기간 전체라 연하게. */
-  function hoodHTML(L, R){
-    const h = L && L.hood;
+  function hoodHTML(h, R){                            // v3.41: 동네 값만 받는다 (매장 인허가 매칭과 따로)
     if (!h || !has(h.active)) return '';
     const active = Number(h.active)||0, newly = Math.min(Number(h.newly)||0, active), closed = Number(h.closed)||0, old = active - newly;
     const pc = active ? (newly / active * 100) : 0;
@@ -3985,8 +4103,9 @@ ${GUARD}`,
      ratioVat은 VAT 포함으로 잰 값 — 보수적으로 말할 때 쓴다 */
   /* v3.21 (#80): 테이블 밀도는 업종별 — 고기구이·횟집·한정식·주점은 테이블이 크고 통로가 넓다 (가정값, 9장에 표기) */
   const DENSITY = [
-    { re: /고기|육류|구이|횟집|회$|회 |한정식|코스|오마카세|샤브|주점|호프|술집|이자카야|스테이크|양식|일식/, per: [8, 11], label: '고기구이·횟집·한정식·주점 (테이블 크고 통로 넓음)' },
-    { re: /분식|김밥|치킨|카페|커피|국수|칼국수|떡볶이|토스트|샌드위치|햄버거|피자|도시락|죽|국밥|백반|패스트/, per: [3.6, 4.8], label: '분식·치킨·카페·국밥 (좁은 테이블)' },
+    { re: /고기|육류|구이|횟집|회$|회 |한정식|코스|오마카세|샤브|주점|호프|술집|이자카야|스테이크/, per: [8, 11], label: '고기구이·횟집·한정식·주점 (테이블 크고 통로 넓음)' },
+    { re: /분식|김밥|치킨|카페|커피|국수|칼국수|떡볶이|토스트|샌드위치|햄버거|피자|도시락|죽|국밥|해장국|곰탕|설렁탕|백반|패스트/, per: [3.6, 4.8], label: '분식·치킨·카페·국밥 (좁은 테이블)' },
+    { re: /양식|일식/, per: [8, 11], label: '고기구이·횟집·한정식·주점 (테이블 크고 통로 넓음)' },   // v3.41: 윗칸(양식·일식)은 아랫칸(피자·햄버거) 다음에 — 회전 유형과 같은 순서
   ];
   function densityOf(b){
     const cat = b && b.store ? [b.store.category, b.store.naverCategory].filter(Boolean).join(' ') : '';
@@ -4901,7 +5020,9 @@ ${GUARD}`,
     if (!rv) return `<p class="lead-read" style="font-size:15px">이 묶음에는 리뷰가 없습니다 (v3.20 이전 수집).</p>${btn('Apify로 가져오기')}`;
     if (rv.running) return `<div class="prog"><span class="spin" aria-hidden="true"></span><span>${esc(rv.message||'리뷰를 모으는 중입니다')}</span></div>${btn('가져오는 중')}`;
     if (rv.error) return `<p class="lead-read" style="font-size:15px">${badge(rv.blocked?'warn':'fail', rv.blocked?'직접 수집 막힘':'실패')} ${esc(rv.error)}</p>
-      ${rv.candidates && rv.candidates.length ? `<p class="src9">네이버에서 찾은 비슷한 이름: ${esc(rv.candidates.join(', '))}</p>` : ''}${btn('Apify로 다시 가져오기')}`;
+      ${rv.candidates && rv.candidates.length ? `<p class="src9">네이버에서 찾은 비슷한 이름: ${esc(rv.candidates.join(', '))}</p>` : ''}${rv.notFound || /찾지 못/.test(rv.error)
+        ? `<div class="rvbar int" style="margin-top:14px"><input id="rvUrl" type="url" maxlength="300" aria-label="네이버 지도 주소" placeholder="네이버 지도에서 이 매장을 찾아 주소를 붙여 넣으세요"><button type="button" class="abtn" id="rvBtn"${blocked?' disabled':''}>이 주소로 가져오기</button></div>${usageLine()}`
+        : btn('Apify로 다시 가져오기')}`;
 
     const d = rv.data || {}, place = d.place || {}, out = [];
     out.push(`<p class="src9 rvmode sale">${rv.mode === 'apify'
@@ -4909,16 +5030,19 @@ ${GUARD}`,
       : `${badge('ok','직접 수집')} 네이버 플레이스에서 바로 읽었습니다${has(rv.seconds) ? ` · ${esc(String(rv.seconds))}초` : ''}${rv.cached ? ` · 14일 안에 본 매장이라 저장본 사용 (${esc(String(rv.cachedAt||'').slice(0,10))})` : ''}`}</p>`);
     if (!d.matched) out.push(`<p class="lead-read sale" style="font-size:15px">${badge('warn','매장 확인')} 가져온 매장이 <b>${esc(place.name||'(이름 없음)')}</b>${place.address?` (${esc(place.address)})`:''} 입니다. 찾으시는 매장이 아니면 아래에 네이버 지도 주소를 넣고 다시 가져오세요.</p>`);
 
+    { const g0 = d.sources && d.sources.google;                                  // v3.41: 구글에서 다른 가게가 잡혔으면 알린다
+      if (g0 && g0.place && g0.place.name && state.bundle && !googleOk(state.bundle, g0)) out.push(`<p class="src9 sale">${badge('warn','구글 매장 다름')} 구글에서 잡힌 곳이 <b>${esc(g0.place.name)}</b>${has(g0.place.distance) ? ` (${esc(String(Math.round(Number(g0.place.distance))))}m)` : ''}${jo(g0.place.name,'이라/라')} 이 매장과 달라 보입니다 — 구글 리뷰 수는 외국인 신호에 쓰지 않았습니다${Number(g0.counted) ? ` (구글 글 ${esc(num(g0.counted,'건'))}은 아래 분석에 섞여 있을 수 있음)` : ''}.</p>`); }
     const total = d.counted || 0;
-    const headline = has(place.rating) ? place.rating : d.ratingAvg;
+    const rcN = ratedCount(d);                                                    // v3.41: 별점 있는 리뷰 수
+    const headline = has(place.rating) ? place.rating : (rcN >= RATING_MIN ? d.ratingAvg : null);
     const lead = `<div class="k">${has(place.rating)?'플레이스 평점':'별점 평균'}</div>
       <div class="lead-n" data-sk="1" data-sk-wide="1"${has(headline) ? ` data-n="${Number(headline)}" data-d="${String(headline).includes('.') ? String(headline).split('.')[1].length : 0}" data-sk-wait="1"` : ''}>${esc(has(headline)?headline:'—')}</div>
-      <div class="lead-ref">분석한 리뷰 ${esc(num(total,'건'))}${has(place.total)?` / 전체 ${esc(num(place.total,'건'))}`:''}${place.url?` · <a href="${esc(place.url)}" target="_blank" rel="noopener noreferrer">플레이스 열기</a>`:''}</div>
+      <div class="lead-ref">${!has(place.rating) && rcN > 0 && rcN < RATING_MIN ? `별점 있는 리뷰가 ${esc(num(rcN,'건'))}뿐이라 평균을 내지 않았습니다 · ` : ''}분석한 리뷰 ${esc(num(total,'건'))}${has(place.total)?` / 전체 ${esc(num(place.total,'건'))}`:''}${place.url?` · <a href="${esc(place.url)}" target="_blank" rel="noopener noreferrer">플레이스 열기</a>`:''}</div>
       ${(() => { /* v3.27: 옆 가게 평균보다 위인지 아래인지 한 줄로 */
         if (!state.bundle) return ''; const K = rankModel(state.bundle); if (!has(K.myScore) || !has(K.avgScore)) return '';
         const diff = Math.round((K.myScore - K.avgScore)*100)/100, nS = K.list.filter(x => has(x.score)).length;
         const tag = diff >= 0.1 ? `<b class="up">${diff.toFixed(2)} 높음</b>` : diff <= -0.1 ? `<b class="dn">${Math.abs(diff).toFixed(2)} 낮음</b>` : '<b>비슷함</b>';
-        return `<p class="vsavg">옆 가게 ${nS}곳 평균 ${esc(String(K.avgScore))}보다 ${tag}</p>`; })()}`;
+        return `<p class="vsavg">옆 가게 ${nS}곳 평균 ${esc(String(K.avgScore))}${Math.abs(diff) < 0.1 ? jo(String(K.avgScore),'과/와') : '보다'} ${tag}</p>`; })()}`;   // v3.41: '4.82보다 비슷함' → '4.82와 비슷함'
 
     /* 리뷰가 쌓이는 속도 (v3.00 · v3.10 하한) — 가져온 글이 전부 기간 안이면 ≥로 적고, 월 건수는 실제 덮은 기간으로 나눈다. 답글 비율은 사장님이 리뷰를 보는지의 신호 */
     const V = d.velocity;
@@ -4932,9 +5056,9 @@ ${GUARD}`,
         <div class="stat"><div class="k">최근 12개월 리뷰</div>
           <div class="v sk"${V.capped ? '' : ` data-n="${Number(V.last12)}"`}>${V.capped ? '≥ ' : ''}${esc(num(V.last12))}</div>
           <div class="lead-ref">${V.capped ? `건 이상 · 가져온 ${esc(num(V.dated,'건'))}이 모두 최근 ${esc(V.spanMonths)}개월 안 → 월 약 ${esc(num(Math.round(pm),'건'))}` : `건 · 월 ${esc(pm)}건 · 최근 3개월 ${esc(num(V.last3,'건'))}`}</div></div>
-        <div class="stat"><div class="k">업력 대비 전체 리뷰</div>
+        <div class="stat"><div class="k">연평균 리뷰 (인허가 기준)</div>
           <div class="v sk"${perYear !== null ? ` data-n="${perYear}"` : ''}>${perYear !== null ? esc(num(perYear)) : '—'}</div>
-          <div class="lead-ref">${perYear !== null ? `건/년 · 업력 ${esc(ageText(lic))} · 전체 ${esc(num(place.total,'건'))}` : '인허가일 또는 전체 리뷰 수가 없어 계산하지 않음'}</div></div>
+          <div class="lead-ref">${perYear !== null ? `건/년 · 인허가 기준 ${esc(ageText(lic))} · 전체 ${esc(num(place.total,'건'))}` : '인허가일 또는 전체 리뷰 수가 없어 계산하지 않음'}</div></div>
         ${has(V.replyRate) ? `<div class="stat"><div class="k">사장님 답글</div>
           <div class="v sk" data-n="${Number(V.replyRate)}">${esc(V.replyRate)}</div>
           <div class="lead-ref">% · 최근 리뷰 ${esc(num(V.dated,'건'))} 중 ${esc(num(V.replied,'건'))}에 답글</div></div>` : ''}
@@ -5116,7 +5240,10 @@ ${GUARD}`,
       paintReviews();
       repaintSection('online');          // 6장 웨이팅 신호가 리뷰 쪽 건수를 읽는다
     } catch (err) {
-      state.reviews = { running:false, error: err && err.message ? err.message : String(err) };
+      const msg = err && err.message ? err.message : String(err);
+      /* v3.41: 네이버에서 못 찾아 Apify로 넘어갔다가 실패한 것 — '잠시 뒤 다시'가 아니라 주소를 넣어야 풀린다 */
+      state.reviews = { running:false, notFound: Boolean(opt.auto && /찾지 못/.test(prevErr)),
+        error: opt.auto && /찾지 못/.test(prevErr) ? `${prevErr} — Apify로도 가져오지 못했습니다. 네이버에 등록된 이름이 다를 수 있으니 네이버 지도에서 이 매장을 찾아 주소를 아래 칸에 넣어 주세요` : msg };
       paintReviews();
       if (err && err.status === 401) lockAuth('연결이 끊겼습니다. 팀 비밀번호로 다시 연결해 주세요.');
     }
@@ -5532,7 +5659,7 @@ ${GUARD}`,
     if (PL && PL.feed && PL.feed.length) L.push(`| 네이버 소식 | ${md(`${PL.feed.length}건 · 최근: ${PL.feed.slice(0, 3).map(f => `${String(f.date||'').slice(0,10)} ${f.title || String(f.text||'').slice(0,30)}`).join(' / ')}`)} | 네이버 플레이스 |`);
     if (PL && PL.url) L.push(`| 네이버 플레이스 | ${md(PL.url)} | ${md(PL.source)} |`);
     const LIC = licence(b);
-    if (LIC) L.push(`| 인허가일(업력) | ${md(`${LIC.ymd} · ${ageText(LIC)}${LIC.state ? ` · ${LIC.state}` : ''}${LIC.exact ? '' : ' · 상호가 비슷한 곳을 고른 값이라 확인 필요'}`)} | ${md(LIC.source)} |`);
+    if (LIC) L.push(`| 인허가일 | ${md(`${LIC.ymd} · 인허가 기준 ${ageText(LIC)}${LIC.state ? ` · ${LIC.state}` : ''}${LIC.exact ? '' : ' · 상호가 비슷한 곳을 고른 값이라 확인 필요'}`)} | ${md(LIC.source)} |`);
     if (s.placeUrl) L.push(`| 카카오맵 | ${md(s.placeUrl)} | 카카오 로컬 API |`);
     (b.notes || []).forEach((t) => L.push(`- 참고: ${md(t)}`));
     if (MP2 && MP2.median !== null) L.push('- 규칙: 메뉴 ‘가운데 값’은 메뉴판 가격의 중앙값입니다. 주력 메뉴 가격이나 객단가로 쓰지 마세요.');
@@ -5678,7 +5805,7 @@ ${GUARD}`,
     })();
     L.push(`- 직장·주거: ${pop.ok ? `종사자÷인구 ${has(pop.data.workerPerResident) ? pop.data.workerPerResident : '—'}${cmpTxt}, 평균 가구원 ${num(pop.data.avgHouseholdSize, '명')}, 평균 나이 ${num(pop.data.avgAge, '세')}` : '수집 안 됨'}`);
     L.push(`- 역세권·대학가: 가장 가까운 역 ${sw && sw.nearest && sw.nearest[0] ? `${md(sw.nearest[0].name)} ${dist(sw.nearest[0].distance)}` : '1km 안에 없음 또는 수집 안 됨'}, 1.5km 안 대학교 ${uni && uni.list && uni.list.length ? md(uni.list.map((u) => u.name).join(', ')) : '없음 또는 수집 안 됨'}`);
-    L.push(`- 경쟁: ${comp.ok && (comp.data.matched || comp.data.fallback) ? `같은 소분류 ${num(comp.data.sameSmall.count, '곳')}${comp.data.fallback ? ' (업종으로 대체, 이 매장 포함될 수 있음)' : ''}, ${md(comp.data.industry.large)} 전체 ${num(comp.data.sameLarge.count, '곳')}` : '상가정보 미매칭 또는 수집 안 됨'}`);
+    L.push(`- 경쟁: ${comp.ok && (comp.data.matched || comp.data.fallback) ? `같은 소분류 ${num(comp.data.sameSmall.count, '곳')}${sangMismatch(b) ? ` (상가 등록 업종 ‘${md(sangMismatch(b).small)}’ 기준 — 카카오 업종 ‘${md(sangMismatch(b).kakao)}’과 다름, 참고용)` : ''}${comp.data.fallback ? (Number(comp.data.sameSmall.count) > 0 ? ' (업종으로 대체, 이 매장 포함될 수 있음)' : ' (업종으로 대체한 소분류에 이 매장조차 없음 — 맞는 소분류가 아님, 경쟁 수로 쓰지 말 것)') : ''}, ${md(comp.data.industry.large)} 전체 ${num(comp.data.sameLarge.count, '곳')}` : '상가정보 미매칭 또는 수집 안 됨'}`);
     const short = (p) => (!p || p.error ? '수집 안 됨' : num(p.total, '건'));
     const otherCnt = o && part(o.blog) && o.blog.otherBranchCount ? ` (최근 블로그 ${(o.blog.recent || []).length}건 중 ${o.blog.otherBranchCount}건은 다른 지점 글)` : '';
     const waitTxt = o && o.waiting && !o.waiting.error && has(o.waiting.scanned) ? `최근 ${o.waiting.scanned}건 중 웨이팅 언급 ${num(o.waiting.total, '건')}` : `'웨이팅' 함께 ${short(o && o.waiting)}`;
@@ -5722,7 +5849,7 @@ ${GUARD}`,
         }
         const pl = x.place || {};
         const score = has(pl.rating) ? `평점 ${pl.rating}${x.label === '네이버' ? ' (네이버 공식값)' : ''}` : has(x.ratingAvg) ? `별점 평균 ${x.ratingAvg} (분석한 리뷰 기준)` : '';
-        L.push(`- ${md(x.label)}: ${md(pl.name || '—')}${pl.address ? ` (${md(pl.address)})` : ''}${x.matched ? '' : ' ⚠ 우리 매장과 다를 수 있습니다 — 확인 필요'} · 분석 ${x.counted}건${has(pl.total) ? ` (전체 ${num(pl.total, '건')})` : ''}${score ? ` · ${score}` : ''}${x.others ? ` · 검색에 섞인 다른 장소 ${x.others}곳 제외` : ''}${x.label === '네이버' ? ` · 별점 있는 리뷰 ${x.rated ?? '—'}건 / 없는 리뷰 ${x.unrated ?? '—'}건` : ''}${has(x.foreign) ? ` · 외국어 리뷰 ${x.foreign}건${x.langs ? ` (${md(x.langs)})` : ''} — 외국인 손님 신호` : ''}${has(x.silentLow) && Number(x.silentLow) > 0 ? ` · 글 없이 별점만 낮은 리뷰 ${x.silentLow}건은 목록에서 뺌` : ''}${x.label === '구글' && has(x.low) && Number(x.low) === 0 && Number(x.counted) > 0 ? ` · 최신 ${x.counted}건 모두 4점 이상이지만 표본이 작아 '불만 없음'의 근거로 쓰지 말 것` : ''}${x.label === '구글' && pl.url ? ` · ${md(pl.url)}` : ''}`);
+        L.push(`- ${md(x.label)}: ${md(pl.name || '—')}${pl.address ? ` (${md(pl.address)})` : ''}${x.matched && !(x.label === '구글' && !googleOk(b, x)) ? '' : ' ⚠ 우리 매장과 다를 수 있습니다 — 확인 필요 (이름·거리가 달라 판정에는 쓰지 않음)'} · 분석 ${x.counted}건${has(pl.total) ? ` (전체 ${num(pl.total, '건')})` : ''}${score ? ` · ${score}` : ''}${x.others ? ` · 검색에 섞인 다른 장소 ${x.others}곳 제외` : ''}${x.label === '네이버' ? ` · 별점 있는 리뷰 ${x.rated ?? '—'}건 / 없는 리뷰 ${x.unrated ?? '—'}건` : ''}${has(x.foreign) ? ` · 외국어 리뷰 ${x.foreign}건${x.langs ? ` (${md(x.langs)})` : ''} — 외국인 손님 신호` : ''}${has(x.silentLow) && Number(x.silentLow) > 0 ? ` · 글 없이 별점만 낮은 리뷰 ${x.silentLow}건은 목록에서 뺌` : ''}${x.label === '구글' && has(x.low) && Number(x.low) === 0 && Number(x.counted) > 0 ? ` · 최신 ${x.counted}건 모두 4점 이상이지만 표본이 작아 '불만 없음'의 근거로 쓰지 말 것` : ''}${x.label === '구글' && pl.url ? ` · ${md(pl.url)}` : ''}`);
       });
       L.push(`- 조회: ${md(state.reviews.fetchedAt || b.collectedAt)}`);
       if (rv.velocity && has(rv.velocity.last12)) {
@@ -6263,17 +6390,29 @@ ${GUARD}`,
 
   try { localStorage.removeItem('sketch.region'); } catch (_) {}   // v3.21: 범위 선택 제거
 
+  /* v3.42: 후보 주소의 시·도(+ 시·군·구) — '논현동 국밥'이 서울 강남, '삼산동 족발'이 울산, '명동 고깃집'이 광화문부터 나왔다 */
+  const SIDO = { '서울특별시':'서울', '부산광역시':'부산', '대구광역시':'대구', '인천광역시':'인천', '광주광역시':'광주', '대전광역시':'대전', '울산광역시':'울산',
+    '세종특별자치시':'세종', '경기도':'경기', '강원특별자치도':'강원', '강원도':'강원', '충청북도':'충북', '충청남도':'충남', '전북특별자치도':'전북', '전라북도':'전북',
+    '전라남도':'전남', '경상북도':'경북', '경상남도':'경남', '제주특별자치도':'제주' };
+  function regionOf(c){
+    const a = String((c && (c.roadAddress || c.address)) || '').trim().split(/\s+/); if (!a[0]) return '';
+    return [SIDO[a[0]] || a[0], a[1] && /(시|군|구)$/.test(a[1]) ? a[1] : ''].filter(Boolean).join(' ');
+  }
   function renderCandidates(r){
     const list = r.candidates || [];
     const notes = (r.notes || []).join(' / ');
     if (!list.length){ setMsg(el.searchMsg, notes || '찾지 못했습니다. 상호에 동네 이름을 붙여 보세요.', 'err'); return; }
-    setMsg(el.searchMsg, `${list.length}곳 찾았습니다. 맞는 매장을 고르세요.${notes ? ` · ${notes}` : ''}`);
+    const byS = {}; list.forEach(c => { const k = regionOf(c).split(' ')[0]; if (k) byS[k] = (byS[k] || 0) + 1; });
+    const sidos = Object.entries(byS).sort((a, c) => c[1] - a[1]);
+    const mixed = sidos.length >= 2 ? ` 여러 지역이 섞여 있습니다 (${sidos.map(([k, n]) => `${k} ${n}곳`).join(' · ')}) — 시·도를 확인하고 고르세요.` : '';
+    setMsg(el.searchMsg, `${list.length}곳 찾았습니다. 맞는 매장을 고르세요.${mixed}${notes ? ` · ${notes}` : ''}`);
     el.cands.innerHTML = list.map((c, i) => {
       const notFood = c.categoryGroupCode && !['FD6','CE7'].includes(c.categoryGroupCode);
       const tags = (c.sources||[]).map(s => `<span class="bdg info">${esc(s)}</span>`).join(' ')
         + (notFood ? ` ${badge('warn','음식점 아님')}` : '');
       const noXY = (c.x===null || c.y===null) ? ' · 좌표 없음(주소로 찾음)' : '';
-      return `<li class="cand"><div><div class="nm">${esc(c.name)} ${tags}</div>
+      const rg = regionOf(c);
+      return `<li class="cand"><div><div class="nm">${rg ? `<span class="rg">${esc(rg)}</span>` : ''}${esc(c.name)} ${tags}</div>
         <div class="meta">${esc(c.category || c.naverCategory || '업종 정보 없음')} · ${esc(c.roadAddress || c.address || '주소 정보 없음')}${esc(noXY)}</div></div>
         <button class="pick" type="button" data-i="${i}">이 매장 수집</button></li>`;
     }).join('');
@@ -6313,7 +6452,7 @@ ${GUARD}`,
     const started = Date.now();
     /* v3.30: 로딩 20~40초(실측) 동안 '어디서 모으나'를 한 줄씩 쌓는다. 실제로는 동시에 모으고, 화면은 읽기 좋게 하나씩 띄운다.
        줄이 제자리에 남아서 발표 중에 가운데 클릭으로 그은 밑줄이 다른 문장 밑으로 옮겨 가지 않는다. 36초가 넘으면 마지막 줄 */
-    const JOBS = [['카카오 지도', '위치, 주변 시설, 관광 신호'], ['소상공인시장진흥공단 상가정보', '같은 업종 점포'], ['행정안전부 인허가', '영업장 면적과 업력'],
+    const JOBS = [['카카오 지도', '위치, 주변 시설, 관광 신호'], ['소상공인시장진흥공단 상가정보', '같은 업종 점포'], ['행정안전부 인허가', '영업장 면적과 인허가일'],
                   ['국가데이터처 SGIS', '동네 인구와 사업체'], ['네이버 플레이스', '최신 리뷰 최대 150건, 메뉴, 소식, 편의시설'], ['가게 블로그', '이벤트, 신메뉴, 공지'],
                   ['네이버 검색·데이터랩', '블로그, 카페, 뉴스, 검색 추이'], ['구글 지도·코네스트', '외국인 손님 신호'], ['기업마당', '사장님께 알려 드릴 지원사업'],
                   ['', '모은 자료로 진단서를 그리는 중…']];
@@ -6333,7 +6472,7 @@ ${GUARD}`,
       const ps = el.progText.querySelector('.psec'); if (ps) ps.textContent = String(sec);
     }, 250);
     /* 초만 바꾼다 — 숫자 칸 폭을 고정해 두어 글이 줄바꿈을 바꾸지 않게(아래 목록이 움직이면 발표 중 그은 밑줄이 어긋난다) */
-    el.progText.innerHTML = `${esc(c.name)} 자료를 모으는 중 · <span class="psec">0</span>초 (보통 20~40초)`;
+    el.progText.innerHTML = `${esc(c.name)} 자료를 모으는 중 · <span class="psec">0</span>초 (보통 20~60초)`;   // v3.41: 20곳 실측 19~59초
     el.progSub.textContent = '';
     /* v3.30: 로딩 칸을 화면 가운데로 — 배율이 큰 발표 화면에서는 검색창·후보 아래로 밀려 청중에게 안 보였다 */
     const centerProg = () => { try { el.prog.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (_) {} };
