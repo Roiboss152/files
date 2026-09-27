@@ -8,7 +8,7 @@
 <title>하이오더 전자청약</title>
 <!--
   ============================================================
-  KT HIORDER 전자청약  ·  contract.html  v1.42
+  KT HIORDER 전자청약  ·  contract.html  v1.44
   ------------------------------------------------------------
   · 원본 가입신청서 PDF(14p)를 화면에 렌더 → 고객이 태블릿에서
     서명란마다 "각각" 직접 서명 + 동의함/않음 선택
@@ -17,8 +17,7 @@
     날짜만 순흑색 평면화 → 종이 출력 후 애니팩스 발송용
   · v1.40 — 신분증·사업자등록증을 먼저 촬영 → 기기 안 글자 인식
     (Tesseract.js 한국어, CDN에서 엔진만 내려받음)으로 칸 자동 기입
-    → 확인 창에서 고친 뒤 적용. 주민번호 뒷자리는 인식 위치에
-    검은 막대 → 확인·조정 후 가린 사진만 보관(원본은 버림).
+    → 확인 창에서 고친 뒤 적용. (뒷자리 검은 막대는 v1.43에서 폐지)
     출력 순서는 그대로(신청서 → 신분증 → 사업자등록증).
     고객 사본(공유)은 신청서만, 저장 PDF(애니팩스용)는 첨부 포함.
     🎤 음성 입력 — 계좌·생년월일·등록번호 칸은 제외.
@@ -27,6 +26,24 @@
     창마다 해당 신청서 부분(입력값 포함)을 잘라 보여 줌. 빈 서명칸을
     누르면 그 칸부터 이어지고, 다시 서명·선택 서명은 하나만.
   · v1.42 — 체크리스트에 「법적 근거」(contract-law.html, 새 탭) 연결
+  · v1.43 — 신분증 판독: 카드 줄 순서(면허번호·제목 → 성명 → 주민번호 →
+    주소)로 찾음. 면허번호 줄은 번호 후보에서 제외. 반사에 강한 이진화로
+    읽고 번호 앞 6자리(숫자 전용)·성명 줄을 다시 읽어 대조, 못 맞추면
+    기본 이진화로 한 번 더. 두 번↑ 맞으면 체크해서 채움 · 한 번만 읽히면
+    값만 보이고 체크 해제 · 엇갈리거나 못 읽으면 빈칸(사진 보고 입력).
+    SO 입력에 주민번호 전체가 필요해 신분증은 가리지 않고 제출용 PDF에만
+    첨부(고객용 제외, 발송 직후 삭제 안내). 뒷자리는 글자로 읽어 두지 않음.
+    앨범·파일 사진은 빨간 틀에 맞춰(끌기·두 손가락 확대·↻90°) 자른 뒤 읽음.
+    파일명: 날짜_상호_하이오더_신청서_제출용.pdf / …_고객용.pdf
+  · v1.44 — 기본값: 설치희망 연도(올해, 이번 달보다 이른 달이면 다음 해) ·
+    약정 3년 · 명세서 우편 · 고객과의 관계 '본인'(두 칸). 한 줄에 하나만
+    고르는 ○는 새로 누르면 먼저 것이 꺼짐. 따라 채우기: 처음 넣은 휴대폰·
+    이메일이 같은 종류 칸 모두에, 설치 주소 → 명세서 우편 주소, 신청자 성명
+    → 관리자 성명, 1쪽 → 안심매입 11쪽(자동으로 채운 칸만 따라가고 손으로
+    고친 칸은 그대로). 「하이오더 안심매입」 칸 체크 상자 = 안심매입 신청서
+    동시 작성(출력에 ☑). 「서명받기 출력」: 덜 채워도 컬러 인쇄 — 빈 주요
+    칸 연두, 필수 서명·동의·서명 날짜 노랑 형광. 서명판 위/아래 2분할(위
+    성명·아래 서명) → 신청서엔 성명 칸·서명(인) 자리에 나란히.
   · 서버 저장 없음. 사진·글자 인식은 단말(브라우저) 안에서만 수행.
     단, 음성 입력을 쓰면 음성은 브라우저 음성인식 서버(안드로이드
     크롬은 구글)를 거친다 — 화면에 늘 안내.
@@ -142,6 +159,9 @@ input{font-family:inherit}
 
 /* 선택 마크 ○/□ */
 .mk{position:absolute;border-radius:50%;border:1.5px solid transparent;background:none;transition:.15s}
+.mk.safe{border-radius:3px;border:1.6px solid var(--kt);background:rgba(255,255,255,.9)}
+.mk.safe:not(.on)::before{content:'체크하면 안심매입 신청서 동시 작성';position:absolute;right:-2px;bottom:calc(100% + 3px);font-size:9px;font-weight:800;color:var(--kt);
+  white-space:nowrap;background:#fff;border:1px solid #f3c2c6;border-radius:8px;padding:1px 6px;pointer-events:none}
 .mk:hover{border-color:rgba(132,255,0,.8);background:rgba(132,255,0,.18)}
 .mk.on{border-color:transparent;background:none}
 .mk svg{position:absolute;inset:-14%;width:128%;height:128%;pointer-events:none}
@@ -190,6 +210,23 @@ input{font-family:inherit}
 .camshot:active{transform:scale(.93)}
 .cambar #camPick{min-width:74px;justify-content:center}
 
+/* ── 앨범 사진 크기 맞추기 ── */
+#cropVeil{background:#fff}
+.cropwrap{position:fixed;inset:0;background:#f3f4f6;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none}
+#cropCv{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:grab}
+#cropCv:active{cursor:grabbing}
+.cropframe{position:absolute;left:50%;top:45%;transform:translate(-50%,-50%);pointer-events:none;
+  box-shadow:0 0 0 9999px rgba(255,255,255,.8);border:2.5px solid var(--kt);border-radius:12px}
+.cropwrap .camtop{background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(255,255,255,0));pointer-events:none}
+.cropwrap .camtop small{font-size:11px;color:#667085;font-weight:600}
+.cropzoom{position:absolute;left:50%;bottom:calc(94px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:3;display:flex;gap:12px}
+@media (max-height:520px){.cropzoom{flex-direction:column;left:auto;right:12px;bottom:auto;top:45%;transform:translateY(-50%)}}   /* 가로로 든 휴대폰 */
+.cropzoom button{width:44px;height:44px;border-radius:50%;border:1.5px solid #cfd5de;background:#fff;color:#2a3342;
+  font:inherit;font-size:20px;font-weight:700;line-height:1;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 3px 10px rgba(0,0,0,.12);cursor:pointer;touch-action:manipulation}
+.cropzoom button:active{background:#f4f6fa}
+.cambar #cropOk{min-width:150px;justify-content:center;background:var(--kt);border-color:var(--kt);color:#fff;font-weight:800}
+
 /* 흰 시트 안의 단추·안내문 (흐린 글자 보정) */
 .sigbox .btn.ghost{border-color:#dde2ea;color:#2a3342;background:#fff}
 .sigbox .attbtn{font-size:14px}
@@ -205,9 +242,7 @@ input{font-family:inherit}
 .ocrimg{position:relative;display:inline-block;max-width:100%;vertical-align:top}
 .ocrimg canvas{display:block;max-width:100%;max-height:24vh;width:auto;height:auto;border-radius:10px;border:1px solid #e3e7ee}
 .ocrimg.id canvas{max-height:32vh}
-.ocrmask{position:absolute;background:#000;border:2px dashed #ff5a5a;border-radius:3px;touch-action:none;cursor:move;box-sizing:border-box}
-.ocrmask::before{content:'끌어서 조정';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:10px;font-weight:700;color:#ffb3b3;white-space:nowrap;pointer-events:none}
-.ocrmask i{position:absolute;right:-11px;bottom:-11px;width:22px;height:22px;border-radius:50%;background:#fff;border:2.5px solid var(--kt);cursor:nwse-resize;touch-action:none}
+.recrop{display:block;margin:6px auto 0;border:0;background:none;color:var(--kt);font:inherit;font-size:12.5px;font-weight:700;padding:4px 8px;cursor:pointer}
 .ocrstat{display:flex;align-items:center;justify-content:center;gap:8px;font-size:12.5px;font-weight:700;color:#3a4353;padding:10px 4px 4px;text-align:center;line-height:1.45}
 .ocrstat.warn{color:#c25e00}
 .ocrstat .spin{flex:none;width:15px;height:15px;border:2.5px solid #dfe5ee;border-top-color:var(--kt);border-radius:50%;animation:spin .8s linear infinite}
@@ -282,7 +317,7 @@ body.textmode .page{cursor:crosshair}
 .stamp .tt b{display:block;font-size:12.5px;font-weight:700;color:#DFE5F0;letter-spacing:-.01em}
 .stamp .tt span{display:block;font-size:10.5px;color:var(--steel);margin-top:1px}
 .stamp.done .tt b{color:#B7C6A0}
-.stamp .st{margin-left:auto;font-size:10px;font-weight:800;color:var(--kt)}
+.stamp .st{margin-left:auto;flex:none;white-space:nowrap;padding-left:6px;font-size:10px;font-weight:800;color:var(--kt)}
 .stamp.done .st{color:var(--lime)}
 .rail-card{margin-top:14px;border:1px solid var(--line);border-radius:var(--radius);padding:13px;background:rgba(11,14,20,.5)}
 .rail-card label{display:flex;gap:9px;align-items:flex-start;font-size:12px;line-height:1.5;color:#CBD3E1;cursor:pointer}
@@ -319,6 +354,16 @@ audio{width:100%;margin-top:9px;height:34px}
 .padline::before{content:'✕';position:absolute;left:-2px;bottom:4px;font-size:13px;color:#c2c9d6}
 .padhint{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
   color:#c8cfda;font-size:15px;font-weight:600;pointer-events:none}
+/* v1.44 서명판 위/아래 2분할 — 위 성명(또박또박) · 아래 서명 */
+.padsplit{position:absolute;inset:0;pointer-events:none;display:none}
+.padwrap.split .padsplit{display:block}
+.padwrap.split .padline{display:none}
+.padsplit::after{content:'';position:absolute;left:4%;right:4%;top:50%;border-top:1.5px dashed #c9d1dd}
+.padsplit span{position:absolute;left:12px;font-size:12.5px;font-weight:800;color:#aab3c1;letter-spacing:-.01em}
+.padsplit span small{font-size:11px;font-weight:600;color:#c3cad5;margin-left:5px}
+.padsplit .ps1{top:8px}
+.padsplit .ps2{top:calc(50% + 8px)}
+.padsplit.need1 .ps1,.padsplit.need2 .ps2{color:var(--kt)}
 .sigbox footer{display:flex;gap:9px;padding:13px 16px;border-top:1px solid #edf0f5}
 .sigbox footer .btn{font-size:14px;padding:12px 16px;border-radius:12px}
 .sigbox footer .btn.ghost{border-color:#dde2ea;color:#5a6474}
@@ -374,7 +419,7 @@ audio{width:100%;margin-top:9px;height:34px}
     padding:10px 10px 10px 18px;box-shadow:0 14px 40px rgba(0,0,0,.5);font-size:13px;font-weight:800}
   .progress-pill .mini{background:var(--kt);color:#fff;border-radius:999px;font-size:12px;padding:8px 14px}
   .progress-pill.ok .mini{background:var(--lime);color:#173300}
-  .topbar{gap:8px;padding:0 10px;overflow-x:auto;overflow-y:hidden;
+  .topbar{gap:6px;padding:0 8px;overflow-x:auto;overflow-y:hidden;
     scrollbar-width:none;-webkit-overflow-scrolling:touch}
   .topbar::-webkit-scrollbar{display:none}
   .topbar>*{flex:none}
@@ -385,7 +430,9 @@ audio{width:100%;margin-top:9px;height:34px}
   #btnPdf .full{display:none}
   .meta{display:none}
   .actions .btn span{display:none}
-  .actions .btn{padding:9px 11px}
+  .actions .btn{padding:9px 9px}
+  .actions{gap:6px}
+  #modeSeg .full{display:none}                 /* v1.44: 서명받기 출력 단추가 늘어 휴대폰 한 줄에 맞춤 */
 }
 @media (prefers-reduced-motion:reduce){
   *{animation:none!important;transition:none!important}
@@ -396,10 +443,10 @@ audio{width:100%;margin-top:9px;height:34px}
 <body>
 
 <header class="topbar">
-  <div class="brand"><b>하이오더 전자청약</b><span class="ver">v1.42</span></div>
+  <div class="brand"><b>하이오더 전자청약</b><span class="ver">v1.44</span></div>
   <div class="seg" id="modeSeg">
     <button data-mode="hi" class="on">하이오더</button>
-    <button data-mode="full">+ 안심매입</button>
+    <button data-mode="full">+ 안심<span class="full">매입</span></button>
   </div>
   <div class="meta">
     <input id="mStore" placeholder="상호" autocomplete="off">
@@ -409,6 +456,8 @@ audio{width:100%;margin-top:9px;height:34px}
     <button class="btn ghost tglchip on" id="bwTog" title="인쇄·PDF를 흑백으로 변환 (팩스 최적화)"><span class="dot"></span>흑백<span class="full">출력</span></button>
     <button class="btn ghost" id="btnText" title="문서 위 임의 위치에 텍스트 입력">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M4 6V4h16v2M12 4v16m-4 0h8"/></svg><span>텍스트</span></button>
+    <button class="btn ghost" id="btnPrep" title="다 채우지 않아도 컬러로 인쇄 — 고객이 서명·동의할 자리를 형광으로 표시">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15.5 4.5l4 4L9 19l-5 1 1-5z"/><path d="M13 7l4 4"/></svg><span>서명받기 출력</span></button>
     <button class="btn ghost" id="btnPrint" disabled>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9V3h12v6M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v7H6z"/></svg><span>인쇄</span></button>
     <button class="btn pri" id="btnPdf" disabled>
@@ -433,7 +482,7 @@ audio{width:100%;margin-top:9px;height:34px}
         <button class="btn ghost" id="railAttId">🪪 신분증 촬영</button>
         <button class="btn ghost" id="railAttBiz">📄 등록증 촬영</button>
       </div>
-      <div class="cap">찍으면 글자를 읽어 신청서 칸을 채웁니다(기기 안에서 처리). 주민번호 뒷자리는 자동으로 가려지고, 촬영본은 PDF 마지막 장에 첨부.</div>
+      <div class="cap">찍으면 글자를 읽어 신청서 칸을 채웁니다(기기 안에서 처리). 촬영본은 제출용 PDF 마지막 장에만 붙고 고객용에서는 빠집니다.</div>
     </div>
     <div class="rail-h">판매자 확인</div>
     <div class="rail-card">
@@ -472,6 +521,7 @@ audio{width:100%;margin-top:9px;height:34px}
     <div class="padwrap">
       <canvas id="pad"></canvas>
       <div class="padline"></div>
+      <div class="padsplit" id="padSplit"><span class="ps1">성명<small>또박또박</small></span><span class="ps2">서명</span></div>
       <div class="padhint" id="padHint">여기에 서명하세요</div>
     </div>
     <footer>
@@ -493,12 +543,12 @@ audio{width:100%;margin-top:9px;height:34px}
     </header>
     <div style="padding:16px 18px;display:flex;flex-direction:column;gap:10px">
       <button class="btn ghost attbtn" id="attIdBtn" style="justify-content:space-between;padding:13px 15px">
-        <span>① 🪪 신분증 촬영 <small style="color:#8b95a8;font-weight:600">· 뒷자리 자동 가림</small></span><b id="attIdSt" style="color:var(--kt)">미촬영</b>
+        <span>① 🪪 신분증 촬영 <small style="color:#8b95a8;font-weight:600">· 제출용에만 첨부</small></span><b id="attIdSt" style="color:var(--kt)">미촬영</b>
       </button>
       <button class="btn ghost attbtn" id="attBizBtn" style="justify-content:space-between;padding:13px 15px">
         <span>② 📄 사업자등록증 촬영</span><b id="attBizSt" style="color:var(--kt)">미촬영</b>
       </button>
-      <div class="cap" style="margin:0">사진과 글자 인식은 <b>서버로 보내지 않고 이 기기 안에서만</b> 처리합니다. 읽은 내용은 확인 창에서 고친 뒤 넣고, 사진은 신청서 PDF 마지막 장에 붙습니다. 신분증은 <b>실물 크기</b>로 나와 애니팩스 검증에 그대로 쓸 수 있어요.</div>
+      <div class="cap" style="margin:0">사진과 글자 인식은 <b>서버로 보내지 않고 이 기기 안에서만</b> 처리합니다. 읽은 내용은 확인 창에서 고친 뒤 넣고, 사진은 <b>제출용 PDF</b> 마지막 장에만 붙습니다(고객용 제외). 신분증은 SO 입력에 쓰도록 가리지 않은 <b>실물 크기</b>로 나갑니다.</div>
       <div class="cap" id="ocrState" style="margin:0"></div>
     </div>
     <footer><button class="btn ghost grow" id="attLater">직접 입력하기</button></footer>
@@ -516,6 +566,19 @@ audio{width:100%;margin-top:9px;height:34px}
     </div>
   </div>
 </div>
+<!-- 앨범·파일 사진 크기 맞추기 (바깥 탭으로 닫히지 않음) -->
+<div class="veil" id="cropVeil" data-lock="1">
+  <div class="cropwrap">
+    <canvas id="cropCv"></canvas>
+    <div class="cropframe" id="cropFrame"></div>
+    <div class="camtop"><b id="cropTitle">크기 맞추기</b><span id="cropHint">카드가 빨간 틀에 꽉 차게 — 끌어서 옮기고 두 손가락으로 벌려 키우세요</span><small id="cropNote">앨범 사진은 휴대폰에 남아 있어요 · 끝나면 지워 주세요</small></div>
+    <div class="cropzoom"><button type="button" id="cropIn" aria-label="확대">＋</button><button type="button" id="cropOut" aria-label="축소">－</button><button type="button" id="cropRot" aria-label="90도 돌리기">↻</button></div>
+    <div class="cambar">
+      <button class="btn ghost" id="cropCancel">취소</button>
+      <button class="btn pri" id="cropOk">이대로 읽기</button>
+    </div>
+  </div>
+</div>
 <input type="file" id="camFile" accept="image/*" capture="environment" style="display:none">
 <input type="file" id="camAlbum" accept="image/*" style="display:none">
 <!-- 글자 인식 확인 창 (바깥 탭으로 닫히지 않음) -->
@@ -526,7 +589,7 @@ audio{width:100%;margin-top:9px;height:34px}
       <span id="ocrSub"></span>
     </header>
     <div class="ocrbody">
-      <div class="ocrimgw"><div class="ocrimg" id="ocrImg"><canvas id="ocrPrev"></canvas><div class="ocrmask" id="ocrMask" hidden><i></i></div></div></div>
+      <div class="ocrimgw"><div class="ocrimg" id="ocrImg"><canvas id="ocrPrev"></canvas></div><button type="button" class="recrop" id="ocrRecrop" hidden>↺ 크기 다시 맞추기</button></div>
       <div class="ocrstat busy" id="ocrStat"><span class="spin"></span><span id="ocrMsg">글자 읽는 중…</span></div>
       <div id="ocrRows"></div>
     </div>
@@ -555,7 +618,7 @@ audio{width:100%;margin-top:9px;height:34px}
         <a class="btn ghost" id="sendMailto" style="flex:1;justify-content:center;text-decoration:none">메일 앱 열기</a>
       </div>
       <div class="cap" style="margin:0" id="sendNote">문자·메일 앱에는 안내문이 미리 채워집니다. 첨부가 필요하면 <b>공유하기</b>를 사용하세요.</div>
-      <div class="cap" style="margin:0;color:#b45f06;font-weight:700" id="sendDel">기기에 저장된 PDF(신분증 포함)는 애니팩스 발송 뒤 삭제하세요.</div>
+      <div class="cap" style="margin:0;color:#b45f06;font-weight:700" id="sendDel">기기에 저장된 제출용 PDF는 애니팩스로 보낸 뒤 바로 지우세요.</div>
     </div>
     <footer><button class="btn ghost grow" id="sendClose">닫기</button></footer>
   </div>
@@ -581,19 +644,19 @@ const FAX_SCALE = 200/72;                  // 200dpi 출력 합성
 
 /* 서명 존 — box: 원본 빨간 박스 / draw: 실제 획이 그려지는 영역 (pt) */
 const SIG = [
- {id:'s_p1_acct', pg:1, box:[438.1,254.8,567.4,272.1], draw:[441,256,564,271],   lab:'예금주(카드주) 성명·서명', sub:'요금 자동이체·결제 동의', grp:'hi', dg:null, req:true, ctx:[28,238,572,322]},
- {id:'s_p1_apply',pg:1, box:[389.9,790.0,571.7,806.9], draw:[430,791.2,566,805.8],lab:'신청인 서명',            sub:'하이오더 가입 신청 확인', grp:'hi', dg:'d1', req:true, ctx:[28,758,574,812]},
- {id:'s_p7_terms',pg:7, box:[418.3,781.4,564.8,798.7], draw:[458,782.6,560,797.6],lab:'이용약관 동의 서명',      sub:'하이오더 서비스 이용약관', grp:'hi', dg:null, req:true, ctx:[22,762,574,806]},
- {id:'s_p11_gd',  pg:11,box:[399.2,180.0,545.0,287.6], draw:[437,186,540,282],   lab:'주요안내 확인 서명',      sub:'안심매입 약관·주요내용 설명', grp:'safe', dg:null, req:true, ctx:[45,160,548,292]},
- {id:'s_p11_join',pg:11,box:[259.9,788.1,547.2,809.0], draw:[336,789.6,493,807.4],lab:'안심매입 계약 서명',      sub:'가입 계약 체결 확인', grp:'safe', dg:'d11', req:true, ctx:[45,766,552,812]},
- {id:'s_p12_a',   pg:12,box:[336.2,267.6,533.9,286.7], draw:[408,268.8,502,285.4],lab:'수집·이용 동의 서명',     sub:'안심매입 개인정보 (필수)', grp:'safe', dg:'d12a', req:true, ctx:[45,245,540,291]},
- {id:'s_p12_b',   pg:12,box:[337.0,414.0,535.3,433.1], draw:[408,415.2,502,431.8],lab:'처리위탁 동의 서명',      sub:'안심매입 개인정보 (필수)', grp:'safe', dg:'d12b', req:true, ctx:[45,395,540,437]},
- {id:'s_p12_c',   pg:12,box:[337.0,699.1,535.3,717.8], draw:[408,700.3,502,716.5],lab:'제3자 제공 동의 서명',    sub:'안심매입 개인정보 (필수)', grp:'safe', dg:'d12c', req:true, ctx:[45,670,540,722]},
- {id:'s_p1_dg', pg:1, box:[413.6,172.1,567.4,189.4], draw:[452,173.5,563,188],   lab:'위임하는 고객 서명',    sub:'위임장 · 해당 시', grp:'hi', dg:null, req:false},
- {id:'s_p1_dr', pg:1, box:[413.6,191.5,567.4,209.2], draw:[452,193,563,207.7],  lab:'위임받는 고객 서명',    sub:'위임장 · 해당 시', grp:'hi', dg:null, req:false},
- {id:'s_p1_ad', pg:1, box:[440.3,732.2,569.2,749.5], draw:[464,733.6,566,748],  lab:'납부금액·광고할인 서명', sub:'단말·서비스 요금 납부와 광고 할인 확인', grp:'hi', dg:null, req:true, ctx:[28,650,572,756]},
- {id:'s_p2_oa', pg:2, box:[418.0,211.0,571.7,228.2], draw:[455,212.4,568,226.8],lab:'명의 주는 고객 서명',   sub:'명의변경 시', grp:'hi', dg:null, req:false},
- {id:'s_p2_ob', pg:2, box:[418.0,257.8,571.3,275.0], draw:[455,259.2,568,273.6],lab:'명의 받는 고객 서명',   sub:'명의변경 시', grp:'hi', dg:null, req:false},
+ {id:'s_p1_acct', pg:1, box:[438.1,254.8,567.4,272.1], draw:[441,256,564,271],   lab:'예금주(카드주) 성명·서명', sub:'요금 자동이체·결제 동의', grp:'hi', dg:null, req:true, ctx:[28,238,572,322], nm:[461,256,527,271], sg:[528,255.5,566,271.5]},
+ {id:'s_p1_apply',pg:1, box:[389.9,790.0,571.7,806.9], draw:[430,791.2,566,805.8],lab:'신청인 서명',            sub:'하이오더 가입 신청 확인', grp:'hi', dg:'d1', req:true, ctx:[28,758,574,812], nm:[425,791.2,531,805.8], sg:[532,790.8,569.5,806.2]},
+ {id:'s_p7_terms',pg:7, box:[418.3,781.4,564.8,798.7], draw:[458,782.6,560,797.6],lab:'이용약관 동의 서명',      sub:'하이오더 서비스 이용약관', grp:'hi', dg:null, req:true, ctx:[22,762,574,806], nm:[454,782.6,524,797.6], sg:[525,782.2,562,798]},
+ {id:'s_p11_gd',  pg:11,box:[399.2,180.0,545.0,287.6], draw:[437,186,540,282],   lab:'주요안내 확인 서명',      sub:'안심매입 약관·주요내용 설명', grp:'safe', dg:null, req:true, ctx:[45,160,548,292], nm:[448,186,501,282], sg:[504,186,543,282]},
+ {id:'s_p11_join',pg:11,box:[259.9,788.1,547.2,809.0], draw:[336,789.6,493,807.4],lab:'안심매입 계약 서명',      sub:'가입 계약 체결 확인', grp:'safe', dg:'d11', req:true, ctx:[45,766,552,812], nm:[347,789.6,459,807.4], sg:[463,789.3,545,808]},
+ {id:'s_p12_a',   pg:12,box:[336.2,267.6,533.9,286.7], draw:[408,268.8,502,285.4],lab:'수집·이용 동의 서명',     sub:'안심매입 개인정보 (필수)', grp:'safe', dg:'d12a', req:true, ctx:[45,245,540,291], nm:[414,268.8,490,285.4], sg:[493,268.4,532,285.8]},
+ {id:'s_p12_b',   pg:12,box:[337.0,414.0,535.3,433.1], draw:[408,415.2,502,431.8],lab:'처리위탁 동의 서명',      sub:'안심매입 개인정보 (필수)', grp:'safe', dg:'d12b', req:true, ctx:[45,395,540,437], nm:[415.5,415.2,491,431.8], sg:[494,414.8,533.5,432.3]},
+ {id:'s_p12_c',   pg:12,box:[337.0,699.1,535.3,717.8], draw:[408,700.3,502,716.5],lab:'제3자 제공 동의 서명',    sub:'안심매입 개인정보 (필수)', grp:'safe', dg:'d12c', req:true, ctx:[45,670,540,722], nm:[415.5,700.3,491,716.5], sg:[494,700,533.5,717]},
+ {id:'s_p1_dg', pg:1, box:[413.6,172.1,567.4,189.4], draw:[452,173.5,563,188],   lab:'위임하는 고객 서명',    sub:'위임장 · 해당 시', grp:'hi', dg:null, req:false, nm:[458,173.5,526,188], sg:[527,173,564,188.8]},
+ {id:'s_p1_dr', pg:1, box:[413.6,191.5,567.4,209.2], draw:[452,193,563,207.7],  lab:'위임받는 고객 서명',    sub:'위임장 · 해당 시', grp:'hi', dg:null, req:false, nm:[458,193,526,207.7], sg:[527,192.5,564,208.5]},
+ {id:'s_p1_ad', pg:1, box:[440.3,732.2,569.2,749.5], draw:[464,733.6,566,748],  lab:'납부금액·광고할인 서명', sub:'단말·서비스 요금 납부와 광고 할인 확인', grp:'hi', dg:null, req:true, ctx:[28,650,572,756], nm:[463,733.6,529,748], sg:[530,733,567.5,748.5]},
+ {id:'s_p2_oa', pg:2, box:[418.0,211.0,571.7,228.2], draw:[455,212.4,568,226.8],lab:'명의 주는 고객 서명',   sub:'명의변경 시', grp:'hi', dg:null, req:false, nm:[462,212.4,531,226.8], sg:[532,212,568.5,227.5]},
+ {id:'s_p2_ob', pg:2, box:[418.0,257.8,571.3,275.0], draw:[455,259.2,568,273.6],lab:'명의 받는 고객 서명',   sub:'명의변경 시', grp:'hi', dg:null, req:false, nm:[462,259.2,531,273.6], sg:[532,258.8,568.5,274.3]},
 ];
 
 /* 동의 행 — yes/no: ○ 위치(pt), hot: 탭 영역 */
@@ -768,6 +831,7 @@ const MK=[
  {id:'m1_67',pg:1,r:[202.0,634.3,211.0,643.3]},
  {id:'m1_68',pg:1,r:[245.5,634.3,254.5,643.3]},
  {id:'m1_69',pg:1,r:[106.2,735.5,115.2,744.5]},
+ {id:'m1_safe',pg:1,r:[555.5,628,565.5,638],safe:1},   /* v1.44 — 체크 = 안심매입 신청서 동시 작성(S.mode) */
  {id:'m2_0',pg:2,r:[113.8,108.0,122.8,117.0]},
  {id:'m2_1',pg:2,r:[179.6,108.0,188.6,117.0]},
  {id:'m2_2',pg:2,r:[212.8,108.0,221.8,117.0]},
@@ -778,6 +842,14 @@ const MK=[
  {id:'m2_7',pg:2,r:[114.5,284.8,123.5,293.8]},
  {id:'m2_8',pg:2,r:[156.6,284.8,165.6,293.8]},
 ];
+
+/* v1.44 한 줄에 하나만 고르는 ○ — 신청사항 · 고객 성별 · 신청자 성별 · 구분 · 납부방법 · 납부일 · 명세서 · 약정기간 */
+const MK_GRP=[['m1_0','m1_1','m1_2'],['m1_3','m1_4'],['m1_5','m1_6'],['m1_7','m1_8','m1_9'],['m1_10','m1_11','m1_12'],
+              ['m1_13','m1_14','m1_15'],['m1_16','m1_17','m1_18','m1_19'],['m1_20','m1_21','m1_22']];
+/* v1.44 따라 채우기 — 자동으로 채운 칸만 따라가고, 손으로 고친 칸은 그대로 */
+const FLD_GRP=[['f_phone1','f_appphone','f_mgrphone','f11_phone'],['f_appemail','f_msgmail']];   /* 어느 칸이든 처음 넣은 값이 나머지로 */
+const FLD_FOLLOW={f_addr:['f_msgaddr','f11_addr'], f_appname:['f_mgrname'], f_bizname:['f11_name'], f_bizregno:['f11_regno'],
+                  f_bizno:['f11_bizno'], f_menu_cnt:['f11_menu'], f_alarm_cnt:['f11_alarm']};             /* 한쪽으로만 따라감 */
 
 /* 참조본과 동일한 부분 회색 처리 존 (x0,top,x1,bottom pt) */
 const GRAYZONES={
@@ -828,13 +900,14 @@ const S = {
   sig:{},                 // id → {strokes:[[{u,v}..]..]}
   con:{},                 // id → 'yes'|'no'
   fld:{},                 // fieldId → 값
+  auto:{},                // v1.44 자동으로 채운 값(기본값·따라 채우기) — 지금 값이 이것과 같으면 '자동'
   mk:{},                  // markId → 1
   texts:[],               // {tid,pg,x,y,txt,size}
   bw:true,                // 흑백 출력(전체) / 해제 시 참조 스타일 부분 회색
   step:0,                 // 입력 가이드 인덱스
-  att:{},                 // 본인인증 사진 {id, biz} → canvas (신분증은 뒷자리 가린 것만)
-  ocr:{},                 // 읽은 값 {id:{name,birth6,sex}, biz:{...}} — 뒷자리 숫자는 보관하지 않음
-  pend:null, ocrSeq:0,    // 확인 창에 떠 있는 촬영본(확정 전)
+  att:{},                 // 본인인증 사진 {id, biz} → canvas (v1.43: 신분증은 가리지 않음 — 제출용 PDF에만 붙음)
+  ocr:{},                 // 확인 창에서 넣은 값 {id:{name,birth6,sex}, biz:{...}} — 뒷자리 숫자는 글자로 읽어 두지 않음
+  pend:null, ocrSeq:0, ocrLab:'',   // 확인 창에 떠 있는 촬영본(확정 전) · 판독 단계 이름
   attMode:'start',
   lastFld:null,
   textMode:false, selText:null, dirty:false, tseq:0,
@@ -870,6 +943,7 @@ $('#fileIn').onchange=async e=>{
 async function load(doc){
   S.doc=doc;
   for(const fd of FIELDS) if(fd.d && !(fd.id in S.fld)) S.fld[fd.id]=fd.d;
+  applyDefaults();
   if(doc.numPages!==14) toast(`페이지 수가 ${doc.numPages}p입니다. 원본(14p)이 아니면 서명 위치가 어긋날 수 있어요.`);
   $('#boot').style.display='none';
   buildStage(); buildRail(); refresh(); updateAttUI();
@@ -931,7 +1005,7 @@ function drawOverlay(pg){
   const ov=$('#ov'+pg); if(!ov) return; ov.innerHTML='';
   /* 서명 슬롯 */
   for(const z of SIG.filter(z=>z.pg===pg&&(S.mode==='full'||z.grp==='hi'))){
-    const [x0,y0,x1,y1]=z.draw;
+    const [x0,y0,x1,y1]=slotRect(z);
     const el=document.createElement('button');
     el.className='slot'+(S.sig[z.id]?' done':'')+(z.req?'':' opt'); el.id='slot_'+z.id;
     el.style.cssText=P(x0,y0,x1-x0,y1-y0);
@@ -949,20 +1023,18 @@ function drawOverlay(pg){
     el.onclick=e=>{e.stopPropagation();openField(fd);};
     ov.appendChild(el);
   }
-  /* 선택 마크 (○/□) */
+  /* 선택 마크 (○/□) — v1.44: 한 줄에 하나만 고르는 ○는 새로 누르면 먼저 것이 꺼짐 · 안심매입 체크 상자 */
   for(const m of MK.filter(x=>x.pg===pg)){
-    const on=S.mk[m.id];
-    const el=document.createElement('button');
-    el.className='mk'+(on?' on':''); el.id='mk_'+m.id;
+    const el=document.createElement('button'); el.id='mk_'+m.id;
     el.style.cssText=P(m.r[0]-2,m.r[1]-2,(m.r[2]-m.r[0])+4,(m.r[3]-m.r[1])+4);
-    if(on) el.innerHTML='<svg viewBox="0 0 24 24"><path d="M3.5 13l6 6.5L21.5 3.5"/></svg>';
     el.onclick=e=>{e.stopPropagation();
-      if(S.mk[m.id]) delete S.mk[m.id]; else S.mk[m.id]=1;
-      S.dirty=true;
-      el.classList.toggle('on',!!S.mk[m.id]);
-      el.innerHTML=S.mk[m.id]?'<svg viewBox="0 0 24 24"><path d="M3.5 13l6 6.5L21.5 3.5"/></svg>':'';
+      if(m.safe){ setMode(S.mode==='full'?'hi':'full'); return; }
+      if(S.mk[m.id]) delete S.mk[m.id];
+      else{ const g=MK_GRP.find(g=>g.includes(m.id)); if(g) for(const id of g) if(id!==m.id&&S.mk[id]){ delete S.mk[id]; paintMk(id); }
+        S.mk[m.id]=1; }
+      S.dirty=true; paintMk(m.id);
     };
-    ov.appendChild(el);
+    ov.appendChild(el); paintMk(m.id);
   }
   /* 동의 행 */
   for(const c of CON.filter(c=>c.pg===pg)) mountCon(ov,c);
@@ -983,11 +1055,35 @@ function drawOverlay(pg){
   fitOverlayFonts(pg);
   renderStepUI();
 }
+function slotRect(z){                               /* 서명 자리 = draw ∪ 성명 칸 ∪ 서명 자리 */
+  if(!z.nm) return z.draw; const r=[z.draw,z.nm,z.sg];
+  return [Math.min(...r.map(a=>a[0])),Math.min(...r.map(a=>a[1])),Math.max(...r.map(a=>a[2])),Math.max(...r.map(a=>a[3]))];
+}
+function sigPaths(z,st){                             /* 서명 획 → 신청서 좌표(pt). v1.44 2분할: 위(성명)·아래(서명)를 성명 칸·서명(인) 자리에 나란히 */
+  if(!st.split||!z.nm){ const [x0,y0,x1,y1]=z.draw, W=x1-x0, H=y1-y0;
+    return [{sks:st.strokes.map(sk=>sk.map(p=>[x0+p.u*W,y0+p.v*H])), lw:Math.max(.8,H*.055)}]; }
+  const ar=st.ar||3, top=[], bot=[];
+  for(const sk of st.strokes){ const cy=sk.reduce((a,p)=>a+p.v,0)/sk.length; (cy<.5?top:bot).push(sk); }
+  const fit=(sks,r,left)=>{ if(!sks.length) return null;       /* 글씨 모양 그대로(가로세로 같은 배율) 칸 안에 맞춤 */
+    let a=1e9,b=1e9,c=-1e9,d=-1e9;
+    for(const sk of sks) for(const p of sk){ const x=p.u*ar; a=Math.min(a,x); c=Math.max(c,x); b=Math.min(b,p.v); d=Math.max(d,p.v); }
+    const [rx0,ry0,rx1,ry1]=r, W=rx1-rx0, H=ry1-ry0, m=Math.min(W,H)*.1, bw=Math.max(c-a,.04), bh=Math.max(d-b,.04);
+    const k=Math.min((W-2*m)/bw,(H-2*m)/bh), ox=left?rx0+m:rx0+(W-bw*k)/2, oy=ry0+(H-bh*k)/2;
+    return {sks:sks.map(sk=>sk.map(p=>[ox+(p.u*ar-a)*k, oy+(p.v-b)*k])), lw:Math.min(H*.09,Math.max(.7,k*.022))};
+  };
+  return [fit(top,z.nm,true),fit(bot,z.sg,false)].filter(Boolean);
+}
 function sigSVG(z){
   const st=S.sig[z.id]; if(!st) return '';
-  const [x0,y0,x1,y1]=z.draw, W=x1-x0, H=y1-y0;
-  const ps=st.strokes.map(sk=>'M'+sk.map(p=>`${(p.u*W).toFixed(1)},${(p.v*H).toFixed(1)}`).join(' L')).join(' ');
-  return `<svg class="sig" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><path d="${ps}" stroke-width="${Math.max(1.2,H*.07)}"/></svg>`;
+  const [x0,y0,x1,y1]=slotRect(z), W=x1-x0, H=y1-y0;
+  const ps=sigPaths(z,st).map(g=>`<path d="${g.sks.map(sk=>'M'+sk.map(([x,y])=>`${(x-x0).toFixed(1)},${(y-y0).toFixed(1)}`).join(' L')).join(' ')}" stroke-width="${g.lw.toFixed(2)}"/>`).join('');
+  return `<svg class="sig" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">${ps}</svg>`;
+}
+function tracePts(ctx,pts,s){                        /* pt 좌표 점들 → 부드러운 선 */
+  if(pts.length<2) return;
+  ctx.beginPath(); ctx.moveTo(pts[0][0]*s,pts[0][1]*s);
+  for(let i=1;i<pts.length-1;i++){ const mx=(pts[i][0]+pts[i+1][0])/2*s, my=(pts[i][1]+pts[i+1][1])/2*s; ctx.quadraticCurveTo(pts[i][0]*s,pts[i][1]*s,mx,my); }
+  ctx.lineTo(pts.at(-1)[0]*s,pts.at(-1)[1]*s); ctx.stroke();
 }
 function mountCon(ov,c){
   const v=S.con[c.id];
@@ -1027,6 +1123,13 @@ function tabOpen(nx){
     openField(nx);
   })();
 }
+function paintMk(id){
+  const m=MK.find(x=>x.id===id), el=$('#mk_'+id); if(!m||!el) return;
+  const on=m.safe?S.mode==='full':!!S.mk[id];
+  el.className='mk'+(m.safe?' safe':'')+(on?' on':'');
+  el.title=m.safe?(on?'안심매입 신청서 동시 작성 중 — 누르면 해제':'체크하면 안심매입 신청서(11~14쪽)도 함께 작성'):'';
+  el.innerHTML=on?'<svg viewBox="0 0 24 24"><path d="M3.5 13l6 6.5L21.5 3.5"/></svg>':'';
+}
 function updateFld(fd){
   const btn=$('#fld_'+fd.id); if(!btn) return;
   const v=S.fld[fd.id];
@@ -1038,6 +1141,36 @@ function updateFld(fd){
   fitOverlayFonts(fd.pg);
 }
 function dateOn(k){ const owner=SIG.find(z=>z.dg===k); return owner&&S.sig[owner.id]; }
+/* v1.44 기본값 — 영업자가 고치면 그 값이 우선. 자동으로 넣은 값은 S.auto에 적어 둔다 */
+function applyDefaults(){
+  const t=today(), def={f_dueyy:t.yy, f_apprel:'본인', f_rel2:'본인'};
+  for(const [k,v] of Object.entries(def)) if(!(k in S.fld)){ S.fld[k]=v; S.auto[k]=v; }
+  for(const [g,on] of [[MK_GRP[7],'m1_20'],[MK_GRP[6],'m1_17']]) if(!g.some(id=>S.mk[id])) S.mk[on]=1;   /* 약정 3년 · 명세서 우편 */
+}
+/* v1.44 칸 값 넣기 + 따라 채우기. 자동으로 채운 칸을 손으로 고치면 그 칸만 바뀐다. 돌려주는 값: 바뀐 칸 id */
+function setFld(k,v){
+  v=(v??'').toString().trim();
+  const prev=S.fld[k], out=[k];
+  if((prev??'')===v) return out;
+  const wasAuto=prev!=null&&S.auto[k]===prev;
+  if(v) S.fld[k]=v; else delete S.fld[k];
+  delete S.auto[k];
+  if(!wasAuto){
+    const g=FLD_GRP.find(g=>g.includes(k)), tg=[...(g?g.filter(x=>x!==k):[]),...(FLD_FOLLOW[k]||[])];
+    for(const j of tg){
+      const cur=S.fld[j], auto=cur!=null&&S.auto[j]===cur;
+      if(v){ if(cur==null||auto){ S.fld[j]=v; S.auto[j]=v; out.push(j); } }
+      else if(auto&&cur===prev){ delete S.fld[j]; delete S.auto[j]; out.push(j); }
+    }
+  }
+  if(k==='f_duemm'&&v){                              /* 설치 희망 월이 이번 달보다 이르면 다음 해 (연도를 손으로 고쳤으면 그대로) */
+    const t=today(), y=S.fld.f_dueyy;
+    if(y==null||S.auto.f_dueyy===y){ const ny=String((+t.yy+(+v<+t.mm?1:0))%100).padStart(2,'0');
+      if(ny!==y){ S.fld.f_dueyy=ny; S.auto.f_dueyy=ny; out.push('f_dueyy'); } }
+  }
+  return out;
+}
+function showFlds(keys){ for(const k of keys){ const f=FIELDS.find(x=>x.id===k); if(f) updateFld(f); } }
 
 /* ── 단계별 입력 가이드 엔진 ── */
 function stepDone(st){
@@ -1163,8 +1296,8 @@ function openField(fd){
     if(voiceInp===inp) stopVoice();
     inp._mic?.remove();
     const v=inp.value.trim(); inp.remove();
-    if(v) S.fld[fd.id]=v; else delete S.fld[fd.id];
-    S.dirty=true; updateFld(fd);
+    const ch=setFld(fd.id,v);                        /* v1.44: 같은 종류 칸 따라 채우기 */
+    S.dirty=true; updateFld(fd); showFlds(ch.filter(k=>k!==fd.id));
     if(tabTo){ const nx=tabTo; tabTo=null; renderStepUI(); tabOpen(nx); }
     else if(v) stepAdvance('f',fd.id);
     else renderStepUI();
@@ -1221,10 +1354,11 @@ function slotTap(z){                                 /* 빈 필수 칸 → 그 �
   if(!S.sig[z.id]&&seqAll().includes(z.id)&&seqLeft().length>1) startSeq(z.id);
   else openSig(z);
 }
-function sigWho(z){
-  if(z.id==='s_p1_acct') return '예금주(카드주) <b>본인이 직접</b> <br>신청인과 다르면 예금주가 서명';
-  if(!z.req) return '해당 고객 <b>본인이 직접</b> <br>손가락 또는 펜으로 서명';
-  return '신청 고객 <b>본인이 직접</b> <br>손가락 또는 펜으로 서명';
+function sigWho(z){                                /* v1.44: 위에 성명 · 아래에 서명 */
+  const how=z.nm?'위에 성명 · 아래에 서명':'손가락 또는 펜으로 서명';
+  if(z.id==='s_p1_acct') return `예금주(카드주) <b>본인이 직접</b> <br>${how} · 신청인과 다르면 예금주가`;
+  if(!z.req) return `해당 고객 <b>본인이 직접</b> <br>${how}`;
+  return `신청 고객 <b>본인이 직접</b> <br>${how}`;
 }
 async function pageCanvas(pg){
   if(!S.rendered[pg]) await renderPage(pg);
@@ -1264,7 +1398,11 @@ function openSig(z){
   const [x0,y0,x1,y1]=z.draw, ar=(x1-x0)/(y1-y0);
   const boxW=Math.min(innerWidth*.9,720);
   const room=innerHeight-36-58-72-ctxH;                /* 미리보기를 뺀 남은 높이 */
-  const cssH=Math.max(120,Math.min(190,room),Math.min(room,innerHeight*.5,boxW/Math.max(ar,1.15)));
+  const split=!!z.nm;                                /* v1.44 위/아래 2분할 — 칸마다 높이 넉넉히 */
+  const cssH= split ? Math.max(200,Math.min(300,room)) : Math.max(120,Math.min(190,room),Math.min(room,innerHeight*.5,boxW/Math.max(ar,1.15)));
+  pad.parentElement.classList.toggle('split',split);
+  $('#padHint').textContent= split?'위에 성명 · 아래에 서명':'여기에 서명하세요';
+  $('#padSplit').className='padsplit';
   const dpr=devicePixelRatio||1;
   pad.style.height=cssH+'px'; pad.style.width='100%';
   $('#sigVeil').classList.add('on');
@@ -1293,17 +1431,24 @@ function tracePath(ctx,pts,W,H){
 const padPt=e=>{const r=pad.getBoundingClientRect();return {u:(e.clientX-r.left)/r.width,v:(e.clientY-r.top)/r.height}};
 pad.addEventListener('pointerdown',e=>{e.preventDefault();pad.setPointerCapture(e.pointerId);
   drawing=true;curPts=[padPt(e)];curStrokes.push(curPts);$('#padHint').style.display='none';});
-pad.addEventListener('pointermove',e=>{if(!drawing)return;curPts.push(padPt(e));repad();
-  $('#sigOk').disabled=totalLen()<0.5;});
-const endStroke=()=>{drawing=false;curPts=null;$('#sigOk').disabled=totalLen()<0.5;};
+pad.addEventListener('pointermove',e=>{if(!drawing)return;curPts.push(padPt(e));repad();padState();});
+const endStroke=()=>{drawing=false;curPts=null;padState();};
+function inkLen(sks){let L=0;for(const sk of sks)for(let i=1;i<sk.length;i++)L+=Math.hypot(sk[i].u-sk[i-1].u,sk[i].v-sk[i-1].v);return L;}
+function padState(){                                /* 2분할이면 위(성명)·아래(서명) 둘 다 써야 완료 */
+  if(!curZone?.nm){ $('#sigOk').disabled=totalLen()<0.5; return; }
+  const top=[],bot=[]; for(const sk of curStrokes){ const cy=sk.reduce((a,p)=>a+p.v,0)/sk.length; (cy<.5?top:bot).push(sk); }
+  const a=inkLen(top)>=.12, b=inkLen(bot)>=.12;
+  $('#sigOk').disabled=!(a&&b);
+  const ps=$('#padSplit'); ps.classList.toggle('need1',!a&&b); ps.classList.toggle('need2',a&&!b);
+}
 pad.addEventListener('pointerup',endStroke); pad.addEventListener('pointercancel',endStroke);
 function totalLen(){let L=0;for(const sk of curStrokes)for(let i=1;i<sk.length;i++)L+=Math.hypot(sk[i].u-sk[i-1].u,sk[i].v-sk[i-1].v);return L;}
-$('#sigClear').onclick=()=>{curStrokes=[];repad();$('#padHint').style.display='flex';$('#sigOk').disabled=true;};
+$('#sigClear').onclick=()=>{curStrokes=[];repad();$('#padHint').style.display='flex';$('#sigOk').disabled=true;$('#padSplit').className='padsplit';};
 $('#sigSkip').onclick=()=>seqNext();
 $('#sigCancel').onclick=()=>{ if(S.seq) endSeq(false); else $('#sigVeil').classList.remove('on'); };
 $('#sigOk').onclick=()=>{
   const z=curZone;
-  S.sig[z.id]={strokes:curStrokes.filter(s=>s.length>1)};
+  S.sig[z.id]={strokes:curStrokes.filter(s=>s.length>1), split:z.nm?1:0, ar:pad.clientWidth/Math.max(1,pad.clientHeight)};
   S.dirty=true;
   drawOverlay(z.pg); refresh();
   if(S.seq){ S.seq.done++; if(z.id==='s_p7_terms') S.seq.terms=true; seqNext(); return; }   /* 연속 — 다음 칸으로 */
@@ -1495,14 +1640,20 @@ function gate(){
 /* ============================================================
    모드 전환
 ============================================================ */
-$('#modeSeg').addEventListener('click',e=>{
-  const b=e.target.closest('button'); if(!b||b.classList.contains('on')) return;
-  if(b.dataset.mode==='hi' && SIG.some(z=>z.grp==='safe'&&S.sig[z.id])
-     && !confirm('안심매입 페이지의 서명이 이미 있습니다. 하이오더 전용으로 전환하면 출력에서 제외됩니다. 전환할까요?')) return;
-  S.mode=b.dataset.mode;
-  $$('#modeSeg button').forEach(x=>x.classList.toggle('on',x===b));
+function setMode(mode){                            /* 하이오더 ↔ +안심매입 — 위 단추와 1쪽 「하이오더 안심매입」 체크 상자 공용 */
+  if(mode===S.mode) return true;
+  if(mode==='hi' && SIG.some(z=>z.grp==='safe'&&S.sig[z.id])
+     && !confirm('안심매입 페이지의 서명이 이미 있습니다. 하이오더 전용으로 전환하면 출력에서 제외됩니다. 전환할까요?')) return false;
+  S.mode=mode;
+  $$('#modeSeg button').forEach(x=>x.classList.toggle('on',x.dataset.mode===mode));
   S.rendered={}; S.canvases={};
   buildStage(); buildRail(); refresh(); updateAttUI();
+  toast(mode==='full'?'안심매입 신청서(11~14쪽)도 함께 작성합니다 — 1쪽에 넣은 값이 11쪽에 같이 들어갑니다':'하이오더 신청서만 작성합니다');
+  return true;
+}
+$('#modeSeg').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b||b.classList.contains('on')) return;
+  setMode(b.dataset.mode);
 });
 
 /* ============================================================
@@ -1515,10 +1666,7 @@ function paintOverlay(ctx,pg,s){
   /* 서명 */
   for(const z of SIG.filter(z=>z.pg===pg&&(S.mode==='full'||z.grp==='hi'))){
     const st=S.sig[z.id]; if(!st) continue;
-    const [x0,y0,x1,y1]=z.draw, W=(x1-x0)*s, H=(y1-y0)*s;
-    ctx.save(); ctx.translate(x0*s,y0*s); ctx.lineWidth=Math.max(2.2,H*.055);
-    for(const sk of st.strokes) tracePath(ctx,sk,W,H);
-    ctx.restore();
+    for(const g of sigPaths(z,st)){ ctx.lineWidth=Math.max(1.6,g.lw*s); for(const sk of g.sks) tracePts(ctx,sk,s); }
   }
   /* 동의 체크 */
   for(const c of CON.filter(c=>c.pg===pg)){
@@ -1555,6 +1703,10 @@ function paintOverlay(ctx,pg,s){
     ctx.lineWidth=Math.max(1.8,h*.16); ctx.beginPath();
     ctx.moveTo(x+w*.10,y+h*.52); ctx.lineTo(x+w*.40,y+h*.86); ctx.lineTo(x+w*1.02,y+h*.04); ctx.stroke();
   }
+  const sm=MK.find(m=>m.safe&&m.pg===pg);               /* v1.44 안심매입 동시 작성 → ☑ (원본엔 칸이 없어 네모까지 그림) */
+  if(sm&&S.mode==='full'){ const x=sm.r[0]*s, y=sm.r[1]*s, w=(sm.r[2]-sm.r[0])*s, h=(sm.r[3]-sm.r[1])*s;
+    ctx.lineWidth=Math.max(1.3,h*.08); ctx.strokeRect(x,y,w,h);
+    ctx.lineWidth=Math.max(1.8,h*.15); ctx.beginPath(); ctx.moveTo(x+w*.2,y+h*.52); ctx.lineTo(x+w*.43,y+h*.78); ctx.lineTo(x+w*.84,y+h*.22); ctx.stroke(); }
   /* 텍스트 */
   for(const it of S.texts.filter(t=>t.pg===pg)){
     ctx.font=HANDF(it.size*s);
@@ -1600,15 +1752,12 @@ async function composeAll(msg){
   }
   return out;
 }
-function fname(ext){
+function fname(ext,tag){                            /* 날짜_상호_하이오더[·안심매입]_신청서[_제출용|_고객용] — 상호는 맨 위 상호 칸(법인은 법인명) */
   const t=today(), store=($('#mStore').value.trim()||'미기재').replace(/[\\/:*?"<>|]/g,'');
-  return `${t.yy}${t.mm2}${t.dd2}_${store}_하이오더${S.mode==='full'?'·안심매입':''}_신청서.${ext}`;
+  return `${t.yy}${t.mm2}${t.dd2}_${store}_하이오더${S.mode==='full'?'·안심매입':''}_신청서${tag?'_'+tag:''}.${ext}`;
 }
 
-/* 인쇄 (→ 종이 출력 → 애니팩스) */
-$('#btnPrint').onclick=async()=>{
-  if(!gate()) return;
-  const cvs=await composeAll('인쇄 준비 중');
+function printCanvases(cvs){                       /* 합성한 쪽들을 숨은 창에 넣어 인쇄 대화상자 */
   const fr=document.createElement('iframe');
   fr.style.cssText='position:fixed;width:0;height:0;border:0;visibility:hidden';
   document.body.appendChild(fr);
@@ -1616,13 +1765,49 @@ $('#btnPrint').onclick=async()=>{
   d.write(`<html><head><style>@page{size:A4;margin:0}html,body{margin:0}img{display:block;width:210mm;height:297mm;page-break-after:always}img:last-child{page-break-after:auto}</style></head><body></body></html>`);
   for(const cv of cvs){ const im=d.createElement('img'); im.src=cv.toDataURL('image/jpeg',.92); d.body.appendChild(im); }
   d.close();
-  await new Promise(r=>setTimeout(r,600));
-  fr.contentWindow.focus(); fr.contentWindow.print();
-  setTimeout(()=>fr.remove(),60000);
+  return new Promise(r=>setTimeout(()=>{ fr.contentWindow.focus(); fr.contentWindow.print(); setTimeout(()=>fr.remove(),60000); r(); },600));
+}
+/* 인쇄 (→ 종이 출력 → 애니팩스) */
+$('#btnPrint').onclick=async()=>{
+  if(!gate()) return;
+  const cvs=await composeAll('인쇄 준비 중');
+  await printCanvases(cvs);
   toast('인쇄 대화상자를 확인하세요. 출력 후 애니팩스로 발송합니다.');
 };
+/* 서명받기 출력 (v1.44) — 다 채우지 않아도 컬러로 인쇄. 넣은 값은 그대로, 빈 주요 칸은 화면처럼 연두,
+   필수 서명 자리·동의 ○·서명 날짜는 노랑 형광. 첨부 서류는 넣지 않는다 */
+async function composePrep(pg){
+  const page=await S.doc.getPage(pg), vp=page.getViewport({scale:FAX_SCALE}), s=FAX_SCALE;
+  const cv=document.createElement('canvas'); cv.width=Math.round(vp.width); cv.height=Math.round(vp.height);
+  const ctx=cv.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,cv.width,cv.height);
+  await page.render({canvasContext:ctx,viewport:vp}).promise;
+  const hl=(r,c,part)=>{ const [x0,y0,x1,y1]=r, h=(y1-y0)*s, t=part?h*(1-part):0; ctx.fillStyle=c; ctx.fillRect(x0*s,y0*s+t,(x1-x0)*s,h-t); };
+  const sigs=reqSig().filter(z=>z.pg===pg&&!S.sig[z.id]);
+  ctx.save(); ctx.globalCompositeOperation='multiply';   /* 형광펜처럼 — 인쇄된 글자는 그대로 보이게 */
+  for(const fd of FIELDS.filter(f=>f.pg===pg&&MAINF.has(f.id)&&!S.fld[f.id])) hl(fd.r,'rgba(132,255,0,.42)',.4);
+  for(const z of sigs) hl(slotRect(z),'rgba(255,226,0,.6)');
+  for(const c of CON.filter(c=>c.pg===pg&&!S.con[c.id])) hl(c.hot,'rgba(255,226,0,.45)');
+  for(const [k,d] of Object.entries(DATES)){
+    const owner=SIG.find(z=>z.dg===k); if(d.pg!==pg||!owner||!sigs.includes(owner)) continue;
+    for(const part of ['yy','mm','dd']){ const [cx,by,fp]=d[part]; hl([cx-fp*1.15,by-fp*1.05,cx+fp*1.15,by+fp*.35],'rgba(255,226,0,.6)'); }
+  }
+  ctx.restore();
+  ctx.fillStyle='#E60012';                              /* 필수 서명 자리 오른쪽 위 빨간 모서리 — 화면과 같은 표시 */
+  for(const z of sigs){ const r=slotRect(z), x=r[2]*s, y=r[1]*s, k=Math.max(8,s*3.2); ctx.beginPath(); ctx.moveTo(x-k,y); ctx.lineTo(x,y); ctx.lineTo(x,y+k); ctx.fill(); }
+  paintOverlay(ctx,pg,s);
+  return cv;
+}
+$('#btnPrep').onclick=async()=>{
+  document.querySelector('.finp')?.blur();
+  await document.fonts.ready;
+  try{ await document.fonts.load("12px 'GeuriunXGukhanbakDaheul'","가나다0123"); }catch(e){}
+  const pages=MODE_PAGES[S.mode], out=[];
+  for(let i=0;i<pages.length;i++){ toast(`서명받기 출력 준비 ${i+1}/${pages.length}p…`); out.push(await composePrep(pages[i])); }
+  await printCanvases(out);
+  toast('컬러로 인쇄하세요 — 노란 칸에 고객 서명·동의·날짜를 받습니다');
+};
 
-/* PDF 저장 — 기기 저장본(애니팩스용)은 첨부 포함, 고객 사본(공유)은 신청서만 */
+/* PDF 저장 — 제출용(기기 저장·애니팩스, 첨부 포함 — 신분증은 가리지 않음)과 고객용(공유, 신청서만) */
 $('#btnPdf').onclick=async()=>{
   if(!gate()) return;
   const cvs=await composeAll('PDF 생성 중');
@@ -1631,13 +1816,12 @@ $('#btnPdf').onclick=async()=>{
   const mkPdf=list=>{ const pdf=new jsPDF({unit:'pt',format:'a4',compress:true});
     list.forEach((u,i)=>{ if(i) pdf.addPage(); pdf.addImage(u,'JPEG',0,0,PW,PH); });
     return pdf.output('blob'); };
-  const blob=mkPdf(urls), fn=fname('pdf');
+  const blob=mkPdf(urls), fn=fname('pdf','제출용');
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=fn;
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(()=>URL.revokeObjectURL(a.href),4000);
   const nAtt=cvs.length-cvs.formCount;
-  S.lastPdf= nAtt ? {blob:mkPdf(urls.slice(0,cvs.formCount)), fn:fn.replace(/신청서\.pdf$/,'신청서_고객용.pdf'), att:nAtt}
-                  : {blob, fn, att:0};
+  S.lastPdf={blob: nAtt?mkPdf(urls.slice(0,cvs.formCount)):blob, fn:fname('pdf','고객용'), att:nAtt, saved:fn, id:!!S.att.id};
   openSendSheet();
 };
 
@@ -1669,7 +1853,7 @@ async function openCam(kind){
   if(kind==='id'){
     mask.style.width='min(86vw, 640px, calc(62vh * 856 / 540))'; mask.style.aspectRatio='856/540';
     $('#camTitle').textContent='신분증 촬영';
-    $('#camHint').textContent='빨간 테두리에 꽉 차게 · 주민번호 뒷자리는 자동으로 가려집니다';
+    $('#camHint').textContent='빨간 테두리에 꽉 차게 · 빛 반사가 글자에 걸리지 않게';
   }else{
     mask.style.width='min(86vw, calc(70vh * 210 / 297))'; mask.style.aspectRatio='210/297';
     $('#camTitle').textContent='사업자등록증 촬영';
@@ -1704,23 +1888,98 @@ $('#camShot').onclick=()=>{
   x.drawImage(v,sx,sy,sw,sh,0,0,outW,outH);
   finishShot(c);
 };
-function fromFile(e){
+function fromFile(e){                               /* v1.43: 앨범·파일 사진은 바로 읽지 않고 크기 맞추기부터 */
   const f=e.target.files[0]; if(!f) return;
   const kind=e.target.dataset.kind||camKind||'id', img=new Image(), url=URL.createObjectURL(f);
-  img.onload=()=>{
-    URL.revokeObjectURL(url);
-    const ar=kind==='id'?856/540:210/297;
-    let sw=img.width, sh=sw/ar;
-    if(sh>img.height){ sh=img.height; sw=sh*ar; }
-    const c=document.createElement('canvas');
-    const outW=kind==='id'?1400:1654; c.width=outW; c.height=Math.round(outW/ar);
-    const x=c.getContext('2d'); x.fillStyle='#fff'; x.fillRect(0,0,c.width,c.height); x.imageSmoothingQuality='high';
-    x.drawImage(img,(img.width-sw)/2,(img.height-sh)/2,sw,sh,0,0,c.width,c.height);
-    camKind=kind; finishShot(c);
-  };
+  img.onload=()=>{ camKind=kind; closeCam(); $('#attVeil').classList.remove('on'); openCrop(kind,img,url); };
   img.onerror=()=>{ URL.revokeObjectURL(url); toast('사진을 열 수 없습니다'); };
   img.src=url;
 }
+/* ── 앨범·파일 사진 크기 맞추기 — v1.43
+   카드(사업자등록증은 A4)가 빨간 틀에 꽉 차게 옮기고 키운 뒤, 틀 안만 원본 해상도로 잘라 글자 인식으로 넘긴다.
+   원본은 확인 창에서 넣거나 다시 찍을 때까지만 메모리에 둔다(크기 다시 맞추기용). */
+const CROP={img:null,url:null,kind:'id',prev:null,rot:0,s:1,cx:0,cy:0,pts:new Map(),g:null};
+function cropFrame(){ const r=$('#cropFrame').getBoundingClientRect(); return {x:r.left,y:r.top,w:r.width,h:r.height,cx:r.left+r.width/2,cy:r.top+r.height/2}; }
+function cropDims(){ const w=CROP.img.naturalWidth, h=CROP.img.naturalHeight; return CROP.rot%180?{w:h,h:w}:{w,h}; }
+function cropLimits(){ const F=cropFrame(), d=cropDims(), cover=Math.max(F.w/d.w,F.h/d.h), contain=Math.min(F.w/d.w,F.h/d.h); return {min:contain*.9, max:cover*8, cover}; }
+function cropClamp(){                               /* 배율 범위 안 · 틀 가운데는 늘 사진 위 */
+  if(!CROP.img) return;
+  const F=cropFrame(), d=cropDims(), L=cropLimits();
+  CROP.s=Math.min(L.max,Math.max(L.min,CROP.s));
+  const hw=d.w*CROP.s/2, hh=d.h*CROP.s/2;
+  CROP.cx=Math.min(F.cx+hw,Math.max(F.cx-hw,CROP.cx)); CROP.cy=Math.min(F.cy+hh,Math.max(F.cy-hh,CROP.cy));
+}
+function cropFit(){ const F=cropFrame(); CROP.s=cropLimits().cover; CROP.cx=F.cx; CROP.cy=F.cy; }
+function cropDraw(){
+  const cv=$('#cropCv'), dpr=Math.min(2,devicePixelRatio||1), W=innerWidth, H=innerHeight;
+  if(cv.width!==Math.round(W*dpr)||cv.height!==Math.round(H*dpr)){ cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr); }
+  const x=cv.getContext('2d'); x.setTransform(dpr,0,0,dpr,0,0); x.fillStyle='#e9ecf1'; x.fillRect(0,0,W,H);
+  if(!CROP.img) return;
+  const iw=CROP.img.naturalWidth, ih=CROP.img.naturalHeight;
+  x.imageSmoothingQuality='high';
+  x.translate(CROP.cx,CROP.cy); x.rotate(CROP.rot*Math.PI/180); x.scale(CROP.s,CROP.s);
+  x.drawImage(CROP.prev||CROP.img,-iw/2,-ih/2,iw,ih);
+}
+let cropRaf=0; const cropPaint=()=>{ if(!cropRaf) cropRaf=requestAnimationFrame(()=>{ cropRaf=0; cropDraw(); }); };
+function cropZoom(f,px,py){
+  if(!CROP.img) return;
+  const L=cropLimits(), s1=Math.min(L.max,Math.max(L.min,CROP.s*f)), k=s1/CROP.s;
+  CROP.cx=px-(px-CROP.cx)*k; CROP.cy=py-(py-CROP.cy)*k; CROP.s=s1; cropClamp(); cropPaint();
+}
+function openCrop(kind,img,url,keep){
+  if(CROP.url&&CROP.url!==url) URL.revokeObjectURL(CROP.url);
+  if(CROP.img!==img){                               /* 움직일 때 부드럽게: 긴 변 2000px 미리보기(자르기는 원본으로) */
+    const iw=img.naturalWidth, ih=img.naturalHeight, k=Math.min(1,2000/Math.max(iw,ih));
+    let prev=null;
+    if(k<1){ prev=document.createElement('canvas'); prev.width=Math.round(iw*k); prev.height=Math.round(ih*k);
+      const px=prev.getContext('2d'); px.imageSmoothingQuality='high'; px.drawImage(img,0,0,prev.width,prev.height); }
+    Object.assign(CROP,{img,url,prev,rot:0}); keep=false;
+  }
+  CROP.kind=kind;
+  const fr=$('#cropFrame');
+  fr.style.width= kind==='id'?'min(86vw, 640px, calc(56vh * 856 / 540))':'min(86vw, calc(60vh * 210 / 297))';
+  fr.style.aspectRatio= kind==='id'?'856/540':'210/297';
+  $('#cropTitle').textContent= kind==='id'?'신분증 크기 맞추기':'사업자등록증 크기 맞추기';
+  $('#cropHint').textContent= (kind==='id'?'카드':'문서')+'가 빨간 틀에 꽉 차게 — 끌어서 옮기고, 두 손가락으로 벌려 키우세요';
+  $('#cropVeil').classList.add('on');
+  requestAnimationFrame(()=>{ if(keep) cropClamp(); else cropFit(); cropDraw(); });
+}
+function closeCrop(){ $('#cropVeil').classList.remove('on'); CROP.pts.clear(); CROP.g=null; }
+function dropCrop(){ if(CROP.url) URL.revokeObjectURL(CROP.url); Object.assign(CROP,{img:null,url:null,prev:null}); $('#ocrRecrop').hidden=true; }
+(()=>{                                              /* 한 손가락 끌기 · 두 손가락 확대 · 마우스 휠 */
+  const cv=$('#cropCv');
+  const gest=()=>{ const p=[...CROP.pts.values()];
+    if(p.length>=2){ const [a,b]=p; return {x:(a.x+b.x)/2, y:(a.y+b.y)/2, d:Math.hypot(a.x-b.x,a.y-b.y)}; }
+    return p.length?{x:p[0].x,y:p[0].y,d:0}:null; };
+  cv.addEventListener('pointerdown',e=>{ e.preventDefault(); try{ cv.setPointerCapture(e.pointerId); }catch(_){} CROP.pts.set(e.pointerId,{x:e.clientX,y:e.clientY}); CROP.g=gest(); });
+  cv.addEventListener('pointermove',e=>{
+    if(!CROP.pts.has(e.pointerId)||!CROP.img) return;
+    CROP.pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    const g=gest(), o=CROP.g; if(!g||!o) return;
+    CROP.cx+=g.x-o.x; CROP.cy+=g.y-o.y;
+    if(g.d&&o.d){ const L=cropLimits(), s1=Math.min(L.max,Math.max(L.min,CROP.s*g.d/o.d)), k=s1/CROP.s;
+      CROP.cx=g.x-(g.x-CROP.cx)*k; CROP.cy=g.y-(g.y-CROP.cy)*k; CROP.s=s1; }
+    CROP.g=g; cropClamp(); cropPaint();
+  });
+  const up=e=>{ CROP.pts.delete(e.pointerId); CROP.g=gest(); };
+  cv.addEventListener('pointerup',up); cv.addEventListener('pointercancel',up);
+  cv.addEventListener('wheel',e=>{ e.preventDefault(); cropZoom(Math.exp(-e.deltaY*.0015),e.clientX,e.clientY); },{passive:false});
+})();
+$('#cropIn').onclick=()=>{ const F=cropFrame(); cropZoom(1.25,F.cx,F.cy); };
+$('#cropOut').onclick=()=>{ const F=cropFrame(); cropZoom(1/1.25,F.cx,F.cy); };
+$('#cropRot').onclick=()=>{ if(!CROP.img) return; CROP.rot=(CROP.rot+90)%360; cropFit(); cropPaint(); };
+$('#cropCancel').onclick=()=>{ closeCrop(); dropCrop(); openAtt(S.attMode||'remind'); };
+$('#cropOk').onclick=()=>{
+  if(!CROP.img) return;
+  const F=cropFrame(), k=CROP.kind, outW=k==='id'?1400:1654, outH=Math.round(outW*F.h/F.w);
+  const c=document.createElement('canvas'); c.width=outW; c.height=outH;
+  const x=c.getContext('2d'); x.fillStyle='#fff'; x.fillRect(0,0,outW,outH); x.imageSmoothingQuality='high';
+  const z=outW/F.w; x.setTransform(z,0,0,z,-F.x*z,-F.y*z);          /* 화면 좌표 → 출력 좌표 */
+  x.translate(CROP.cx,CROP.cy); x.rotate(CROP.rot*Math.PI/180); x.scale(CROP.s,CROP.s);
+  x.drawImage(CROP.img,-CROP.img.naturalWidth/2,-CROP.img.naturalHeight/2);
+  closeCrop(); camKind=k; finishShot(c);
+};
+addEventListener('resize',()=>{ if($('#cropVeil').classList.contains('on')){ cropClamp(); cropPaint(); } });
 $('#camFile').addEventListener('change',fromFile);
 $('#camAlbum').addEventListener('change',fromFile);
 function finishShot(c){
@@ -1756,7 +2015,7 @@ const withTimeout=(p,ms)=>Promise.race([p,new Promise((_,no)=>setTimeout(()=>no(
 function ocrLog(m){
   if(!$('#ocrStat').classList.contains('busy')) return;
   const t={'loading tesseract core':'글자 인식 엔진 내려받는 중','loading language traineddata':'한국어 글자 사전 내려받는 중',
-           'initializing api':'엔진 준비 중','recognizing text':'글자 읽는 중'}[m.status];
+           'initializing api':'엔진 준비 중','recognizing text':S.ocrLab||'글자 읽는 중'}[m.status];
   if(t) $('#ocrMsg').textContent=t+(m.progress!=null&&m.progress<1?` ${Math.round(m.progress*100)}%`:'')+'…';
 }
 function ocrStateUI(){
@@ -1816,60 +2075,139 @@ function parseBiz(text){                            /* 사업자등록증 — �
   }
   return r;
 }
-function maskFromLine(line,mode){                   /* 주민번호 뒷자리 7개를 덮는 상자(px)
-                                                       mode full: 13자리 다 읽음 · front: 앞 6자리+'-' · bare: 앞 6자리만 */
-  const sy=[]; for(const w of line.words||[]) for(const s of (w.symbols||[])) sy.push(s);
-  const txt=sy.map(s=>s.text).join('');
-  let x0,x1,y0,y1;
-  if(sy.length&&sy.length===txt.length){
-    const re= mode==='full'?/(\d{6})([-–—~.ㅡ一_=]?)(\d{7})/ : mode==='front'?/(\d{6})([-–—~ㅡ一_=])/ : /(\d{6})(?!\d)/;
-    const m=txt.match(re);
-    if(m){
-      const a=m.index, seg=sy.slice(a,a+6);
-      const pit=[1,2,3,4,5].map(i=>sy[a+i].bbox.x0-sy[a+i-1].bbox.x0).sort((p,q)=>p-q)[2];   /* 숫자 간격(중앙값) */
-      y0=Math.min(...seg.map(s=>s.bbox.y0)); y1=Math.max(...seg.map(s=>s.bbox.y1));
-      if(mode==='full'){ const st=a+m[1].length+m[2].length; x0=sy[st].bbox.x0; x1=sy[st+6].bbox.x1; }
-      else { x0=sy[a].bbox.x0+pit*6.6; x1=x0+pit*7.1; }            /* 앞 6자리 + '-' 다음부터 7자리 */
+/* ── 신분증 판독 — v1.43
+   카드의 줄 순서로 찾는다. 운전면허증: 면허번호 → 성명 → 주민번호 → 주소 / 주민등록증: 제목 → 성명(한자) → 주민번호 → 주소.
+   면허번호(2-6-2)·날짜 줄은 번호 후보에서 뺀다. 틀리게 채우느니 비운다 — 여러 번 읽어 맞춰 본 값만 체크해서 채운다.
+   뒷자리는 성별 1자리만 쓰고 글자로 남기지 않는다. */
+const ID_SEP='[-–—~.ㅡ一_=·]';
+const RE_LIC=new RegExp(`\\d{2}${ID_SEP}\\d{6}${ID_SEP}\\d{2}`);            /* 운전면허번호 (새: 12-19-…, 옛: 서울 94-…) */
+const RE_DAY=/(?:19|20)\d{2}[.,]\d{1,2}[.,]\d{1,2}/;                        /* 발급일·적성검사 날짜 줄 */
+const RE_SIDO=/^[^가-힣\d]{0,3}(?:서울|부산|대구|인천|광주|대전|울산|세종|경기|강원|충청|충북|충남|전라|전북|전남|경상|경북|경남|제주|[가-힣]{1,3}(?:특별시|광역시|특별자치))/;
+const RE_SIDO2=/^[^가-힣\d]{0,3}[가-힣]{2}(?:도|특별|광역)/;                /* 첫 글자 오인식(셩기도) */
+const NAME_BAD=/주민|등록증|운전|면허|대한민국|청장|경찰|자동차|보통|대형|소형|특수|적성|검사|기간|조건|발급/;
+const SURNAME='김이박최정강조윤장임한오서신권황안송전홍유고문양손배백허남심노하곽성차주우구민류나진지엄채원천방공현함변염여추도소석선설마길연위표명기반라왕금옥육인맹제모탁국어은편용예경봉사부가복태목형피두감호음빈동온시범좌팽승간상갈단견당화창옹순빙종풍란로리독궁';
+const okDate6=d=>{ const y=+d.slice(0,2), m=+d.slice(2,4), dd=+d.slice(4,6); return validYMD(1900+y,m,dd)||validYMD(2000+y,m,dd); };
+function idName(s){                                 /* 한글 2~5자 + 흔한 성씨로 시작해야 이름으로 본다 */
+  const m=(s||'').replace(/\s/g,'').match(/^[^가-힣]{0,2}([가-힣]{2,5})(?![가-힣])/);
+  return m&&!NAME_BAD.test(m[1])&&SURNAME.includes(m[1][0])?m[1]:null;
+}
+function idPass(data){                              /* 한 번 읽은 결과에서 성명·생년월일·성별 자리 찾기 */
+  const L=[];
+  for(const b of data.blocks||[]) for(const p of b.paragraphs||[]) for(const l of p.lines||[]){
+    const W=(l.words||[]).filter(w=>(w.text||'').trim()); if(!W.length) continue;
+    const raw=W.map(w=>w.text.trim()).join(' ');
+    /* 줄 높이는 믿을 만한 낱말(신뢰도 50↑)의 가운데값 — 사진 쪽 잡글자가 줄 상자를 부풀리지 않게 */
+    const G=W.filter(w=>(w.confidence??100)>=50), K=G.length?G:W, med=a=>a.sort((p,q)=>p-q)[a.length>>1];
+    const y0=med(K.map(w=>w.bbox.y0)), y1=med(K.map(w=>w.bbox.y1));
+    L.push({W,raw,t:raw.replace(/\s/g,''),b:{x0:Math.min(...K.map(w=>w.bbox.x0)),x1:Math.max(...K.map(w=>w.bbox.x1)),y0,y1},cy:(y0+y1)/2,h:Math.max(1,y1-y0)});
+  }
+  L.sort((a,b)=>a.cy-b.cy);
+  const r={}, lic=L.find(o=>RE_LIC.test(o.t)), title=L.find(o=>/주민등록증|운전면허/.test(o.t));
+  r.dl=!!lic||/운전|면허|Driver|License/i.test(L.map(o=>o.t).join(' '));
+  const top=lic||title, below=o=>!top||o.cy>top.b.y1;                      /* 성명·번호는 면허번호·제목 줄 아래에만 */
+  const addr=L.find(o=>below(o)&&!RE_LIC.test(o.t)&&!/청장/.test(o.t)&&o.t.length>=6&&
+    (RE_SIDO.test(o.t)||(RE_SIDO2.test(o.t)&&o.t.length>=8&&/[시군구로길]/.test(o.t.slice(3)))));
+  /* 글자 기둥(성명·번호·주소가 왼쪽 정렬된 x) — 사진 쪽 잡글자를 걸러낸다 */
+  const x0Of=o=>{ if(!o) return null; const w=o.W.find(w=>/[가-힣\d]/.test(w.text)&&(w.confidence??100)>=50)||o.W.find(w=>/[가-힣\d]/.test(w.text)); return w?w.bbox.x0:null; };
+  let colX=addr?x0Of(addr):lic?x0Of(lic):null;
+  const colW=o=>colX==null?o.W:o.W.filter(w=>w.bbox.x1>colX-o.h*.8), colT=o=>colW(o).map(w=>w.text).join(' ');
+  const cand=L.filter(o=>o!==addr&&!RE_LIC.test(o.t)&&!RE_DAY.test(o.t)&&below(o)&&(!addr||o.cy<addr.b.y0));
+  let rrn=null, bad=null, nameGuess=null;
+  /* ① 13자리 온전히: 앞 6 + (하이픈) + 성별 1 + 6 — 공백은 하이픈 앞뒤 한 칸까지만 */
+  for(const o of cand){
+    const m=colT(o).match(/(?:^|[^\d])(\d{6})\s?[-–—~ㅡ一_=]?\s?([1-8])\d{6}(?!\d)/);
+    if(m&&okDate6(m[1])){ rrn=o; r.how='full'; r.birth6=m[1]; r.g=+m[2]; break; }
+  }
+  /* ② 주소 바로 위 줄 = 주민번호 줄 (뒷자리를 가렸거나 반사로 못 읽어도 앞 6자리는 여기) */
+  if(!rrn&&addr){
+    const ups=cand.filter(o=>o.cy<addr.b.y0), up=ups[ups.length-1];
+    if(up&&addr.cy-up.cy>=addr.h*4.2&&!/\d/.test(up.t)&&addr.cy-up.cy<addr.h*6.5) nameGuess=up;   /* 번호 줄 자리가 통째로 빔 */
+    else if(up&&addr.cy-up.cy<addr.h*4.2){
+      const d=colT(up).replace(/\s/g,''), m=d.match(/^[^\d가-힣]{0,2}(\d{6})(?!\d)/);
+      if(m&&okDate6(m[1])){ rrn=up; r.how='anchor'; r.birth6=m[1]; }
+      else if(!/\d/.test(d)&&/[가-힣]{2}/.test(d)) nameGuess=up;              /* 번호 줄이 빠지고 이 줄이 성명 */
+      else { bad=up; r.raw=((d.match(/\d{4,}/)||[''])[0]).slice(0,7); }       /* 번호 줄 자리는 알지만 숫자가 엉킴 */
     }
   }
-  if(x0==null){                                      /* 글자 단위 위치가 없으면 단어 상자로 추정 */
-    const w=(line.words||[]).find(w=>/\d{6}/.test(w.text)); if(!w) return null;
-    const b=w.bbox, n=w.text.replace(/\s/g,'').length;
-    if(mode!=='full'||n<13){ const dw=(b.x1-b.x0)/Math.max(6,n); x0=b.x1+dw*(n>6?.15:1.05); x1=x0+dw*7.3; }
-    else { x0=b.x0+(b.x1-b.x0)*((n-7)/n); x1=b.x1; }
-    y0=b.y0; y1=b.y1;
+  /* ③ 줄 맨 앞이 6자리 (면허번호·날짜·주소 줄은 이미 뺐음) */
+  if(!rrn&&!bad) for(const o of cand){
+    const m=colT(o).replace(/\s/g,'').match(/^[^\d가-힣]{0,2}(\d{6})(?!\d)/);
+    if(m&&okDate6(m[1])){ rrn=o; r.how='front'; r.birth6=m[1]; break; }
   }
-  const h=y1-y0; return {x0:x0-h*.22, y0:y0-h*.32, x1:x1+h*.28, y1:y1+h*.32};
-}
-function parseId(data){                             /* 신분증 — 성명·생년월일(앞 6자리)·성별 + 뒷자리 위치. 뒷자리 숫자는 돌려주지 않는다 */
-  const lines=[]; for(const b of data.blocks||[]) for(const p of b.paragraphs||[]) for(const l of p.lines||[]) lines.push(l);
-  const T=lines.map(l=>l.text.replace(/\s/g,''));
-  const okDate=d=>{ const y=+d.slice(0,2), m=+d.slice(2,4), dd=+d.slice(4,6); return validYMD(1900+y,m,dd)||validYMD(2000+y,m,dd); };
-  const r={}; let ri=-1, mm=null, mode='full';
-  for(let i=0;i<T.length&&ri<0;i++){ const m=T[i].match(/(\d{6})[-–—~.ㅡ一_=]?([1-8])(\d{6})/); if(m&&okDate(m[1])){ ri=i; mm=m; } }
-  if(ri<0) for(let i=0;i<T.length&&ri<0;i++){ const m=T[i].match(/(?:^|\D)(\d{6})[-–—~ㅡ一_=]/); if(m&&okDate(m[1])){ ri=i; mm=[m[0],m[1]]; mode='front'; } }
-  if(ri<0) for(let i=0;i<T.length&&ri<0;i++){ const m=T[i].match(/^(\d{6})(?!\d)/); if(m&&okDate(m[1])){ ri=i; mm=[m[0],m[1]]; mode='bare'; } }
-  const BAD=/주민|등록증|운전|면허|대한민국|청장|경찰|자동차|보통|대형|소형|특수/;
-  if(ri>=0){
-    r.birth6=mm[1];
-    const yy=+mm[1].slice(0,2), mo=+mm[1].slice(2,4), dd=+mm[1].slice(4,6);
-    if(mode==='full'){ const g=+mm[2]; r.sex=g%2?'남':'여'; r.birthOk=validYMD(((g<=2||g===5||g===6)?1900:2000)+yy,mo,dd); }
-    else r.birthOk=okDate(mm[1]);
-    r.maskPx=maskFromLine(lines[ri],mode);
-    const before=lines[ri].text.split(/\d{6}/)[0].replace(/[^가-힣]/g,'');
-    if(before.length>=2&&before.length<=5&&!BAD.test(before)) r.name=before;
+  const R=rrn||bad;
+  if(R&&colX==null) colX=x0Of(R);
+  /* 성명: 주민번호 줄 바로 위 — 첫 한글 낱말 + 바로 붙은 낱말(글자 사이가 벌어진 이름) */
+  let ups=[];
+  if(R) ups=cand.filter(o=>o.cy<R.b.y0&&R.cy-o.cy<R.h*3.4).reverse().slice(0,2);
+  else if(nameGuess) ups=[nameGuess];
+  else if(top) ups=cand.filter(o=>o.cy>top.b.y1).slice(0,1);
+  for(const nl of ups){
+    const ws=colW(nl); let i=ws.findIndex(w=>/[가-힣]/.test(w.text)), j=i, s='';
+    if(i>=0){ s=ws[i].text; while(j+1<ws.length&&ws[j+1].bbox.x0-ws[j].bbox.x1<nl.h*.75){ j++; s+=ws[j].text; } }
+    const nm=idName(s);
+    if(nm){ r.name=nm; const u=ws.slice(i,j+1); r.nameBox={x0:Math.min(...u.map(w=>w.bbox.x0)),x1:Math.max(...u.map(w=>w.bbox.x1)),y0:nl.b.y0,y1:nl.b.y1,h:nl.h}; break; }
   }
-  const nameAt=k=>{ const m=(T[k]||'').match(/^([가-힣]{2,5})(?:\(|$|[^가-힣])/); return m&&!BAD.test(m[1])?m[1]:null; };
-  for(let k=ri-1;ri>=0&&!r.name&&k>=Math.max(0,ri-3);k--) r.name=nameAt(k);
-  if(!r.name){ const t=T.findIndex(l=>/주민등록증|운전면허증/.test(l)); for(let k=t+1;t>=0&&!r.name&&k<=t+3;k++) r.name=nameAt(k); }
-  if(!r.name){ const k=T.findIndex(l=>/^[가-힣]{2,4}\(/.test(l)); if(k>=0) r.name=nameAt(k); }   /* 한자 괄호가 붙은 이름 줄 */
+  /* 번호 줄 앞 6자리의 글자 상자 — 숫자 전용으로 다시 읽을 곳 */
+  if(R){ const sy=[]; for(const w of colW(R)) for(const q of (w.symbols||[])) sy.push(q);
+    const t=sy.map(q=>q.text).join(''), m=sy.length===t.length&&t.match(/\d{6}/);
+    if(m){ const g=sy.slice(m.index,m.index+6), pit=[1,2,3,4,5].map(i=>g[i].bbox.x0-g[i-1].bbox.x0).sort((a,b)=>a-b)[2];
+      const y0=Math.min(...g.map(q=>q.bbox.y0)), y1=Math.max(...g.map(q=>q.bbox.y1)); r.band={x:g[0].bbox.x0,y0,y1,h:y1-y0,pit}; } }
   return r;
+}
+function idReBoxes(P){                              /* 한 번 더 읽을 곳: 번호 줄 앞 6자리+하이픈 · 성명 */
+  const B=(P.find(p=>p.band)||{}).band, N=(P.find(p=>p.nameBox)||{}).nameBox;
+  return { num: B?{x0:B.x-B.pit*.6, y0:B.y0-B.h*.35, x1:B.x+B.pit*6.75, y1:B.y1+B.h*.35}:null,
+           name: N?{x0:N.x0-N.h*.4, y0:N.y0-N.h*.3, x1:N.x1+N.h*.4, y1:N.y1+N.h*.3}:null };
+}
+function idVote(list,tangled){                      /* 같은 값 2번↑ 확정(agree) · 2:1 다수(major) · 1번(once) · 엇갈림(clash → 비움) */
+  const cnt={}; for(const v of list) cnt[v]=(cnt[v]||0)+1;
+  const k=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a]); if(!k.length) return {};
+  const n1=cnt[k[0]], n2=k[1]?cnt[k[1]]:0;
+  if(n1>=2&&!n2&&!tangled) return {v:k[0],st:'agree'};
+  if(n1>=2&&n1>n2) return {v:k[0],st:'major'};
+  if(list.length===1&&!tangled) return {v:k[0],st:'once'};
+  return {st:'clash'};
+}
+function idMerge(P,cText,nText){                    /* 전체 판독(1~2회) + 번호·성명 다시 읽기를 맞춰 본다 */
+  const r={dl:P.some(p=>p.dl)}, bv=P.filter(p=>p.birth6).map(p=>p.birth6);
+  if(cText!=null){ const d=cText.replace(/\s/g,'').replace(/^[^\d]+/,''), m=d.match(/^(\d{6})(?!\d)/), f6=(d.match(/^\d{6}/)||[''])[0];
+    if(m&&okDate6(m[1])) bv.push(m[1]); else if(f6&&bv.includes(f6)) bv.push(f6); }
+  for(const p of P) if(p.raw&&p.raw.length>=6){ const v=bv.find(v=>p.raw.startsWith(v)); if(v) bv.push(v); }   /* 숫자가 엉킨 번호 줄도 앞 6자리가 같으면 한 표 */
+  const tangled=P.some(p=>p.raw&&p.raw.length>=6&&!bv.some(v=>p.raw.startsWith(v)));                     /* 앞 6자리부터 다르면 엇갈림 */
+  const b=idVote(bv,tangled); r.birth6=b.v; r.birthState=b.st;
+  const G=P.filter(p=>p.how==='full').map(p=>p.g%2?'남':'여');
+  if(r.birth6&&G.length&&G.every(x=>x===G[0])) r.sex=G[0];
+  const nv=P.filter(p=>p.name).map(p=>p.name); if(nText!=null){ const nm=idName(nText); if(nm) nv.push(nm); }
+  const n=idVote(nv); r.name=n.v; r.nameState=n.st;
+  return r;
+}
+async function readId(w,canvas,seq){                /* 반사에 강한 이진화(Sauvola)로 한 번 → 번호 앞 6자리(숫자만)·성명 줄 다시 읽기 → 못 맞추면 기본 이진화(Otsu)로 한 번 더 */
+  const rd=(img,opt,out)=>withTimeout(w.recognize(img,opt,out),90000).then(x=>x.data);
+  const cut=b=>{ const bw=Math.max(1,b.x1-b.x0), bh=Math.max(1,b.y1-b.y0), sc=Math.min(3,Math.max(1,90/bh));
+    const k=document.createElement('canvas'); k.width=Math.round(bw*sc); k.height=Math.round(bh*sc);
+    const x=k.getContext('2d'); x.fillStyle='#fff'; x.fillRect(0,0,k.width,k.height); x.imageSmoothingQuality='high';
+    x.drawImage(canvas,b.x0,b.y0,bw,bh,0,0,k.width,k.height); return k; };
+  const again=async bx=>({ c: bx.num ?(await rd(cut(bx.num),{tessedit_pageseg_mode:'7',tessedit_char_whitelist:'0123456789-'},{text:true})).text:null,
+                           n: bx.name?(await rd(cut(bx.name),{tessedit_pageseg_mode:'7'},{text:true})).text:null });
+  S.ocrLab='글자 읽는 중';
+  const P=[idPass(await rd(canvas,{thresholding_method:'2'},{blocks:true,text:false}))];
+  if(seq!==S.ocrSeq) return {};
+  S.ocrLab='번호·이름 한 번 더 확인 중'; ocrMsg(S.ocrLab+'…',1);
+  const bx=idReBoxes(P), t=await again(bx); let r=idMerge(P,t.c,t.n);
+  if(seq!==S.ocrSeq) return {};
+  if(r.birthState!=='agree'||r.nameState!=='agree'){
+    S.ocrLab='다른 방식으로 한 번 더 읽는 중'; ocrMsg(S.ocrLab+'…',1);
+    P.push(idPass(await rd(canvas,{thresholding_method:'0'},{blocks:true,text:false})));
+    if(seq!==S.ocrSeq) return {};
+    const b2=idReBoxes(P), t2=await again({num:bx.num?null:b2.num, name:bx.name?null:b2.name});
+    r=idMerge(P,t.c??t2.c,t.n??t2.n);
+  }
+  S.ocrLab='';
+  return r;                                         /* 읽은 전체 글자(뒷자리 포함)는 여기서 버려진다 */
 }
 
 /* ── 확인 창 ── */
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const DEF_MASK={x:.21,y:.34,w:.27,h:.14};           /* 주민등록증 기준 대략 위치 — 못 찾으면 여기서 끌어 맞춤 */
-const ROW11={f_bizname:'f11_name',f_bizregno:'f11_regno',f_bizno:'f11_bizno',f_addr:'f11_addr'};   /* 안심매입 p.11의 같은 칸 */
 const SEXMK={sex_app:['m1_5','m1_6'], sex_cust:['m1_3','m1_4']};                                   /* [남, 여] 표시 */
 function ocrMsg(t,busy,warn){ const s=$('#ocrStat'); s.classList.toggle('busy',!!busy); s.classList.toggle('warn',!!warn); $('#ocrMsg').textContent=t; }
 function scaleTo(c,maxW){
@@ -1877,62 +2215,33 @@ function scaleTo(c,maxW){
   const t=document.createElement('canvas'); t.width=maxW; t.height=Math.round(c.height*maxW/c.width);
   const x=t.getContext('2d'); x.imageSmoothingQuality='high'; x.drawImage(c,0,0,t.width,t.height); return t;
 }
-function setMask(m){
-  if(!S.pend) return;
-  const cl=(v,a,b)=>Math.min(b,Math.max(a,v));
-  const w=cl(m.w,.04,1), h=cl(m.h,.03,1);
-  S.pend.mask={w,h,x:cl(m.x,0,1-w),y:cl(m.y,0,1-h)};
-  const b=$('#ocrMask'), q=S.pend.mask;
-  b.style.left=q.x*100+'%'; b.style.top=q.y*100+'%'; b.style.width=q.w*100+'%'; b.style.height=q.h*100+'%';
-}
-(()=>{                                              /* 가림 막대 — 끌어 옮기기·오른쪽 아래 점으로 크기 */
-  const box=$('#ocrMask'), wrap=$('#ocrImg'); let st=null;
-  box.addEventListener('pointerdown',e=>{
-    if(!S.pend?.mask) return; e.preventDefault(); box.setPointerCapture(e.pointerId);
-    st={size:e.target.tagName==='I', sx:e.clientX, sy:e.clientY, r:wrap.getBoundingClientRect(), m:{...S.pend.mask}};
-  });
-  box.addEventListener('pointermove',e=>{
-    if(!st) return;
-    const dx=(e.clientX-st.sx)/st.r.width, dy=(e.clientY-st.sy)/st.r.height, m={...st.m};
-    if(st.size){ m.w=Math.min(m.w+dx,1-m.x); m.h=Math.min(m.h+dy,1-m.y); } else { m.x+=dx; m.y+=dy; }
-    setMask(m);
-  });
-  const end=()=>{ st=null; }; box.addEventListener('pointerup',end); box.addEventListener('pointercancel',end);
-})();
 async function startOcr(kind,canvas){
   const seq=++S.ocrSeq;
-  S.pend={kind,canvas,mask:null,info:{},rows:[]};
+  S.pend={kind,canvas,info:{},rows:[]};
   const pv=$('#ocrPrev'); pv.width=canvas.width; pv.height=canvas.height; pv.getContext('2d').drawImage(canvas,0,0);
   $('#ocrImg').classList.toggle('id',kind==='id');
+  $('#ocrRecrop').hidden=!(CROP.img&&CROP.kind===kind);                /* 앨범 사진이면 크기 다시 맞추기 */
   $('#ocrTitle').textContent= kind==='id'?'신분증 확인':'사업자등록증 확인';
-  $('#ocrSub').innerHTML= kind==='id'?'검은 막대가 주민번호<br>뒷자리를 가리는지 보세요':'틀린 곳은 고친 뒤<br>신청서에 넣으세요';
-  $('#ocrRows').innerHTML=''; $('#ocrApply').disabled=true;
-  $('#ocrApply').textContent= kind==='id'?'가림 확인하고 넣기':'신청서에 넣기';
-  $('#ocrMask').hidden=kind!=='id'; if(kind==='id') setMask(DEF_MASK);
+  $('#ocrSub').innerHTML= kind==='id'?'읽은 값을 사진과<br>대조해 확인하세요':'틀린 곳은 고친 뒤<br>신청서에 넣으세요';
+  $('#ocrRows').innerHTML=''; $('#ocrApply').disabled=true; $('#ocrApply').textContent='신청서에 넣기';
   ocrMsg('글자 인식 준비 중…',1);
   $('#ocrVeil').classList.add('on');
-  let data=null, fail=false;
+  let info={}, fail=false;
   try{
     const w=await withTimeout(ocrWorker(),60000);
     if(seq!==S.ocrSeq) return;
-    ocrMsg('글자 읽는 중…',1);
-    ({data}=await withTimeout(w.recognize(kind==='biz'?scaleTo(canvas,1400):canvas,{},{blocks:true,text:true}),90000));
-  }catch(e){ fail=true; }
+    if(kind==='id') info=await readId(w,canvas,seq);
+    else{ ocrMsg('글자 읽는 중…',1);
+      const {data}=await withTimeout(w.recognize(scaleTo(canvas,1400),{},{text:true}),90000);
+      info=parseBiz(data.text||''); }
+  }catch(e){ fail=true; S.ocrLab=''; }
   if(seq!==S.ocrSeq||!S.pend) return;
-  const info=data?(kind==='id'?parseId(data):parseBiz(data.text||'')):{};
-  data=null;                                        /* 읽은 전체 글자(뒷자리 포함)는 여기서 버린다 */
-  let found=false;
-  if(kind==='id'&&info.maskPx){
-    const W=canvas.width, H=canvas.height, m=info.maskPx; found=true;
-    setMask({x:m.x0/W, y:m.y0/H, w:(m.x1-m.x0)/W, h:(m.y1-m.y0)/H});
-  }
-  delete info.maskPx;
   S.pend.info=info;
-  const n=buildRows(kind,info);
-  if(fail) ocrMsg('글자 인식을 못 했어요(인터넷 연결 확인) — 사진만 넣고 칸은 직접 입력하세요'+(kind==='id'?' · 검은 막대를 뒷자리 위로 옮겨 주세요':''),0,1);
-  else if(kind==='id'&&!found) ocrMsg('주민번호 위치를 찾지 못했어요 — 검은 막대를 뒷자리 위로 끌어 맞춰 주세요',0,1);
-  else if(!n) ocrMsg('읽은 내용이 없어요 — 사진만 넣고 칸은 직접 입력하세요',0,1);
-  else ocrMsg(`${n}개 항목을 읽었어요 — 사진과 대조해 확인하세요`+(kind==='id'?' · 막대 위치도 확인':''),0,0);
+  const n=buildRows(kind,info), unsure=S.pend.rows.some(r=>r.warn);
+  if(fail) ocrMsg('글자 인식을 못 했어요(인터넷 연결 확인) — 사진만 넣고 칸은 직접 입력하세요',0,1);
+  else if(!n) ocrMsg(kind==='id'?'읽은 값이 없어요 — 사진을 보고 칸에 직접 입력하세요':'읽은 내용이 없어요 — 사진만 넣고 칸은 직접 입력하세요',0,1);
+  else if(unsure) ocrMsg(`${n}개 항목을 읽었어요 — 주황색 칸은 사진과 대조해 확인하세요`,0,1);
+  else ocrMsg(`${n}개 항목을 읽었어요 — 사진과 대조해 확인하세요`,0,0);
   $('#ocrApply').disabled=false;
 }
 function curVal(k){
@@ -1955,9 +2264,15 @@ function buildRows(kind,info){
     add('mStore','상호 (상단·파일 이름)', bz.corp?(bz.corpName||bz.store):bz.store);
     add('mOwner','대표자 (상단)', bz.owner);
   }else{
-    add('f_appname','신청자 성명', id.name);
-    add('f_appbirth','신청자 생년월일', id.birth6, {warn:id.birth6&&!id.birthOk, note:id.birth6&&!id.birthOk?'날짜 확인 필요 — 사진의 앞 6자리와 대조':'사진의 앞 6자리와 대조'});
-    add('sex_app','신청자 성별', id.sex, {sel:1});
+    /* v1.43: 두 번↑ 맞은 값만 체크 · 한 번만 읽히면 체크 해제 · 엇갈리거나 못 읽으면 빈칸(사진 보고 입력) */
+    const NOTE={major:'한 번은 다르게 읽혔어요 — 사진과 대조', once:'한 번만 읽혀 확실치 않아요 — 맞으면 체크',
+                clash:'읽은 값이 엇갈려요 — 사진 보고 입력', none:'못 읽었어요 — 사진 보고 입력'};
+    const idRow=(key,lab,val,st,okNote)=>{ st=val?(st||'once'):(st==='clash'?'clash':'none');
+      R.push({key,lab,val:val||'',warn:st!=='agree',off:st!=='agree'&&st!=='major',note:st==='agree'?okNote:NOTE[st],ph:val?'':'사진 보고 입력'}); };
+    idRow('f_appname','신청자 성명',id.name,id.nameState,'사진과 대조');
+    idRow('f_appbirth','신청자 생년월일',id.birth6,id.birthState,'사진의 앞 6자리와 대조');
+    const sure=id.birthState==='agree'||id.birthState==='major';
+    add('sex_app','신청자 성별', id.sex, {sel:1, off:!sure, warn:!sure, note:sure?'':'확실치 않아요 — 맞으면 체크'});
   }
   if(id.name&&bz.owner&&id.name===bz.owner){         /* 신분증 = 대표자 */
     add('f_apprel','고객과의 관계', bz.corp?'대표자':'본인');
@@ -1965,13 +2280,13 @@ function buildRows(kind,info){
   }
   S.pend.rows=R;
   $('#ocrRows').innerHTML=R.map((r,i)=>{
-    const cur=curVal(r.key), same=!cur||cur===r.val;
-    const ctl= r.sel ? `<select class="ov" id="ov${i}">${['남','여'].map(x=>`<option${x===r.val?' selected':''}>${x}</option>`).join('')}</select>`
-               : r.area ? `<textarea class="ov" id="ov${i}" rows="2" spellcheck="false">${esc(r.val)}</textarea>`
-                     : `<input class="ov" id="ov${i}" value="${esc(r.val)}" autocomplete="off" spellcheck="false">`;
-    const note=[r.note, same?'':`지금 칸: ${esc(cur)} — 바꾸려면 체크`].filter(Boolean).join(' · ');
-    return `<div class="orow${r.warn?' warn':''}${same?'':' off'}"><input type="checkbox" id="oc${i}" data-i="${i}"${same?' checked':''}>`+
-           `<label class="ol" for="oc${i}">${r.lab}</label>${ctl}${note?`<span class="on">${note}</span>`:''}</div>`;
+    const cur=curVal(r.key), same=!cur||cur===r.val||S.auto[r.key]===cur, on=same&&!r.off&&!!r.val;
+    const ctl= r.sel ? `<select class="ov" id="orv${i}">${['남','여'].map(x=>`<option${x===r.val?' selected':''}>${x}</option>`).join('')}</select>`
+               : r.area ? `<textarea class="ov" id="orv${i}" rows="2" spellcheck="false">${esc(r.val)}</textarea>`
+                     : `<input class="ov" id="orv${i}" value="${esc(r.val)}" placeholder="${esc(r.ph||'')}" autocomplete="off" spellcheck="false">`;
+    const note=[r.note, same||!r.val?'':`지금 칸: ${esc(cur)} — 바꾸려면 체크`].filter(Boolean).join(' · ');
+    return `<div class="orow${r.warn?' warn':''}${on||!r.val?'':' off'}"><input type="checkbox" id="orc${i}" data-i="${i}"${on?' checked':''}>`+
+           `<label class="ol" for="orc${i}">${r.lab}</label>${ctl}${note?`<span class="on">${note}</span>`:''}</div>`;
   }).join('');
   $$('#ocrRows .orow').forEach(row=>{
     const cb=row.querySelector('input[type=checkbox]'), ov=row.querySelector('.ov');
@@ -1979,14 +2294,13 @@ function buildRows(kind,info){
     ov.addEventListener('input',()=>{ cb.checked=true; row.classList.remove('off'); });
     ov.addEventListener('change',()=>{ cb.checked=true; row.classList.remove('off'); });
   });
-  return R.length;
+  return R.filter(r=>r.val).length;
 }
 function applyVals(vals){
   for(const [k,v] of vals){
     if(k==='mStore'||k==='mOwner'){ $('#'+k).value=v; continue; }
     if(SEXMK[k]){ const [a,b]=SEXMK[k]; delete S.mk[a]; delete S.mk[b]; S.mk[v==='여'?b:a]=1; continue; }
-    const prev=S.fld[k]; S.fld[k]=v;
-    const k11=ROW11[k]; if(k11&&(!S.fld[k11]||S.fld[k11]===prev)) S.fld[k11]=v;
+    setFld(k,v);                                    /* v1.44: 따라 채우기(11쪽·명세서 주소·관리자 성명)는 setFld가 */
   }
   for(const pg of Object.keys(S.rendered)) if(S.rendered[pg]) drawOverlay(+pg);
   updScript(); refresh();
@@ -2000,28 +2314,27 @@ $('#ocrApply').onclick=()=>{
     const r=P.rows[+cb.dataset.i], v=row.querySelector('.ov').value.replace(/\s+/g,' ').trim(); if(v) vals.push([r.key,v]);
   });
   const got=Object.fromEntries(vals);
-  if(kind==='id'){                                  /* 가림 막대를 사진에 영구히 칠한 뒤에만 보관 */
-    const c=P.canvas, m=P.mask||DEF_MASK, x=c.getContext('2d');
-    x.fillStyle='#000'; x.fillRect(Math.floor(m.x*c.width),Math.floor(m.y*c.height),Math.ceil(m.w*c.width),Math.ceil(m.h*c.height));
-    S.att.id=c;
-    S.ocr.id={...P.info, name:got.f_appname||P.info.name, birth6:got.f_appbirth||P.info.birth6, sex:got.sex_app||P.info.sex};
+  if(kind==='id'){                                  /* v1.43: 가리지 않음(SO 입력용) — 제출용 PDF에만 붙고 고객용에선 빠진다 */
+    S.att.id=P.canvas;
+    S.ocr.id={name:got.f_appname||'', birth6:got.f_appbirth||'', sex:got.sex_app||'', dl:!!P.info.dl};   /* 확인 창에서 넣은 값만 */
   }else{
     S.att.biz=P.canvas;
     S.ocr.biz={...P.info, owner:got.mOwner||P.info.owner};
   }
   applyVals(vals);
-  closeOcr(); S.dirty=true;
+  closeOcr(); dropCrop(); S.dirty=true;
   if(S.att.id&&S.att.biz&&ocrWorkerP){               /* 두 장 다 끝나면 인식 엔진을 내려 메모리 확보(PDF 합성 대비) */
     const wp=ocrWorkerP; ocrWorkerP=null; ocrReady=false; wp.then(w=>w.terminate()).catch(()=>{});
   }
   updateAttUI();
-  toast(kind==='id'?'신분증 반영 — 뒷자리를 가린 사진만 PDF 마지막 장에 붙습니다'
+  toast(kind==='id'?'신분증 반영 — 사진은 제출용 PDF 마지막 장에만 붙습니다(고객용 제외)'
                    :(vals.length?`사업자등록증 반영 — ${vals.length}개 항목을 채웠습니다`:'사업자등록증 사진을 첨부했습니다'));
   if(kind==='id'&&!S.att.biz) setTimeout(()=>openCam('biz'),450);
   else if(kind==='biz'&&!S.att.id&&S.attMode==='start') setTimeout(()=>openAtt('start'),350);
   else setTimeout(()=>{ const n=nextIncomplete(0); if(n>=0) gotoStep(n); },300);
 };
-$('#ocrRetake').onclick=()=>{ const k=S.pend?.kind||camKind||'id'; S.ocrSeq++; closeOcr(); openCam(k); };
+$('#ocrRetake').onclick=()=>{ const k=S.pend?.kind||camKind||'id'; S.ocrSeq++; closeOcr(); dropCrop(); openCam(k); };
+$('#ocrRecrop').onclick=()=>{ if(!CROP.img) return; const k=S.pend?.kind||CROP.kind; S.ocrSeq++; closeOcr(); openCrop(k,CROP.img,CROP.url,true); };
 /* 첨부 서류 페이지 합성 */
 function attCanvas(kind){
   const img=S.att[kind]; if(!img) return null;
@@ -2064,7 +2377,10 @@ function openSendSheet(){
   $('#sendShare').style.display=canFile?'':'none';
   const att=S.lastPdf?.att;
   $('#sendNote').innerHTML=(att?'고객 사본에는 <b>신청서만</b> 담깁니다(신분증·사업자등록증 제외). ':'')+'문자·메일 앱에는 안내문이 미리 채워집니다. 첨부가 필요하면 <b>공유하기</b>를 사용하세요.';
-  $('#sendDel').textContent= att?'기기에 저장된 PDF(신분증 포함)는 애니팩스 발송 뒤 삭제하세요.':'기기에 저장된 PDF는 발송 뒤 보관 기준에 따라 삭제하세요.';
+  const sv=S.lastPdf?.saved||'제출용 PDF';
+  $('#sendDel').textContent= S.lastPdf?.id ? `기기에 저장된 ${sv}에는 주민등록번호 전체가 보이는 신분증이 들어 있습니다 — 애니팩스로 보낸 뒤 바로 지우세요.`
+                           : att ? `기기에 저장된 ${sv}(사업자등록증 포함)는 애니팩스로 보낸 뒤 지우세요.`
+                                 : `기기에 저장된 ${sv}는 발송 뒤 보관 기준에 따라 지우세요.`;
   $('#sendVeil').classList.add('on');
 }
 $('#sendShare').onclick=async()=>{
