@@ -8,7 +8,7 @@
 <title>하이오더 전자청약</title>
 <!--
   ============================================================
-  KT HIORDER 전자청약  ·  contract.html  v1.44
+  KT HIORDER 전자청약  ·  contract.html  v1.45
   ------------------------------------------------------------
   · 원본 가입신청서 PDF(14p)를 화면에 렌더 → 고객이 태블릿에서
     서명란마다 "각각" 직접 서명 + 동의함/않음 선택
@@ -44,6 +44,10 @@
     동시 작성(출력에 ☑). 「서명받기 출력」: 덜 채워도 컬러 인쇄 — 빈 주요
     칸 연두, 필수 서명·동의·서명 날짜 노랑 형광. 서명판 위/아래 2분할(위
     성명·아래 서명) → 신청서엔 성명 칸·서명(인) 자리에 나란히.
+  · v1.45 — 서명판 위/아래 배경색·큰 회색 글씨·굵은 선으로 구분. 자동이체정보
+    은행명·계좌번호·고객과의 관계는 라벨 오른쪽에. 성명 글씨 12pt·법인명 11pt.
+    사진 맞추기: 「모서리」 네 점 → 사다리꼴·마름모꼴을 직사각형으로(사영변환,
+    확대경), 미세 각도 ±15°, 밝기·대비·선명도(미리보기 = 출력·인식·첨부).
   · 서버 저장 없음. 사진·글자 인식은 단말(브라우저) 안에서만 수행.
     단, 음성 입력을 쓰면 음성은 브라우저 음성인식 서버(안드로이드
     크롬은 구글)를 거친다 — 화면에 늘 안내.
@@ -219,8 +223,23 @@ input{font-family:inherit}
   box-shadow:0 0 0 9999px rgba(255,255,255,.8);border:2.5px solid var(--kt);border-radius:12px}
 .cropwrap .camtop{background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(255,255,255,0));pointer-events:none}
 .cropwrap .camtop small{font-size:11px;color:#667085;font-weight:600}
-.cropzoom{position:absolute;left:50%;bottom:calc(94px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:3;display:flex;gap:12px}
-@media (max-height:520px){.cropzoom{flex-direction:column;left:auto;right:12px;bottom:auto;top:45%;transform:translateY(-50%)}}   /* 가로로 든 휴대폰 */
+.cropzoom{position:absolute;left:50%;bottom:calc(94px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:3;display:flex;gap:8px;white-space:nowrap}
+.cropzoom button.pill{width:auto;border-radius:22px;padding:0 13px;font-size:13px;font-weight:800}
+.cropzoom button.on{background:var(--kt);border-color:var(--kt);color:#fff}
+#cropOv{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+#cropLoupe{position:absolute;z-index:6;width:120px;height:120px;border-radius:50%;border:3px solid #fff;box-shadow:0 4px 18px rgba(0,0,0,.35);pointer-events:none}
+.croppanel{position:absolute;z-index:4;left:50%;transform:translateX(-50%);bottom:calc(148px + env(safe-area-inset-bottom));
+  width:min(92vw,520px);background:rgba(255,255,255,.96);border:1px solid #dfe4ec;border-radius:16px;padding:10px 14px;box-shadow:0 8px 26px rgba(0,0,0,.14)}
+.croppanel .cpan{display:flex;flex-direction:column;gap:6px}
+.croppanel .crow2{display:grid;grid-template-columns:48px 1fr 46px;align-items:center;gap:8px}
+.croppanel label{font-size:12.5px;font-weight:800;color:#2a3342}
+.croppanel b{font-size:12px;font-weight:800;color:#2a3342;text-align:right;font-variant-numeric:tabular-nums}
+.croppanel input[type=range]{width:100%;accent-color:var(--kt);height:28px}
+.croppanel p{margin:0;font-size:12.5px;font-weight:700;color:#2a3342;line-height:1.5}
+.croppanel .cmini{align-self:flex-end;border:1px solid #d5dbe5;background:#fff;color:#2a3342;border-radius:14px;font:inherit;font-size:12px;font-weight:700;padding:5px 12px;cursor:pointer}
+@media (min-width:900px){.croppanel{left:auto;right:18px;top:50%;bottom:auto;transform:translateY(-50%);width:270px}}   /* 태블릿 가로: 옆에 */
+@media (max-height:520px){.cropzoom{flex-direction:column;left:auto;right:12px;bottom:auto;top:45%;transform:translateY(-50%)}
+  .croppanel{left:12px;right:auto;top:50%;bottom:auto;transform:translateY(-50%);width:250px}}   /* 가로로 든 휴대폰 */
 .cropzoom button{width:44px;height:44px;border-radius:50%;border:1.5px solid #cfd5de;background:#fff;color:#2a3342;
   font:inherit;font-size:20px;font-weight:700;line-height:1;display:flex;align-items:center;justify-content:center;
   box-shadow:0 3px 10px rgba(0,0,0,.12);cursor:pointer;touch-action:manipulation}
@@ -358,8 +377,16 @@ audio{width:100%;margin-top:9px;height:34px}
 .padsplit{position:absolute;inset:0;pointer-events:none;display:none}
 .padwrap.split .padsplit{display:block}
 .padwrap.split .padline{display:none}
-.padsplit::after{content:'';position:absolute;left:4%;right:4%;top:50%;border-top:1.5px dashed #c9d1dd}
-.padsplit span{position:absolute;left:12px;font-size:12.5px;font-weight:800;color:#aab3c1;letter-spacing:-.01em}
+.padwrap.split{background:linear-gradient(180deg,#edf3ff 0%,#edf3ff 50%,#fff5d9 50%,#fff5d9 100%)}
+.padwrap.split .padhint{display:none}
+.padsplit::after{content:'';position:absolute;left:0;right:0;top:50%;margin-top:-1.5px;border-top:3px solid #97a3b6}
+.padsplit .wm{position:absolute;left:0;right:0;height:50%;display:flex;align-items:center;justify-content:center;pointer-events:none;
+  font-size:clamp(46px,11vw,92px);font-weight:900;letter-spacing:.35em;text-indent:.35em;color:rgba(40,60,100,.09)}
+.padsplit .wm1{top:0}
+.padsplit .wm2{top:50%;color:rgba(130,90,0,.1)}
+.padsplit.need1 .wm1,.padsplit.need2 .wm2{color:rgba(230,0,18,.13)}
+.padsplit span{position:absolute;left:12px;font-size:12.5px;font-weight:800;color:#5b77ab;letter-spacing:-.01em}
+.padsplit .ps2{color:#a8741a}
 .padsplit span small{font-size:11px;font-weight:600;color:#c3cad5;margin-left:5px}
 .padsplit .ps1{top:8px}
 .padsplit .ps2{top:calc(50% + 8px)}
@@ -443,7 +470,7 @@ audio{width:100%;margin-top:9px;height:34px}
 <body>
 
 <header class="topbar">
-  <div class="brand"><b>하이오더 전자청약</b><span class="ver">v1.44</span></div>
+  <div class="brand"><b>하이오더 전자청약</b><span class="ver">v1.45</span></div>
   <div class="seg" id="modeSeg">
     <button data-mode="hi" class="on">하이오더</button>
     <button data-mode="full">+ 안심<span class="full">매입</span></button>
@@ -521,7 +548,7 @@ audio{width:100%;margin-top:9px;height:34px}
     <div class="padwrap">
       <canvas id="pad"></canvas>
       <div class="padline"></div>
-      <div class="padsplit" id="padSplit"><span class="ps1">성명<small>또박또박</small></span><span class="ps2">서명</span></div>
+      <div class="padsplit" id="padSplit"><b class="wm wm1">성명</b><b class="wm wm2">서명</b><span class="ps1">성명<small>또박또박</small></span><span class="ps2">서명</span></div>
       <div class="padhint" id="padHint">여기에 서명하세요</div>
     </div>
     <footer>
@@ -570,9 +597,34 @@ audio{width:100%;margin-top:9px;height:34px}
 <div class="veil" id="cropVeil" data-lock="1">
   <div class="cropwrap">
     <canvas id="cropCv"></canvas>
+    <canvas id="cropOv"></canvas>
     <div class="cropframe" id="cropFrame"></div>
+    <canvas id="cropLoupe" hidden></canvas>
     <div class="camtop"><b id="cropTitle">크기 맞추기</b><span id="cropHint">카드가 빨간 틀에 꽉 차게 — 끌어서 옮기고 두 손가락으로 벌려 키우세요</span><small id="cropNote">앨범 사진은 휴대폰에 남아 있어요 · 끝나면 지워 주세요</small></div>
-    <div class="cropzoom"><button type="button" id="cropIn" aria-label="확대">＋</button><button type="button" id="cropOut" aria-label="축소">－</button><button type="button" id="cropRot" aria-label="90도 돌리기">↻</button></div>
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="cropSharp"><feConvolveMatrix id="cropSharpK" order="3" kernelMatrix="0 0 0 0 1 0 0 0 0" preserveAlpha="true"/></filter></svg>
+    <div class="croppanel" id="cropPanel" hidden>
+      <div class="cpan" id="panAng" hidden>
+        <div class="crow2"><label for="cropAng">각도</label><input type="range" id="cropAng" min="-15" max="15" step="0.5" value="0"><b id="cropAngV">0.0°</b></div>
+        <button type="button" class="cmini" id="cropAng0">0°로</button>
+      </div>
+      <div class="cpan" id="panAdj" hidden>
+        <div class="crow2"><label for="adjB">밝기</label><input type="range" id="adjB" min="-50" max="50" step="1" value="0"><b id="adjBv">0</b></div>
+        <div class="crow2"><label for="adjC">대비</label><input type="range" id="adjC" min="-50" max="50" step="1" value="0"><b id="adjCv">0</b></div>
+        <div class="crow2"><label for="adjS">선명도</label><input type="range" id="adjS" min="0" max="100" step="5" value="0"><b id="adjSv">0</b></div>
+        <button type="button" class="cmini" id="adj0">초기화</button>
+      </div>
+      <div class="cpan" id="panQuad" hidden>
+        <p>네 점을 카드 끝에 끌어다 맞추세요 — 사다리꼴·마름모꼴도 반듯하게 펴집니다</p>
+        <button type="button" class="cmini" id="quad0">점 다시 놓기</button>
+      </div>
+    </div>
+    <div class="cropzoom">
+      <button type="button" id="cropOut" aria-label="축소">－</button><button type="button" id="cropIn" aria-label="확대">＋</button>
+      <button type="button" class="pill" id="cropRot" aria-label="90도 돌리기">↻ 90°</button>
+      <button type="button" class="pill" id="cropAngT">각도</button>
+      <button type="button" class="pill" id="cropQuadT">모서리</button>
+      <button type="button" class="pill" id="cropAdjT">보정</button>
+    </div>
     <div class="cambar">
       <button class="btn ghost" id="cropCancel">취소</button>
       <button class="btn pri" id="cropOk">이대로 읽기</button>
@@ -589,7 +641,7 @@ audio{width:100%;margin-top:9px;height:34px}
       <span id="ocrSub"></span>
     </header>
     <div class="ocrbody">
-      <div class="ocrimgw"><div class="ocrimg" id="ocrImg"><canvas id="ocrPrev"></canvas></div><button type="button" class="recrop" id="ocrRecrop" hidden>↺ 크기 다시 맞추기</button></div>
+      <div class="ocrimgw"><div class="ocrimg" id="ocrImg"><canvas id="ocrPrev"></canvas></div><button type="button" class="recrop" id="ocrRecrop" hidden>↺ 사진 다시 맞추기</button></div>
       <div class="ocrstat busy" id="ocrStat"><span class="spin"></span><span id="ocrMsg">글자 읽는 중…</span></div>
       <div id="ocrRows"></div>
     </div>
@@ -679,12 +731,12 @@ const DATES = {
 
 /* 입력 필드 (r=[x0,top,x1,bottom]pt, t=text|num|tel|email, s=폰트pt, d=기본값) */
 const FIELDS=[
- {id:'f_bizname',pg:1,r:[157,74.5,308,89.5],t:'text',s:9},
+ {id:'f_bizname',pg:1,r:[157,74.5,308,89.5],t:'text',s:11},
  {id:'f_bizregno',pg:1,r:[394,74.5,496,89.5],t:'num',s:9},
  {id:'f_bizno',pg:1,r:[168,94,308,109],t:'num',s:9},
  {id:'f_phone1',pg:1,r:[364,94,568,109],t:'tel',s:9},
  {id:'f_addr',pg:1,r:[146,113,568,129],t:'text',s:9},
- {id:'f_appname',pg:1,r:[128,133,211,149],t:'text',s:9},
+ {id:'f_appname',pg:1,r:[128,133,211,149],t:'text',s:12},
  {id:'f_appbirth',pg:1,r:[253,133,308,149],t:'num',s:9},
  {id:'f_apprel',pg:1,r:[369,133,496,149],t:'text',s:9},
  {id:'f_appphone',pg:1,r:[158,153,308,169],t:'tel',s:9},
@@ -692,14 +744,14 @@ const FIELDS=[
  {id:'f_svcno',pg:1,r:[319,225,450,240],t:'text',s:8},
  {id:'f_validyy',a:'c',pg:1,r:[266,258.5,283,271.5],t:'num',s:8},
  {id:'f_validmm',a:'c',pg:1,r:[297,258.5,311,271.5],t:'num',s:8},
- {id:'f_bank',pg:1,r:[109,283,194,294.5],t:'text',s:8},
- {id:'f_acctno',pg:1,r:[198,283,386,294.5],t:'num',s:8},
- {id:'f_rel2',pg:1,r:[109,305.5,194,317],t:'text',s:8},
+ {id:'f_bank',pg:1,r:[148,274.5,195,288.5],t:'text',s:9},          /* v1.45 라벨 「은행(카드사)명」 오른쪽 */
+ {id:'f_acctno',pg:1,r:[237,274.5,386,288.5],t:'num',s:9},         /* v1.45 라벨 「계좌(카드)번호」 오른쪽 */
+ {id:'f_rel2',pg:1,r:[146,293,195,307],t:'text',s:9},               /* v1.45 라벨 「고객과의 관계」 오른쪽 */
  {id:'f_acctbirth',pg:1,r:[263,299,386,316],t:'num',s:8},
  {id:'f_msgmail',pg:1,r:[292,321,432,337],t:'email',s:9},
  {id:'f_msgfax',pg:1,r:[458,321,568,337],t:'tel',s:9},
  {id:'f_msgaddr',pg:1,r:[302,339.5,568,354.5],t:'text',s:9},
- {id:'f_mgrname',pg:1,r:[128,363,256,379],t:'text',s:9},
+ {id:'f_mgrname',pg:1,r:[128,363,256,379],t:'text',s:12},
  {id:'f_mgrphone',pg:1,r:[314,363,568,379],t:'tel',s:9},
  {id:'f_dueyy',a:'c',pg:1,r:[177,388,196,403],t:'num',s:8},
  {id:'f_duemm',a:'c',pg:1,r:[211,388,230,403],t:'num',s:8},
@@ -733,11 +785,11 @@ const FIELDS=[
  {id:'f2_etc',a:'c',pg:2,r:[463,103.5,512,120],t:'text',s:8},
  {id:'f2_now',pg:2,r:[112,128.5,566,150.5],t:'text',s:9},
  {id:'f2_chg',pg:2,r:[112,155.5,566,177.5],t:'text',s:9},
- {id:'f2_a_name',pg:2,r:[142,189.5,205,205.5],t:'text',s:9},
+ {id:'f2_a_name',pg:2,r:[142,189.5,205,205.5],t:'text',s:11},
  {id:'f2_a_regno',pg:2,r:[308,189.5,419,205.5],t:'num',s:9},
  {id:'f2_a_phone',pg:2,r:[451,189.5,568,205.5],t:'tel',s:9},
  {id:'f2_a_addr',pg:2,r:[152,209.5,414,231],t:'text',s:9},
- {id:'f2_b_name',pg:2,r:[142,235.5,205,252],t:'text',s:9},
+ {id:'f2_b_name',pg:2,r:[142,235.5,205,252],t:'text',s:11},
  {id:'f2_b_regno',pg:2,r:[308,235.5,419,252],t:'num',s:9},
  {id:'f2_b_phone',pg:2,r:[451,235.5,568,252],t:'tel',s:9},
  {id:'f2_b_addr',pg:2,r:[152,256,414,278],t:'text',s:9},
@@ -749,7 +801,7 @@ const FIELDS=[
  {id:'f2_sp_sabun',pg:2,r:[291,794.8,354,805.6],t:'text',s:7},
  {id:'f2_bizid',pg:2,r:[396,794.8,459,805.6],t:'text',s:7},
  {id:'f2_svc2',pg:2,r:[506,794.8,569,805.6],t:'text',s:7},
- {id:'f11_name',pg:11,r:[139,85.5,220,100.5],t:'text',s:9},
+ {id:'f11_name',pg:11,r:[139,85.5,220,100.5],t:'text',s:11},
  {id:'f11_regno',pg:11,r:[314,85.5,397,100.5],t:'num',s:9},
  {id:'f11_bizno',pg:11,r:[139,106,220,136.5],t:'num',s:9},
  {id:'f11_phone',pg:11,r:[314,106,397,136.5],t:'tel',s:9},
@@ -1895,10 +1947,13 @@ function fromFile(e){                               /* v1.43: 앨범·파일 사
   img.onerror=()=>{ URL.revokeObjectURL(url); toast('사진을 열 수 없습니다'); };
   img.src=url;
 }
-/* ── 앨범·파일 사진 크기 맞추기 — v1.43
-   카드(사업자등록증은 A4)가 빨간 틀에 꽉 차게 옮기고 키운 뒤, 틀 안만 원본 해상도로 잘라 글자 인식으로 넘긴다.
+/* ── 앨범·파일 사진 맞추기 — v1.43 크기 맞추기 · v1.45 모서리(원근)·미세 각도·밝기/대비/선명도
+   카드(사업자등록증은 A4)를 빨간 틀에 꽉 차게 옮기고 키운 뒤 틀 안만 원본 해상도로 자른다.
+   「모서리」: 네 점을 카드 끝에 맞추면 사다리꼴·마름모꼴로 찍힌 것을 직사각형으로 편다(사영변환).
+   보정은 화면에서 미리 보이고(밝기·대비=CSS, 선명도=SVG), 자른 사진에 같은 식으로 적용해 글자 인식·첨부에 쓴다.
    원본은 확인 창에서 넣거나 다시 찍을 때까지만 메모리에 둔다(크기 다시 맞추기용). */
-const CROP={img:null,url:null,kind:'id',prev:null,rot:0,s:1,cx:0,cy:0,pts:new Map(),g:null};
+const CROP={img:null,url:null,kind:'id',prev:null,rot:0,ang:0,s:1,cx:0,cy:0,pts:new Map(),g:null,
+            quad:null,qon:false,drag:-1,dragId:null,dOff:[0,0],adj:{b:0,c:0,s:0},tool:''};
 function cropFrame(){ const r=$('#cropFrame').getBoundingClientRect(); return {x:r.left,y:r.top,w:r.width,h:r.height,cx:r.left+r.width/2,cy:r.top+r.height/2}; }
 function cropDims(){ const w=CROP.img.naturalWidth, h=CROP.img.naturalHeight; return CROP.rot%180?{w:h,h:w}:{w,h}; }
 function cropLimits(){ const F=cropFrame(), d=cropDims(), cover=Math.max(F.w/d.w,F.h/d.h), contain=Math.min(F.w/d.w,F.h/d.h); return {min:contain*.9, max:cover*8, cover}; }
@@ -1910,21 +1965,74 @@ function cropClamp(){                               /* 배율 범위 안 · 틀 
   CROP.cx=Math.min(F.cx+hw,Math.max(F.cx-hw,CROP.cx)); CROP.cy=Math.min(F.cy+hh,Math.max(F.cy-hh,CROP.cy));
 }
 function cropFit(){ const F=cropFrame(); CROP.s=cropLimits().cover; CROP.cx=F.cx; CROP.cy=F.cy; }
+const cropTh=()=>(CROP.rot+CROP.ang)*Math.PI/180;
+function toScr([ix,iy]){ const t=cropTh(), ux=(ix-CROP.img.naturalWidth/2)*CROP.s, uy=(iy-CROP.img.naturalHeight/2)*CROP.s;
+  return [CROP.cx+ux*Math.cos(t)-uy*Math.sin(t), CROP.cy+ux*Math.sin(t)+uy*Math.cos(t)]; }
+function toImg([sx,sy]){ const t=cropTh(), dx=sx-CROP.cx, dy=sy-CROP.cy;
+  return [(dx*Math.cos(t)+dy*Math.sin(t))/CROP.s+CROP.img.naturalWidth/2, (-dx*Math.sin(t)+dy*Math.cos(t))/CROP.s+CROP.img.naturalHeight/2]; }
 function cropDraw(){
-  const cv=$('#cropCv'), dpr=Math.min(2,devicePixelRatio||1), W=innerWidth, H=innerHeight;
-  if(cv.width!==Math.round(W*dpr)||cv.height!==Math.round(H*dpr)){ cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr); }
+  const cv=$('#cropCv'), ov=$('#cropOv'), dpr=Math.min(2,devicePixelRatio||1), W=innerWidth, H=innerHeight;
+  for(const c of [cv,ov]) if(c.width!==Math.round(W*dpr)||c.height!==Math.round(H*dpr)){ c.width=Math.round(W*dpr); c.height=Math.round(H*dpr); }
   const x=cv.getContext('2d'); x.setTransform(dpr,0,0,dpr,0,0); x.fillStyle='#e9ecf1'; x.fillRect(0,0,W,H);
+  const o=ov.getContext('2d'); o.setTransform(dpr,0,0,dpr,0,0); o.clearRect(0,0,W,H);
   if(!CROP.img) return;
   const iw=CROP.img.naturalWidth, ih=CROP.img.naturalHeight;
   x.imageSmoothingQuality='high';
-  x.translate(CROP.cx,CROP.cy); x.rotate(CROP.rot*Math.PI/180); x.scale(CROP.s,CROP.s);
+  x.translate(CROP.cx,CROP.cy); x.rotate(cropTh()); x.scale(CROP.s,CROP.s);
   x.drawImage(CROP.prev||CROP.img,-iw/2,-ih/2,iw,ih);
+  if(CROP.qon&&CROP.quad){                          /* 모서리 맞추기: 바깥은 흐리게 · 빨간 테두리 · 끌 점 */
+    const P=CROP.quad.map(toScr);
+    o.fillStyle='rgba(255,255,255,.55)'; o.beginPath(); o.rect(0,0,W,H);
+    o.moveTo(P[0][0],P[0][1]); for(const q of P.slice(1)) o.lineTo(q[0],q[1]); o.closePath(); o.fill('evenodd');
+    o.lineWidth=2.5; o.strokeStyle='#E60012'; o.beginPath(); o.moveTo(P[0][0],P[0][1]); for(const q of P.slice(1)) o.lineTo(q[0],q[1]); o.closePath(); o.stroke();
+    P.forEach((q,i)=>{ o.beginPath(); o.arc(q[0],q[1],12,0,Math.PI*2); o.fillStyle='rgba(255,255,255,.9)'; o.fill();
+      o.lineWidth=3.5; o.strokeStyle=i===CROP.drag?'#1a73e8':'#E60012'; o.stroke();
+      o.beginPath(); o.arc(q[0],q[1],2.5,0,Math.PI*2); o.fillStyle=i===CROP.drag?'#1a73e8':'#E60012'; o.fill(); });
+  }
 }
 let cropRaf=0; const cropPaint=()=>{ if(!cropRaf) cropRaf=requestAnimationFrame(()=>{ cropRaf=0; cropDraw(); }); };
 function cropZoom(f,px,py){
   if(!CROP.img) return;
   const L=cropLimits(), s1=Math.min(L.max,Math.max(L.min,CROP.s*f)), k=s1/CROP.s;
   CROP.cx=px-(px-CROP.cx)*k; CROP.cy=py-(py-CROP.cy)*k; CROP.s=s1; cropClamp(); cropPaint();
+}
+function cropLoupe(p){                              /* 모서리 점을 끄는 동안 손가락 아래를 크게 */
+  const L=$('#cropLoupe'); if(!p){ L.hidden=true; return; }
+  const cv=$('#cropCv'), k=cv.width/innerWidth, R=120, src=R/2.6;
+  L.hidden=false; L.style.left=(p[0]<innerWidth/2?innerWidth-R-16:16)+'px'; L.style.top=Math.max(84,p[1]-R-60)+'px';
+  if(L.width!==R*2){ L.width=R*2; L.height=R*2; }
+  const x=L.getContext('2d'); x.setTransform(2,0,0,2,0,0); x.fillStyle='#fff'; x.fillRect(0,0,R,R);
+  x.imageSmoothingQuality='high'; x.drawImage(cv,(p[0]-src/2)*k,(p[1]-src/2)*k,src*k,src*k,0,0,R,R);
+  x.strokeStyle='#E60012'; x.lineWidth=1.4; x.beginPath(); x.moveTo(R/2,R/2-18); x.lineTo(R/2,R/2+18); x.moveTo(R/2-18,R/2); x.lineTo(R/2+18,R/2); x.stroke();
+}
+function quadReset(){ const F=cropFrame(); CROP.quad=[[F.x,F.y],[F.x+F.w,F.y],[F.x+F.w,F.y+F.h],[F.x,F.y+F.h]].map(toImg); }
+function cropHint(){
+  const what=CROP.kind==='id'?'카드':'문서';
+  $('#cropHint').textContent= CROP.qon ? `네 점을 ${what} 끝에 맞추세요 — 사다리꼴·마름모꼴도 반듯하게 펴집니다`
+                                       : `${what}가 빨간 틀에 꽉 차게 — 끌어서 옮기고, 두 손가락으로 벌려 키우세요`;
+  $('#cropFrame').style.visibility=CROP.qon?'hidden':'';
+}
+function cropFilter(){                              /* 보정 미리보기 — 밝기·대비는 CSS, 선명도는 SVG 합성곱 */
+  const {b,c,s}=CROP.adj, a=s/100*1.2;
+  $('#cropSharpK').setAttribute('kernelMatrix',`0 ${-a} 0 ${-a} ${1+4*a} ${-a} 0 ${-a} 0`);
+  $('#cropCv').style.filter=(b||c||s)?`brightness(${1+b/100}) contrast(${1+c/100})${s?' url(#cropSharp)':''}`:'';
+}
+function cropTool(t){                               /* 도구 판: 각도 · 보정 · 모서리(모서리는 켜고 끄는 모드) */
+  if(t==='quad'){ CROP.qon=!CROP.qon; if(CROP.qon&&!CROP.quad) quadReset(); CROP.tool=CROP.qon?'quad':''; }
+  else CROP.tool=CROP.tool===t?'':t;
+  cropUI();
+}
+function cropUI(){                                  /* 판·단추·안내를 CROP 상태에 맞춤 */
+  const t=CROP.tool;
+  $('#cropPanel').hidden=!t; $('#panAng').hidden=t!=='ang'; $('#panAdj').hidden=t!=='adj'; $('#panQuad').hidden=t!=='quad';
+  $('#cropAngT').classList.toggle('on',t==='ang'); $('#cropAdjT').classList.toggle('on',t==='adj'||!!(CROP.adj.b||CROP.adj.c||CROP.adj.s));
+  $('#cropQuadT').classList.toggle('on',CROP.qon);
+  cropHint(); cropPaint();
+}
+function cropSync(){                                /* 막대·값 표시를 CROP 상태에 맞춤 */
+  $('#cropAng').value=CROP.ang; $('#cropAngV').textContent=(CROP.ang>0?'+':'')+CROP.ang.toFixed(1)+'°';
+  for(const [k,id] of [['b','adjB'],['c','adjC'],['s','adjS']]){ $('#'+id).value=CROP.adj[k]; $('#'+id+'v').textContent=(k!=='s'&&CROP.adj[k]>0?'+':'')+CROP.adj[k]; }
+  cropFilter();
 }
 function openCrop(kind,img,url,keep){
   if(CROP.url&&CROP.url!==url) URL.revokeObjectURL(CROP.url);
@@ -1933,27 +2041,38 @@ function openCrop(kind,img,url,keep){
     let prev=null;
     if(k<1){ prev=document.createElement('canvas'); prev.width=Math.round(iw*k); prev.height=Math.round(ih*k);
       const px=prev.getContext('2d'); px.imageSmoothingQuality='high'; px.drawImage(img,0,0,prev.width,prev.height); }
-    Object.assign(CROP,{img,url,prev,rot:0}); keep=false;
+    Object.assign(CROP,{img,url,prev,rot:0,ang:0,quad:null,qon:false,adj:{b:0,c:0,s:0},tool:''}); keep=false;
   }
   CROP.kind=kind;
   const fr=$('#cropFrame');
   fr.style.width= kind==='id'?'min(86vw, 640px, calc(56vh * 856 / 540))':'min(86vw, calc(60vh * 210 / 297))';
   fr.style.aspectRatio= kind==='id'?'856/540':'210/297';
-  $('#cropTitle').textContent= kind==='id'?'신분증 크기 맞추기':'사업자등록증 크기 맞추기';
-  $('#cropHint').textContent= (kind==='id'?'카드':'문서')+'가 빨간 틀에 꽉 차게 — 끌어서 옮기고, 두 손가락으로 벌려 키우세요';
+  $('#cropTitle').textContent= kind==='id'?'신분증 맞추기':'사업자등록증 맞추기';
   $('#cropVeil').classList.add('on');
+  cropSync(); cropUI();                               /* 다시 맞추기면 넣었던 모서리·각도·보정 그대로 */
   requestAnimationFrame(()=>{ if(keep) cropClamp(); else cropFit(); cropDraw(); });
 }
-function closeCrop(){ $('#cropVeil').classList.remove('on'); CROP.pts.clear(); CROP.g=null; }
-function dropCrop(){ if(CROP.url) URL.revokeObjectURL(CROP.url); Object.assign(CROP,{img:null,url:null,prev:null}); $('#ocrRecrop').hidden=true; }
-(()=>{                                              /* 한 손가락 끌기 · 두 손가락 확대 · 마우스 휠 */
+function closeCrop(){ $('#cropVeil').classList.remove('on'); CROP.pts.clear(); CROP.g=null; CROP.drag=-1; cropLoupe(null); }
+function dropCrop(){ if(CROP.url) URL.revokeObjectURL(CROP.url); Object.assign(CROP,{img:null,url:null,prev:null,quad:null,qon:false}); $('#ocrRecrop').hidden=true; }
+(()=>{                                              /* 한 손가락 끌기 · 두 손가락 확대 · 마우스 휠 · 모서리 점 끌기 */
   const cv=$('#cropCv');
   const gest=()=>{ const p=[...CROP.pts.values()];
     if(p.length>=2){ const [a,b]=p; return {x:(a.x+b.x)/2, y:(a.y+b.y)/2, d:Math.hypot(a.x-b.x,a.y-b.y)}; }
     return p.length?{x:p[0].x,y:p[0].y,d:0}:null; };
-  cv.addEventListener('pointerdown',e=>{ e.preventDefault(); try{ cv.setPointerCapture(e.pointerId); }catch(_){} CROP.pts.set(e.pointerId,{x:e.clientX,y:e.clientY}); CROP.g=gest(); });
+  cv.addEventListener('pointerdown',e=>{
+    e.preventDefault(); try{ cv.setPointerCapture(e.pointerId); }catch(_){}
+    if(CROP.qon&&CROP.quad&&CROP.drag<0&&!CROP.pts.size){          /* 가장 가까운 모서리 점(손가락 반경) */
+      const P=CROP.quad.map(toScr); let bi=-1, bd=34;
+      P.forEach((q,i)=>{ const d=Math.hypot(q[0]-e.clientX,q[1]-e.clientY); if(d<bd){ bd=d; bi=i; } });
+      if(bi>=0){ CROP.drag=bi; CROP.dragId=e.pointerId; CROP.dOff=[P[bi][0]-e.clientX,P[bi][1]-e.clientY]; cropLoupe(P[bi]); cropPaint(); return; }
+    }
+    CROP.pts.set(e.pointerId,{x:e.clientX,y:e.clientY}); CROP.g=gest();
+  });
   cv.addEventListener('pointermove',e=>{
-    if(!CROP.pts.has(e.pointerId)||!CROP.img) return;
+    if(!CROP.img) return;
+    if(CROP.drag>=0&&e.pointerId===CROP.dragId){
+      const q=[e.clientX+CROP.dOff[0],e.clientY+CROP.dOff[1]]; CROP.quad[CROP.drag]=toImg(q); cropPaint(); requestAnimationFrame(()=>cropLoupe(q)); return; }
+    if(!CROP.pts.has(e.pointerId)) return;
     CROP.pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
     const g=gest(), o=CROP.g; if(!g||!o) return;
     CROP.cx+=g.x-o.x; CROP.cy+=g.y-o.y;
@@ -1961,22 +2080,81 @@ function dropCrop(){ if(CROP.url) URL.revokeObjectURL(CROP.url); Object.assign(C
       CROP.cx=g.x-(g.x-CROP.cx)*k; CROP.cy=g.y-(g.y-CROP.cy)*k; CROP.s=s1; }
     CROP.g=g; cropClamp(); cropPaint();
   });
-  const up=e=>{ CROP.pts.delete(e.pointerId); CROP.g=gest(); };
+  const up=e=>{ if(e.pointerId===CROP.dragId&&CROP.drag>=0){ CROP.drag=-1; CROP.dragId=null; cropLoupe(null); cropPaint(); return; }
+    CROP.pts.delete(e.pointerId); CROP.g=gest(); };
   cv.addEventListener('pointerup',up); cv.addEventListener('pointercancel',up);
   cv.addEventListener('wheel',e=>{ e.preventDefault(); cropZoom(Math.exp(-e.deltaY*.0015),e.clientX,e.clientY); },{passive:false});
+  $('#cropAng').addEventListener('input',e=>{ CROP.ang=+e.target.value; cropSync(); cropClamp(); cropPaint(); });
+  $('#cropAng0').onclick=()=>{ CROP.ang=0; cropSync(); cropPaint(); };
+  for(const [k,id] of [['b','adjB'],['c','adjC'],['s','adjS']]) $('#'+id).addEventListener('input',e=>{ CROP.adj[k]=+e.target.value; cropSync(); $('#cropAdjT').classList.add('on'); });
+  $('#adj0').onclick=()=>{ CROP.adj={b:0,c:0,s:0}; cropSync(); };
+  $('#quad0').onclick=()=>{ quadReset(); cropPaint(); };
+  $('#cropAngT').onclick=()=>cropTool('ang'); $('#cropAdjT').onclick=()=>cropTool('adj'); $('#cropQuadT').onclick=()=>cropTool('quad');
 })();
 $('#cropIn').onclick=()=>{ const F=cropFrame(); cropZoom(1.25,F.cx,F.cy); };
 $('#cropOut').onclick=()=>{ const F=cropFrame(); cropZoom(1/1.25,F.cx,F.cy); };
 $('#cropRot').onclick=()=>{ if(!CROP.img) return; CROP.rot=(CROP.rot+90)%360; cropFit(); cropPaint(); };
 $('#cropCancel').onclick=()=>{ closeCrop(); dropCrop(); openAtt(S.attMode||'remind'); };
+function homog(src,dst){                            /* 네 점 대응 → 사영변환 행렬(src→dst), 가우스 소거 */
+  const A=[],B=[];
+  for(let i=0;i<4;i++){ const [x,y]=src[i],[u,v]=dst[i];
+    A.push([x,y,1,0,0,0,-u*x,-u*y]); B.push(u); A.push([0,0,0,x,y,1,-v*x,-v*y]); B.push(v); }
+  for(let c=0;c<8;c++){
+    let p=c; for(let r=c+1;r<8;r++) if(Math.abs(A[r][c])>Math.abs(A[p][c])) p=r;
+    [A[c],A[p]]=[A[p],A[c]]; [B[c],B[p]]=[B[p],B[c]];
+    const d=A[c][c]; if(Math.abs(d)<1e-12) return null;
+    for(let r=0;r<8;r++){ if(r===c) continue; const f=A[r][c]/d; if(!f) continue; for(let k=c;k<8;k++) A[r][k]-=f*A[c][k]; B[r]-=f*B[c]; }
+  }
+  return B.map((b,i)=>b/A[i][i]);
+}
+function warpQuad(img,quad,W,H){                    /* 원본 위 네 점(왼위·오위·오아래·왼아래) → W×H 직사각형 */
+  const iw=img.naturalWidth, ih=img.naturalHeight, xs=quad.map(p=>p[0]), ys=quad.map(p=>p[1]);
+  const bx0=Math.max(0,Math.floor(Math.min(...xs))), by0=Math.max(0,Math.floor(Math.min(...ys)));
+  const bx1=Math.min(iw,Math.ceil(Math.max(...xs))), by1=Math.min(ih,Math.ceil(Math.max(...ys)));
+  const c=document.createElement('canvas'); c.width=W; c.height=H;
+  const cx=c.getContext('2d'); cx.fillStyle='#fff'; cx.fillRect(0,0,W,H);
+  if(bx1-bx0<2||by1-by0<2) return c;
+  const bw=bx1-bx0, bh=by1-by0, k=Math.min(1,1.3*Math.max(W,H)/Math.max(bw,bh));   /* 원본이 아주 크면 줄여서 표본 */
+  const sw=Math.max(2,Math.round(bw*k)), sh=Math.max(2,Math.round(bh*k));
+  const sc=document.createElement('canvas'); sc.width=sw; sc.height=sh;
+  const sx=sc.getContext('2d'); sx.fillStyle='#fff'; sx.fillRect(0,0,sw,sh); sx.imageSmoothingQuality='high'; sx.drawImage(img,bx0,by0,bw,bh,0,0,sw,sh);
+  const S=sx.getImageData(0,0,sw,sh).data;
+  const h=homog([[0,0],[W,0],[W,H],[0,H]],quad.map(([x,y])=>[(x-bx0)*k,(y-by0)*k])); if(!h) return c;
+  const O=cx.createImageData(W,H), D=O.data, [a,b,e,d,f,g,m,n]=h;
+  for(let v=0;v<H;v++) for(let u=0;u<W;u++){
+    const den=m*u+n*v+1, x=(a*u+b*v+e)/den, y=(d*u+f*v+g)/den, o=(v*W+u)*4;
+    D[o+3]=255;
+    if(!(x>=0&&y>=0&&x<sw-1&&y<sh-1)){ D[o]=D[o+1]=D[o+2]=255; continue; }
+    const x0=x|0, y0=y|0, fx=x-x0, fy=y-y0, i=(y0*sw+x0)*4, j=i+sw*4;
+    for(let ch=0;ch<3;ch++){ const t=S[i+ch]+(S[i+4+ch]-S[i+ch])*fx, bt=S[j+ch]+(S[j+4+ch]-S[j+ch])*fx; D[o+ch]=t+(bt-t)*fy; }
+  }
+  cx.putImageData(O,0,0); return c;
+}
+function adjustImg(c,adj){                          /* 밝기(곱)·대비(가운데 기준) — 화면 미리보기와 같은 식 · 선명도는 언샤프 마스크 */
+  const {b,c:ct,s}=adj; if(!b&&!ct&&!s) return c;
+  const x=c.getContext('2d'), W=c.width, H=c.height, im=x.getImageData(0,0,W,H), p=im.data;
+  if(b||ct){ const B=1+b/100, C=1+ct/100, lut=new Uint8ClampedArray(256);
+    for(let i=0;i<256;i++) lut[i]=(i*B-128)*C+128;
+    for(let i=0;i<p.length;i+=4){ p[i]=lut[p[i]]; p[i+1]=lut[p[i+1]]; p[i+2]=lut[p[i+2]]; } }
+  if(s){ const amt=s/100*1.5, q=new Uint8ClampedArray(p), R=W*4;
+    for(let y=1;y<H-1;y++) for(let xx=1;xx<W-1;xx++){ const o=y*R+xx*4;
+      for(let ch=0;ch<3;ch++){ const t=o+ch, mean=(q[t-R-4]+q[t-R]+q[t-R+4]+q[t-4]+q[t]+q[t+4]+q[t+R-4]+q[t+R]+q[t+R+4])/9;
+        p[t]=q[t]+amt*(q[t]-mean); } } }
+  x.putImageData(im,0,0); return c;
+}
 $('#cropOk').onclick=()=>{
   if(!CROP.img) return;
-  const F=cropFrame(), k=CROP.kind, outW=k==='id'?1400:1654, outH=Math.round(outW*F.h/F.w);
-  const c=document.createElement('canvas'); c.width=outW; c.height=outH;
-  const x=c.getContext('2d'); x.fillStyle='#fff'; x.fillRect(0,0,outW,outH); x.imageSmoothingQuality='high';
-  const z=outW/F.w; x.setTransform(z,0,0,z,-F.x*z,-F.y*z);          /* 화면 좌표 → 출력 좌표 */
-  x.translate(CROP.cx,CROP.cy); x.rotate(CROP.rot*Math.PI/180); x.scale(CROP.s,CROP.s);
-  x.drawImage(CROP.img,-CROP.img.naturalWidth/2,-CROP.img.naturalHeight/2);
+  const F=cropFrame(), k=CROP.kind, outW=k==='id'?1400:1654, outH=Math.round(outW*(k==='id'?540/856:297/210));
+  let c;
+  if(CROP.qon&&CROP.quad) c=warpQuad(CROP.img,CROP.quad,outW,outH);   /* 모서리 맞추기: 반듯하게 펴기 */
+  else{
+    c=document.createElement('canvas'); c.width=outW; c.height=outH;
+    const x=c.getContext('2d'); x.fillStyle='#fff'; x.fillRect(0,0,outW,outH); x.imageSmoothingQuality='high';
+    const zx=outW/F.w, zy=outH/F.h; x.setTransform(zx,0,0,zy,-F.x*zx,-F.y*zy);   /* 화면 좌표 → 출력 좌표 */
+    x.translate(CROP.cx,CROP.cy); x.rotate(cropTh()); x.scale(CROP.s,CROP.s);
+    x.drawImage(CROP.img,-CROP.img.naturalWidth/2,-CROP.img.naturalHeight/2);
+  }
+  adjustImg(c,CROP.adj);
   closeCrop(); camKind=k; finishShot(c);
 };
 addEventListener('resize',()=>{ if($('#cropVeil').classList.contains('on')){ cropClamp(); cropPaint(); } });
