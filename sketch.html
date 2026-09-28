@@ -88,15 +88,15 @@ body{background:var(--paper);color:var(--ink);overflow-x:hidden;
 @media print{ .chd .ca{stroke-dasharray:var(--len) var(--C)!important;transition:none!important} }
 @media (max-width:660px){ .kpis .kpi.chk{grid-column:1 / -1} }
 .kpi .m{margin-top:12px;line-height:1.45}
-.kpi .m b{display:block;font-size:18px;font-weight:800;letter-spacing:-.025em;color:var(--ink)}
-.kpi .m b.hot{color:var(--accent-ink,#AE1800)}
-.kpi .m span{display:block;font-size:12px;color:var(--sub);margin-top:4px;letter-spacing:-.01em}
+.kpi .m>b{display:block;font-size:18px;font-weight:800;letter-spacing:-.025em;color:var(--ink)}
+.kpi .m>b.hot{color:var(--accent-ink,#AE1800)}
+.kpi .m>span{display:block;font-size:12px;color:var(--sub);margin-top:4px;letter-spacing:-.01em}   /* v3.54: 바로 아래 자식만 — 연필 동그라미가 감싼 span(.inkw)까지 블록·12px가 되던 것 */
 .kpi .m{opacity:0;transform:translateY(6px);transition:opacity 700ms ease 1100ms,transform 700ms cubic-bezier(.16,1,.3,1) 1100ms}
 .kpi.play .m{opacity:1;transform:none}
 .sec.static .kpi .m,[data-motion="fast"] .kpi .m{opacity:1!important;transform:none!important;transition:none!important}
 @media (prefers-reduced-motion:reduce){ .kpi .m{opacity:1!important;transform:none!important;transition:none!important} }
-@media print{ .kpi .m{opacity:1!important;transform:none!important;transition:none!important} .kpi .m b.hot{color:var(--ink)!important} }
-@media (max-width:660px){ .kpi .m b{font-size:16px} .kpi .m span{font-size:11.5px} }
+@media print{ .kpi .m{opacity:1!important;transform:none!important;transition:none!important} .kpi .m>b.hot{color:var(--ink)!important} }
+@media (max-width:660px){ .kpi .m>b{font-size:16px} .kpi .m>span{font-size:11.5px} }
 /* v3.52: 직장인구 막대 — 주거인구(회색) 100 : 직장인구(먹). 긴 쪽이 칸 끝, 점선은 '주거인구 = 100' 자리.
    줄 높이(--rh)·줄 사이(--rg)를 정해 두어 점선이 주거인구 막대 위끝에서 직장인구 막대 아래끝까지 닿게 한다 */
 .dpb{--rh:30px;--rg:6px;--bh:12px;display:grid;grid-template-columns:auto 1fr;grid-auto-rows:var(--rh);align-items:center;
@@ -1549,7 +1549,7 @@ svg.trend.rib path.now{stroke:var(--sub)}
 @media print{#ink,#inkui{display:none!important}}
 /* v3.23: 연필 흔적을 인쇄에도 — 획마다 붙은 요소 안에 SVG 를 넣어 두고 인쇄에서만 보인다 */
 .inkp{display:none;position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible;pointer-events:none;z-index:9}
-.inkw{position:relative}
+.inkw{all:unset!important;position:relative!important;display:inline!important}   /* v3.54: 동그라미가 감싼 낱말은 어느 칸의 span·b 규칙도 받지 않는다 — 글자 크기·줄바꿈이 그대로 */
 #inkdefs{position:absolute;width:0;height:0;overflow:hidden}
 /* v3.31: 고객용 진단서 — 제안 칸·하이오더 보완·영업 메모(.sale)·CHECK 상자·강약점의 할 일 줄을 숨기고 진단만. 견적·키워드·뉴스·사람이 채울 것 장은 그리지 않는다 */
 .custonly{display:none}
@@ -1674,7 +1674,7 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
       <div class="name" data-sk="1" data-sk-wide="1">밑그림</div>
       <div class="tag"><span class="en">SKETCH</span><em>밑</em>천이 되는 <em>그림</em></div>
     </div>
-    <div class="ver" id="pageVer">v3.53</div>
+    <div class="ver" id="pageVer">v3.54</div>
   </div>
 
   <section class="tool" id="tool" aria-label="수집 도구">
@@ -1723,7 +1723,8 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
 
   // ▼ 배포 후 Cloudflare Worker 주소로 바꾸세요 (끝에 / 없이)
   const API_BASE = 'https://kt.roi0925003.workers.dev';
-  const PAGE_VERSION = 'v3.53';
+  const PAGE_VERSION = 'v3.54';
+  /* v3.54: 연필 동그라미가 1장 숫자 칸의 글자를 줄이고 줄을 바꾸던 것 · 2장 손님 목소리 연출(늦게 도착해도 제 칸이 오면 재생) */
   /* v3.53: 1장 영업 기간 — 동네에서 몇 번째로 오래된 가게인가(동네 상위 N%) · 수집 서버 v1.51 hood.older */
   try { if (/[?&]grid=1\b/.test(location.search)) { const g = () => document.body && document.body.classList.add('gridon'); if (document.body) g(); else document.addEventListener('DOMContentLoaded', g); } } catch (_) {}
   /* v3.52: 1장 매장 요약(0장과 합침) · 숫자 여섯(같은 업종·직장인구 비율·온라인 채널·지원사업·영업 기간·매장 규모)과 뜻 · 플레이스 이야기 ·
@@ -4921,7 +4922,7 @@ ${GUARD}`,
 
   /* ── 손님 불편 신호 (늦게 도착 · 연출 없음) ── */
   function renderReviewSection(b){
-    return { html: '<div id="reviewBox"></div>', meta:'NAVER · KAKAO · GOOGLE · KONEST', static:true };
+    return { html: '<div id="reviewBox"></div>', meta:'NAVER · KAKAO · GOOGLE · KONEST' };   // v3.54: static을 풀었다 — 리뷰가 늦게 와도 제 칸이 화면에 오면 재생
   }
 
   /* ── 온라인 언급 — 숫자 셋 · 웨이팅 신호 · 최근 글 (v3.10) ── */
@@ -6192,7 +6193,7 @@ ${GUARD}`,
       const fast = Number(pm) >= 20;
       rail = `<div class="stats">
         <div class="stat"><div class="k">최근 12개월 리뷰</div>
-          <div class="v sk"${V.capped ? '' : ` data-n="${Number(V.last12)}"`}>${V.capped ? '≥ ' : ''}${esc(num(V.last12))}</div>
+          <div class="v sk" data-n="${Number(V.last12)}"${V.capped ? ' data-pre="≥ "' : ''}>${V.capped ? '≥ ' : ''}${esc(num(V.last12))}</div>
           <div class="lead-ref">${V.capped ? `건 이상 · 가져온 ${esc(num(V.dated,'건'))}이 모두 최근 ${esc(V.spanMonths)}개월 안 → 월 약 ${esc(num(Math.round(pm),'건'))}` : `건 · 월 ${esc(pm)}건 · 최근 3개월 ${esc(num(V.last3,'건'))}`}</div></div>
         <div class="stat"><div class="k">연평균 리뷰 (인허가 기준)</div>
           <div class="v sk"${perYear !== null ? ` data-n="${perYear}"` : ''}>${perYear !== null ? esc(num(perYear)) : '—'}</div>
@@ -6543,12 +6544,10 @@ ${GUARD}`,
       if (live){ put = live; every = 45; }
       e.dataset.skWait = '0';                                      // 그리지 못했더라도 다시 집어 들지 않게
     }
-    const st = { R, final, put, every, dec:+(e.dataset.d||0), sep:e.dataset.sep||'~', suf:e.dataset.suf||'', run:false };   // v3.52: suf — 43%의 %
+    const st = { R, final, put, every, dec:+(e.dataset.d||0), sep:e.dataset.sep||'~', suf:e.dataset.suf||'', pre:e.dataset.pre||'', run:false };   // v3.52: suf — 43%의 % · v3.54: pre — '≥ 141'의 ≥
     _cnt.set(e, st);
     return st;
   }
-  /* 칸만 긋고 비워 둔다 — 제 차례를 기다리는 동안 혼자 완성된 숫자로 서 있지 않게 */
-  function prime(e){ const st = prep(e); if (st && st.every) st.put('', false); }
   function countUp(e){
     const st = prep(e);
     if (!st || st.run) return;
@@ -6559,7 +6558,7 @@ ${GUARD}`,
       if (st.gen !== gen) return;
       const k = Math.min((t-t0)/2800, 1), q = 1-Math.pow(1-k,4);
       if (k >= 1) st.put(st.final, true);
-      else if (t - _last >= st.every){ _last = t; st.put(st.R.map(v => fmt(v*q)).join(st.sep) + st.suf, false); }
+      else if (t - _last >= st.every){ _last = t; st.put(st.pre + st.R.map(v => fmt(v*q)).join(st.sep) + st.suf, false); }
       if (k<1) requestAnimationFrame(step);
     })(t0);
   }
@@ -6579,7 +6578,8 @@ ${GUARD}`,
     if (fast) return;
     sec.querySelectorAll('[data-n],[data-r]').forEach((n) => { const u = unitOf(n); if (u && !u.classList.contains('play')) prime(n); });
   }
-  function prime(e){ const st = prep(e); if (!st || st.run) return; st.put(st.every ? '' : zeroOf(st), false); if (st.every) e.dataset.skLive = '1'; }
+  /* 칸만 긋고 비워 둔다 — 제 차례를 기다리는 동안 혼자 완성된 숫자로 서 있지 않게 */
+  function prime(e){ const st = prep(e); if (!st || st.run) return; st.put(st.every ? '' : st.pre + zeroOf(st), false); if (st.every) e.dataset.skLive = '1'; }
   function run(u, nums, lead){
     nums.forEach(prime);                                           // 칸을 먼저 전부 긋고
     nums.forEach((n,i) => setTimeout(() => { if (u.classList.contains('play')) countUp(n); }, lead + i*300));   // 하나씩 채워 넣는다 (그 사이 되감겼으면 건너뜀)
@@ -6601,7 +6601,7 @@ ${GUARD}`,
     if (!u.classList.contains('play') || MOTION==='fast' || reduce || _printing) return;
     const sec = u.closest('.sec'); if (sec && sec.classList.contains('static')) return;
     u.classList.remove('play');
-    numsOf(u).forEach((n) => { const st = _cnt.get(n); if (!st) return; st.run = false; st.gen = (st.gen || 0) + 1; st.put(st.every ? '' : zeroOf(st), false); if (st.every) n.dataset.skLive = '1'; });
+    numsOf(u).forEach((n) => { const st = _cnt.get(n); if (!st) return; st.run = false; st.gen = (st.gen || 0) + 1; st.put(st.every ? '' : st.pre + zeroOf(st), false); if (st.every) n.dataset.skLive = '1'; });
   }
   /* 리뷰가 도착하면 5·6·12장은 다시 그려진다. 그 장은 이미 한 번 나타났다고 표시돼 있어
      관찰자가 다시 부르지 않으므로, 새로 생긴 숫자는 여기서 챙긴다(없으면 평범한 글자로 남는다). */
@@ -6609,6 +6609,9 @@ ${GUARD}`,
     $$('.sec.on').forEach((sec) => {
       const fast = MOTION==='fast' || reduce || sec.classList.contains('static');
       sec.querySelectorAll('[data-sk-wait="1"]').forEach(n => { if (fast || (n.dataset.n == null && n.dataset.r == null)) SK.paintOne(n); });   // v3.52: 숫자는 제 칸이 채운다
+      if (fast) return;
+      /* v3.54: 장이 켜진 뒤에 들어온 숫자(2장 리뷰) — 제 칸이 재생될 때까지 비워 둔다. 한 번 챙긴 것은 다시 건드리지 않는다 */
+      sec.querySelectorAll('[data-n],[data-r]').forEach((n) => { const u = unitOf(n); if (u && !u.classList.contains('play') && !_cnt.has(n)) prime(n); });
     });
   }
   /* 장이 화면 아래 140px 안쪽까지 들어와야 시작한다 — 가장자리에서 시작하면 보기 전에 끝난다.
