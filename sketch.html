@@ -1368,7 +1368,7 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
       <div class="name" data-sk="1" data-sk-wide="1">밑그림</div>
       <div class="tag"><span class="en">SKETCH</span><em>밑</em>천이 되는 <em>그림</em></div>
     </div>
-    <div class="ver" id="pageVer">v3.48</div>
+    <div class="ver" id="pageVer">v3.49</div>
   </div>
 
   <section class="tool" id="tool" aria-label="수집 도구">
@@ -1417,7 +1417,8 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
 
   // ▼ 배포 후 Cloudflare Worker 주소로 바꾸세요 (끝에 / 없이)
   const API_BASE = 'https://kt.roi0925003.workers.dev';
-  const PAGE_VERSION = 'v3.48';
+  const PAGE_VERSION = 'v3.49';
+  /* v3.49: 첫 문장 업종은 카카오·네이버로(상가 등록 소분류는 같은 업종 수에만) · 가족 축은 가게 쪽 신호가 있을 때만 (판단 2026-09-28) */
   /* v3.48: 첫 문장 업종 말투('카페 가게' 없앰) · 상가정보에서 못 찾은 매장은 카카오·네이버 업종으로 · 연결 끊긴 호출 한 번 더 */
   /* v3.47: 수집 서버 v1.48 — 네이버를 전화번호·브랜드·다른 이름으로 찾은 것 표시 · 업종 대체가 중분류 전체면 그렇게 적음 */
   /* v3.46: 2차 30곳 판단 4건 — 4곳 이하 비교는 꼴찌만 약점 · 배달 전용일 수 있는 상호 표시 · 본사 직영 브랜드 표시 · 나들이 매장은 낮 인구 배율만으로 직장인 안 붙임 */
@@ -2839,8 +2840,9 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
       const hh = pd && has(pd.avgHouseholdSize) ? Number(pd.avgHouseholdSize) : null;
       let level = 0; const why = [];
       if (v) why.push(`「아이와 가기 좋아요」 ${v}건`); if (kids) why.push('키즈 시설'); if (hh !== null && hh >= 2.5) why.push(`동네 가구당 ${hh}명`);
-      if (v >= 5 || (v >= 2 && kids)) level = 2; else if (v >= 2 || kids || (hh !== null && hh >= 2.6)) level = 1;
-      A.family = { key:'family', label:'가족·아이', level, why, votes: v }; }
+      /* v3.49 (판단 2026-09-28): 동네 가구원 수만으로는 붙이지 않는다 — 와인바(엘티엠디)가 '가족이 오는 매장'이 됐다. 가구원 수는 근거 줄에만 */
+      if (v >= 5 || (v >= 2 && kids)) level = 2; else if (v >= 2 || kids) level = 1;
+      A.family = { key:'family', label:'가족·아이', level, why, votes: v, household: hh }; }
 
     /* 혼밥 */
     { const v = kwVotes(rv, /혼밥/); let level = 0; const why = [];
@@ -3101,7 +3103,9 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
       '어르신 손님 대비 — 큰 글씨·사진 메뉴와 직원 호출 버튼. 고령층이 키오스크에서 가장 힘든 건 조작이 아니라 「뒷사람 눈치」(53.6%) — 자리에서 내 속도로 고르는 테이블 주문엔 그 불편이 없습니다 (서울디지털재단 2023)'));
     else if (resid && age !== null && age <= 38) out.push(rxLine(`평균 나이 <b>${age}세</b> — 젊은 동네`, '태블릿 주문에 익숙한 손님 — 도입 설명은 짧게, 스탬프·쿠폰으로 재방문'));
     const hh = has(pd.avgHouseholdSize) ? Number(pd.avgHouseholdSize) : null;
-    if (r !== null && r < 1 && hh !== null && hh >= 2.5) out.push(rxLine(`가구당 <b>${hh}명</b> — 가족 단위 동네`, '가족 손님 — 아이·어른이 함께 고르는 사진 메뉴'));
+    /* v3.49: 매장 쪽 가족 신호(리뷰·키즈 시설)가 없으면 동네 사실만 적고 가족 손님 제안은 하지 않는다 (판단 2026-09-28) */
+    if (r !== null && r < 1 && hh !== null && hh >= 2.5) { const fam = axesOf(b).family;
+      out.push(rxLine(`가구당 <b>${hh}명</b> — 가족 단위 동네`, fam && fam.level >= 1 ? '가족 손님 — 아이·어른이 함께 고르는 사진 메뉴' : '이 매장 리뷰·시설엔 아이 동반 신호가 아직 없어 손님 축엔 넣지 않았습니다 — 동네 사실로만')); }
     if (!resid && out.length < 3) out.push(rxLine(`주민 ${num(pd.population,'명')} · 종사자 ${num(pd.workers,'명')}`, '주민 나이·가구는 이 동네 손님을 설명하지 못합니다 — 손님은 일하러 오는 사람과 지나가는 사람'));
     return out.slice(0, 3);
   }
@@ -3185,10 +3189,14 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
     const midAll = Boolean(cd && cd.industry && cd.industry.level === 'middle');   // v3.47: 서버 v1.48 — 소분류를 못 정해 중분류 전체로 셈
     /* v3.48: 상가정보에서 이 매장을 못 찾아 업종을 대신 정한 경우(!matched)는 카카오·네이버 업종을 쓴다 — 대신 정한 소분류는 짐작이다
        (와인바 → '무도 유흥 주점'으로 적혔다). v3.42의 '기타 ○○'만 카카오로 바꾸던 규칙을 넓힌 것 */
-    const small = !SM0 && cd && cd.industry && cd.industry.small && !midAll && !(!cd.matched && kakaoCat) ? cd.industry.small : '';
+    /* v3.49 (판단 2026-09-28): 카카오·네이버 업종이 있으면 첫 문장은 그것으로 — 상가정보에서 찾았어도 등록 소분류는 실제와 다를 수 있다
+       (카리 분당정자카페점: 인도음식 ↔ 상가 등록 '베트남식 전문'). 상가 등록 소분류는 같은 업종 수를 셀 때만 쓰고, 지도 업종과 다르면 그 뒤에 꼬리 */
+    const small = !SM0 && cd && cd.industry && cd.industry.small && !midAll && !kakaoCat ? cd.industry.small : '';
     const smallTail = small && cd.industry.estimated ? ' (추정)' : '';
-    const guessSmall = !SM0 && !midAll && cd && !cd.matched && cd.industry && cd.industry.small && kakaoCat && !small
-      && String(cd.industry.small).replace(/\s/g, '') !== String(kakaoCat).replace(/\s/g, '') ? cd.industry.small : '';   // 같은 업종 수는 이 소분류로 셌다
+    const idName = kakaoCat ? idCatOf(s) : '';   // 첫 문장에 적는 이름 (인도음식점 · 횟집 · 커피전문점)
+    const guessSmall = !SM0 && !midAll && cd && cd.industry && cd.industry.small && idName
+      && shopName(cd.industry.small).replace(/\s/g, '') !== idName.replace(/\s/g, '') ? cd.industry.small : '';   // 같은 업종 수는 이 소분류로 셌다 — 말이 같으면(회 ↔ 횟집) 꼬리 없음
+    const guessTail = guessSmall ? ` (${cd.matched ? '상가 등록 소분류' : '대신 정한 상가 소분류'} ‘${esc(guessSmall)}’ 기준)` : '';
 
     /* 1) 사실 문장 */
     const facts = [];
@@ -3197,7 +3205,7 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
     if (L && has(L.area) && Number(L.area) > 0) facts.push(`영업장 <b>${esc(num(Number(L.area)))}㎡</b> (약 ${esc(String(pyeong(L.area)))}평${L.floors ? ` · ${esc(floorsLabel(L.floors))}` : ''})`);
     if (cd && (cd.matched || cd.fallback) && has(cd.sameSmall && cd.sameSmall.count) && (cd.matched || Number(cd.sameSmall.count) > 0)) {   // v3.41: 업종을 못 찾아 0곳이면 쓰지 않음
       const sameB = near.filter(x => x.sameBldg).length;
-      facts.push(`반경 ${dist(R)} 안 같은 업종 <b>${esc(num(cd.sameSmall.count,'곳'))}</b>${SM0 ? ` (상가 등록 업종 ‘${esc(SM0.small)}’ 기준 — 실제 업종 ‘${esc(SM0.kakao)}’과 다름)` : midAll ? ` (${esc(cd.industry.small)} — 소분류를 못 정함)` : guessSmall ? ` (상가 소분류 ‘${esc(guessSmall)}’로 셈)` : ''}${near[0] ? (sameB ? `, 그중 <b>같은 건물에 ${sameB}곳</b>` : (Number(near[0].distance) < 5 ? ', 가장 가까운 곳은 <b>같은 건물(같은 필지)</b>' : `, 가장 가까운 곳 <b>${esc(dist(near[0].distance))}</b>`)) : ''}`);
+      facts.push(`반경 ${dist(R)} 안 같은 업종 <b>${esc(num(cd.sameSmall.count,'곳'))}</b>${SM0 ? ` (상가 등록 업종 ‘${esc(SM0.small)}’ 기준 — 실제 업종 ‘${esc(SM0.kakao)}’과 다름)` : midAll ? ` (${esc(cd.industry.small)} — 소분류를 못 정함)` : guessTail}${near[0] ? (sameB ? `, 그중 <b>같은 건물에 ${sameB}곳</b>` : (Number(near[0].distance) < 5 ? ', 가장 가까운 곳은 <b>같은 건물(같은 필지)</b>' : `, 가장 가까운 곳 <b>${esc(dist(near[0].distance))}</b>`)) : ''}`);
     }
     if (pd && has(pd.population)) facts.push(`동네 인구 <b>${esc(num(pd.population))}명</b>${has(pd.workerPerResident) ? `, ${esc(dayType(pd.workerPerResident))}` : ''}`);
     if (rv && counted) facts.push(`네이버 리뷰 <b>${esc(num(K.mine !== null ? K.mine : counted,'건'))}</b>${has(K.myScore) ? ` 평점 <b>${esc(String(K.myScore))}</b>` : ''}`);
@@ -3210,7 +3218,7 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
       if (L && has(L.area) && Number(L.area) > 0) sents.push(`영업장은 <b>${esc(num(Number(L.area)))}㎡</b>(약 ${esc(String(pyeong(L.area)))}평${L.floors ? ` · ${esc(floorsLabel(L.floors))}` : ''})입니다.`);
       if (cd && (cd.matched || cd.fallback) && has(cd.sameSmall && cd.sameSmall.count) && (cd.matched || Number(cd.sameSmall.count) > 0)) {   // v3.41: 업종을 못 찾아 0곳이면 쓰지 않음
         const sameB = near.filter(x => x.sameBldg).length;
-        sents.push(`반경 ${dist(R)} 안 같은 업종은 <b>${esc(num(cd.sameSmall.count,'곳'))}</b>${SM0 ? ` <span class="src9">(상가 등록 업종 ‘${esc(SM0.small)}’ 기준 — 실제 업종과 다름)</span>` : midAll ? ` <span class="src9">(${esc(cd.industry.small)} — 소분류를 못 정함)</span>` : guessSmall ? ` <span class="src9">(상가 소분류 ‘${esc(guessSmall)}’로 셈)</span>` : ''}${near[0] ? (sameB ? `이고, 그중 <b>같은 건물에 ${sameB}곳</b>이 있습니다.` : (Number(near[0].distance) < 5 ? '이고, 가장 가까운 곳은 <b>같은 건물(같은 필지)</b>에 있습니다.' : `이고, 가장 가까운 곳은 <b>${esc(dist(near[0].distance))}</b> 거리입니다.`)) : '입니다.'}`);
+        sents.push(`반경 ${dist(R)} 안 같은 업종은 <b>${esc(num(cd.sameSmall.count,'곳'))}</b>${SM0 ? ` <span class="src9">(상가 등록 업종 ‘${esc(SM0.small)}’ 기준 — 실제 업종과 다름)</span>` : midAll ? ` <span class="src9">(${esc(cd.industry.small)} — 소분류를 못 정함)</span>` : guessTail ? ` <span class="src9">${guessTail.trim()}</span>` : ''}${near[0] ? (sameB ? `이고, 그중 <b>같은 건물에 ${sameB}곳</b>이 있습니다.` : (Number(near[0].distance) < 5 ? '이고, 가장 가까운 곳은 <b>같은 건물(같은 필지)</b>에 있습니다.' : `이고, 가장 가까운 곳은 <b>${esc(dist(near[0].distance))}</b> 거리입니다.`)) : '입니다.'}`);
       }
       if (pd && has(pd.population)) sents.push(`동네 인구는 <b>${esc(num(pd.population))}명</b>${has(pd.workerPerResident) ? `이고 ${esc(dayType(pd.workerPerResident))}입니다.` : '입니다.'}`);
       if (rv && counted) sents.push(`네이버 리뷰는 <b>${esc(num(K.mine !== null ? K.mine : counted,'건'))}</b>${has(K.myScore) ? `, 평점 <b>${esc(String(K.myScore))}</b>` : ''}입니다.`); }
