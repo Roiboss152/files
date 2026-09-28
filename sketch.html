@@ -554,6 +554,13 @@ html.sbov-on,html.sbov-on body{overflow:hidden}
 .oplist li>a[data-sec]{position:absolute;left:0;top:9px;font-size:10px;font-weight:700;color:var(--accent);text-decoration:none;border:1px solid var(--accent);border-radius:999px;padding:0 6px;line-height:16px}
 .oplist li>a[data-sec]:empty{display:none}
 .oplist.w b{color:var(--accent-ink,#AE1800)}
+/* v3.55: 강점·아쉬운 점 — v3.51(0장) 크기로: 제목 24px · 줄 14px · 장 번호 칩 11px */
+.op-sw .bh{font-size:24px;letter-spacing:-.03em;padding-bottom:10px}
+.op-sw .bh small{font-size:12px;font-weight:500;color:var(--sub);margin-left:8px;letter-spacing:0}
+.op-sw .oplist li{font-size:14px;line-height:1.5;padding:10px 0 10px 46px}
+.op-sw .oplist li.muted{padding-left:0}
+.op-sw .oplist li>a[data-sec]{font-size:11px;top:12px;padding:1px 7px}
+@media (max-width:660px){ .op-sw .bh{font-size:20px} }
 .op-src{margin-top:12px}
 .op-memo{margin-top:34px}
 .mgrid{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:18px 26px}
@@ -827,13 +834,15 @@ svg.trend circle.now{fill:var(--paper);stroke-width:2}
 .legend .lg{display:inline-flex;align-items:center;gap:7px;font-weight:600}
 .legend .lg i{width:10px;height:10px;border-radius:3px;display:inline-block;flex:none}
 .legend .lg small{font-weight:400;color:var(--faint)}
-.thumbs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;list-style:none;margin:13px 0 0;padding:0}
+.thumbs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;list-style:none;margin:13px 0 0;padding:0}
 .thumbs a{display:block;aspect-ratio:1/1;border-radius:10px;overflow:hidden;background:var(--panel)}
 .thumbs img{width:100%;height:100%;object-fit:contain;display:block}
 .menuwrap{display:flex;gap:12px;align-items:flex-start}
 .menutbl{flex:1;min-width:0}
 .mline{font-size:15px;line-height:1.5;margin:3px 0 0;color:var(--sub)}.mline b{color:var(--ink);font-weight:700}
-.thumbs.mini{grid-template-columns:1fr 1fr;gap:4px;width:96px;flex:none;margin:0;perspective:none}
+.thumbs.mini{grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;width:96px;flex:none;margin:0;perspective:none}   /* v3.55: 칸 폭 고정 — 깨진 사진의 제목 글자가 칸을 넓히지 못하게 */
+.thumbs li{min-width:0}
+.thumbs img{color:transparent;font-size:0}   /* v3.55: 안 열린 사진의 대체 글(게시글 제목)을 그리지 않는다 */
 .thumbs.mini li.brd a{border-color:var(--accent,#EC3013)}
 .thumbs.mini a{border-radius:3px;background:#fff;border:1px solid rgba(32,30,29,.12);transform:none!important}
 .thumbs.mini img{object-fit:cover}
@@ -1674,7 +1683,7 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
       <div class="name" data-sk="1" data-sk-wide="1">밑그림</div>
       <div class="tag"><span class="en">SKETCH</span><em>밑</em>천이 되는 <em>그림</em></div>
     </div>
-    <div class="ver" id="pageVer">v3.54</div>
+    <div class="ver" id="pageVer">v3.55</div>
   </div>
 
   <section class="tool" id="tool" aria-label="수집 도구">
@@ -1723,7 +1732,8 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
 
   // ▼ 배포 후 Cloudflare Worker 주소로 바꾸세요 (끝에 / 없이)
   const API_BASE = 'https://kt.roi0925003.workers.dev';
-  const PAGE_VERSION = 'v3.54';
+  const PAGE_VERSION = 'v3.55';
+  /* v3.55: 메뉴 옆 사진(깨진 사진·엉뚱한 사진) · 강점·아쉬운 점 글자 크기 · 검색 추이 그래프(달 자리·곡선) · 검색어 후보 '지역 주차' */
   /* v3.54: 연필 동그라미가 1장 숫자 칸의 글자를 줄이고 줄을 바꾸던 것 · 2장 손님 목소리 연출(늦게 도착해도 제 칸이 오면 재생) */
   /* v3.53: 1장 영업 기간 — 동네에서 몇 번째로 오래된 가게인가(동네 상위 N%) · 수집 서버 v1.51 hood.older */
   try { if (/[?&]grid=1\b/.test(location.search)) { const g = () => document.body && document.body.classList.add('gridon'); if (document.body) g(); else document.addEventListener('DOMContentLoaded', g); } } catch (_) {}
@@ -2108,6 +2118,23 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
     const items = feed.slice(0, 3).map(f => `<li><span class="d">${esc(String(f.date||'').slice(0, 10) || '—')}</span><span>${f.type ? `<span class="bdg info">${esc(f.type)}</span> ` : ''}${esc(noEmoji(f.title) || noEmoji(f.text).slice(0, 40))}${f.text && f.title ? `<span class="by">${esc(noEmoji(f.text).slice(0, 90))}</span>` : ''}</span></li>`).join('');
     return `<ul class="recent" style="margin:0">${items}</ul><p class="src9" style="margin-top:6px">사장님이 직접 올린 글 ${esc(num(feed.length,'건'))}${last ? ` · 마지막 ${esc(last)}` : ''} <span class="sale"> — 알림·이벤트를 스스로 올리는 매장은 알림톡·쿠폰 제안이 통합니다</span></p>`;
   }
+  /* v3.55: 메뉴판 작은 사진 — 원본이 막히거나 지워진 사진은 칸째 뺀다(깨진 그림 + 게시글 제목이 칸을 밀어내던 것). 다 빠지면 목록도 뺀다 */
+  document.addEventListener('error', (e) => {
+    const t = e.target; if (!t || t.tagName !== 'IMG' || !t.closest) return;
+    const li = t.closest('.thumbs li'); if (!li) return;
+    const ul = li.parentElement; li.remove(); if (ul && !ul.querySelector('li')) ul.remove();
+  }, true);
+  /* v3.55: 이미지 검색 사진 고르기 — 뉴스·관공서 사진은 빼고, 게시글 제목에 상호가 든 것만 (상호 첫 낱말이 '카페'처럼 흔한 말이면 다음 낱말) */
+  const SHOT_NEWS = /imgnews|news|\.go\.kr|\.or\.kr|heraldcorp|chosun|joongang|donga|hani\.co|khan\.co|hankyung|mk\.co\.kr|yna\.co\.kr|newsis|edaily|seoul\.co|asiae|fnnews|etoday|mt\.co\.kr|sedaily|nocutnews|ohmynews|kmib|segye|munhwa|zdnet|bloter|wikitree|insight\.co|dispatch|topstarnews|sportsseoul|osen|kbs\.co|imbc|sbs\.co|jtbc|ytn\.co/i;
+  function shotTok(b){
+    const words = String((b && b.store && b.store.name) || '').split(/\s+/).map(w => w.replace(/[^가-힣A-Za-z0-9]/g, '')).filter(Boolean);
+    const generic = /^(카페|cafe|식당|레스토랑|주점|포차|치킨|분식|베이커리|제과|커피)$/i;
+    return words.find(w => !generic.test(w) && !/점$/.test(w)) || words[0] || '';
+  }
+  function shotOk(it, tok){
+    if (SHOT_NEWS.test(String(it.image || '')) || SHOT_NEWS.test(String(it.link || ''))) return false;
+    return !tok || String(it.title || '').replace(/[^가-힣A-Za-z0-9]/g, '').includes(tok);
+  }
   function menuTableHTML(MP, b){
     const rows = MP.items.map(m => `<tr><td>${esc(m.name)}${m.recommend ? ' <span class="bdg info">추천</span>' : ''}</td><td class="n">${has(m.price) && Number(m.price) > 0 ? esc(num(m.price,'원')) : '—'}</td></tr>`).join('');
     const range = MP.minP !== null ? (MP.minP === MP.maxP ? num(MP.minP,'원') : `${num(MP.minP,'원')}~${num(MP.maxP,'원')}`) : '';
@@ -2121,7 +2148,8 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
     const im = b ? mod(b,'images') : { ok:false };
     const pl = b ? mod(b,'place') : { ok:false };
     const board = pl.ok && pl.data ? (pl.data.naverMenuBoard || []).map(u => ({ thumbnail:u, image:u, title:'플레이스 메뉴판', board:true })) : [];
-    const search = im.ok && im.data ? (im.data.items||[]) : [];
+    const tok = shotTok(b);
+    const search = im.ok && im.data ? (im.data.items||[]).filter(it => shotOk(it, tok)) : [];   // v3.55: 뉴스·다른 가게 사진 빼기
     const shots = board.concat(search).filter(it => imgHref(it.thumbnail)).slice(0, 10);
     const thumbs = shots.length ? `<ul class="thumbs mini" title="메뉴판 사진 (${board.length ? '플레이스 메뉴판 · ' : ''}네이버 이미지 검색 · 참고용 · 화면 전용)">${shots.map((it,i) => `<li${it.board ? ' class="brd"' : ''}><a href="${esc(safeHref(it.image)||safeHref(im.ok && im.data ? im.data.searchUrl : '')||'#')}" target="_blank" rel="noopener noreferrer"><img src="${esc(imgHref(it.thumbnail))}" alt="${esc(it.title||`메뉴판 사진 ${i+1}`)}" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a></li>`).join('')}</ul>` : '';
     return `<div class="menuwrap">${thumbs}<div class="menutbl"><table class="tbl menu"><tbody>${rows}</tbody></table><p class="deck md" style="margin-top:6px">${line}</p><p class="mline">${line2}</p><p class="src9">${src} · 가운데 값은 메뉴를 가격순으로 세웠을 때 한가운데 가격입니다(주력 메뉴 가격이 아님) · 회전 유형은 업종과 메뉴 단가·주류·코스로 추정한 값입니다 (분식·국밥·해장국·카페 = 빠른 회전 / 고기·횟집·코스·주점 = 긴 체류)${shots.length ? `<span class="sale"> · 왼쪽 메뉴판 사진 ${shots.length}장은 ${board.length ? `플레이스 메뉴판 ${Math.min(board.length, shots.length)}장과 ` : ''}네이버 이미지 검색 결과라 참고만 하고, 인쇄·묶음에는 안 나갑니다</span>` : ''}</p></div></div>`;
@@ -2704,11 +2732,56 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
     }
     return d;
   }
+  /* v3.55: 넘치지 않는 단조 곡선(Fritsch–Carlson) — 점 사이에서 위아래로 튀지 않아 0 아래로 내려가거나 봉우리를 부풀리지 않는다 */
+  function monoPath(P){
+    P = P.map(q => [Number(q[0]), Number(q[1])]);
+    const n = P.length; if (n < 2) return n ? `M${P[0][0]},${P[0][1]}` : '';
+    const dx = [], m = [];
+    for (let i = 0; i < n-1; i++){ dx[i] = P[i+1][0] - P[i][0]; m[i] = dx[i] ? (P[i+1][1] - P[i][1]) / dx[i] : 0; }
+    const t = new Array(n);
+    t[0] = m[0]; t[n-1] = m[n-2];
+    for (let i = 1; i < n-1; i++) t[i] = (m[i-1] * m[i] <= 0) ? 0 : (m[i-1] + m[i]) / 2;
+    for (let i = 0; i < n-1; i++){
+      if (m[i] === 0){ t[i] = 0; t[i+1] = 0; continue; }
+      const a = t[i] / m[i], c = t[i+1] / m[i], q = a*a + c*c;
+      if (q > 9){ const k = 3 / Math.sqrt(q); t[i] = k * a * m[i]; t[i+1] = k * c * m[i]; }
+    }
+    const f = (v) => v.toFixed(1);
+    let d = `M${f(P[0][0])},${f(P[0][1])}`;
+    for (let i = 0; i < n-1; i++){
+      const h = dx[i] / 3;
+      d += ` C${f(P[i][0] + h)},${f(P[i][1] + h*t[i])} ${f(P[i+1][0] - h)},${f(P[i+1][1] - h*t[i+1])} ${f(P[i+1][0])},${f(P[i+1][1])}`;
+    }
+    return d;
+  }
+  /* v3.55: 조회 기간의 달을 빠짐없이 — 시작 달 ~ 끝 달(이번 달) */
+  function trendMonths(td){
+    const mkey = (v) => String(v || '').slice(0, 7);
+    const allM = (td.series || []).flatMap(sr => (sr.points || []).map(p => mkey(p.month))).filter(v => /^\d{4}-\d{2}$/.test(v)).sort();
+    const m0 = /^\d{4}-\d{2}/.test(td.startMonth || '') ? mkey(td.startMonth) : allM[0];
+    const m1 = /^\d{4}-\d{2}/.test(td.endMonth || '') ? mkey(td.endMonth) : allM[allM.length - 1];
+    const months = [];
+    if (m0 && m1){
+      let [yy, mm] = m0.split('-').map(Number); const [ye, me] = m1.split('-').map(Number);
+      while ((yy < ye || (yy === ye && mm <= me)) && months.length < 61){ months.push(`${yy}-${String(mm).padStart(2, '0')}`); mm += 1; if (mm > 12){ mm = 1; yy += 1; } }
+    }
+    return months;
+  }
+  /* v3.55: '가장 적은 달' — 데이터랩이 값을 주지 않은 달(검색 거의 없음)이 있으면 그 달 수를 말한다(값이 있는 달 중 최저는 오해를 부른다) */
+  function trendLowOf(td, sr){
+    const val = {}; (sr.points || []).forEach(p => { if (has(p.ratio)) val[String(p.month).slice(0, 7)] = 1; });
+    const gaps = trendMonths(td).filter(mo => mo !== td.endMonth && !val[mo]).length;
+    return gaps ? { gaps } : (sr.low || null);
+  }
   function trendChart(td, opt){
     const o = Object.assign({ mountain:false, ribbon:false }, opt||{});
     const series = (td.series||[]).filter(s => (s.points||[]).length);
     if (!series.length) return '';
-    const months = series.reduce((a,s) => (s.points.length>a.length ? s.points.map(p=>p.month) : a), []);
+    /* v3.55: 가로축은 시작~끝 달을 빠짐없이 — 데이터랩은 검색이 거의 없는 달을 빼고 주므로 후보마다 달이 다르다.
+       가장 긴 후보의 달을 축으로 쓰고 나머지를 순서대로 얹던 것은 점이 엉뚱한 달에 찍히고 선이 뒤로 돌아갔다(한신포차 홍대점). 빠진 달은 0 */
+    const mkey = (v) => String(v || '').slice(0, 7);
+    const months = trendMonths(td);
+    if (!months.length) return '';
     const rb = o.ribbon && series.length === 1;
     const n = months.length, W=590, H=rb?290:250, L=32, R=rb?30:14, T=rb?44:20, B=rb?54:28;
     const iw = W-L-R, ih = H-T-B;
@@ -2720,11 +2793,12 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
     const xl = months.map((m,i) => (i%step===0||i===n-1) ? `<text class="xl" x="${f(x(i))}" y="${H-8}">${esc(String(m).slice(2))}</text>` : '').join('');
     const lines = series.map((s,si) => {
       const c = TREND_COLORS[si%TREND_COLORS.length];
-      const pts = s.points.map((p,i) => ({...p, i: months.indexOf(p.month)>=0 ? months.indexOf(p.month) : i}));
-      const full = pts.filter(p => has(p.ratio) && p.month !== td.endMonth);
-      const now = pts.find(p => has(p.ratio) && p.month === td.endMonth);
+      const val = {}; s.points.forEach(p => { if (has(p.ratio)) val[mkey(p.month)] = Number(p.ratio); });   // v3.55: 점은 제 달에
+      const pts = months.map((mo, i) => ({ month: mo, i, ratio: has(val[mo]) ? val[mo] : 0, miss: !has(val[mo]) }));
+      const full = pts.filter(p => p.month !== td.endMonth);
+      const now = has(val[td.endMonth]) ? pts.find(p => p.month === td.endMonth) : null;
       const P = full.map(p => [f(x(p.i)), f(y(p.ratio))]);
-      const d = o.mountain ? smoothPath(P) : P.map((q,k) => `${k===0?'M':'L'}${q[0]},${q[1]}`).join(' ');
+      const d = o.mountain ? monoPath(P) : P.map((q,k) => `${k===0?'M':'L'}${q[0]},${q[1]}`).join(' ');
       const last = full[full.length-1];
       const nowPath = now && last ? `<path class="now" stroke="${c}" d="M${f(x(last.i))},${f(y(last.ratio))} L${f(x(now.i))},${f(y(now.ratio))}"/>` : '';
       /* 종이 띠(ribbon) — 한 키워드일 때. 벽에서 떠 있는 접힌 종이처럼: 흐린 그림자 → 옆면 → 윗면, 최고·최저에만 큰 숫자 */
@@ -2741,17 +2815,18 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
             <path class="rsd" d="${d}" transform="translate(0,9)" style="stroke:#B5B5BB;stroke-width:13;fill:none;stroke-linejoin:round;stroke-linecap:butt"/>
             <path class="rtp" d="${d}" stroke="url(#${gid}g)" stroke-width="13" fill="none" stroke-linejoin="round" stroke-linecap="butt"/>
             ${nowPath}${lab(hiP, true)}${hiP !== loP ? lab(loP, false) : ''}
-            ${pts.filter(p => has(p.ratio)).map(p => `<circle cx="${f(x(p.i))}" cy="${f(y(p.ratio))}" r="9" fill="transparent"><title>${esc(s.keyword)} ${esc(p.month)}: ${esc(p.ratio)}</title></circle>`).join('')}
+            ${pts.filter(p => !p.miss).map(p => `<circle cx="${f(x(p.i))}" cy="${f(y(p.ratio))}" r="9" fill="transparent"><title>${esc(s.keyword)} ${esc(p.month)}: ${esc(p.ratio)}</title></circle>`).join('')}
           </g>`;
       }
       // 면 채움은 뺐다(v3.10) — 회색 종이 위에서 겹치면 흙빛 덩어리가 된다. 곡선 + 선 밑 그림자로 산의 결만 남긴다
       const area = '';
       const lsh = o.mountain && d ? `<path class="lsh" d="${d}" transform="translate(5,9)" style="stroke:#201E1D;stroke-opacity:.16;stroke-width:5;fill:none;filter:blur(3px)"/>` : '';   // 선이 종이에서 살짝 떠 있게
-      const dots = pts.filter(p => has(p.ratio)).map(p => `<circle${p.month===td.endMonth?' class="now"':''} cx="${f(x(p.i))}" cy="${f(y(p.ratio))}" r="3" fill="${c}" stroke="${c}"><title>${esc(s.keyword)} ${esc(p.month)}: ${esc(p.ratio)}</title></circle>`).join('');
+      const dots = pts.filter(p => !p.miss).map(p => `<circle${p.month===td.endMonth?' class="now"':''} cx="${f(x(p.i))}" cy="${f(y(p.ratio))}" r="3" fill="${c}" stroke="${c}"><title>${esc(s.keyword)} ${esc(p.month)}: ${esc(p.ratio)}</title></circle>`).join('');
       return `<g>${area}${lsh}${d?`<path class="ln" stroke="${c}" d="${d}"/>`:''}${nowPath}${dots}</g>`;
     }).join('');
     const legend = series.map((s,si) => `<span class="lg"><i style="background:${TREND_COLORS[si%TREND_COLORS.length]}"></i>${esc(s.keyword)}<small>최고 ${esc(s.peak?`${s.peak.month} (${s.peak.ratio})`:'—')}</small></span>`).join('');
-    return `<div class="legend">${legend}</div>
+    const gaps = series.some(sr => months.some(mo => mo !== td.endMonth && !sr.points.some(p => mkey(p.month) === mo && has(p.ratio))));
+    return `<div class="legend">${legend}</div>${gaps ? '<p class="src9" style="margin:4px 0 0">점이 없는 달은 데이터랩이 값을 주지 않은 달(검색이 거의 없음)이라 0으로 이었습니다</p>' : ''}
       <svg class="trend${o.mountain?' mtn-line':''}${rb?' rib':''}" viewBox="0 0 ${W} ${H}" data-rule="ht,hb" role="img" aria-label="검색 추이">${grid}${xl}${lines}</svg>`;
   }
 
@@ -5004,7 +5079,7 @@ ${GUARD}`,
     const svg = trendChart(td, one ? { ribbon:true } : { mountain:true });   // 키워드 하나면 종이 띠, 여럿이면 산
     if (!svg) return null;
     const o = b.options || {};
-    const peak = (td.series||[]).map(sr => sr.peak && has(sr.peak.ratio) ? `<b>${esc(sr.keyword)}</b> — 가장 많이 검색된 달 ${esc(sr.peak.month)}${sr.low && has(sr.low.ratio) ? `, 가장 적은 달 ${esc(sr.low.month)} (${esc(sr.low.ratio)})` : ''}` : '').filter(Boolean);
+    const peak = (td.series||[]).map(sr => { const lo = trendLowOf(td, sr); return sr.peak && has(sr.peak.ratio) ? `<b>${esc(sr.keyword)}</b> — 가장 많이 검색된 달 ${esc(sr.peak.month)}${lo && lo.gaps ? `, 검색이 거의 없는 달 ${esc(num(lo.gaps,'개월'))}` : lo && has(lo.ratio) ? `, 가장 적은 달 ${esc(lo.month)} (${esc(lo.ratio)})` : ''}` : ''; }).filter(Boolean);
     return { html: `<div class="mz"><div class="b s12">${svg}</div>
       ${peak.length ? `<div class="b s7"><p class="deck md">${peak.slice(0,2).join('<br>')}</p></div>` : ''}
       <div class="b ${peak.length ? 's5 rail' : 's12'}"><p class="src9" style="margin-top:0">${esc(td.startMonth)} ~ ${esc(td.endMonth)} 월별 · ${esc(td.note||'')}${o.keywordsDerived?' 키워드는 업종에서 자동으로 골랐습니다.':''}
@@ -5695,6 +5770,7 @@ ${GUARD}`,
     { w:'포장',   adj:'포장되는', place:false, ask:'포장을 받는지' },
   ];
   const KW_KIND = [
+    [/조개구이|조개/,                      '조개구이집'],   // v3.55: '구이'가 고깃집으로 가던 것
     [/육류|고기|구이|갈비|삼겹|막창|곱창/, '고깃집'],
     [/횟집|물회|막회|생선|수산|해물/,      '횟집'],
     [/치킨|닭강정/,                        '치킨집'],
@@ -5703,6 +5779,9 @@ ${GUARD}`,
     [/분식|떡볶이|김밥/,                   '분식집'],
     [/주점|술집|호프|포차|이자카야/,        '술집'],
     [/카페|커피|디저트|베이커리/,           '카페'],
+    [/패스트푸드|햄버거|버거/,              '햄버거집'],   // v3.55
+    [/피자/,                                '피자집'],     // v3.55
+    [/양식|이탈리|파스타|스테이크|레스토랑/, '레스토랑'],   // v3.55
     [/한식|백반|국밥|찌개/,                '한식당'],
   ];
   const KW_FOOD = ['숯불갈비','생갈비','양념갈비','소갈비','돼지갈비','갈비','삼겹살','목살','오겹살','막창','곱창',
@@ -5759,9 +5838,11 @@ ${GUARD}`,
       const titles = ((online.data.blog && online.data.blog.recent) || []).filter(x => !x.otherBranch).map(x => String(x.title||'')).join(' ');
       KW_FOOD.forEach(f => { if (new RegExp(f + '(?![가-힣])').test(titles)) addMenu(f, '블로그 제목', 1); });
     }
-    for (const [re, label] of KW_KIND){
-      if (re.test(hay)){ if(!out.some(o=>o.t===label)) out.push({ t:label, why:'업종', s:2 }); break; }
-    }
+    /* v3.55: 업종어는 업종 칸(카카오·네이버·상가)에서 먼저, 없으면 상호에서 — 소개글은 안 본다 */
+    const kindOf = (h) => { for (const [re, label] of KW_KIND) if (re.test(h)) return label; return ''; };
+    const kindLabel = kindOf(s.category || '') || kindOf(s.naverCategory || '') || kindOf((comp.ok && comp.data.industry && comp.data.industry.small) || '') || kindOf(nm);
+    if (kindLabel && !out.some(o => o.t === kindLabel)) out.push({ t:kindLabel, why:'업종', s:2 });
+    void hay;
     const lbl = out.find(o => o.why === '업종');                 // 업종어는 메뉴어에 밀려 잘리지 않게 한 자리를 남긴다
     const rest = out.filter(o => o !== lbl);
     return lbl ? rest.slice(0,3).concat([lbl]) : rest.slice(0,4);
@@ -5841,7 +5922,9 @@ ${GUARD}`,
     const MINO = minOrderSignal(b, state.reviews && state.reviews.data);
     const kindWord = kinds.find(k => k.why === '업종');
     places.slice(0,2).forEach(p => occs.filter(o => !(o.w === '혼밥' && MINO)).forEach(o => {
-      if (o.ask) { if (kindWord) push(`${p.t} ${o.adj} ${kindWord.t}`, o.why, p.s + kindWord.s + o.s - 1, o.ask); }
+      /* v3.55: 룸·주차·포장은 플레이스로 확인됐어도 업종어를 붙인다 — '서교동 주차'는 주차장을 찾는 검색이라 가게 검색어가 아니다 */
+      const needKind = o.ask || (KW_OCC.find(x => x.w === o.w) || {}).ask;
+      if (needKind) { if (kindWord) push(`${p.t} ${o.adj} ${kindWord.t}`, o.why, p.s + kindWord.s + o.s - (o.ask ? 1 : 0), o.ask); }
       else push(`${p.t} ${o.w}`, o.why, p.s + o.s, o.ask);
       if (o.place) push(`${p.t} ${o.w} 장소`, o.why, p.s + o.s, o.ask);
     }));
@@ -6979,8 +7062,10 @@ ${GUARD}`,
       L.push(`출처: ${src(trend)} · ${t.startMonth} ~ ${t.endMonth}${b.options && b.options.keywordsDerived ? ' · 키워드는 업종에서 자동 선택' : ''}${b.options && b.options.keywordsWeak ? ' · 업종 이름이라 범위가 넓음(참고만)' : ''}`);
       L.push(`- ${md(t.note)}`, '', '| 키워드 | 가장 높은 달 | 가장 낮은 달 | 월별 값 |', '|---|---|---|---|');
       (t.series || []).forEach((sr) => {
-        const vals = (sr.points || []).map((p) => `${p.month.slice(2)}:${has(p.ratio) ? p.ratio : '—'}`).join(' ');
-        L.push(`| ${md(sr.keyword)} | ${sr.peak ? sr.peak.month : '—'} | ${sr.low ? sr.low.month : '—'} | ${vals} |`);
+        const pv = {}; (sr.points || []).forEach((p) => { pv[String(p.month).slice(0, 7)] = p.ratio; });
+        const vals = trendMonths(t).map((mo) => `${mo.slice(2)}:${has(pv[mo]) ? pv[mo] : 0}`).join(' ');   // v3.55: 데이터랩이 뺀 달은 0
+        const lo = trendLowOf(t, sr);
+        L.push(`| ${md(sr.keyword)} | ${sr.peak ? sr.peak.month : '—'} | ${lo && lo.gaps ? `값 없는 달 ${lo.gaps}개월(검색 거의 없음)` : lo ? lo.month : '—'} | ${vals} |`);
       });
     }
     L.push('');
@@ -7014,7 +7099,7 @@ ${GUARD}`,
     const cafeNames = o && part(o.cafe) ? [...new Set((o.cafe.recent || []).map((r) => r.cafe).filter(Boolean))] : [];
     L.push(`- 동네 커뮤니티: ${!o || !part(o.cafe) ? '수집 안 됨' : cafeNames.length ? `최근 글이 올라온 카페 ${md(cafeNames.join(', '))}` : '최근 카페 글 없음'}`);
     L.push(`- 뉴스: ${news.ok ? (news.data.queries || []).map((x) => `${NEWS_LABEL[x.key] || x.key} "${md(x.q)}" ${x.error ? '수집 안 됨' : num(x.total, '건')}`).join(', ') || '—' : '수집 안 됨'}`);
-    L.push(`- 계절성: ${trend.ok ? (trend.data.series || []).map((sr) => `${md(sr.keyword)} 최고 ${sr.peak ? sr.peak.month : '—'} / 최저 ${sr.low ? sr.low.month : '—'}`).join(', ') || '—' : '수집 안 됨'}`);
+    L.push(`- 계절성: ${trend.ok ? (trend.data.series || []).map((sr) => { const lo = trendLowOf(trend.data, sr); return `${md(sr.keyword)} 최고 ${sr.peak ? sr.peak.month : '—'} / 최저 ${lo && lo.gaps ? `값 없는 달 ${lo.gaps}개월` : lo ? lo.month : '—'}`; }).join(', ') || '—' : '수집 안 됨'}`);
     const rv = state.reviews && state.reviews.data;
     const srcSum = rv ? Object.values(rv.sources || {}).filter((x) => !x.error).map((x) => `${x.label} ${x.counted}건`).join('·') : '';
     L.push(`- 손님 목소리: ${rv ? `리뷰 ${srcSum || `${rv.counted}건`} 분석, 플레이스 평점 ${rv.place && has(rv.place.rating) ? rv.place.rating : '—'}, 불만 리뷰 ${has(rv.complaintsTotal) ? rv.complaintsTotal : (rv.complaints || []).length}건 중 하이오더로 보완 가능 ${rv.hiorderCount}건${rv.praise ? `, 칭찬 리뷰 ${rv.praise.withPraise}건 중 하이오더로 더 살릴 것 ${rv.praise.hiorder}건` : ''} (9번 참고)` : '아직 리뷰를 가져오지 않음'}`);
