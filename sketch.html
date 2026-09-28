@@ -276,6 +276,21 @@ body.dropping::after{content:'묶음(.json)을 놓으면 그 매장이 열립니
 .track button.diag{border-style:dotted;cursor:default;box-shadow:none;background:transparent;color:var(--ink)}
 .track .src9{flex-basis:100%;margin-top:2px}
 @media print{#recent,.track{display:none!important}}
+/* v3.50: 13장 소상공인365 — 탭과 프레임 (화면 전용) */
+.sbtabs{display:flex;gap:7px;flex-wrap:wrap;margin-top:18px}
+.sbtabs button{font:inherit;font-size:13px;padding:7px 14px;border:1.4px solid var(--ink);border-radius:999px;background:var(--paper);color:var(--ink);cursor:pointer;box-shadow:0 1px 0 rgba(32,30,29,.25)}
+.sbtabs button:hover{background:var(--panel)}
+.sbtabs button.on{background:var(--ink);color:#fff;font-weight:600}
+.sbtabs button:disabled{border-style:dashed;color:var(--faint);box-shadow:none;cursor:default}
+.sbbox{margin-top:16px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--paper)}
+.sbbox .sbempty{padding:34px 20px;text-align:center;color:var(--sub);font-size:13px}
+.sbframe{display:block;width:100%;height:1100px;border:0;background:#fff}
+.sbframe.tall{height:2000px}
+.sbnote{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:10px;font-size:11px;color:var(--faint)}
+.sbnote a,.sbnote button{font:inherit;font-size:11px;color:var(--ink);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}
+.sbwho{margin-top:14px;padding:12px 16px;border-left:3px solid var(--accent);background:var(--panel);border-radius:0 10px 10px 0;font-size:13.5px;line-height:1.7}
+.sbwho b{font-weight:700}
+@media (max-width:660px){.sbframe{height:900px}.sbframe.tall{height:1600px}}
 .cands:empty{display:none}
 .cand{display:flex;justify-content:space-between;align-items:center;gap:16px;
   padding:16px 0;border-bottom:1px solid var(--line)}
@@ -1368,7 +1383,7 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
       <div class="name" data-sk="1" data-sk-wide="1">밑그림</div>
       <div class="tag"><span class="en">SKETCH</span><em>밑</em>천이 되는 <em>그림</em></div>
     </div>
-    <div class="ver" id="pageVer">v3.49</div>
+    <div class="ver" id="pageVer">v3.50</div>
   </div>
 
   <section class="tool" id="tool" aria-label="수집 도구">
@@ -1417,7 +1432,8 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
 
   // ▼ 배포 후 Cloudflare Worker 주소로 바꾸세요 (끝에 / 없이)
   const API_BASE = 'https://kt.roi0925003.workers.dev';
-  const PAGE_VERSION = 'v3.49';
+  const PAGE_VERSION = 'v3.50';
+  /* v3.50: 13장 소상공인365 상권분석 — 오픈 API(화면 제공형) 5종을 탭으로 (수집 서버 v1.50 /sbiz) */
   /* v3.49: 첫 문장 업종은 카카오·네이버로(상가 등록 소분류는 같은 업종 수에만) · 가족 축은 가게 쪽 신호가 있을 때만 (판단 2026-09-28) */
   /* v3.48: 첫 문장 업종 말투('카페 가게' 없앰) · 상가정보에서 못 찾은 매장은 카카오·네이버 업종으로 · 연결 끊긴 호출 한 번 더 */
   /* v3.47: 수집 서버 v1.48 — 네이버를 전화번호·브랜드·다른 이름으로 찾은 것 표시 · 업종 대체가 중분류 전체면 그렇게 적음 */
@@ -1461,7 +1477,8 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
     acts: $('#acts'), txtBtn: $('#txtBtn'), printBtn: $('#printBtn'), custBtn: $('#custBtn'), copyMsg: $('#copyMsg'),
   };
   const state = { pass:'', rvPass:'', usage:null, apiCalls:null, search:null, bundle:null, busy:false, reviews:null, apifyUsage:null,
-    reviewOpts:{ kakao:false, google:false }, kwTrend:null, kwTrendPending:'' };
+    reviewOpts:{ kakao:false, google:false }, kwTrend:null, kwTrendPending:'',
+    sbiz:null, sbizPending:false, sbizTab:'' };   // v3.50: 소상공인365 화면 주소(/sbiz) · 열어 둔 탭
 
   /* 리뷰 비밀번호는 이 브라우저에만 남는다 — 한 번 넣으면 그 PC에서는 다시 묻지 않는다 */
   const RVKEY = 'sketch.rv.pass';
@@ -1469,7 +1486,7 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
 
   const RV_LABEL = { naver:'네이버', kakao:'카카오', google:'구글', place:'플레이스 정보' };
   const KEY_LABEL = { kakao:'카카오', naver:'네이버', dataGoKr:'공공데이터포털', sgis:'SGIS',
-    bizinfo:'기업마당', bizinfoEvent:'기업마당 행사', apify:'플레이스 리뷰', google:'구글 플레이스' };
+    bizinfo:'기업마당', bizinfoEvent:'기업마당 행사', apify:'플레이스 리뷰', google:'구글 플레이스', sbiz:'소상공인365' };   // v3.50
   const LABEL = { region:'행정구역', nearby:'주변 시설', competition:'같은 업종 점포', population:'동네 인구·사업체',
     online:'온라인 언급', news:'뉴스', images:'메뉴판 사진', trend:'메뉴 검색 추이',
     notices:'지원사업 공고', events:'교육·행사', place:'플레이스 정보' };
@@ -3523,7 +3540,7 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
         <div class="lead-ref">세 · ${avgAgeRef}</div></div></div>
       <div class="b s4 top"><div class="k">${esc(admSpace(pd.admName))}</div><ul class="kwcol" style="margin-top:6px">${rest}</ul></div>
       <div class="b s12"><p class="src9">${esc(admSpace(pd.admName))} (SGIS 코드 ${esc(pd.admCd)}) · ${esc(pd.year)}년 기준${
-        pd.compareError ? ` · ${badge('warn','비교값 없음')} ${esc(pd.compareError)}` : ''}</p></div>
+        pd.compareError ? ` · ${badge('warn','비교값 없음')} ${esc(pd.compareError)}` : ''}${state.cust ? '' : ' · <a href="#sec-sbiz" class="sale">이 동네의 소상공인365 간단분석은 13장 →</a>'}</p></div>
     </div>`;
     return { html, meta: srcText(pop).toUpperCase() };
   }
@@ -3662,6 +3679,7 @@ ${GUARD}`,
     { id:'keyword', title:'네이버 플레이스 점검',        bg:'점검', render:renderKeyword },   // v3.33: 키워드 후보 → 공식 기준 점검 (id는 그대로)
     { id:'support', title:'사장님께 알려드릴 지원사업·교육', bg:'지원', render:renderSupport },
     { id:'manual',  title:'사람이 채울 것',            bg:'현장', render:renderManual },
+    { id:'sbiz',    title:'소상공인365 상권분석',        bg:'상권', render:renderSbiz },   // v3.50: 화면 전용 (오픈 API iframe)
     // v3.22: '메뉴판 사진' 장은 없앴다 — 1장 메뉴 표 왼쪽의 작은 사진으로 옮김 (renderImages 는 남겨 둔다)
   ];
 
@@ -3714,7 +3732,7 @@ ${GUARD}`,
   }
 
   /* ── 리포트 조립 — 장번호는 실제로 그려진 섹션에만 순서대로 매긴다 ── */
-  const CUST_SKIP = new Set(['quote', 'news', 'manual']);   // v3.31: 고객용 진단서에서 빼는 장 — 견적은 제안서 몫, 뉴스는 부정 기사가 섞일 수 있다 · v3.33: 플레이스 점검은 고객에게도 (영업 메모만 숨김)
+  const CUST_SKIP = new Set(['quote', 'news', 'manual', 'sbiz']);   // v3.50: 소상공인365 화면은 영업사원용   // v3.31: 고객용 진단서에서 빼는 장 — 견적은 제안서 몫, 뉴스는 부정 기사가 섞일 수 있다 · v3.33: 플레이스 점검은 고객에게도 (영업 메모만 숨김)
   function renderReport(b){
     let no = 0;
     const parts = SECTIONS.map((sd) => {
@@ -3940,7 +3958,7 @@ ${GUARD}`,
         ${mtn ? `<div class="b s12 top" style="padding-top:0">${mtn}</div>` : ''}
         ${mix.length >= 2 ? `<div class="b s12 top">${mixHTML(mix, cd.mixTotal, R)}</div>` : ''}
         ${hoodHTML(hoodOf(b), R)}
-        <div class="b s12"><p class="src9">${src}</p></div>
+        <div class="b s12"><p class="src9">${src}${state.cust ? '' : ' · <a href="#sec-sbiz" class="sale">소상공인365 공식 상권분석(매출·업력·배달)은 13장 →</a>'}</p></div>
       </div>`,
       meta: `${srcText(m).toUpperCase()} · 반경 ${dist(R)}` };
   }
@@ -4214,6 +4232,72 @@ ${GUARD}`,
       meta:'NAVER IMAGE · 화면 전용', screenOnly:true };
   }
 
+
+  /* ══════════ 13장 소상공인365 상권분석 (v3.50) ══════════
+     소상공인365 오픈 API는 원천 데이터가 아니라 화면(iframe)을 준다. 주소 5개는 연결할 때 중계 서버 /sbiz 에서 받는다 — 인증키는 서버에만
+     (매뉴얼 2026-09: 공개 금지·서버 환경 사용 권장). 지역·업종을 주소로 넘기는 값이 없어 프레임 안에서 고른다 — 매장의 행정동·업종을 위에 적어 둔다.
+     화면 전용 — 인쇄물·AI용 텍스트·고객용 진단서에는 들어가지 않는다. 누른 탭만 불러온다(5개를 한꺼번에 열면 무겁다). */
+  const SBIZ_TABS = [
+    { key:'simple',     name:'간단분석',          tip:'행정동·업종을 고르면 업소 수·매출·유동인구 요약' },
+    { key:'slsIdex',    name:'점포당 매출액 추이', tip:'같은 업종 점포 한 곳의 월 매출 흐름' },
+    { key:'stcarSttus', name:'업력현황',          tip:'개업·폐업과 영업 기간 분포' },
+    { key:'weather',    name:'창업기상도',        tip:'지역·업종의 창업 위험도' },
+    { key:'delivery',   name:'배달분석',          tip:'배달 주문 건수·시간대' },
+  ];
+  function sbizItem(key){ const sb = state.sbiz; return sb && Array.isArray(sb.items) ? (sb.items.find(x => x.key === key) || null) : null; }
+  function renderSbiz(b){
+    const s = b.store || {};
+    const reg = mod(b,'region'); const adm = reg.ok && reg.data && reg.data.admin ? reg.data.admin : null;
+    const comp = mod(b,'competition'); const cd = comp.ok ? comp.data : null;
+    const where = adm && adm.name ? admSpace(adm.name) : String(s.address || s.roadAddress || '').split(/\s+/).slice(0, 3).join(' ');
+    /* 소상공인365의 업종 고르기는 상가정보 분류(대›중›소)를 쓴다 — 상가정보에서 이 매장을 못 찾아 짐작한 소분류면 그렇게 적고, 지도 업종도 같이 둔다 */
+    const matched = Boolean(cd && cd.matched);
+    const ind = cd && cd.industry && (matched || !cd.industry.level || cd.industry.level !== 'middle') ? [cd.industry.large, cd.industry.middle, cd.industry.small].filter(Boolean).join(' › ') : '';
+    const small = cd && cd.industry ? String(cd.industry.small || cd.industry.middle || '') : '';
+    const mapCat = catLeaf(s) || naverLeaf(s).replace(/,/g, '·'); const mapSrc = catLeaf(s) ? '카카오' : (naverLeaf(s) ? '네이버' : '');
+    const sb = state.sbiz;
+    const ready = sb && sb.ok;
+    const tabs = SBIZ_TABS.map(t => { const it = sbizItem(t.key); const on = state.sbizTab === t.key && it && it.url;
+      return `<button type="button" data-sbiz="${t.key}" class="${on ? 'on' : ''}" title="${esc(t.tip)}"${it && it.url ? '' : ' disabled'}>${esc(t.name)}${it && it.url ? '' : ' (키 없음)'}</button>`; }).join('');
+    const cur = state.sbizTab ? sbizItem(state.sbizTab) : null;
+    const frame = cur && cur.url ? `<iframe class="sbframe" src="${esc(cur.url)}" title="소상공인365 ${esc(cur.name)}" referrerpolicy="no-referrer-when-downgrade" allow="fullscreen"></iframe>`
+      : `<div class="sbempty">${ready ? '위에서 탭을 누르면 소상공인365 화면이 여기에 열립니다.' : sb === null && state.sbizPending ? '중계 서버에서 주소를 받는 중입니다…'
+        : sb && sb.error ? esc(sb.error) : '중계 서버에 소상공인365 인증키가 아직 없습니다 — 변수 SBIZ_KEYS 를 넣으면 열립니다.'}</div>`;
+    const note = cur && cur.url ? `<p class="sbnote"><span>${esc(cur.name)} — 소상공인365 화면입니다. 화면 안에서 <b>지역(${esc(where) || '행정동'})</b>과 <b>업종</b>을 고르세요.</span>
+        <button type="button" data-sbiz-tall="1">${state.sbizTall ? '높이 줄이기' : '높이 늘리기'}</button>
+        <a href="${esc(cur.url)}" target="_blank" rel="noopener noreferrer">새 창에서 열기</a></p>` : '';
+    return { html: `<div class="mz">
+        <div class="b s12"><p class="deck">소상공인시장진흥공단의 공식 상권분석 화면을 여기서 바로 봅니다 — 지역을 <b>${esc(where) || '이 동네'}</b>${small ? `, 업종을 <b>${esc(small)}</b>${jo(small, '으로/로')}` : `${jo(where || '동네', '으로/로')}`} 놓고 보면 됩니다.</p>
+          <div class="sbwho">이 매장 · 행정동 <b>${esc(where) || '—'}</b>${mapCat ? ` · 지도 업종 <b>${esc(mapCat)}</b> (${esc(mapSrc)})` : ''}${ind ? ` · 소상공인365에서 고를 업종 <b>${esc(ind)}</b>${matched ? '' : ' <span class="src9">(상가정보에 이 매장이 없어 짐작한 소분류 — 화면에서 맞는 것을 고르세요)</span>'}` : ''}</div>
+          <div class="sbtabs" id="sbizTabs">${tabs}</div>
+          <div class="sbbox" id="sbizBox">${frame}</div>${note}
+          <p class="src9" style="margin-top:12px">소상공인365 오픈 API (bigdata.sbiz.or.kr) · 카드 매출·배달 자료 기반 공식 분석 · 화면 전용이라 인쇄물·코파일럿 묶음에는 들어가지 않습니다 — 필요한 화면은 캡처해서 붙이세요.${sb && sb.missing && sb.missing.length && ready ? ` · 키 없음: ${esc(sb.missing.join(', '))}` : ''}</p>
+        </div>
+      </div>`,
+      meta: '소상공인365 · 화면 전용', screenOnly: true };
+  }
+  /* 탭·높이 버튼 — 장을 다시 그리지 않고 프레임만 바꾼다 */
+  document.addEventListener('click', (e) => {
+    const tb = e.target && e.target.closest && e.target.closest('button[data-sbiz]');
+    if (tb) {
+      const it = sbizItem(tb.dataset.sbiz); if (!it || !it.url) return;
+      state.sbizTab = tb.dataset.sbiz;
+      repaintSection('sbiz');
+      const box = document.getElementById('sbizBox'); if (box) { try { box.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (_) {} }
+      return;
+    }
+    const tall = e.target && e.target.closest && e.target.closest('button[data-sbiz-tall]');
+    if (tall) { state.sbizTall = !state.sbizTall; const f = document.querySelector('#sbizBox .sbframe'); if (f) f.classList.toggle('tall', state.sbizTall); tall.textContent = state.sbizTall ? '높이 줄이기' : '높이 늘리기'; }
+  });
+  /* 주소 받기 — 연결 뒤 한 번. 옛 서버(/sbiz 없음)면 안내만 남긴다 */
+  async function loadSbiz(){
+    if (state.sbiz || state.sbizPending) return;
+    state.sbizPending = true;
+    try { const r = await api('/sbiz', { timeout: 12000 }); state.sbiz = r && Array.isArray(r.items) ? r : { ok:false, error:'중계 서버가 소상공인365 주소를 주지 않았습니다.' }; }
+    catch (e) { state.sbiz = { ok:false, error: (e && e.status === 404) ? '중계 서버가 옛 버전(v1.49 이하)이라 소상공인365 화면을 못 엽니다 — worker.js를 v1.50으로 올려 주세요.' : `중계 서버에서 소상공인365 주소를 못 받았습니다 — ${(e && e.message) || e}` }; }
+    state.sbizPending = false;
+    if (state.bundle && document.getElementById('sec-sbiz')) repaintSection('sbiz');
+  }
 
   /* ══════════ 하이오더 견적 밑그림 ══════════
      요금은 견적 계산기(cal.html v1.11)의 공식 요금표만 쓴다. 정책지원금·프로모션·프랜차이즈가는 종이에
@@ -6403,6 +6487,7 @@ ${GUARD}`,
       state.usage = s.usage || null;
       state.direct = s.direct || null;       // v3.21 (#86): 직접 수집이 살아 있는지
       paintUsage();
+      if (keys.sbiz) loadSbiz(); else state.sbiz = { ok:false, error: s.version && /v1\.(4\d|[0-3]\d)$/.test(s.version) ? '중계 서버가 옛 버전(v1.49 이하)이라 소상공인365 화면을 못 엽니다 — worker.js를 v1.50으로 올려 주세요.' : '중계 서버에 소상공인365 인증키(SBIZ_KEYS)가 아직 없습니다.' };   // v3.50
       setMsg(el.connMsg, `연결됨 · 중계 서버 ${s.version || '버전 모름'}${usageText(s.usage)}${missing ? ` · 아직 연결하지 않은 자료 ${missing}곳은 빠집니다` : ''}${verNote}`, mismatch ? 'warn' : '');
       el.login.classList.add('done');          // 팝업은 처음 한 번만
       setBusy(false);
