@@ -1368,7 +1368,7 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
       <div class="name" data-sk="1" data-sk-wide="1">밑그림</div>
       <div class="tag"><span class="en">SKETCH</span><em>밑</em>천이 되는 <em>그림</em></div>
     </div>
-    <div class="ver" id="pageVer">v3.47</div>
+    <div class="ver" id="pageVer">v3.48</div>
   </div>
 
   <section class="tool" id="tool" aria-label="수집 도구">
@@ -1417,7 +1417,8 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
 
   // ▼ 배포 후 Cloudflare Worker 주소로 바꾸세요 (끝에 / 없이)
   const API_BASE = 'https://kt.roi0925003.workers.dev';
-  const PAGE_VERSION = 'v3.47';
+  const PAGE_VERSION = 'v3.48';
+  /* v3.48: 첫 문장 업종 말투('카페 가게' 없앰) · 상가정보에서 못 찾은 매장은 카카오·네이버 업종으로 · 연결 끊긴 호출 한 번 더 */
   /* v3.47: 수집 서버 v1.48 — 네이버를 전화번호·브랜드·다른 이름으로 찾은 것 표시 · 업종 대체가 중분류 전체면 그렇게 적음 */
   /* v3.46: 2차 30곳 판단 4건 — 4곳 이하 비교는 꼴찌만 약점 · 배달 전용일 수 있는 상호 표시 · 본사 직영 브랜드 표시 · 나들이 매장은 낮 인구 배율만으로 직장인 안 붙임 */
   /* v3.45: 2차 30곳 되짚기 — 리뷰 150건 한도에 걸린 '4배 증가' · 면적 0 '소형' · 옆 가게 순위 셈 · 층 표기 · 네이버만 있는 업종 ·
@@ -1545,6 +1546,15 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
   function imgHref(u){
     const h = safeHref(u); if (h) return h;
     return (window.__DEMO__ && /^data:image\/(jpeg|png|webp|gif);base64,[A-Za-z0-9+/=]+$/.test(String(u||''))) ? String(u) : '';
+  }
+  /* v3.48: 연결 자체가 안 된 호출(fetch가 바로 실패 — 회사망·프록시 순간 끊김)만 1.5초 뒤 한 번 더. 시간 초과·서버 오류는 그대로 */
+  async function apiRetry(path, opt) {
+    try { return await api(path, opt); }
+    catch (e) {
+      if (!/연결하지 못했습니다/.test(String(e && e.message))) throw e;
+      await new Promise(r => setTimeout(r, 1500));
+      return api(path, opt);
+    }
   }
   async function api(path, { method = 'GET', body, timeout = 20000 } = {}) {
     const ctrl = new AbortController();
@@ -1883,6 +1893,26 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
   }
   /* v3.45: 카카오에 없는 매장(네이버에서만 찾음)은 네이버 업종 끝칸 — '술집>요리주점' → '요리주점' (평화로운집: 첫 문장이 '구월3동의 가게'였다) */
   function naverLeaf(st){ return String((st && st.naverCategory) || '').split('>').map(x => x.trim()).filter(Boolean).pop() || ''; }
+  /* v3.48: 첫 문장의 가게 이름 — 업종 이름 뒤에 무조건 '가게'를 붙이면 '카페 가게'·'요리주점 가게'로 겹치고, '조개 가게'·'와인 가게'는 파는 가게로 읽힌다.
+     이미 가게를 뜻하는 말(카페·식당·주점·횟집·전문점…)은 그대로, '○○음식'·'○○ 전문'은 '점'을, 짧은 음식 이름은 '집'을(국밥집·조개집·경양식집), 긴 이름은 ' 가게'를 붙인다.
+     술집 갈래의 술 이름은 '바'(와인바·칵테일바) */
+  const SHOP_TAIL = /(카페|식당|음식점|전문점|주점|술집|호프|포차|포장마차|펍|바|이자카야|횟집|빵집|베이커리|제과점|뷔페|레스토랑|다방|찻집|맛집|집|점)$/;
+  const SHOP_FIX = { '회': '횟집', '해물·생선': '해물 식당', '육류·고기': '고깃집', '와인': '와인바', '칵테일': '칵테일바', '커피': '카페' };
+  function shopName(cat, drink){
+    const c = String(cat || '').replace(/,/g, '·').replace(/\s+/g, ' ').trim();
+    if (!c) return '가게';
+    if (SHOP_FIX[c]) return SHOP_FIX[c];
+    if (SHOP_TAIL.test(c)) return c;
+    if (/(음식|전문)$/.test(c)) return c + '점';            // 인도음식점 · 베트남식 전문점
+    if (drink) return c + '바';                             // 술집의 '칵테일·와인' → 칵테일·와인바
+    if (/^[가-힣]{1,4}$/.test(c)) return c + '집';          // 국밥집 · 조개집 · 경양식집 · 죽집
+    return c + ' 가게';                                     // 김밥/만두/분식 가게 · 패스트푸드 가게
+  }
+  function idCatOf(st){
+    const k = catLeaf(st); if (k) return shopName(k, /술집/.test(String((st && st.category) || '')));
+    const n = String((st && st.naverCategory) || '').split('>').map(x => x.trim()).filter(Boolean);
+    return n.length ? shopName(n[n.length - 1], n.length > 1 && /술집|주점/.test(n[n.length - 2])) : '가게';
+  }
   function licence(b){ const L = licenceRaw(b); return L && L.trust === 'ok' ? L : null; }
   /* v3.45: 가져온 리뷰 중 가장 옛 글이 인허가일보다 두 달 넘게 먼저면 — 그 전부터 영업한 자리다(주인이 바뀌어 새로 신고했을 수 있음). '연 지 N개월'로 읽으면 안 된다 */
   function licBefore(L){
@@ -3153,30 +3183,34 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
     const peerOk = !SM0;   // v3.45: 상가 등록 업종이 다르면 옆 가게(같은 소분류) 비교·같은 건물 수를 0장 판정에 쓰지 않는다 (3장·5장엔 꼬리를 달아 둔다)
     const LB = licBefore(L);   // v3.45: 리뷰가 인허가일보다 먼저 있음
     const midAll = Boolean(cd && cd.industry && cd.industry.level === 'middle');   // v3.47: 서버 v1.48 — 소분류를 못 정해 중분류 전체로 셈
-    const small = !SM0 && cd && cd.industry && cd.industry.small && !midAll && !(!cd.matched && /^기타/.test(cd.industry.small) && kakaoCat)   // v3.42: 등록 업종이 실제와 다르면 카카오 업종   // 상가정보에서 못 찾은 '기타 ○○ 음식점'보다 카카오 업종
-      ? cd.industry.small + (cd.industry.estimated ? ' (추정)' : '') : '';
+    /* v3.48: 상가정보에서 이 매장을 못 찾아 업종을 대신 정한 경우(!matched)는 카카오·네이버 업종을 쓴다 — 대신 정한 소분류는 짐작이다
+       (와인바 → '무도 유흥 주점'으로 적혔다). v3.42의 '기타 ○○'만 카카오로 바꾸던 규칙을 넓힌 것 */
+    const small = !SM0 && cd && cd.industry && cd.industry.small && !midAll && !(!cd.matched && kakaoCat) ? cd.industry.small : '';
+    const smallTail = small && cd.industry.estimated ? ' (추정)' : '';
+    const guessSmall = !SM0 && !midAll && cd && !cd.matched && cd.industry && cd.industry.small && kakaoCat && !small
+      && String(cd.industry.small).replace(/\s/g, '') !== String(kakaoCat).replace(/\s/g, '') ? cd.industry.small : '';   // 같은 업종 수는 이 소분류로 셌다
 
     /* 1) 사실 문장 */
     const facts = [];
-    facts.push(`${dong ? `<b>${esc(dong)}</b>의 ` : ''}${small ? `<b>${esc(small)}</b> 가게` : (kakaoCat ? `<b>${esc(kakaoCat)}</b> 가게` : '가게')}`);
+    facts.push(`${dong ? `<b>${esc(dong)}</b>의 ` : ''}${small ? `<b>${esc(shopName(small))}</b>${smallTail}` : (kakaoCat ? `<b>${esc(idCatOf(s))}</b>` : '가게')}`);   // v3.48: 국밥집·카페·와인바·패스트푸드 가게
     if (L) facts.push(L.open ? `인허가 기준 <b>${esc(ageText(L))}째</b>${LB ? ` (리뷰는 ${esc(LB)}부터 — 그 전부터 영업한 자리)` : ''}` : `인허가 기록은 <b>${esc(L.state || '폐업')}</b> (${esc(L.closed || L.ymd)}) — 현장 확인 필요`);
     if (L && has(L.area) && Number(L.area) > 0) facts.push(`영업장 <b>${esc(num(Number(L.area)))}㎡</b> (약 ${esc(String(pyeong(L.area)))}평${L.floors ? ` · ${esc(floorsLabel(L.floors))}` : ''})`);
     if (cd && (cd.matched || cd.fallback) && has(cd.sameSmall && cd.sameSmall.count) && (cd.matched || Number(cd.sameSmall.count) > 0)) {   // v3.41: 업종을 못 찾아 0곳이면 쓰지 않음
       const sameB = near.filter(x => x.sameBldg).length;
-      facts.push(`반경 ${dist(R)} 안 같은 업종 <b>${esc(num(cd.sameSmall.count,'곳'))}</b>${SM0 ? ` (상가 등록 업종 ‘${esc(SM0.small)}’ 기준 — 실제 업종 ‘${esc(SM0.kakao)}’과 다름)` : midAll ? ` (${esc(cd.industry.small)} — 소분류를 못 정함)` : ''}${near[0] ? (sameB ? `, 그중 <b>같은 건물에 ${sameB}곳</b>` : (Number(near[0].distance) < 5 ? ', 가장 가까운 곳은 <b>같은 건물(같은 필지)</b>' : `, 가장 가까운 곳 <b>${esc(dist(near[0].distance))}</b>`)) : ''}`);
+      facts.push(`반경 ${dist(R)} 안 같은 업종 <b>${esc(num(cd.sameSmall.count,'곳'))}</b>${SM0 ? ` (상가 등록 업종 ‘${esc(SM0.small)}’ 기준 — 실제 업종 ‘${esc(SM0.kakao)}’과 다름)` : midAll ? ` (${esc(cd.industry.small)} — 소분류를 못 정함)` : guessSmall ? ` (상가 소분류 ‘${esc(guessSmall)}’로 셈)` : ''}${near[0] ? (sameB ? `, 그중 <b>같은 건물에 ${sameB}곳</b>` : (Number(near[0].distance) < 5 ? ', 가장 가까운 곳은 <b>같은 건물(같은 필지)</b>' : `, 가장 가까운 곳 <b>${esc(dist(near[0].distance))}</b>`)) : ''}`);
     }
     if (pd && has(pd.population)) facts.push(`동네 인구 <b>${esc(num(pd.population))}명</b>${has(pd.workerPerResident) ? `, ${esc(dayType(pd.workerPerResident))}` : ''}`);
     if (rv && counted) facts.push(`네이버 리뷰 <b>${esc(num(K.mine !== null ? K.mine : counted,'건'))}</b>${has(K.myScore) ? ` 평점 <b>${esc(String(K.myScore))}</b>` : ''}`);
     /* v3.35: 화면 첫 문단은 문장으로 (묶음·AI용은 위 facts 그대로) */
     const sents = [];
     { const idTxt = facts[0];
-      if (L && L.open) sents.push(`이 매장은 ${idTxt}로, 인허가 기준 <b>${esc(ageText(L))}째</b>입니다.${LB ? ` <span class="src9">리뷰는 ${esc(LB)}부터 있어 그 전부터 영업한 자리입니다 — 주인이 바뀌어 새로 신고했을 수 있습니다.</span>` : ''}`);
+      if (L && L.open) sents.push(`이 매장은 ${idTxt}${jo(idTxt, '으로/로')}, 인허가 기준 <b>${esc(ageText(L))}째</b>입니다.${LB ? ` <span class="src9">리뷰는 ${esc(LB)}부터 있어 그 전부터 영업한 자리입니다 — 주인이 바뀌어 새로 신고했을 수 있습니다.</span>` : ''}`);
       else if (L) sents.push(`이 매장은 ${idTxt}입니다. 인허가 기록은 <b>${esc(L.state || '폐업')}</b> (${esc(L.closed || L.ymd)})${jo(L.closed || L.ymd,'이라/라')} 현장 확인이 필요합니다.`);
       else sents.push(`이 매장은 ${idTxt}입니다.`);
       if (L && has(L.area) && Number(L.area) > 0) sents.push(`영업장은 <b>${esc(num(Number(L.area)))}㎡</b>(약 ${esc(String(pyeong(L.area)))}평${L.floors ? ` · ${esc(floorsLabel(L.floors))}` : ''})입니다.`);
       if (cd && (cd.matched || cd.fallback) && has(cd.sameSmall && cd.sameSmall.count) && (cd.matched || Number(cd.sameSmall.count) > 0)) {   // v3.41: 업종을 못 찾아 0곳이면 쓰지 않음
         const sameB = near.filter(x => x.sameBldg).length;
-        sents.push(`반경 ${dist(R)} 안 같은 업종은 <b>${esc(num(cd.sameSmall.count,'곳'))}</b>${SM0 ? ` <span class="src9">(상가 등록 업종 ‘${esc(SM0.small)}’ 기준 — 실제 업종과 다름)</span>` : midAll ? ` <span class="src9">(${esc(cd.industry.small)} — 소분류를 못 정함)</span>` : ''}${near[0] ? (sameB ? `이고, 그중 <b>같은 건물에 ${sameB}곳</b>이 있습니다.` : (Number(near[0].distance) < 5 ? '이고, 가장 가까운 곳은 <b>같은 건물(같은 필지)</b>에 있습니다.' : `이고, 가장 가까운 곳은 <b>${esc(dist(near[0].distance))}</b> 거리입니다.`)) : '입니다.'}`);
+        sents.push(`반경 ${dist(R)} 안 같은 업종은 <b>${esc(num(cd.sameSmall.count,'곳'))}</b>${SM0 ? ` <span class="src9">(상가 등록 업종 ‘${esc(SM0.small)}’ 기준 — 실제 업종과 다름)</span>` : midAll ? ` <span class="src9">(${esc(cd.industry.small)} — 소분류를 못 정함)</span>` : guessSmall ? ` <span class="src9">(상가 소분류 ‘${esc(guessSmall)}’로 셈)</span>` : ''}${near[0] ? (sameB ? `이고, 그중 <b>같은 건물에 ${sameB}곳</b>이 있습니다.` : (Number(near[0].distance) < 5 ? '이고, 가장 가까운 곳은 <b>같은 건물(같은 필지)</b>에 있습니다.' : `이고, 가장 가까운 곳은 <b>${esc(dist(near[0].distance))}</b> 거리입니다.`)) : '입니다.'}`);
       }
       if (pd && has(pd.population)) sents.push(`동네 인구는 <b>${esc(num(pd.population))}명</b>${has(pd.workerPerResident) ? `이고 ${esc(dayType(pd.workerPerResident))}입니다.` : '입니다.'}`);
       if (rv && counted) sents.push(`네이버 리뷰는 <b>${esc(num(K.mine !== null ? K.mine : counted,'건'))}</b>${has(K.myScore) ? `, 평점 <b>${esc(String(K.myScore))}</b>` : ''}입니다.`); }
@@ -6603,10 +6637,11 @@ ${GUARD}`,
          v1.32에서 인허가가 밀려 빠졌다. 옛 중계(v1.32 이하)면 /direct 가 없어도 /collect 안에 리뷰가 그대로 들어 있어 그대로 쓴다 */
       const body = { store: c, radius: Number(el.radius.value)||500, keywords: el.keywords ? el.keywords.value.split(',').map(s=>s.trim()).filter(Boolean) : [], split: true, licence: 'separate' };
       /* v3.44: 인허가는 세 번째 호출로 나란히 — /collect 한 호출에서 외부 요청 50개가 차면 마지막 차례인 인허가가 빠졌다(수집 서버 v1.46) */
+      /* v3.48: 연결 자체가 안 된 호출(순간 끊김)은 1.5초 뒤 한 번 더 — 3차 백테스트에서 /direct·/localdata 가 한 번씩 이 사유로 빠졌다 */
       const [colRes, dirRes, locRes] = await Promise.allSettled([
-        api('/collect', { method: 'POST', body, timeout: 90000 }),
-        api('/direct', { method: 'POST', body: { store: c, radius: body.radius }, timeout: 90000 }),
-        api('/localdata', { method: 'POST', body: { store: c }, timeout: 60000 }),
+        apiRetry('/collect', { method: 'POST', body, timeout: 90000 }),
+        apiRetry('/direct', { method: 'POST', body: { store: c, radius: body.radius }, timeout: 90000 }),
+        apiRetry('/localdata', { method: 'POST', body: { store: c }, timeout: 60000 }),
       ]);
       if (colRes.status === 'rejected') throw colRes.reason;
       const bundle = colRes.value; bundle.modules = bundle.modules || {};
