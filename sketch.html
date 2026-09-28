@@ -284,13 +284,15 @@ body.dropping::after{content:'묶음(.json)을 놓으면 그 매장이 열립니
 .sbtabs button:disabled{border-style:dashed;color:var(--faint);box-shadow:none;cursor:default}
 .sbbox{margin-top:16px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--paper)}
 .sbbox .sbempty{padding:34px 20px;text-align:center;color:var(--sub);font-size:13px}
-.sbframe{display:block;width:100%;height:1100px;border:0;background:#fff}
-.sbframe.tall{height:2000px}
+/* v3.51: 프레임은 1:1로 — 페이지 배율(1080p 169%)이 걸린 채로는 사이트가 좁다고 보고 모바일 배치로 바뀌고 세로로 길어진다. 높이는 JS가 창 높이에 맞춘다 */
+.sbframe{display:block;width:100%;height:700px;border:0;background:#fff;zoom:calc(1/var(--zoom,1))}
+.sbframe:fullscreen{width:100%;height:100%}
+.sbnote .primary{font-weight:700;color:var(--accent-ink)}
 .sbnote{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:10px;font-size:11px;color:var(--faint)}
-.sbnote a,.sbnote button{font:inherit;font-size:11px;color:var(--ink);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}
+.sbnote a,.sbnote button{font:inherit;font-size:11px;color:var(--ink);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;white-space:nowrap}
 .sbwho{margin-top:14px;padding:12px 16px;border-left:3px solid var(--accent);background:var(--panel);border-radius:0 10px 10px 0;font-size:13.5px;line-height:1.7}
 .sbwho b{font-weight:700}
-@media (max-width:660px){.sbframe{height:900px}.sbframe.tall{height:1600px}}
+@media (max-width:660px){.sbframe{height:700px}}
 .cands:empty{display:none}
 .cand{display:flex;justify-content:space-between;align-items:center;gap:16px;
   padding:16px 0;border-bottom:1px solid var(--line)}
@@ -1383,7 +1385,7 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
       <div class="name" data-sk="1" data-sk-wide="1">밑그림</div>
       <div class="tag"><span class="en">SKETCH</span><em>밑</em>천이 되는 <em>그림</em></div>
     </div>
-    <div class="ver" id="pageVer">v3.50</div>
+    <div class="ver" id="pageVer">v3.51</div>
   </div>
 
   <section class="tool" id="tool" aria-label="수집 도구">
@@ -1432,7 +1434,8 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
 
   // ▼ 배포 후 Cloudflare Worker 주소로 바꾸세요 (끝에 / 없이)
   const API_BASE = 'https://kt.roi0925003.workers.dev';
-  const PAGE_VERSION = 'v3.50';
+  const PAGE_VERSION = 'v3.51';
+  /* v3.51: 13장 프레임을 1:1·창 높이에 맞춤 + 전체 화면 버튼 — 위 칩과 아래 막대가 한 화면에 */
   /* v3.50: 13장 소상공인365 상권분석 — 오픈 API(화면 제공형) 5종을 탭으로 (수집 서버 v1.50 /sbiz) */
   /* v3.49: 첫 문장 업종은 카카오·네이버로(상가 등록 소분류는 같은 업종 수에만) · 가족 축은 가게 쪽 신호가 있을 때만 (판단 2026-09-28) */
   /* v3.48: 첫 문장 업종 말투('카페 가게' 없앰) · 상가정보에서 못 찾은 매장은 카카오·네이버 업종으로 · 연결 끊긴 호출 한 번 더 */
@@ -4260,11 +4263,12 @@ ${GUARD}`,
     const tabs = SBIZ_TABS.map(t => { const it = sbizItem(t.key); const on = state.sbizTab === t.key && it && it.url;
       return `<button type="button" data-sbiz="${t.key}" class="${on ? 'on' : ''}" title="${esc(t.tip)}"${it && it.url ? '' : ' disabled'}>${esc(t.name)}${it && it.url ? '' : ' (키 없음)'}</button>`; }).join('');
     const cur = state.sbizTab ? sbizItem(state.sbizTab) : null;
-    const frame = cur && cur.url ? `<iframe class="sbframe" src="${esc(cur.url)}" title="소상공인365 ${esc(cur.name)}" referrerpolicy="no-referrer-when-downgrade" allow="fullscreen"></iframe>`
+    if (cur && cur.url) setTimeout(fitSbiz, 0);   // v3.51: 그려진 뒤 창 높이에 맞춘다
+    const frame = cur && cur.url ? `<iframe class="sbframe" src="${esc(cur.url)}" title="소상공인365 ${esc(cur.name)}" referrerpolicy="no-referrer-when-downgrade" allow="fullscreen" allowfullscreen></iframe>`
       : `<div class="sbempty">${ready ? '위에서 탭을 누르면 소상공인365 화면이 여기에 열립니다.' : sb === null && state.sbizPending ? '중계 서버에서 주소를 받는 중입니다…'
         : sb && sb.error ? esc(sb.error) : '중계 서버에 소상공인365 인증키가 아직 없습니다 — 변수 SBIZ_KEYS 를 넣으면 열립니다.'}</div>`;
-    const note = cur && cur.url ? `<p class="sbnote"><span>${esc(cur.name)} — 소상공인365 화면입니다. 화면 안에서 <b>지역(${esc(where) || '행정동'})</b>과 <b>업종</b>을 고르세요.</span>
-        <button type="button" data-sbiz-tall="1">${state.sbizTall ? '높이 줄이기' : '높이 늘리기'}</button>
+    const note = cur && cur.url ? `<p class="sbnote"><span>${esc(cur.name)} — 화면 안에서 <b>지역(${esc(where) || '행정동'})</b>과 <b>업종</b>을 고르고 아래 파란 막대를 펼치면 리포트가 나옵니다.</span>
+        <button type="button" class="primary" data-sbiz-full="1">전체 화면 (Esc로 돌아옴)</button>
         <a href="${esc(cur.url)}" target="_blank" rel="noopener noreferrer">새 창에서 열기</a></p>` : '';
     return { html: `<div class="mz">
         <div class="b s12"><p class="deck">소상공인시장진흥공단의 공식 상권분석 화면을 여기서 바로 봅니다 — 지역을 <b>${esc(where) || '이 동네'}</b>${small ? `, 업종을 <b>${esc(small)}</b>${jo(small, '으로/로')}` : `${jo(where || '동네', '으로/로')}`} 놓고 보면 됩니다.</p>
@@ -4283,12 +4287,24 @@ ${GUARD}`,
       const it = sbizItem(tb.dataset.sbiz); if (!it || !it.url) return;
       state.sbizTab = tb.dataset.sbiz;
       repaintSection('sbiz');
-      const box = document.getElementById('sbizBox'); if (box) { try { box.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (_) {} }
+      fitSbiz();
+      const tabs = document.getElementById('sbizTabs'); if (tabs) { try { tabs.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (_) {} }   // 탭 줄부터 프레임 끝까지 한 화면
       return;
     }
-    const tall = e.target && e.target.closest && e.target.closest('button[data-sbiz-tall]');
-    if (tall) { state.sbizTall = !state.sbizTall; const f = document.querySelector('#sbizBox .sbframe'); if (f) f.classList.toggle('tall', state.sbizTall); tall.textContent = state.sbizTall ? '높이 줄이기' : '높이 늘리기'; }
+    const full = e.target && e.target.closest && e.target.closest('button[data-sbiz-full]');
+    if (full) {
+      const f = document.querySelector('#sbizBox .sbframe'); if (!f) return;
+      let p = null; try { p = f.requestFullscreen ? f.requestFullscreen() : null; } catch (_) { p = null; }
+      Promise.resolve(p || Promise.reject(new Error('no fullscreen'))).catch(() => { const it = sbizItem(state.sbizTab); if (it && it.url) window.open(it.url, '_blank', 'noopener'); });   // 전체 화면이 막힌 브라우저면 새 창
+    }
   });
+  /* v3.51: 프레임 높이를 창 높이에 맞춘다 — 프레임은 1:1(zoom 1/배율)로 그리므로 창의 px를 그대로 쓴다. 위 칩과 아래 막대가 한 화면에 들어온다 */
+  function fitSbiz(){
+    const f = document.querySelector('#sbizBox .sbframe'); if (!f || document.fullscreenElement) return;
+    f.style.height = `${Math.max(520, Math.round(innerHeight - 110))}px`;
+  }
+  window.addEventListener('resize', () => { clearTimeout(fitSbiz._t); fitSbiz._t = setTimeout(fitSbiz, 120); });
+  document.addEventListener('fullscreenchange', () => setTimeout(fitSbiz, 50));
   /* 주소 받기 — 연결 뒤 한 번. 옛 서버(/sbiz 없음)면 안내만 남긴다 */
   async function loadSbiz(){
     if (state.sbiz || state.sbizPending) return;
