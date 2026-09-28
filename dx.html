@@ -91,6 +91,19 @@ a{color:inherit}
 .bview img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 .pvnote{position:absolute;right:28px;bottom:24px;padding:8px 16px;border-radius:999px;background:rgba(32,30,29,.7);color:#fff;font-size:18px}
 /* 화면 왼쪽 위 모서리 — 시연 중에만 눌린다. 무대 밖(화면 기준)에 두어 어떤 화면비에서도 모서리에 붙는다 */
+/* 이전·다음 버튼 — 화면 가장자리 가운데. 시연·영상 위에 떠 있어서 그 위에서도 눌린다 (v1.01) */
+.navbtn{position:fixed;top:50%;z-index:58;width:56px;height:56px;margin:-28px 0 0;padding:0;border-radius:50%;border:1px solid rgba(255,255,255,.24);background:rgba(32,30,29,.34);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:0 6px 22px rgba(32,30,29,.16);display:grid;place-items:center;cursor:pointer;opacity:.62;transition:opacity .4s var(--ease),background-color .25s,transform .25s var(--ease);-webkit-tap-highlight-color:transparent}
+.navbtn svg{width:24px;height:24px;fill:none;stroke:#fff;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.nb-prev{left:16px}.nb-next{right:16px}
+.navbtn:hover{opacity:1;background:rgba(32,30,29,.58)}
+.navbtn:active{transform:scale(.93)}
+.navbtn:focus-visible{outline:2px solid var(--red);outline-offset:3px}
+html.nav-idle .navbtn:not(:hover){opacity:0}
+html.is-black .navbtn{opacity:0;pointer-events:none}
+.navbtn.off{opacity:0!important;visibility:hidden;pointer-events:none}
+@media (max-width:760px),(max-height:500px){.navbtn{width:40px;height:40px;margin-top:-20px}.navbtn svg{width:18px;height:18px}.nb-prev{left:8px}.nb-next{right:8px}}
+@media print{.navbtn{display:none}}
+html,body{overscroll-behavior:none}
 .hot{position:fixed;left:0;top:0;width:48px;height:48px;z-index:60;border:0;padding:0;margin:0;background:transparent;opacity:0;pointer-events:none;cursor:default}
 html.demo-on .hot{pointer-events:auto}
 html.demo-on body{background:var(--demo-bg,#000)}
@@ -399,7 +412,7 @@ video.store{display:block;width:100%;height:100%;object-fit:cover;-webkit-mask-i
         <h1 class="ctitle in" style="--d:2">DX를 파는<br>사람의 DX</h1>
         <div class="crule in" style="--d:4"></div>
         <p class="csub in" style="--d:5">kt-synergy.com과 밑그림</p>
-        <p class="cby in" style="--d:7">기획·채널운영파트 이대희 과장<span class="ver">v1.00</span></p>
+        <p class="cby in" style="--d:7">기획·채널운영파트 이대희 과장<span class="ver">v1.01</span></p>
       </div>
       <div class="art"><video class="store" id="vCover" muted playsinline preload="auto" aria-hidden="true"></video></div>
     </section>
@@ -687,6 +700,8 @@ video.store{display:block;width:100%;height:100%;object-fit:cover;-webkit-mask-i
     <div class="black"></div>
   </div>
 </div>
+<button class="navbtn nb-prev" id="nbPrev" type="button" tabindex="-1" aria-label="이전"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg></button>
+<button class="navbtn nb-next" id="nbNext" type="button" tabindex="-1" aria-label="다음"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 5.5 16 12l-6.5 6.5"/></svg></button>
 <button class="hot" id="hot" type="button" tabindex="-1" aria-label="발표로 돌아가기"></button>
 <div class="help" id="help" aria-hidden="true">
   <b>→ 스페이스 엔터</b><span>다음 순서 (리모컨 PageDown도 같음)</span><br>
@@ -703,7 +718,8 @@ video.store{display:block;width:100%;height:100%;object-fit:cover;-webkit-mask-i
 <script>
 (() => {
   const MODE = 'site';                  // site: kt-synergy.com 에 올리는 판 · preview: 미리보기
-  const STORE = 'https://kt-synergy.com/sketch_hero.mp4';                // 가게 그림 영상 주소 (site 판)
+  const STORE = 'https://kt-synergy.com/sketch_hero.mp4';
+  const POPUP = /[?&]popup=1(&|$)/.test(location.search);   // 홈페이지 '밑그림 소개' 팝업 안에서 열렸을 때                // 가게 그림 영상 주소 (site 판)
   const stage = document.getElementById('stage');
   const vp = document.getElementById('viewport');
   const slides = [...stage.querySelectorAll('.slide')];
@@ -775,7 +791,14 @@ video.store{display:block;width:100%;height:100%;object-fit:cover;-webkit-mask-i
         const w = f.contentWindow, d = w && w.document;
         if (!d || d.URL === 'about:blank' || d.__deckHook) return;
         d.__deckHook = true;
-        w.addEventListener('keydown', e => { if (e.key === 'Escape') leaveDemo(); }, true);
+        w.addEventListener('keydown', e => {
+          if (e.key === 'Escape') { leaveDemo(); return; }
+          if (e.altKey || e.ctrlKey || e.metaKey) return;
+          const t = e.target, typing = t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName || ''));
+          if (typing) return;
+          if (e.key === 'PageDown' || e.key === 'ArrowRight') { e.preventDefault(); e.stopPropagation(); fromDemo(next); }
+          else if (e.key === 'PageUp' || e.key === 'ArrowLeft') { e.preventDefault(); e.stopPropagation(); fromDemo(prev); }
+        }, true);
         w.addEventListener('pointerdown', () => { f.__armed = true; }, true);
       } catch (e) {}
     };
@@ -819,13 +842,17 @@ video.store{display:block;width:100%;height:100%;object-fit:cover;-webkit-mask-i
     try { window.focus(); } catch (e) {}
     if (slides[i].querySelector('.demo.on')) { demoClosed = true; render(false); }
   }
+  /* 시연 페이지 안에 가 있던 키보드를 발표 쪽으로 되찾아 온 뒤 넘긴다 */
+  function fromDemo(go){ try { const a = document.activeElement; if (a && a !== document.body) a.blur(); } catch (e) {} try { window.focus(); } catch (e) {} go(); }
+  /* 팝업 안에서 Esc — 홈페이지에 팝업을 닫아 달라고 알린다 */
+  function askClose(){ try { window.parent.postMessage({ type: 'dx-close' }, '*'); } catch (e) {} }
   document.getElementById('hot').addEventListener('click', e => { e.stopPropagation(); leaveDemo(); });
   /* 시연 페이지가 스스로 초점을 가져가면(자동 초점 등) 발표 쪽으로 되돌린다. 발표자가 그 안을 직접 누른 뒤에만 키보드를 넘긴다 */
   addEventListener('blur', () => setTimeout(() => {
     const a = document.activeElement;
     if (!a || a.tagName !== 'IFRAME') return;
     let same = true; try { void a.contentWindow.document.URL; } catch (e) { same = false; }
-    if (!a.closest('.demo.on') || (same && !a.__armed)) { try { a.blur(); } catch (e) {} try { window.focus(); } catch (e) {} }
+    if (!a.closest('.demo.on') || a.closest('.vfull') || (same && !a.__armed)) { try { a.blur(); } catch (e) {} try { window.focus(); } catch (e) {} }
   }, 0));
   if (MODE === 'site') stage.querySelectorAll('.pvnote, .vposter').forEach(n => n.remove());
 
@@ -860,6 +887,7 @@ video.store{display:block;width:100%;height:100%;object-fit:cover;-webkit-mask-i
       if (s.id === 's15') setTimeout(() => playUntil(vClose, HOLD, null), 500);
       else { vClose.pause(); try { if (vClose.readyState) vClose.currentTime = HOLD; } catch (e) {} }
     }
+    paintNav();
     try { history.replaceState(null, '', '#' + s.id); } catch (e) {}
   }
   const maxStep = s => +(s.dataset.steps || 0);
@@ -867,6 +895,25 @@ video.store{display:block;width:100%;height:100%;object-fit:cover;-webkit-mask-i
   function prev(){ demoClosed = false; if (step > 0) { step--; render(false); } else if (i > 0) { i--; step = maxStep(slides[i]); render(true); } }
   /* 장 단위 이동: 앞 장으로 갈 땐 다 펼친 상태로, 뒤 장으로 갈 땐 처음부터 */
   function goSlide(k, atEnd){ demoClosed = false; i = Math.max(0, Math.min(slides.length - 1, k)); step = atEnd ? maxStep(slides[i]) : 0; render(true); }
+  /* 이전·다음 버튼 — 팝업에서는 늘 보이고, 직접 열어 발표할 때는 마우스를 3초 안 움직이면 숨는다(버튼 자리에 올리면 다시 보임) */
+  const nbPrev = document.getElementById('nbPrev'), nbNext = document.getElementById('nbNext'), rootEl = document.documentElement;
+  [[nbPrev, () => prev()], [nbNext, () => next()]].forEach(([b, go]) => {
+    b.addEventListener('mousedown', e => e.preventDefault());      // 버튼이 초점을 가져가지 않게 — 스페이스·엔터가 두 번 먹지 않도록
+    b.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); fromDemo(go); wake(); });
+  });
+  function paintNav(){
+    nbPrev.classList.toggle('off', i === 0 && step === 0);
+    nbNext.classList.toggle('off', i === slides.length - 1 && step >= maxStep(slides[i]));
+  }
+  let idleT = 0;
+  function wake(){
+    if (POPUP) return;
+    rootEl.classList.remove('nav-idle'); clearTimeout(idleT);
+    idleT = setTimeout(() => rootEl.classList.add('nav-idle'), 3000);
+  }
+  if (POPUP) rootEl.classList.add('in-popup');
+  else { addEventListener('pointermove', wake, { passive: true }); addEventListener('pointerdown', wake, { passive: true }); wake(); }
+
   const help = document.getElementById('help');
   let num = '', numT = 0;
   addEventListener('keydown', e => {
@@ -885,10 +932,15 @@ video.store{display:block;width:100%;height:100%;object-fit:cover;-webkit-mask-i
       if (document.fullscreenElement) { const r = document.exitFullscreen(); if (r && r.catch) r.catch(() => {}); }
       else if (d.requestFullscreen) { const r = d.requestFullscreen(); if (r && r.then) r.then(() => { if (kb && kb.lock) kb.lock(['Escape']).catch(() => {}); }).catch(() => {}); }
     }
-    else if (k === 'b' || k === 'B' || k === '.') stage.classList.toggle('blackout');
+    else if (k === 'b' || k === 'B' || k === '.') { stage.classList.toggle('blackout'); document.documentElement.classList.toggle('is-black', stage.classList.contains('blackout')); }
     else if (k === 'k' || k === 'K') { const v = slides[i].querySelector('.vfull.on video'); if (v && v.getAttribute('src')) { if (v.paused || v.muted) { v.muted = false; const q = v.play(); if (q && q.catch) q.catch(() => {}); } else v.pause(); } }
     else if (k === '?' || k === '/') help.classList.toggle('show');
-    else if (k === 'Escape') { if (help.classList.contains('show')) help.classList.remove('show'); else leaveDemo(); }
+    else if (k === 'Escape') {
+      if (help.classList.contains('show')) help.classList.remove('show');
+      else if (slides[i].querySelector('.demo.on')) leaveDemo();
+      else if (POPUP) askClose();
+      else leaveDemo();
+    }
   });
   document.addEventListener('fullscreenchange', () => { const kb = navigator.keyboard; if (!document.fullscreenElement && kb && kb.unlock) kb.unlock(); });
 
