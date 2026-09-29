@@ -1534,6 +1534,223 @@ svg.trend.rib path.now{stroke:var(--sub)}
 .nlist .d.bld{color:var(--accent,#EC3013);font-weight:600}
 .mapbox{cursor:pointer}
 @media print{.maplines{display:none}#skRow .b.s5{grid-column:1/-1;border-left:0;padding-left:0}}
+/* v3.56: 3장 옆 가게 가격표와 견주기 */
+.pcw .pcv{font-size:16px;margin:4px 0 0}
+.pcw .pcv b{font-weight:800}
+.pcw .pck{margin-top:18px}
+.pcw .k small,.pcm .k small{font-weight:500;color:var(--faint);margin-left:6px;font-size:10.5px}
+.pcw .pk2{margin-top:30px}
+.pno{flex:none;display:inline-block;width:20px;height:20px;border-radius:50%;border:1.5px solid #201E1D;font-size:11px;font-weight:700;line-height:17px;text-align:center;color:#201E1D;background:#fff;font-style:normal;vertical-align:middle}
+.pno.fill{border-style:dashed}
+.pno.me{width:12px;height:12px;margin:0 4px;border:0;background:var(--accent)}
+/* 가격표 한눈에 — 가게 한 줄, 점 하나가 메뉴 하나 */
+.pcs{margin-top:4px}
+.pr{display:grid;grid-template-columns:168px minmax(0,1fr) 62px;column-gap:12px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line)}
+.pr:last-child{border-bottom:0}
+.pr .pl{display:flex;align-items:center;gap:8px;min-width:0}
+.pr .pn{display:block;min-width:0}
+.pr .pn b{display:block;font-size:12.5px;font-weight:700;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pr .pn small{display:block;font-size:10px;color:var(--faint);line-height:1.4;margin-top:1px}
+.pr .pn small em{font-style:normal;font-weight:700;color:var(--ink)}
+.pr .pn small em.up{color:var(--accent-ink,#AE1800)}
+.pr .pt{position:relative;height:20px}
+.pr .pt::before{content:'';position:absolute;left:0;right:0;top:50%;height:1px;background:var(--line)}
+.pr .pt u{position:absolute;top:0;bottom:0;width:1px;background:#F0F0F2;text-decoration:none}
+.pr .pt i{position:absolute;top:4px;width:2px;height:12px;margin-left:-1px;background:rgba(32,30,29,.42);border-radius:1px}
+.pr .pt b{position:absolute;top:50%;width:11px;height:11px;margin:-5.5px 0 0 -5.5px;border-radius:50%;background:#201E1D;box-shadow:0 0 0 2px #fff}
+.pr.me .pt i{background:rgba(236,48,19,.55)}
+.pr.me .pt b{background:var(--accent)}
+.pr.me .pn b{color:var(--accent-ink,#AE1800)}
+.pr .pm{text-align:right;font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.pr .pm small{display:block;font-size:9px;font-weight:500;color:var(--faint);line-height:1.2}
+.pr.me .pm{color:var(--accent-ink,#AE1800)}
+.pr.pax{border-bottom:0;padding:2px 0 0}
+.pr.pax .pt{height:14px}
+.pr.pax .pt::before{display:none}
+.pr.pax .pt span{position:absolute;top:0;transform:translateX(-50%);font-size:9.5px;color:var(--faint);white-space:nowrap}
+.pr.pax .pt span.l0{transform:none}
+.pr.pax .pt span.l1{transform:translateX(-100%)}
+/* 메뉴별 표 */
+.tbl.pct{font-size:12px;margin-top:2px;table-layout:fixed}
+.tbl.pct th,.tbl.pct td{padding:7px 3px;text-align:right;vertical-align:middle;width:auto}
+.tbl.pct thead th{font-size:10px;font-weight:600;color:var(--sub);border-bottom:1.5px solid var(--ink);padding-bottom:6px;text-align:right}
+.tbl.pct .mn{text-align:left;width:auto;color:var(--ink);font-weight:500;word-break:keep-all;line-height:1.4}
+.tbl.pct thead .mn{color:var(--sub)}
+.tbl.pct .mine{width:62px;font-weight:800;color:var(--ink)}
+.tbl.pct thead .mine{color:var(--accent-ink,#AE1800)}
+.tbl.pct .nb{width:52px;color:var(--sub);text-align:center}
+.tbl.pct thead .nb{text-align:center}
+.tbl.pct .nb.no{color:#C7C7CC}
+.tbl.pct .nb.near{color:var(--faint)}
+.tbl.pct .nbr{display:none;width:86px}
+.tbl.pct .df{width:66px;font-weight:700;white-space:nowrap}
+.tbl.pct .df.up{color:var(--accent-ink,#AE1800)}
+.tbl.pct .df.dn{color:var(--ink)}
+.tbl.pct .df.eq{color:var(--faint)}
+.tbl.pct td i{display:block;font-style:normal;font-size:9px;font-weight:500;color:var(--faint);line-height:1.2;margin-top:1px}
+.tbl.pct .ne{font-size:9.5px;font-weight:500;color:var(--faint);white-space:normal}
+.tbl.pct .bdg{font-size:9px;padding:0 4px;vertical-align:1px}
+.pcm tr.more,.pcm li.more{display:none}
+.pcm.open tr.more{display:table-row}
+.pcm.open li.more{display:list-item}
+.pcm.open .pchip li.more{display:inline-flex}
+.pcx{display:block;margin:8px 0 0;padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;font:inherit;font-size:11.5px;font-weight:600;color:var(--sub);cursor:pointer}
+.pcx:hover{color:var(--ink);border-color:#C7C7CC}
+.pcpr{display:none}
+/* 이 매장에만 · 옆 가게에만 */
+.pc2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:22px;margin-top:26px}
+.pc2>.pcm:only-child{grid-column:1/-1}
+.pchip{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:5px}
+.pchip li{display:inline-flex;align-items:baseline;gap:4px;padding:3px 8px;border:1px solid var(--line);border-radius:12px;font-size:11.5px;line-height:1.4;background:#fff}
+.pchip li b{font-weight:700;font-variant-numeric:tabular-nums}
+.pchip li span{font-size:10px;color:var(--faint)}
+/* 옆 가게 가격표 전체 (접힘) */
+.pcacc{margin-top:22px;border-top:1px solid var(--line)}
+.pcg{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px 22px}
+.pcc .pch{display:flex;flex-wrap:wrap;align-items:center;gap:4px 7px;margin:0 0 6px;font-size:12.5px}
+.pcc .pch small{flex-basis:100%;font-size:10px;color:var(--faint)}
+.pcl{list-style:none;margin:0;padding:0}
+.pcl li{display:flex;justify-content:space-between;gap:8px;padding:3px 0;border-bottom:1px dotted var(--line);font-size:11.5px}
+.pcl li span{min-width:0}
+.pcl li b{font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+.pcl li[data-same] span{font-weight:700}
+@media (max-width:660px){
+  .pr{grid-template-columns:minmax(0,1fr) 62px;row-gap:3px}
+  .pr .pl{grid-column:1/2}
+  .pr .pt{grid-column:1/-1;grid-row:2}
+  .pr .pm{grid-column:2;grid-row:1}
+  .pr.pax .pl,.pr.pax .pm{display:none}
+  .pr.pax .pt{grid-row:1}
+  .tbl.pct .nb{display:none}
+  .tbl.pct .nbr{display:table-cell;width:96px;white-space:nowrap;font-size:11px}
+  .tbl.pct .mine{width:58px}
+  .tbl.pct .df{width:60px}
+  .pc2,.pcg{grid-template-columns:minmax(0,1fr)}
+  .pc2>.pcm+.pcm{margin-top:22px}
+}
+@media print{
+  .pcx{display:none!important}
+  .pcm:not(.open) .pcpr{display:block;font-size:9px;color:var(--faint);margin-top:4px}
+  .pcacc{display:none}
+  .pr,.tbl.pct tr,.pchip li{break-inside:avoid;page-break-inside:avoid}
+  .pr.me .pt i{background:rgba(32,30,29,.7)}
+  .pr.me .pt b,.pno.me{background:#201E1D;border-color:#201E1D}
+}
+/* v3.56: 3장 옆 가게와 견주기 — 머리 · 메뉴판 · 편의시설 · 리뷰 · 영업시간 · 영업 메모 */
+.cxhd .deck{font-size:17px;margin-top:2px}
+.cxleg{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:6px 16px}
+.cxleg li{display:inline-flex;align-items:center;gap:6px;font-size:12.5px}
+.cxleg li b{font-weight:700}
+.cxleg li small{font-size:10px;color:var(--faint)}
+.cxs .cxv,.pcw .pcv{font-size:15.5px;margin:4px 0 14px;line-height:1.55}
+.cxs .cxv b{font-weight:800}
+.pk3{margin-top:24px}
+.pk3 small,.cxs .k small{font-weight:500;color:var(--faint);margin-left:6px;font-size:10.5px}
+/* 가게 줄 표 (메뉴판 · 리뷰) */
+.tbl.cxt{font-size:12px;table-layout:fixed}
+.tbl.cxt th,.tbl.cxt td{padding:7px 4px;vertical-align:middle;width:auto}
+.tbl.cxt thead th{font-size:10px;font-weight:600;color:var(--sub);border-bottom:1.5px solid var(--ink);padding-bottom:6px}
+.tbl.cxt .cxn{width:34%;text-align:left}
+.tbl.cxt .cxn .pno{margin-right:7px}
+.tbl.cxt .cxn span{font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle;display:inline-block;max-width:calc(100% - 30px)}
+.tbl.cxt .n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tbl.cxt td.n small{font-size:9.5px;color:var(--faint);margin-left:3px}
+.tbl.cxt td.faint{color:#C7C7CC}
+.tbl.cxt tr.me td{background:rgba(236,48,19,.05)}
+.tbl.cxt tr.me .cxn span{color:var(--accent-ink,#AE1800)}
+.tbl.cxt td.top{font-weight:800}
+.cxbar{display:inline-block;width:34px;height:4px;border-radius:2px;background:var(--line);margin-right:6px;vertical-align:middle;position:relative;overflow:hidden}
+.cxbar i{position:absolute;left:0;top:0;bottom:0;background:#6E6E73}
+tr.me .cxbar i{background:var(--accent)}
+.cxpop{list-style:none;margin:0;padding:0}
+.cxpop li{display:grid;grid-template-columns:22px 110px minmax(0,1fr);gap:8px;align-items:baseline;padding:6px 0;border-bottom:1px dotted var(--line);font-size:12px}
+.cxpop li b{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cxpop li .pv{color:var(--sub)}
+.cxpop .pno.me{margin:0 4px}
+/* 편의시설 · 결제 · 네이버 기능 — ● 있음 */
+.cxwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tbl.cxa{font-size:12px;table-layout:fixed;min-width:300px}
+.tbl.cxa th,.tbl.cxa td{padding:5px 2px;vertical-align:middle;width:auto}
+.tbl.cxa thead th{font-size:10px;font-weight:600;color:var(--sub);border-bottom:1.5px solid var(--ink);padding-bottom:6px}
+.tbl.cxa .cxn{width:34%;text-align:left;color:var(--ink);font-weight:500}
+.tbl.cxa .c{text-align:center;width:40px;color:#C7C7CC;font-size:11px}
+.tbl.cxa .c.on{color:var(--ink);font-size:13px}
+.tbl.cxa .c.un{color:#D8D8DC}
+.tbl.cxa .c.me{background:rgba(236,48,19,.05)}
+.tbl.cxa thead .c.me{color:var(--accent-ink,#AE1800);font-size:10px}
+.tbl.cxa .c.me.on{color:var(--accent-ink,#AE1800)}
+.tbl.cxa .cnt{width:52px;text-align:right;color:var(--faint);font-size:10.5px;font-variant-numeric:tabular-nums}
+.tbl.cxa tr.grp td{padding:12px 0 4px;font-size:10px;font-weight:700;color:var(--sub);letter-spacing:.02em;border-bottom:1px solid var(--line)}
+.tbl.cxa tbody tr.grp:first-child td{padding-top:6px}
+/* 가격과 리뷰를 한 판에 */
+.cxsc{position:relative;height:230px;margin:8px 8px 0 8px;border-left:1px solid var(--line);border-bottom:1px solid var(--line);background:linear-gradient(to right,transparent calc(50% - .5px),transparent calc(50% + .5px))}
+.cxsc .cxq{position:absolute;font-size:9.5px;color:#B0B0B5;letter-spacing:-.01em}
+.cxsc .cxq.tl{left:8px;top:6px}.cxsc .cxq.tr{right:8px;top:6px}.cxsc .cxq.bl{left:8px;bottom:6px}.cxsc .cxq.br{right:8px;bottom:6px}
+.cxsc .cxgv{position:absolute;top:0;bottom:0;width:0;border-left:1px dashed rgba(236,48,19,.45)}
+.cxsc .cxgh{position:absolute;left:0;right:0;height:0;border-top:1px dashed rgba(236,48,19,.45)}
+.cxsc .cxtk{position:absolute;bottom:-18px;transform:translateX(-50%);font-size:9px;color:var(--faint)}
+.cxsc .cxp{position:absolute;width:22px;height:22px;margin:0 0 -11px -11px;border-radius:50%;border:1.5px solid #201E1D;background:#fff;font-size:11px;font-weight:700;line-height:19px;text-align:center;color:#201E1D;z-index:2}
+.cxsc .cxp.med{border-style:dashed}
+.cxsc .cxp.me{width:14px;height:14px;margin:0 0 -7px -7px;border:2px solid #fff;background:var(--accent);box-shadow:0 0 0 1px rgba(236,48,19,.5);z-index:3}
+.cxsc .cxme{position:absolute;transform:translate(10px,50%);font-size:10.5px;font-weight:800;color:var(--accent-ink,#AE1800);white-space:nowrap;z-index:3}
+.cxax{display:flex;justify-content:space-between;margin:22px 8px 0;font-size:10px;color:var(--faint)}
+.cxax span:nth-child(2){color:var(--accent-ink,#AE1800);font-weight:700}
+/* 영업시간 — 06시부터 다음 날 06시까지 */
+.cxh{margin-top:2px}
+.cxh .hr{display:grid;grid-template-columns:132px minmax(0,1fr) 196px;column-gap:12px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
+.cxh .hr:last-child{border-bottom:0}
+.cxh .hl{display:flex;align-items:center;gap:7px;min-width:0}
+.cxh .hl b{font-size:12px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cxh .hr.me .hl b{color:var(--accent-ink,#AE1800)}
+.cxh .ht{position:relative;height:14px;background:repeating-linear-gradient(90deg,transparent 0 calc(12.5% - 1px),#EFEFF1 calc(12.5% - 1px) 12.5%);border-radius:2px}
+.cxh .ht i{position:absolute;top:2px;bottom:2px;background:#6E6E73;border-radius:2px}
+.cxh .hr.me .ht i{background:var(--accent)}
+.cxh .ht u{position:absolute;top:1px;bottom:1px;background:#fff;text-decoration:none;border-left:1px dotted #9A9AA0;border-right:1px dotted #9A9AA0}
+.cxh .ht em{position:absolute;left:0;top:0;font-size:10px;font-style:normal;color:var(--faint);line-height:14px}
+.cxh .hx{font-size:11px;color:var(--sub);line-height:1.45}
+.cxh .hx small{display:block;font-size:9.5px;color:var(--faint)}
+.cxh .hr.hax{border-bottom:0;padding-top:2px}
+.cxh .hr.hax .ht{background:none;height:12px}
+.cxh .hr.hax .ht span{position:absolute;top:0;transform:translateX(-50%);font-size:9px;color:var(--faint)}
+.cxh .hr.hax .ht span:first-child{transform:none}
+.cxh .hr.hax .ht span:last-child{transform:translateX(-100%)}
+/* 영업 메모 — 옆 가게와 견주어 말하기 */
+.cxtalk{margin-top:18px;padding-top:16px;border-top:1px solid rgba(32,30,29,.12)}
+.cxtalk .cxk{margin:14px 0 6px;font-size:12px;font-weight:800;color:var(--ink)}
+.cxtalk .cxk small{font-weight:500;color:var(--faint);margin-left:6px;font-size:10.5px}
+.cxtalk .mrows .mp q{display:block;quotes:none;color:var(--ink);font-weight:600}
+.cxtalk .mrows.good .mp::before{content:none}
+.cxtalk .mrows.good .mp q{display:inline}
+.cxtalk .mrows .mp q:not(:first-child){margin-top:5px;font-weight:500}
+.cxqs{list-style:none;margin:0;padding:0}
+.cxqs li{padding:8px 0;border-top:1px solid rgba(32,30,29,.08);font-size:13px;line-height:1.6}
+.cxqs li:first-child{border-top:0;padding-top:2px}
+.cxqs li q{quotes:none;font-weight:700;color:var(--ink)}
+.cxqs li span{display:block;font-size:10px;color:var(--faint);margin-top:2px}
+@media (max-width:660px){
+  .cxh .hr{grid-template-columns:minmax(0,1fr);row-gap:4px}
+  .cxh .hr.hax .hl,.cxh .hr.hax .hx{display:none}
+  .tbl.cxt .cxn{width:30%}
+  .tbl.cxt td.n small{display:none}
+  .cxbar{display:none}
+  .cxpop li{grid-template-columns:22px minmax(0,1fr);row-gap:2px}
+  .cxpop li .pno{grid-column:1;grid-row:1 / span 2}
+  .cxpop li b,.cxpop li .pv{grid-column:2}
+  .tbl.cxt td.n{white-space:normal;font-size:11.5px}
+  .cxsc{height:210px}
+  .cxleg{gap:6px 12px}
+}
+@media print{
+  .cxwrap{overflow:visible}
+  .cxh .hr,.tbl.cxt tr,.tbl.cxa tr,.cxpop li,.cxqs li{break-inside:avoid;page-break-inside:avoid}
+  .cxsc{break-inside:avoid;page-break-inside:avoid}
+  .tbl.cxt tr.me td,.tbl.cxa .c.me{background:none}
+  .cxh .hr.me .ht i,.cxsc .cxp.me,tr.me .cxbar i{background:#201E1D}
+  .cxtalk{break-inside:auto;page-break-inside:auto}
+  #rx-comp{break-inside:auto;page-break-inside:auto}      /* 옆 가게와 견주어 말하기가 붙어 한 쪽보다 길다 — 줄 단위로 넘긴다 */
+  #rx-comp .mrows li,#rx-comp .mh{break-inside:avoid;page-break-inside:avoid}
+  #rx-comp .cxk,#rx-comp .cxtalk>.mk{break-after:avoid;page-break-after:avoid}
+}
 /* v3.21 (#73): 네이버 지도는 CSS zoom 아래에서 좌표와 화면이 어긋난다 — 지도 상자만 배율을 되돌리고 크기는 배율만큼 키운다 */
 .tbl.menu{width:100%;border-collapse:collapse;font-size:12.5px}.tbl.menu td{padding:3px 0;border-bottom:1px dotted var(--rule,#DCDCE1)}.tbl.menu .n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 .tbl.bands{width:100%;border-collapse:collapse;font-size:13px;margin:4px 0 6px}.tbl.bands th,.tbl.bands td{padding:5px 0;border-bottom:1px solid var(--rule,#DCDCE1);text-align:left}.tbl.bands .n{text-align:right;font-variant-numeric:tabular-nums}.tbl.bands tr.hot td{color:var(--accent,#EC3013);font-weight:700}
@@ -1691,8 +1908,8 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
       <form class="trow" id="searchForm" autocomplete="off">
         <div class="tf grow"><span class="tl">매장 찾기</span>
           <input id="q" type="search" maxlength="60" placeholder="상호와 동네 — 예: 우대포 명동" aria-label="상호와 동네" required></div>
-        <div class="tf w96"><span class="tl">매장 기준 반경</span>
-          <select id="radius" aria-label="매장 기준 반경">
+        <div class="tf w96"><span class="tl">반경</span>
+          <select id="radius" aria-label="조사 반경">
             <option value="300">300m</option><option value="500" selected>500m</option><option value="1000">1km</option>
           </select></div>
         <button class="tbtn" id="searchBtn" type="submit">검색</button>
@@ -1733,7 +1950,7 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
   // ▼ 배포 후 Cloudflare Worker 주소로 바꾸세요 (끝에 / 없이)
   const API_BASE = 'https://kt.roi0925003.workers.dev';
   const PAGE_VERSION = 'v3.56';
-  /* v3.56: 첫 화면 '반경' → '매장 기준 반경' · 0장 첫 문장 주어 '이 매장은' → 매장명 + 은/는 (받침으로 고름 · 이름이 없으면 그대로 '이 매장은') */
+  /* v3.56: 3장 옆 가게와 견주기 — 가격표(메뉴 전체) · 메뉴판 · 편의시설·결제 · 리뷰·인기 · 영업시간 + 영업 메모(칭찬 → 꺼내는 말 → 하이오더) · 수집 서버 v1.52 */
   /* v3.55: 메뉴 옆 사진(깨진 사진·엉뚱한 사진) · 강점·아쉬운 점 글자 크기 · 검색 추이 그래프(달 자리·곡선) · 검색어 후보 '지역 주차' */
   /* v3.54: 연필 동그라미가 1장 숫자 칸의 글자를 줄이고 줄을 바꾸던 것 · 2장 손님 목소리 연출(늦게 도착해도 제 칸이 오면 재생) */
   /* v3.53: 1장 영업 기간 — 동네에서 몇 번째로 오래된 가게인가(동네 상위 N%) · 수집 서버 v1.51 hood.older */
@@ -1758,7 +1975,7 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
      브랜드 업종칸 · 업종 못 찾은 0곳 문장 · 0m 이웃 · 동네 인허가 0·0 · 구글 다른 매장 · 못 찾은 매장 안내 · 10장 인쇄 ·
      회전 유형은 업종이 먼저(국밥·피자가 긴 체류로 나오던 것) · 같은 업종을 못 센 매장에 '사실상 이 집'을 내지 않음 ·
      옆 가게 평점 비교 기준을 ±0.1로 통일 */
-  const WORKER_VERSION = 'v1.51';   // v3.53: 동네 순위(hood.older)는 v1.51부터   // 이 페이지와 짝이 되는 worker.js 버전 (이보다 낮으면 경고)
+  const WORKER_VERSION = 'v1.52';   // v3.56: 옆 가게와 견주기(rank.neighbors[].menu · self)는 v1.52부터 · v3.53: 동네 순위(hood.older)는 v1.51부터   // 이 페이지와 짝이 되는 worker.js 버전 (이보다 낮으면 경고)
   /* 직원 공개용 토큰 — 비밀번호가 아닙니다. 소스 보기로 누구나 볼 수 있습니다.
      중계 서버의 PUBLIC_PASS와 같은 값이어야 하고, 남이 긁는 게 보이면
      양쪽을 같이 바꿔서 다시 올리면 됩니다. 리뷰는 이 토큰으로 부를 수 없습니다. */
@@ -3770,7 +3987,8 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
   /* 상권 눈금 — 이웃 매장(네이버 목록)의 리뷰 수·평점과 견준다 */
   function rankModel(b){
     const rv = state.reviews && state.reviews.data ? state.reviews.data : null;
-    const rk = mod(b,'rank'); const nbs = rk.ok && rk.data ? (rk.data.neighbors||[]).filter(x => has(x.reviews)) : [];
+    const rk = mod(b,'rank'); const cset = cmpSetOf(b);   // v3.56: 수집 서버 v1.52면 '옆 가게와 견주기'와 같은 가게로 센다 — 한 장 안에서 순위가 어긋나지 않게
+    const nbs = cset ? cset.filter(x => has(x.reviews)) : rk.ok && rk.data ? (rk.data.neighbors||[]).filter(x => has(x.reviews)) : [];
     const pl = rv && rv.sources && rv.sources.naver && rv.sources.naver.place ? rv.sources.naver.place : (rv && rv.place) || null;
     const mine = pl && has(pl.total) ? Number(pl.total) : null;
     const myScore = pl && has(pl.rating) ? Number(pl.rating) : (rv && has(rv.ratingAvg) && ratedCount(rv) >= RATING_MIN ? Number(rv.ratingAvg) : null);   // v3.41
@@ -4005,6 +4223,7 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
     const items = rxItems(id, b); if (!items.length && !RX_FOOT[id]) return '';
     return `<div class="memo" id="rx-${id}"><div class="mh"><b>영업 메모</b><span>이 장에서 읽은 것 → 할 일 · 규칙으로 판정 · 고객용 진단서에는 나오지 않습니다</span></div>
       ${items.length ? `<ol class="mrows">${items.map(x => `<li><span class="md">${x.d}</span><span class="mp">${x.p}</span></li>`).join('')}</ol>` : ''}
+      ${id === 'comp' ? cmpTalkHTML(b) : ''}
       ${RX_FOOT[id] ? `<p class="mfoot"><a href="#sec-sbiz">${esc(RX_FOOT[id])} → 13장 (크게 보기)</a></p>` : ''}</div>`;
   }
   /* 리뷰가 나중에 오면(Apify 대체) 제안도 다시 — 장 머리 바로 아래 */
@@ -4074,13 +4293,9 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
     /* v3.35: 화면 첫 문단은 문장으로 (묶음·AI용은 위 facts 그대로) */
     const sents = [];
     { const idTxt = facts[0];
-      /* v3.56: 첫 문장 주어는 매장명 — 받침 보고 은/는 (만복집은 · 우대포는). 끝에 붙은 괄호(지점명 등)는 조사 고를 때 뺀다. 이름이 없으면 '이 매장은' */
-      const who0 = String(s.name || '').trim();
-      const whoJo = who0 ? jo(who0.replace(/\s*[(\[][^()\[\]]*[)\]]$/, '') || who0, '은/는') : '';
-      const whoSub = who0 ? `${esc(who0)}${whoJo}` : '이 매장은';
-      if (L && L.open) sents.push(`${whoSub} ${idTxt}${jo(idTxt, '으로/로')}, 인허가 기준 <b>${esc(ageText(L))}째</b>입니다.${LB ? ` <span class="src9">리뷰는 ${esc(LB)}부터 있어 그 전부터 영업한 자리입니다 — 주인이 바뀌어 새로 신고했을 수 있습니다.</span>` : ''}`);
-      else if (L) sents.push(`${whoSub} ${idTxt}입니다. 인허가 기록은 <b>${esc(L.state || '폐업')}</b> (${esc(L.closed || L.ymd)})${jo(L.closed || L.ymd,'이라/라')} 현장 확인이 필요합니다.`);
-      else sents.push(`${whoSub} ${idTxt}입니다.`);
+      if (L && L.open) sents.push(`이 매장은 ${idTxt}${jo(idTxt, '으로/로')}, 인허가 기준 <b>${esc(ageText(L))}째</b>입니다.${LB ? ` <span class="src9">리뷰는 ${esc(LB)}부터 있어 그 전부터 영업한 자리입니다 — 주인이 바뀌어 새로 신고했을 수 있습니다.</span>` : ''}`);
+      else if (L) sents.push(`이 매장은 ${idTxt}입니다. 인허가 기록은 <b>${esc(L.state || '폐업')}</b> (${esc(L.closed || L.ymd)})${jo(L.closed || L.ymd,'이라/라')} 현장 확인이 필요합니다.`);
+      else sents.push(`이 매장은 ${idTxt}입니다.`);
       if (L && has(L.area) && Number(L.area) > 0) sents.push(`영업장은 <b>${esc(num(Number(L.area)))}㎡</b>(약 ${esc(String(pyeong(L.area)))}평${L.floors ? ` · ${esc(floorsLabel(L.floors))}` : ''})입니다.`);
       if (cd && (cd.matched || cd.fallback) && has(cd.sameSmall && cd.sameSmall.count) && (cd.matched || Number(cd.sameSmall.count) > 0)) {   // v3.41: 업종을 못 찾아 0곳이면 쓰지 않음
         const sameB = near.filter(x => x.sameBldg).length;
@@ -4834,6 +5049,722 @@ ${GUARD}`,
       meta: `${srcText(m).toUpperCase()} · 반경 ${dist(R)}` };
   }
 
+  /* ══ v3.56: 옆 가게 가격표와 견주기 (3장) — 수집 서버 v1.52가 옆 가게(같은 업종 가까운 곳)의 네이버 메뉴·가격을 싣는다 ══
+     같은 메뉴: 원산지·수식어(국내산·생·숙성·초벌 …)와 양(g)·크기·온도 표시를 뗀 이름이 같은 메뉴.
+       '물/비빔냉면'은 물냉면·비빔냉면 둘로 본다. 양(g)이 둘 다 적혀 있으면 100g당 값으로, 인분이 둘 다 다르면 1인분 값으로 견준다.
+     비슷한 메뉴(≈): 한쪽 이름이 다른 쪽 이름 끝에 붙은 경우(된장찌개 ↔ 촌된장찌개) — 보여 주되 견줌 수에는 넣지 않는다 */
+  const PM_MAX = 5;                      // 견주는 옆 가게 수
+  const PM_SHOW = 10;                    // 목록은 10개까지 펼쳐 두고 나머지는 ▼
+  const pmPrice = (v) => { const n = Number(v); return Number.isFinite(n) && n >= 100 && n < 10000000 ? Math.round(n) : null; };
+  const PM_SYM = /[\p{Extended_Pictographic}️‍★☆♥♡♣♠◆◇■□●○◎※✔✓✨❤️]/gu;
+  const PM_SIZE = { '대':'L','특':'L','특대':'L','왕':'L','l':'L','라지':'L','점보':'L','large':'L','big':'L','곱빼기':'L','大':'L',
+    '중':'M','m':'M','r':'M','레귤러':'M','미디움':'M','미디엄':'M','보통':'M','regular':'M','medium':'M','中':'M',
+    '소':'S','s':'S','스몰':'S','하프':'S','small':'S','小':'S' };
+  const PM_TEMP = { 'hot':'H','핫':'H','따뜻한':'H','ice':'I','iced':'I','아이스':'I','차가운':'I','onlyice':'I' };
+  const PM_DROP = new Set(['new','best','추천','인기','대표','강추','필수','베스트','신메뉴','한정','점심','런치','특선','점심특선','런치특선','사장님추천','시그니처','오늘의','메뉴','단품','only']);
+  const PM_MODS = ['국내산','국산','수입산','미국산','호주산','캐나다산','칠레산','스페인산','멕시코산','브라질산','뉴질랜드산','제주산','수제','특제','명품','원조','옛날','전통','정통',
+    '시그니처','프리미엄','초벌','저온숙성','숙성','드라이에이징','웻에이징','1등급','한돈','무항생제','신메뉴','오리지널','직화','참숯','숯불','연탄'];
+  const PM_MEAT = /^(삼겹|오겹|목살|갈비|등심|안심|항정|갈매기|가브리|차돌|안창|토시|살치|막창|곱창|대창|닭|양념|소고기|돼지)/;
+  const PM_FIX = [[/찌게/g,'찌개'],[/까스/g,'가스'],[/카츠/g,'가스'],[/라테/g,'라떼'],[/쥬스/g,'주스'],[/떡뽁이/g,'떡볶이'],[/육계장/g,'육개장'],[/케잌/g,'케이크'],[/공깃밥/g,'공기밥'],[/후라이드/g,'프라이드']];
+  const PM_SYN = new Map(Object.entries({
+    '공기밥':'공기밥','밥':'공기밥','흰쌀밥':'공기밥','쌀밥':'공기밥','햇반':'공기밥',
+    '콜라':'콜라','코카콜라':'콜라','코크':'콜라','펩시':'콜라','펩시콜라':'콜라','제로콜라':'콜라',
+    '사이다':'사이다','칠성사이다':'사이다','스프라이트':'사이다',
+    '음료':'음료','음료수':'음료','탄산':'음료','탄산음료':'음료','캔음료':'음료','음료류':'음료',
+    '소주':'소주','참이슬':'소주','참이슬후레쉬':'소주','처음처럼':'소주','진로':'소주','진로이즈백':'소주','새로':'소주','좋은데이':'소주','대선':'소주','한라산':'소주','c1':'소주','소주류':'소주',
+    '맥주':'맥주','병맥주':'맥주','카스':'맥주','카스후레쉬':'맥주','테라':'맥주','켈리':'맥주','하이트':'맥주','클라우드':'맥주','한맥':'맥주','맥주류':'맥주',
+    '생맥주':'생맥주','생맥':'생맥주','드래프트':'생맥주',
+    '막걸리':'막걸리','생막걸리':'막걸리','장수막걸리':'막걸리','지평막걸리':'막걸리',
+    '냉삼':'냉동삼겹살','냉동삼겹':'냉동삼겹살','냉동삼겹살':'냉동삼겹살','삼겹':'삼겹살','오겹':'오겹살',
+    '돼지갈비':'돼지갈비','양념돼지갈비':'돼지갈비','돼지양념갈비':'돼지갈비',
+    '돈가스':'돈가스','돈까쓰':'돈가스','돈카쯔':'돈가스',
+    '짜장':'짜장면','짜장면':'짜장면','자장면':'짜장면','물냉':'물냉면','비냉':'비빔냉면',
+    '아메리카노':'아메리카노','카페아메리카노':'아메리카노','카페라떼':'카페라떼','라떼':'카페라떼',
+    '프라이드':'프라이드치킨','프라이드치킨':'프라이드치킨','계란찜':'계란찜','달걀찜':'계란찜','계란말이':'계란말이','달걀말이':'계란말이',
+  }));
+  const PM_HEAD = /(냉면|막국수|칼국수|쌀국수|국수|우동|라면|라멘|짬뽕|짜장면|볶음밥|덮밥|비빔밥|김밥|주먹밥|찌개|전골|국밥|탕|죽|치킨|피자|버거|샌드위치|토스트|돈가스|스테이크|파스타|리조또|샐러드|구이|볶음|찜|튀김|무침|말이|떡볶이|순대|만두|수육|보쌈|족발|초밥|라떼|에이드|스무디|주스|커피|아메리카노|케이크|빙수|하이볼|맥주|소주|막걸리)$/;
+  const PM_TYPE = /탕|찌개|전골|국밥|국수|냉면|라면|우동|볶음밥|볶음|덮밥|비빔밥|구이|찜|튀김|무침|정식|세트|도시락|김밥|샐러드|버거|피자|파스타|스튜|죽|조림|쌈밥|수육|보쌈|순대|만두|떡볶이|추가|사리|토핑|곱빼기/;
+  const PM_BARE = /^(구이|찜|탕|볶음|튀김|전골|세트|정식|모둠|한판|요리|고기)$/;
+  const PM_ICE_OK = /(아메리카노|카페라떼|라떼|모카|마끼아또|카푸치노|콜드브루|초코|커피)$/;
+  const PM_KNUM = { '한':1, '반':0.5, '두':2, '세':3, '네':4 };
+  /* 이름 하나 → { core, g, ml, ppl, size, temp, cnt, cu } */
+  function pmKey(name){
+    let s = String(name || '').normalize('NFC').toLowerCase().replace(PM_SYM, ' ');
+    const at = { g:null, ml:null, ppl:null, size:'', temp:'', cnt:null, cu:'' };
+    let m;
+    if ((m = /(\d+(?:[.,]\d+)?)\s*(kg|㎏|g|그램|그람)(?![a-z가-힣])/i.exec(s))) at.g = Number(m[1].replace(',', '.')) * (/k|㎏/i.test(m[2]) ? 1000 : 1);
+    else if ((m = /(한|반|\d+(?:\.\d+)?)\s*근(?![가-힣])/.exec(s))) at.g = (PM_KNUM[m[1]] || Number(m[1])) * 600;
+    if ((m = /(\d+(?:[.,]\d+)?)\s*(ml|㎖|cc|l|ℓ|리터)(?![a-z가-힣])/i.exec(s))) at.ml = Number(m[1].replace(',', '.')) * (/^(l|ℓ|리터)$/i.test(m[2]) ? 1000 : 1);
+    if ((m = /(\d+)\s*인\s*(분|용|세트|이상)?(?![가-힣])/.exec(s)) || (m = /(\d+)\s*인(?=세트|분)/.exec(s))) at.ppl = Number(m[1]);
+    if ((m = /(\d+|한|반|두|세|네)\s*(마리|조각|피스|pcs|개입|개|알|줄|판|접시|병|잔|캔)(?![가-힣a-z])/.exec(s))) { at.cnt = PM_KNUM[m[1]] || Number(m[1]); at.cu = m[2]; }
+    /* 괄호 안은 속성만 읽고 버린다 — (국내산)·(ONLY ICE)·[점심특선] */
+    const inner = []; s = s.replace(/\(([^)]*)\)|\[([^\]]*)\]|\{([^}]*)\}|<([^>]*)>|【([^】]*)】/g, (_, a, b2, c, d, e) => { inner.push(a || b2 || c || d || e || ''); return ' '; });
+    const tokOf = (t) => t.replace(/\s+/g, '');
+    inner.forEach(t => { const k = tokOf(t); if (PM_SIZE[k] && !at.size) at.size = PM_SIZE[k]; if (PM_TEMP[k] && !at.temp) at.temp = PM_TEMP[k]; });
+    s = s.replace(/(\d+(?:[.,]\d+)?)\s*(kg|㎏|g|그램|그람|ml|㎖|cc|l|ℓ|리터)(?![a-z가-힣])/gi, ' ').replace(/(한|반|\d+(?:\.\d+)?)\s*근(?![가-힣])/g, ' ')
+      .replace(/(\d+)\s*인\s*(분|용|이상)?(?![가-힣])/g, ' ').replace(/(\d+|한|반|두|세|네)\s*(마리|조각|피스|pcs|개입|개|알|줄|판|접시|병|잔|캔)(?![가-힣a-z])/g, ' ')
+      .replace(/1\s*\+\+|1\s*\+|\d\s*등급/g, ' ');
+    const toks = s.split(/[\s,·•\-_~!?.:;'"`+&*#@%^=|\\/]+/).filter(Boolean).filter(t => {
+      if (PM_SIZE[t]) { if (!at.size) at.size = PM_SIZE[t]; return false; }
+      if (PM_TEMP[t]) { if (!at.temp) at.temp = PM_TEMP[t]; return false; }
+      return !PM_DROP.has(t) && !PM_MODS.includes(t);
+    });
+    let core = toks.join('').replace(/\d+/g, '').replace(/[^가-힣a-z]/g, '');
+    for (let i = 0; i < 4; i++) {                         // 앞에 붙은 수식어를 떼어 낸다 — 국내산숙성삼겹살 → 삼겹살 (연탄구이처럼 남는 게 조리법뿐이면 떼지 않는다)
+      const mod = PM_MODS.find(x => core.startsWith(x) && core.length - x.length >= 2 && !PM_BARE.test(core.slice(x.length)));
+      if (mod) { core = core.slice(mod.length); continue; }
+      if (/^생/.test(core) && PM_MEAT.test(core.slice(1))) { core = core.slice(1); continue; }
+      break;
+    }
+    PM_FIX.forEach(([re, to]) => { core = core.replace(re, to); });
+    if (/^아이스/.test(core) && PM_ICE_OK.test(core.slice(3))) { core = core.slice(3); at.temp = at.temp || 'I'; }
+    if (/^핫/.test(core) && PM_ICE_OK.test(core.slice(1)) && !/초코$/.test(core)) { core = core.slice(1); at.temp = at.temp || 'H'; }
+    core = PM_SYN.get(core) || core;
+    return { core, ...at };
+  }
+  /* '물/비빔냉면' → 물냉면·비빔냉면, '김치찌개/된장찌개' → 둘, '콜라/사이다' → 둘 */
+  function pmVariants(name){
+    const raw = String(name || '');
+    const parts = raw.split(/\s*[\/／]\s*/).map(x => x.trim()).filter(Boolean);
+    if (parts.length < 2) return [raw];
+    const lastCore = pmKey(parts[parts.length - 1]).core;
+    const hm = PM_HEAD.exec(lastCore); const head = hm ? hm[1] : '';
+    return parts.map((p, i) => {
+      if (i === parts.length - 1 || !head) return p;
+      const c = pmKey(p).core;
+      return c && !PM_HEAD.test(c) && c.length <= 4 ? `${p}${head}` : p;
+    }).filter(p => pmKey(p).core.length >= 1);
+  }
+  function pmEntry(nm, price, extra){
+    const vars = pmVariants(nm).map(v => pmKey(v)).filter(k => k.core);
+    return Object.assign({ name: String(nm || ''), price: pmPrice(price), keys: vars.length ? vars : [pmKey(nm)] }, extra || {});
+  }
+  /* 두 이름의 사이 — 'same' · 'near' · null */
+  const PM_NEAR = [['음료','콜라','사이다','제로콜라'],['맥주','생맥주'],['냉면','물냉면','비빔냉면']];
+  function pmRel(a, b){
+    if (!a.core || !b.core) return null;
+    if (a.core === b.core) return 'same';
+    if (PM_NEAR.some(g => g.includes(a.core) && g.includes(b.core))) return 'near';
+    const [s, l] = a.core.length <= b.core.length ? [a.core, b.core] : [b.core, a.core];
+    const i = l.indexOf(s); if (i < 0) return null;
+    const after = l.slice(i + s.length);
+    if (!after) return s.length >= 2 ? 'near' : null;
+    return s.length >= 3 && !PM_TYPE.test(after) ? 'near' : null;
+  }
+  /* 두 메뉴를 어떻게 견줄지 — 양이 둘 다 적혀 있으면 100g당, 인분·개수가 둘 다 다르면 하나당 */
+  function pmPair(ka, pa, kb, pb){
+    if (ka.size && kb.size && ka.size !== kb.size) return null;
+    if (ka.temp && kb.temp && ka.temp !== kb.temp) return null;
+    if (ka.g && kb.g) return { a: pa / ka.g * 100, b: pb / kb.g * 100, mode: 'g' };
+    if (ka.ml && kb.ml && ka.ml !== kb.ml) return { a: pa / ka.ml * 100, b: pb / kb.ml * 100, mode: 'ml' };
+    if (ka.ppl && kb.ppl && ka.ppl !== kb.ppl) return { a: pa / ka.ppl, b: pb / kb.ppl, mode: 'ppl' };
+    if (ka.cnt && kb.cnt && ka.cu === kb.cu && ka.cnt !== kb.cnt) return { a: pa / ka.cnt, b: pb / kb.cnt, mode: 'cnt' };
+    if (Boolean(ka.ppl) !== Boolean(kb.ppl) || Boolean(ka.size) !== Boolean(kb.size)) return null;   // 인분·크기가 한쪽에만 — 비슷한 메뉴로
+    return { a: pa, b: pb, mode: '', loose: Boolean(ka.g) !== Boolean(kb.g) };                        // 양(g)이 한쪽에만 — 값끼리 견주되 표시
+  }
+  /* 내 메뉴 하나와 옆 가게 한 곳 — 가장 잘 맞는 메뉴 하나 */
+  function pmBest(me, list){
+    let best = null;
+    for (const it of list) {
+      me.keys.forEach((ka, vi) => { for (const kb of it.keys) {
+        const rel = pmRel(ka, kb); if (!rel) continue;
+        const pair = me.price && it.price ? pmPair(ka, me.price, kb, it.price) : null;
+        const lvl = rel === 'same' && (pair || !me.price || !it.price) ? 2 : 1;       // 크기·온도가 다르면 비슷한 메뉴로
+        const gap = ka.g && kb.g ? Math.abs(ka.g - kb.g) : 0;
+        const score = lvl * 1000 - gap / 10 - Math.abs(ka.core.length - kb.core.length) - vi * 0.5;
+        if (!best || score > best.score) best = { it, rel: lvl === 2 ? 'same' : 'near', pair: lvl === 2 ? pair : null, score, kb };
+      } });
+    }
+    return best;
+  }
+  const pmMed = (a) => { const v = a.filter(x => Number.isFinite(x)).slice().sort((x, y) => x - y); if (!v.length) return null; const h = Math.floor(v.length / 2); return v.length % 2 ? v[h] : (v[h - 1] + v[h]) / 2; };
+  /* ══ v3.56: 3장 옆 가게와 견주기 — 가격표 · 메뉴판 · 편의시설·결제 · 리뷰·인기 · 영업시간 (수집 서버 v1.52 rank)
+     옆 가게: 상가정보의 가까운 같은 업종을 네이버에서 찾은 곳(번호는 3장 지도와 같다) · 가격표가 모자라면 네이버 목록의 가까운 같은 업종(글자 A·B)
+     자료는 모두 가게가 네이버 플레이스에 올린 것 — 옆 가게 리뷰는 새로 읽지 않는다(네이버 부담) ══ */
+  const CMP_MAX = 5;
+  const CMP_DAYS = ['월', '화', '수', '목', '금', '토', '일'];
+  const OPT_CANON = [['주차', /^주차|주차\s?가능/], ['발렛파킹', /발렛/], ['예약', /^예약(\s?가능)?$/], ['단체 이용 가능', /단체/], ['대기공간', /대기/], ['포장', /^포장(\s?가능)?$/], ['배달', /^배달(\s?가능)?$/],
+    ['무선 인터넷', /무선|와이파이|wi-?fi/i], ['남/녀 화장실 구분', /화장실/], ['유아의자', /유아\s?의자|아기\s?의자/], ['유아시설 (놀이방)', /놀이방|유아시설/], ['반려동물 동반', /반려/],
+    ['휠체어 이용', /휠체어|장애인/], ['방문접수/출장', /출장|방문접수/], ['간편결제', /간편결제/], ['제로페이', /제로페이/], ['지역화폐', /지역화폐|지역\s?상품권|온누리/]];
+  const OPT_PAY = new Set(['간편결제', '제로페이', '지역화폐']);
+  const CMP_TOOLS = [['booking', '네이버 예약'], ['coupon', '네이버 쿠폰'], ['talk', '톡톡 문의'], ['npay', '네이버페이'], ['table', '테이블 주문 (네이버)'], ['pickup', '포장·미리 주문 (네이버)']];
+  function cmpOpts(str){
+    const out = new Set();
+    String(str || '').split(/[,·]/).map(s => s.trim()).filter(Boolean).forEach(t => { const c = OPT_CANON.find(([, re]) => re.test(t)); out.add(c ? c[0] : t); });
+    return out;
+  }
+  const cmpToolsOf = (x) => ({ booking: Boolean(x.hasBooking), coupon: Number(x.coupons) > 0, talk: Boolean(x.talk), npay: Boolean(x.npay),
+    table: Boolean(x.order && x.order.table), pickup: Boolean(x.order && (x.order.pickup || x.order.pre)) });
+  /* 이 매장 영업시간 — 네이버(정보 탭, 수집 서버 v1.52)가 먼저, 없으면 카카오맵 */
+  function cmpMyHours(pd, P){
+    if (pd && pd.naverHours && Array.isArray(pd.naverHours.week) && pd.naverHours.week.length) return { week: pd.naverHours.week, src: '네이버' };
+    if (!P || (!P.hours.length && !P.closed.length)) return null;
+    const br = /(\d{1,2}:\d{2})\s*[~\-–]\s*(\d{1,2}:\d{2})/.exec(P.breakTime || '');
+    const lo = (/(\d{1,2}:\d{2})/.exec(P.lastOrder || '') || [])[1] || '';
+    const week = [];
+    CMP_DAYS.forEach((d, i) => {
+      if (P.closed.includes(d)) { week.push({ d: i, off: 1 }); return; }
+      const h = P.hours.find(x => x.day === d);
+      if (h && h.open && h.close) week.push({ d: i, o: h.open, c: h.close, b: br ? [`${br[1]}-${br[2]}`] : [], lo });
+    });
+    return week.length ? { week, src: '카카오맵' } : null;
+  }
+  /* 견줄 가게 — 가격표 있는 곳을 가까운 순으로 먼저(5곳까지), 모자라면 네이버에서 찾은 나머지(가까운 순, 채운 곳 제외).
+     리뷰 비교(rankModel)도 이 가게들로 센다 — 한 장 안에서 '몇 곳 중 몇 위'가 어긋나지 않게 */
+  function cmpSetOf(b){
+    const rk = mod(b, 'rank'); if (!rk.ok || !rk.data) return null;
+    const nbs = (rk.data.neighbors || []).filter(x => x && x.name);
+    if (!nbs.length || !nbs.some(x => 'menu' in x || 'opts' in x)) return null;          // 수집 서버 v1.51 이하
+    const d = (x) => (has(x.distance) ? Number(x.distance) : 1e9);
+    const byD = nbs.slice().sort((a, c) => d(a) - d(c));
+    const withP = byD.filter(x => x.menu && x.menu.ok).slice(0, CMP_MAX);
+    const rest = byD.filter(x => !withP.includes(x) && !x.fill);
+    return withP.concat(rest.slice(0, Math.max(0, CMP_MAX - withP.length))).sort((a, c) => d(a) - d(c));
+  }
+  function cmpModel(b){
+    const rk = mod(b, 'rank'); if (!rk.ok || !rk.data) return null;
+    const pick = cmpSetOf(b); if (!pick) return null;
+    const nbs = (rk.data.neighbors || []).filter(x => x && x.name);
+    const cdN = (((mod(b, 'competition') || {}).data || {}).neighbors || []).filter(x => x && x.name);
+    const P = placeInfo(b);
+    const pm = mod(b, 'place'); const pd = (pm.ok && pm.data) || {};
+    const rv = state.reviews && state.reviews.data ? state.reviews.data : null;
+    const npl = rv && rv.sources && rv.sources.naver && rv.sources.naver.place ? rv.sources.naver.place : null;
+    const self = rk.data.self || null;
+    const K = rankModel(b);
+    const all = nbs.map((x, i) => {
+      const no = Number(x.no) || (x.fill ? 0 : (cdN.findIndex(c => c.name === x.name) + 1)) || 0;
+      const menu = x.menu || null;
+      const items = menu && menu.ok ? (menu.items || []).filter(i => i && i.n).map(i => pmEntry(i.n, i.p, { rec: Boolean(i.r) })) : [];
+      return { i, no, fill: Boolean(x.fill), mark: '', name: String(x.naverName || x.name), name0: String(x.name), distance: has(x.distance) ? Number(x.distance) : null,
+        url: safeHref(x.url), items, priced: items.filter(i => i.price),
+        menu: menu ? { read: true, ok: Boolean(menu.ok), n: has(menu.n) ? Number(menu.n) : items.length, img: has(menu.img) ? Number(menu.img) : null, desc: has(menu.desc) ? Number(menu.desc) : null,
+          updated: String(menu.updated || ''), why: String(menu.why || ''), hidePrice: Boolean(menu.hidePrice) } : { read: false },
+        hours: menu && menu.hours && Array.isArray(menu.hours.week) && menu.hours.week.length ? menu.hours.week : null,
+        reviews: has(x.reviews) ? Number(x.reviews) : null, score: has(x.score) ? Number(x.score) : null, blogs: has(x.blogs) ? Number(x.blogs) : null,
+        photos: has(x.photos) ? Number(x.photos) : null,
+        opts: 'opts' in x ? cmpOpts(x.opts) : null, tools: 'opts' in x ? cmpToolsOf(x) : null,
+        popular: String(x.popular || ''), cat: String(x.cat || '') };
+    }).sort((a, c) => (a.distance ?? 1e9) - (c.distance ?? 1e9));
+    const set = all.filter(s => pick.includes(nbs[s.i]));
+    let letter = 0; set.forEach(s => { s.mark = s.fill || !s.no ? String.fromCharCode(65 + letter++) : String(s.no); });
+    /* 상가정보 이웃 가운데 견주기에 못 넣은 곳과 까닭 */
+    const skipped = [];
+    cdN.slice(0, 6).forEach((c, i) => {
+      if (set.some(s => s.no === i + 1)) return;
+      const f = all.find(s => s.no === i + 1);
+      skipped.push({ mark: String(i + 1), name: c.name, why: !f ? '네이버에서 못 찾음' : f.menu.read ? (f.menu.why || '가격 없이 메뉴만') : '5곳이 차서 뺌' });
+    });
+    const nm = (pd.naverMenus || []).filter(x => x && x.name);
+    const me = {
+      reviews: K.mine, score: K.myScore, blogs: npl && has(npl.blogs) ? Number(npl.blogs) : self && has(self.blogs) ? Number(self.blogs) : null,
+      photos: self && has(self.photos) ? Number(self.photos) : null,
+      opts: self ? cmpOpts(self.opts) : (P && P.info ? cmpOpts([].concat(P.info.facilities || [], P.info.payments || [], P.amenities || []).join(',')) : null),
+      optsFrom: self ? '네이버 목록' : P && P.info ? '네이버 정보 탭' : '',
+      tools: self ? cmpToolsOf(self) : { booking: Boolean((rv && rv.booking) || (npl && npl.hasBooking)), npay: Boolean((rv && rv.nPay) || (npl && npl.hasNPay)), coupon: null, talk: null, table: null, pickup: null },
+      menu: nm.length ? { read: true, ok: true, n: nm.length, img: nm.filter(x => x.image).length, desc: nm.filter(x => x.desc).length, updated: String(pd.naverMenuUpdated || ''), naver: true }
+        : P && P.menus.length ? { read: true, ok: true, n: P.menus.length, img: null, desc: null, updated: String(P.menuUpdated || ''), naver: false } : { read: false },
+      hours: cmpMyHours(pd, P), popular: self ? String(self.popular || '') : '',
+    };
+    const price = cmpPrice(b, P, set);
+    return { set, me, price, skipped, blocked: Boolean(rk.data.blocked), self, K, R: (b.options && b.options.radius) || 500, refDate: String(b.collectedAt || '').slice(0, 10) };
+  }
+  /* 가격 — 이 매장 메뉴 전체를 옆 가게 메뉴와 이름으로 맞대어 */
+  function cmpPrice(b, P, set){
+    const stores = set.filter(s => s.priced.length);
+    const mine = ((P && P.menus) || []).filter(m => m && m.name).map((m, i) => pmEntry(m.name, m.price, { rec: Boolean(m.recommend), i }));
+    const minePriced = mine.filter(x => x.price);
+    if (!stores.length) return { stores, mine, minePriced, rows: [], cmp: [], only: [], counted: [], lower: [], higher: [], idx: null, gaps: [], recRow: null, none: true, me: { n: mine.length } };
+    const rows = mine.map(me => {
+      const cells = stores.map(st => pmBest(me, st.items));
+      const same = cells.filter(c => c && c.rel === 'same' && c.pair);
+      const modes = [...new Set(same.map(c => c.pair.mode))];
+      const raw = same.length > 0 && modes.length === 1 && modes[0] === '';
+      const nbMed = pmMed(same.map(c => c.it.price));
+      /* 값끼리면 옆 가게 값의 가운데와, 양을 맞췄으면 짝마다 견준 비율의 가운데 */
+      const ratio = !me.price || !same.length ? null : raw ? me.price / nbMed : pmMed(same.map(c => c.pair.a / c.pair.b));
+      const sameP = cells.filter(c => c && c.rel === 'same' && c.it.price).map(c => c.it.price);   // 이 매장 값이 없어도 옆 가게 같은 메뉴 값은 보인다
+      return { me, cells, n: same.length, ratio, modes, raw, won: raw && me.price && nbMed !== null ? Math.round(me.price - nbMed) : null,
+        prices: same.length ? same.map(c => c.it.price) : sameP, sn: sameP.length, any: cells.some(Boolean) };
+    });
+    const counted = rows.filter(r => r.ratio !== null);
+    const lower = counted.filter(r => r.ratio < 0.99), higher = counted.filter(r => r.ratio > 1.01);
+    const idx = pmGeo(counted.map(r => r.ratio));                 // 메뉴마다 견준 비율의 평균(기하평균) — 같은 값인 술·공깃밥이 많아도 한쪽으로 쏠린 차이가 묻히지 않게
+    stores.forEach((st, i) => {
+      const cs = rows.map(r => r.cells[i]).filter((c, j) => c && c.rel === 'same' && c.pair && rows[j].me.price);
+      st.n = cs.length; st.ratio = cs.length ? pmGeo(cs.map(c => c.pair.a / c.pair.b)) : null;
+      const pv = st.priced.map(x => x.price); st.med = pmMed(pv); st.min = Math.min(...pv); st.max = Math.max(...pv);
+    });
+    const mp = minePriced.map(x => x.price);
+    const me = { n: mine.length, priced: mp.length, med: pmMed(mp), min: mp.length ? Math.min(...mp) : null, max: mp.length ? Math.max(...mp) : null };
+    const G = new Map();                                           // 옆 가게 두 곳 이상이 파는데 이 매장엔 없는 메뉴
+    stores.forEach(st => st.items.forEach(it => it.keys.forEach(k => {
+      if (!k.core || k.core.length < 2 || /추가|사리|토핑|포장|배달|용기|서비스|무료|셀프/.test(k.core)) return;
+      if (mine.some(m => m.keys.some(ka => pmRel(ka, k)))) return;
+      const g = G.get(k.core) || { core: k.core, marks: new Set(), prices: [], names: [] };
+      g.marks.add(st.mark); if (it.price) g.prices.push(it.price); g.names.push(it.name); G.set(k.core, g);
+    })));
+    const gaps = [...G.values()].filter(g => g.marks.size >= 2).map(g => ({ name: g.names.slice().sort((a, c) => a.length - c.length)[0].replace(/\s*\(.*?\)\s*/g, ' ').trim(), n: g.marks.size,
+      min: g.prices.length ? Math.min(...g.prices) : null, max: g.prices.length ? Math.max(...g.prices) : null })).sort((a, c) => c.n - a.n || (a.min ?? 0) - (c.min ?? 0));
+    const recRow = rows.find(r => r.me.rec && r.n) || rows.slice().filter(r => r.n).sort((a, c) => c.n - a.n || a.me.i - c.me.i)[0] || null;
+    return { stores, mine, minePriced, me, rows, cmp: rows.filter(r => r.any), only: rows.filter(r => !r.any), counted, lower, higher, idx, gaps, recRow,
+      src: (P && P.menuSource) || '', srcUpdated: (P && P.menuUpdated) || '' };
+  }
+  const pmGeo = (a) => { const v = a.filter(x => Number.isFinite(x) && x > 0); return v.length ? Math.exp(v.reduce((t, x) => t + Math.log(x), 0) / v.length) : null; };
+  const pmPct = (r) => { const p = Math.round((r - 1) * 100); return p === 0 ? '같음' : `${p > 0 ? '+' : '−'}${Math.abs(p)}%`; };
+  const pmWord = (r) => { const p = Math.round((r - 1) * 100); return p === 0 ? '같은 값' : `${Math.abs(p)}% ${p > 0 ? '높음' : '낮음'}`; };
+  const PM_MODE = { g:'100g당', ml:'100ml당', ppl:'1인분당', cnt:'하나당' };
+  const pmW = (v) => (has(v) ? Math.round(Number(v)).toLocaleString('ko-KR') : '—');
+  const pmNo = (s, me) => me ? '<span class="pno me" aria-hidden="true"></span>' : `<span class="pno${s.fill || !s.no ? ' fill' : ''}">${esc(s.mark)}</span>`;
+  const pmSize = (it) => { const k = it.keys[0] || {}; return k.g ? `${k.g >= 1000 && k.g % 100 === 0 ? `${k.g / 1000}kg` : `${k.g}g`}` : k.ppl ? `${k.ppl}인` : ''; };
+  const cmpPc = (v) => `${Math.round(v * 100)}%`;
+  /* 'N개월 전' — 수집한 날 기준 */
+  function cmpAgo(ymd, ref){
+    const a = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(ymd || '')), r = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(ref || '')) || /^(\d{4})-(\d{2})-(\d{2})/.exec(new Date().toISOString());
+    if (!a || !r) return '';
+    const m = (Number(r[1]) - Number(a[1])) * 12 + (Number(r[2]) - Number(a[2])) - (Number(r[3]) < Number(a[3]) ? 1 : 0);
+    return m <= 0 ? '이번 달' : m < 12 ? `${m}개월 전` : `${Math.floor(m / 12)}년${m % 12 ? ` ${m % 12}개월` : ''} 전`;
+  }
+  const cmpMonths = (ymd, ref) => { const a = /^(\d{4})-(\d{2})/.exec(String(ymd || '')), r = /^(\d{4})-(\d{2})/.exec(String(ref || '')); return a && r ? (Number(r[1]) - Number(a[1])) * 12 + (Number(r[2]) - Number(a[2])) : null; };
+  function pmMore(n, what){ return n > 0 ? `<button type="button" class="pcx" aria-expanded="false" data-l="▼ ${esc(what)} ${n}개 더 보기">▼ ${esc(what)} ${n}개 더 보기</button><p class="pcpr">${esc(what)} ${n}개는 화면에서 ▼를 눌러 펼쳐 볼 수 있습니다</p>` : ''; }
+
+  /* ── 가격표 한눈에 — 로그 눈금, 점 하나가 메뉴 하나 ── */
+  function pmStrip(PM){
+    const lists = [PM.minePriced.map(x => x.price)].concat(PM.stores.map(s => s.priced.map(x => x.price)));
+    const vals = lists.flat().filter(v => v > 0); if (!vals.length) return '';
+    const lo = Math.max(100, Math.min(...vals) * 0.85), hi = Math.max(...vals) * 1.15;
+    const L0 = Math.log10(lo), L1 = Math.log10(hi), X = (v) => Math.min(100, Math.max(0, (Math.log10(v) - L0) / (L1 - L0) * 100));
+    const TK = [500, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000, 500000].filter(v => v >= lo && v <= hi);
+    const tkLab = (v) => v >= 10000 ? `${v / 10000}만` : `${v / 1000}천`;
+    const row = (label, sub, list, med, cls, no) => `<div class="pr${cls ? ` ${cls}` : ''}"><div class="pl">${no}<span class="pn"><b>${label}</b>${sub ? `<small>${sub}</small>` : ''}</span></div>
+      <div class="pt">${TK.map(v => `<u style="left:${X(v).toFixed(2)}%"></u>`).join('')}${list.map(v => `<i style="left:${X(v).toFixed(2)}%"></i>`).join('')}${med !== null ? `<b style="left:${X(med).toFixed(2)}%"></b>` : ''}</div>
+      <div class="pm">${med !== null ? `<small>가운데</small>${esc(pmW(med))}` : '—'}</div></div>`;
+    const rows = [];
+    if (PM.minePriced.length) rows.push(row('이 매장', `메뉴 ${esc(num(PM.me.n, '개'))}`, lists[0], PM.me.med, 'me', pmNo(null, true)));
+    PM.stores.forEach((s, i) => {
+      const vs = s.n && s.ratio !== null ? ` · 같은 메뉴 ${s.n}개 — 이 매장이 <em class="${s.ratio > 1.01 ? 'up' : s.ratio < 0.99 ? 'dn' : ''}">${esc(pmWord(s.ratio))}</em>` : PM.minePriced.length ? ' · 같은 메뉴 없음' : '';
+      rows.push(row(esc(s.name), `${s.distance !== null ? esc(dist(s.distance)) + ' · ' : ''}메뉴 ${esc(num(s.menu.n, '개'))}${vs}`, lists[i + 1], s.med, '', pmNo(s)));
+    });
+    return `<div class="pcs">${rows.join('')}<div class="pr pax"><div class="pl"></div><div class="pt">${TK.map(v => `<span${X(v) < 6 ? ' class="l0"' : X(v) > 94 ? ' class="l1"' : ''} style="left:${X(v).toFixed(2)}%">${tkLab(v)}</span>`).join('')}</div><div class="pm"></div></div></div>`;
+  }
+  /* ── 가격표 견주기 ── */
+  function cmpPriceHTML(M){
+    const PM = M.price;
+    if (PM.none) return `<div class="b s12 top brk pcw" id="skPrice"><p class="k">가격표 견주기</p><p class="src9">가까운 같은 업종 가게의 메뉴 가격을 네이버 플레이스에서 읽지 못했습니다${M.skipped.length ? ` — ${esc(M.skipped.map(s => `${s.mark} ${s.name}(${s.why})`).join(', '))}` : ''}.</p></div>`;
+    const S = PM.stores, C = PM.counted, N = C.length, cu = state.cust;
+    const hi = PM.higher.slice().sort((a, c) => c.ratio - a.ratio)[0] || null;
+    let verdict = '';
+    if (!PM.minePriced.length) verdict = `이 매장 메뉴 가격을 읽지 못해 메뉴끼리 견주지 못했습니다 — 옆 가게 가격대만 봅니다.`;
+    else if (N >= 3) {
+      if (PM.idx <= 0.97 && PM.lower.length > PM.higher.length) verdict = `같은 메뉴끼리 견주면 옆 가게보다 <b>${cu ? '값을 낮게 받는 편' : '싼 편'}</b>입니다 — 견준 ${N}개 가운데 <b>${PM.lower.length}개</b>가 더 쌉니다.`;
+      else if (PM.idx >= 1.03 && PM.higher.length > PM.lower.length) verdict = `같은 메뉴끼리 견주면 옆 가게보다 <b>${cu ? '값을 조금 높게 받는 편' : '비싼 편'}</b>입니다 — 견준 ${N}개 가운데 <b>${PM.higher.length}개</b>가 더 비쌉니다.`;
+      else verdict = `같은 메뉴끼리 견주면 옆 가게와 <b>값이 비슷합니다</b> — 견준 ${N}개 가운데 싼 것 ${PM.lower.length}개 · 비싼 것 ${PM.higher.length}개 · 같은 값 ${N - PM.lower.length - PM.higher.length}개.`;
+    } else if (N) verdict = `옆 가게와 같은 메뉴가 ${N}개뿐이라 전체로는 판단하지 않았습니다 — 아래 표에서 메뉴별로 보세요.`;
+    else verdict = `옆 가게와 이름이 같은 메뉴가 없어 메뉴끼리는 견주지 못했습니다 — 가격대만 보세요.`;
+    const t = [];
+    const T = (l, v, u, n, hot) => t.push(`<div class="kt4${hot ? ' hot' : ''}"><div class="l">${l}</div><div class="v">${v}${u ? `<small>${u}</small>` : ''}</div><div class="n">${n || ''}</div></div>`);
+    if (N) {
+      const p = Math.round((PM.idx - 1) * 100);
+      T('같은 메뉴 값<br>옆 가게보다 평균', p === 0 ? '같음' : esc(String(Math.abs(p))), p === 0 ? '' : `% ${p > 0 ? '높음' : '낮음'}`, `견준 ${N}개 메뉴의 평균 차이`, Math.abs(p) >= 5);
+      T('옆 가게보다<br>싼 메뉴', esc(String(PM.lower.length)), '개', `견준 ${N}개 중 · 같은 값 ${N - PM.lower.length - PM.higher.length}개`, false);
+      T('옆 가게보다<br>비싼 메뉴', esc(String(PM.higher.length)), '개', hi ? `가장 큰 차이 ${esc(hi.me.name)} ${esc(pmPct(hi.ratio))}${hi.raw ? '' : ` (${esc(hi.modes.map(m => PM_MODE[m] || '값').join('·'))})`}` : '없음', false);
+    } else {
+      T('이 매장<br>메뉴', esc(num(PM.me.n)), '개', PM.me.med !== null ? `가운데 값 ${esc(num(PM.me.med, '원'))}` : '', false);
+      T('옆 가게<br>메뉴 가운데 값', esc(pmW(pmMed(S.map(s => s.med)))), '원', `${S.length}곳 각 가게 가운데 값의 가운데`, false);
+    }
+    const R = PM.recRow;
+    if (R) T(`${R.me.rec ? '대표 메뉴' : '옆 가게에 가장 흔한 메뉴'}<br>${esc(R.me.name.length > 12 ? R.me.name.slice(0, 11) + '…' : R.me.name)}`, esc(pmW(R.me.price)), '원',
+      `옆 가게 ${R.n}곳 ${esc(Math.min(...R.prices) === Math.max(...R.prices) ? num(R.prices[0], '원') : `${pmW(Math.min(...R.prices))}~${num(Math.max(...R.prices), '원')}`)}${R.raw ? '' : ' · 양이 다른 곳 포함'}`, false);
+    const head = `<tr><th class="mn">메뉴</th><th class="mine">이 매장</th>${S.map(s => `<th class="nb" title="${esc(s.name)}">${pmNo(s)}</th>`).join('')}<th class="nbr">옆 가게</th><th class="df">차이</th></tr>`;
+    const body = PM.cmp.map((r, ri) => {
+      const cells = r.cells.map((c) => {
+        if (!c) return '<td class="nb no">—</td>';
+        const sz = pmSize(c.it);
+        if (c.rel === 'near') return `<td class="nb near" title="옆 가게 메뉴: ${esc(c.it.name)} — 이름이 조금 달라 견줌 수에는 넣지 않음">≈${esc(pmW(c.it.price))}${sz ? `<i>${esc(sz)}</i>` : ''}</td>`;
+        return `<td class="nb" title="옆 가게 메뉴: ${esc(c.it.name)}">${esc(pmW(c.it.price))}${sz ? `<i>${esc(sz)}</i>` : ''}</td>`;
+      }).join('');
+      const rng = r.prices.length ? (Math.min(...r.prices) === Math.max(...r.prices) ? pmW(r.prices[0]) : `${pmW(Math.min(...r.prices))}~${pmW(Math.max(...r.prices))}`) : '—';
+      const cls = r.ratio === null ? '' : r.ratio > 1.01 ? ' up' : r.ratio < 0.99 ? ' dn' : ' eq';
+      const df = r.ratio === null ? (!r.me.price ? '<span class="ne">이 매장 값 없음</span>' : r.n || r.sn ? '—' : '<span class="ne">≈ 비슷한 메뉴만</span>')
+        : r.raw && r.won !== null ? `${r.won === 0 ? '같음' : `${r.won > 0 ? '+' : '−'}${esc(pmW(Math.abs(r.won)))}`}${r.won !== 0 ? `<i>${esc(pmPct(r.ratio))}</i>` : ''}`
+        : `${esc(pmPct(r.ratio))}<i>${esc(`${r.modes.includes('') ? '일부 ' : ''}${r.modes.filter(Boolean).map(m => PM_MODE[m]).join('·') || '양 맞춤'}`)}</i>`;
+      const sz = pmSize(r.me);
+      return `<tr${ri >= PM_SHOW ? ' class="more"' : ''}><td class="mn">${esc(r.me.name)}${r.me.rec ? ' <span class="bdg info">추천</span>' : ''}</td><td class="mine">${esc(pmW(r.me.price))}${sz && !/g|인/.test(r.me.name) ? `<i>${esc(sz)}</i>` : ''}</td>${cells}<td class="nbr">${r.prices.length ? `${esc(rng)}<i>${r.prices.length}곳</i>` : '<span class="ne">≈ 비슷한 메뉴만</span>'}</td><td class="df${cls}">${df}</td></tr>`;
+    }).join('');
+    const table = PM.cmp.length ? `<p class="k pk2">메뉴별로 견주기 <small>이 매장 메뉴 ${esc(num(PM.mine.length, '개'))} 가운데 옆 가게에도 있는 ${esc(num(PM.cmp.length, '개'))}</small></p>
+      <div class="pcm"><table class="tbl pct"><thead>${head}</thead><tbody>${body}</tbody></table>${pmMore(Math.max(0, PM.cmp.length - PM_SHOW), '메뉴')}</div>` : '';
+    const chips = (list, f) => list.map((x, i) => `<li${i >= PM_SHOW ? ' class="more"' : ''}>${f(x)}</li>`).join('');
+    const only = PM.only.length ? `<div class="pcm"><p class="k">이 매장에만 있는 메뉴 <small>${esc(num(PM.only.length, '개'))} · 옆 가게에 같은 이름이 없음</small></p>
+      <ul class="pchip">${chips(PM.only, r => `${esc(r.me.name)} <b>${esc(r.me.price ? num(r.me.price, '원') : '—')}</b>`)}</ul>${pmMore(Math.max(0, PM.only.length - PM_SHOW), '메뉴')}</div>` : '';
+    const gap = PM.gaps.length ? `<div class="pcm"><p class="k">옆 가게 두 곳 이상이 파는데 이 매장엔 없는 메뉴 <small>${esc(num(PM.gaps.length, '개'))}</small></p>
+      <ul class="pchip">${chips(PM.gaps, g => `${esc(g.name)} <span>${g.n}곳</span> <b>${esc(g.min === null ? '—' : g.min === g.max ? num(g.min, '원') : `${pmW(g.min)}~${num(g.max, '원')}`)}</b>`)}</ul>${pmMore(Math.max(0, PM.gaps.length - PM_SHOW), '메뉴')}</div>` : '';
+    const mineCores = new Set(PM.mine.flatMap(m => m.keys.map(k => k.core)));
+    const cards = S.map(s => `<div class="pcc pcm"><p class="pch">${pmNo(s)}<b>${esc(s.name)}</b><small>${[s.distance !== null ? dist(s.distance) : '', `메뉴 ${num(s.menu.n, '개')}`, s.menu.updated ? `${s.menu.updated} 갱신` : ''].filter(Boolean).map(esc).join(' · ')}${s.url ? ` · <a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">네이버 플레이스</a>` : ''}</small></p>
+      <ol class="pcl">${s.items.map((it, i) => `<li${i >= PM_SHOW ? ' class="more"' : ''}${it.keys.some(k => mineCores.has(k.core)) ? ' data-same="1"' : ''}><span>${esc(it.name)}</span><b>${it.price ? esc(pmW(it.price)) : '—'}</b></li>`).join('')}</ol>${pmMore(Math.max(0, s.items.length - PM_SHOW), '메뉴')}</div>`).join('');
+    const full = acc('옆 가게 가격표 전체', `${S.length}곳 · 메뉴 ${num(S.reduce((a, s) => a + s.items.length, 0), '개')}`, `<div class="pcg">${cards}</div><p class="src9">굵은 글씨는 이 매장에도 같은 이름이 있는 메뉴입니다.</p>`, false, 'pcacc');
+    const upd = S.filter(s => s.menu.updated).map(s => `${s.mark} ${s.menu.updated}`).join(', ');
+    const src = [`가격: 가게가 네이버 플레이스에 올린 메뉴 가격 — 실제 판매가와 다를 수 있습니다${upd ? ` (메뉴판 갱신일 ${upd}${PM.srcUpdated ? ` · 이 매장 ${PM.srcUpdated}` : ''})` : ''}`,
+      '같은 메뉴: 원산지·수식어(국내산·생·숙성·초벌 등)와 양·크기 표시를 뗀 이름이 같은 메뉴. 양(g)이 둘 다 적혀 있으면 100g당 값으로, 한쪽에만 적혀 있으면 값끼리 견줍니다. ≈는 이름이 조금 다른 비슷한 메뉴(견줌 수에 넣지 않음)',
+      '차이: 옆 가게 같은 메뉴 값의 가운데와 견준 값 · 평균 차이: 메뉴마다 견준 비율의 평균(기하평균)'];
+    return `<div class="b s12 top brk pcw" id="skPrice"><p class="k">가격표 견주기 <small>네이버 플레이스 메뉴 가격 · 가격표를 읽은 ${esc(num(S.length, '곳'))}</small></p>
+      <p class="lead-read pcv">${verdict}</p>
+      <div class="kpi4 pck">${t.join('')}</div>
+      <p class="k pk2">가격표 한눈에 <small>점 하나가 메뉴 하나 · 굵은 점이 가운데 값 · 가로는 로그 눈금</small></p>
+      ${pmStrip(PM)}
+      ${table}
+      ${only || gap ? `<div class="pc2">${only}${gap}</div>` : ''}
+      ${full}
+      <p class="src9">${src.map(esc).join(' · ')}</p></div>`;
+  }
+  /* ── 메뉴판 견주기 — 메뉴 수 · 사진 · 설명 · 갱신일 · 네이버 주간 인기 메뉴 ── */
+  function cmpMenuStat(M){
+    const rate = (m, k) => m && m.read && m.n > 0 && has(m[k]) ? m[k] / m.n : null;
+    const nb = M.set.filter(s => s.menu.read && s.menu.n > 0);
+    const med = (k) => pmMed(nb.map(s => rate(s.menu, k)).filter(v => v !== null));
+    return { img: rate(M.me.menu, 'img'), desc: rate(M.me.menu, 'desc'), nbImg: med('img'), nbDesc: med('desc'), nbN: nb.length,
+      maxImg: nb.length ? Math.max(...nb.map(s => rate(s.menu, 'img') ?? 0)) : null, maxDesc: nb.length ? Math.max(...nb.map(s => rate(s.menu, 'desc') ?? 0)) : null,
+      myAge: cmpMonths(M.me.menu.updated, M.refDate), nbAge: pmMed(nb.map(s => cmpMonths(s.menu.updated, M.refDate)).filter(v => v !== null)) };
+  }
+  function cmpMenuHTML(M){
+    const nb = M.set.filter(s => s.menu.read);
+    if (!nb.length) return '';
+    const Q = cmpMenuStat(M), me = M.me.menu;
+    const cell = (m, k) => {
+      if (!m || !m.read || !m.n) return '<td class="n">—</td>';
+      if (!has(m[k])) return '<td class="n faint">—</td>';
+      const r = m[k] / m.n;
+      return `<td class="n"><span class="cxbar"><i style="width:${Math.max(r * 100, 2).toFixed(1)}%"></i></span>${esc(num(m[k], '개'))} <small>${cmpPc(r)}</small></td>`;
+    };
+    const row = (label, no, m, cls) => `<tr${cls ? ` class="${cls}"` : ''}><td class="cxn">${no}<span>${label}</span></td><td class="n">${m && m.read ? esc(num(m.n, '개')) : '—'}</td>${cell(m, 'img')}${cell(m, 'desc')}<td class="n">${m && m.updated ? esc(cmpAgo(m.updated, M.refDate)) : '—'}</td></tr>`;
+    const rows = [row('이 매장', pmNo(null, true), me, 'me')].concat(M.set.map(s => row(esc(s.name), pmNo(s), s.menu.read ? s.menu : null, ''))).join('');
+    let lead = '';
+    if (Q.img !== null && Q.nbN >= 2) {
+      if (Q.img > 0 && Q.img >= Q.maxImg) lead = `메뉴 사진은 이 매장이 가장 잘 갖췄습니다 — 메뉴 ${num(me.n, '개')} 가운데 ${num(me.img, '개')}(${cmpPc(Q.img)})에 사진이 있습니다.`;
+      else if (Q.nbImg !== null && Q.img <= Q.nbImg - 0.15) lead = `옆 가게는 메뉴의 ${cmpPc(Q.nbImg)}(가운데)에 사진을 올렸는데, 이 매장은 ${cmpPc(Q.img)}입니다.`;
+      else lead = `메뉴 사진은 옆 가게와 비슷합니다 — 이 매장 ${cmpPc(Q.img)} · 옆 가게 가운데 ${cmpPc(Q.nbImg ?? 0)}.`;
+    } else lead = '손님이 네이버에서 메뉴를 고를 때 보는 모습 — 메뉴 수와 사진·설명이 붙은 메뉴를 견줍니다.';
+    if (Q.myAge !== null && Q.nbAge !== null && Q.myAge >= 12 && Q.myAge >= Q.nbAge + 6) lead += ` 메뉴판은 ${esc(cmpAgo(me.updated, M.refDate))}에 마지막으로 바뀌었습니다.`;
+    const pops = [{ no: pmNo(null, true), name: '이 매장', t: M.me.popular }].concat(M.set.map(s => ({ no: pmNo(s), name: s.name, t: s.popular }))).filter(x => x.t);
+    const pop = pops.length ? `<p class="k pk3">네이버 ‘주간 인기 많은 메뉴’ <small>가게 포스가 네이버와 이어진 곳만 나옵니다</small></p>
+      <ul class="cxpop">${pops.map(x => `<li>${x.no}<b>${esc(x.name)}</b><span class="pv">${esc(x.t)}</span></li>`).join('')}</ul>` : '';
+    return `<div class="b s12 top brk cxs" id="skMenuB"><p class="k">메뉴판 견주기 <small>손님이 네이버에서 보는 메뉴 · 사진 · 설명</small></p>
+      <p class="lead-read cxv">${lead}</p>
+      <table class="tbl cxt"><thead><tr><th class="cxn">가게</th><th class="n">메뉴</th><th class="n">사진 있는 메뉴</th><th class="n">설명 있는 메뉴</th><th class="n">메뉴판 갱신</th></tr></thead><tbody>${rows}</tbody></table>
+      ${pop}
+      <p class="src9">네이버 플레이스 메뉴 탭 기준${me.read && !me.naver ? ' · 이 매장은 네이버 메뉴가 없어 카카오맵 메뉴로 셌습니다(사진·설명은 모름)' : ''} · 갱신은 가게가 메뉴를 마지막으로 고친 때(수집일 ${esc(M.refDate || '—')} 기준)</p></div>`;
+  }
+  /* ── 편의시설·결제·네이버 기능 견주기 ── */
+  function cmpAmenModel(M){
+    const stores = M.set.filter(s => s.opts);
+    if (!stores.length) return null;
+    const labels = new Map();
+    const add = (set) => set && set.forEach(l => labels.set(l, (labels.get(l) || 0)));
+    add(M.me.opts); stores.forEach(s => add(s.opts));
+    const cnt = (l) => stores.filter(s => s.opts.has(l)).length;
+    const opt = [...labels.keys()].map(l => ({ l, pay: OPT_PAY.has(l), me: M.me.opts ? M.me.opts.has(l) : null, n: cnt(l), cells: stores.map(s => s.opts.has(l)) }));
+    const canon = OPT_CANON.map(x => x[0]);
+    opt.sort((a, c) => (a.pay - c.pay) || (c.n - a.n) || (canon.indexOf(a.l) + 99 * (canon.indexOf(a.l) < 0)) - (canon.indexOf(c.l) + 99 * (canon.indexOf(c.l) < 0)));
+    const tools = CMP_TOOLS.map(([k, l]) => ({ l, k, tool: true, me: M.me.tools ? M.me.tools[k] : null, n: stores.filter(s => s.tools && s.tools[k]).length, cells: stores.map(s => Boolean(s.tools && s.tools[k])) }))
+      .filter(r => r.n || r.me);
+    const n = stores.length, many = Math.max(2, Math.ceil(n * 0.6));
+    const all = opt.concat(tools);
+    const lacks = all.filter(r => r.me === false && r.n >= many);
+    const only = n >= 3 ? all.filter(r => r.me === true && r.n <= 1) : [];
+    return { stores, opt: opt.filter(r => !r.pay), pay: opt.filter(r => r.pay), tools, lacks, only, n };
+  }
+  function cmpAmenHTML(M){
+    const A = cmpAmenModel(M); if (!A) return '';
+    const mark = (v) => v === null || v === undefined ? '<td class="c un">—</td>' : v ? '<td class="c on">●</td>' : '<td class="c"></td>';
+    const row = (r) => `<tr><td class="cxn">${esc(r.l)}</td>${mark(r.me).replace('<td class="c', '<td class="c me')}${r.cells.map(v => mark(v)).join('')}<td class="n cnt">${r.n}/${A.n}</td></tr>`;
+    const grp = (t, list) => list.length ? `<tr class="grp"><td colspan="${A.stores.length + 3}">${esc(t)}</td></tr>${list.map(row).join('')}` : '';
+    const lead = [A.lacks.length ? `옆 가게 ${A.n}곳 가운데 ${Math.min(...A.lacks.slice(0, 4).map(r => r.n))}곳 이상에 있는데 이 매장엔 없는 것: <b>${esc(A.lacks.slice(0, 4).map(r => r.l).join(' · '))}</b>` : '',
+      A.only.length ? `이 매장에만 있는 것(옆 가게 0~1곳): <b>${esc(A.only.slice(0, 4).map(r => r.l).join(' · '))}</b>` : ''].filter(Boolean);
+    return `<div class="b s12 top brk cxs" id="skAmen"><p class="k">편의시설·결제 견주기 <small>가게가 네이버에 등록한 것 · ● 있음 · 빈칸은 등록 안 함</small></p>
+      <p class="lead-read cxv">${lead.length ? lead.join('<br>') : '편의시설과 결제수단은 옆 가게와 비슷하게 갖췄습니다.'}</p>
+      <div class="cxwrap"><table class="tbl cxa"><thead><tr><th class="cxn"></th><th class="c me">이 매장</th>${A.stores.map(s => `<th class="c" title="${esc(s.name)}">${pmNo(s)}</th>`).join('')}<th class="n cnt">옆 가게</th></tr></thead>
+      <tbody>${grp('편의시설', A.opt)}${grp('결제', A.pay)}${grp('네이버에서 손님 부르는 기능', A.tools)}</tbody></table></div>
+      <p class="src9">가게가 네이버 플레이스에 등록한 편의시설·결제수단 기준 — 실제로 되는데 등록하지 않았을 수 있습니다(그렇다면 등록만 해도 손님 눈에 보입니다) · 이 매장: ${esc(M.me.optsFrom || '—')}${M.me.tools && M.me.tools.coupon === null ? ' · 이 매장의 쿠폰·톡톡·네이버 주문은 확인 못 함(—)' : ''}</p></div>`;
+  }
+  /* ── 리뷰·인기 견주기 — 표 + 가격과 리뷰를 한 판에 ── */
+  function cmpLevel(M, s){
+    const PM = M.price, st = PM && PM.stores ? PM.stores.find(x => x === s) : null;
+    if (st && st.ratio) return { x: (1 / st.ratio - 1) * 100, by: 'same' };
+    if (st && st.med && PM.me && PM.me.med) return { x: (st.med / PM.me.med - 1) * 100, by: 'med' };
+    return null;
+  }
+  function cmpReviewHTML(M){
+    const K = M.K, rows0 = M.set.filter(s => has(s.reviews));
+    if (!rows0.length) return '';
+    const cols = [['reviews', '방문자 리뷰', v => num(v)], ['score', '평점', v => has(v) ? Number(v).toFixed(2) : '—'], ['blogs', '블로그 후기', v => num(v)], ['photos', '사진', v => num(v)]];
+    const data = [{ me: true, name: '이 매장', no: pmNo(null, true), reviews: M.me.reviews, score: M.me.score, blogs: M.me.blogs, photos: M.me.photos }]
+      .concat(M.set.map(s => ({ name: s.name, no: pmNo(s), reviews: s.reviews, score: s.score, blogs: s.blogs, photos: s.photos })));
+    const best = Object.fromEntries(cols.map(([k]) => [k, Math.max(...data.map(d => has(d[k]) ? Number(d[k]) : -1))]));
+    const table = `<table class="tbl cxt cxr"><thead><tr><th class="cxn">가게</th>${cols.map(([, l]) => `<th class="n">${l}</th>`).join('')}</tr></thead><tbody>${data.map(d => `<tr${d.me ? ' class="me"' : ''}><td class="cxn">${d.no}<span>${esc(d.name)}</span></td>${cols.map(([k, , f]) => `<td class="n${has(d[k]) && Number(d[k]) === best[k] && best[k] > 0 ? ' top' : ''}">${esc(has(d[k]) ? f(d[k]) : '—')}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+    const parts = [];
+    if (K.mine !== null && K.n >= 2) parts.push(K.pos === 1 ? `방문자 리뷰는 ${K.n}곳 가운데 <b>가장 많습니다</b>` : `방문자 리뷰는 ${K.n}곳 가운데 <b>${K.pos}번째</b>입니다`);
+    if (has(K.myScore) && has(K.avgScore)) { const d = Math.round((K.myScore - K.avgScore) * 100) / 100; parts.push(Math.abs(d) < 0.1 ? `평점은 옆 가게 평균(${K.avgScore})과 비슷합니다` : `평점은 옆 가게 평균 ${K.avgScore}보다 <b>${Math.abs(d).toFixed(2)} ${d > 0 ? '높습니다' : '낮습니다'}</b>`); }
+    /* 가격과 리뷰를 한 판에 — 가로: 이 매장 값 대비(같은 메뉴, 없으면 가운데 값) · 세로: 방문자 리뷰(로그) */
+    const pts = M.set.map(s => ({ s, L: cmpLevel(M, s) })).filter(p => p.L && has(p.s.reviews));
+    let chart = '';
+    if (pts.length >= 2 && has(M.me.reviews)) {
+      const xs = pts.map(p => p.L.x), span = Math.max(15, ...xs.map(Math.abs)) * 1.25;
+      const ys = pts.map(p => Math.log10(p.s.reviews + 1)).concat([Math.log10(M.me.reviews + 1)]);
+      const y0 = Math.min(...ys), y1 = Math.max(...ys), pad = Math.max(0.15, (y1 - y0) * 0.15);
+      const Y = (v) => ((Math.log10(v + 1) - (y0 - pad)) / ((y1 + pad) - (y0 - pad)) * 100);
+      const X = (x) => ((x + span) / (2 * span) * 100);
+      const my = Y(M.me.reviews);
+      const tick = [-20, -10, 10, 20, 30, 40, 50].filter(v => Math.abs(v) <= span);
+      chart = `<p class="k pk3">가격과 리뷰를 한 판에 <small>가로: 이 매장과 같은 메뉴 값 차이 · 세로: 방문자 리뷰(로그 눈금)</small></p>
+        <div class="cxsc" role="img" aria-label="옆 가게 가격과 리뷰 수 위치">
+          <div class="cxq tl">더 싼데 리뷰 많음</div><div class="cxq tr">더 비싼데 리뷰 많음</div><div class="cxq bl">더 싼데 리뷰 적음</div><div class="cxq br">더 비싼데 리뷰 적음</div>
+          <i class="cxgv" style="left:50%"></i><i class="cxgh" style="bottom:${my.toFixed(1)}%"></i>
+          ${tick.map(v => `<span class="cxtk" style="left:${X(v).toFixed(1)}%">${v > 0 ? '+' : '−'}${Math.abs(v)}%</span>`).join('')}
+          ${pts.map(p => `<b class="cxp${p.L.by === 'med' ? ' med' : ''}" style="left:${X(p.L.x).toFixed(1)}%;bottom:${Y(p.s.reviews).toFixed(1)}%" title="${esc(`${p.s.name} · 리뷰 ${num(p.s.reviews, '건')} · 값 ${pmPct(1 + p.L.x / 100)}`)}">${esc(p.s.mark)}</b>`).join('')}
+          <b class="cxp me" style="left:50%;bottom:${my.toFixed(1)}%" title="이 매장"></b><span class="cxme" style="left:50%;bottom:${my.toFixed(1)}%">이 매장</span>
+        </div>
+        <p class="cxax"><span>← 이 매장보다 쌈</span><span>이 매장 값</span><span>비쌈 →</span></p>
+        ${pts.some(p => p.L.by === 'med') ? '<p class="src9">점선 동그라미는 같은 메뉴가 없어 메뉴 가운데 값으로 견준 가게입니다.</p>' : ''}`;
+    }
+    return `<div class="b s12 top brk cxs" id="skRev"><p class="k">리뷰·인기 견주기 <small>네이버 플레이스 숫자 · 수집 때 기준</small></p>
+      <p class="lead-read cxv">${parts.length ? parts.join(', ') + '.' : '옆 가게의 리뷰·사진 수를 나란히 봅니다.'}</p>
+      ${table}${chart}
+      <p class="src9">방문자 리뷰·평점·블로그 후기·사진 수는 네이버 플레이스 목록 기준 · 굵은 숫자는 가장 많은(높은) 곳 · 옆 가게 리뷰 글은 읽지 않았습니다(수만 봄)</p></div>`;
+  }
+  /* ── 영업시간 견주기 ── */
+  const cmpMin = (t) => { const m = /(\d{1,2}):(\d{2})/.exec(String(t || '')); return m ? Number(m[1]) * 60 + Number(m[2]) : null; };
+  function cmpDayAt(week, d){ return (week || []).find(w => w.d === d) || null; }
+  function cmpSpan(w){ if (!w || w.off || !w.o || !w.c) return null; const o = cmpMin(w.o); let c = cmpMin(w.c); if (o === null || c === null) return null; if (c <= o) c += 1440; return { o, c }; }
+  function cmpWeekday(week){      // 월~금 가운데 가장 흔한 시간
+    const m = new Map(); [0, 1, 2, 3, 4].forEach(d => { const w = cmpDayAt(week, d); const sp = cmpSpan(w); if (sp) { const k = `${sp.o}-${sp.c}`; m.set(k, { sp, w, n: ((m.get(k) || {}).n || 0) + 1 }); } });
+    const top = [...m.values()].sort((a, c) => c.n - a.n)[0]; return top ? top : null;
+  }
+  function cmpRuns(week){
+    const lab = (w) => !w ? '' : w.off ? '휴무' : `${w.o}–${w.c}`;
+    const runs = [];
+    CMP_DAYS.forEach((d, i) => { const t = lab(cmpDayAt(week, i)); if (!t) return; const last = runs[runs.length - 1];
+      if (last && last.t === t && last.to === i - 1) { last.to = i; last.days.push(d); } else runs.push({ t, from: i, to: i, days: [d] }); });
+    return runs.map(r => `${r.days.length > 2 ? `${r.days[0]}~${r.days[r.days.length - 1]}` : r.days.join('·')} ${r.t}`).join(' · ');
+  }
+  function cmpHoursHTML(M){
+    const nb = M.set.filter(s => s.hours);
+    const me = M.me.hours;
+    if (nb.length < 2 && !(nb.length >= 1 && me)) return state.cust ? '' : (M.set.length ? `<div class="b s12 top cxs"><p class="k">영업시간 견주기</p><p class="src9 sale">옆 가게 영업시간을 네이버 메뉴 페이지에서 ${nb.length ? `${nb.length}곳만` : '한 곳도'} 읽지 못해 견주지 않았습니다.</p></div>` : '');
+    const A = 360, Z = 1800;       // 06:00 ~ 다음 날 06:00
+    const pos = (m) => Math.min(100, Math.max(0, (m - A) / (Z - A) * 100));
+    const bar = (week) => {
+      const top = cmpWeekday(week); if (!top) return '<div class="ht"><em>평일 휴무</em></div>';
+      let { o, c } = top.sp;
+      if (c - o >= 1410) { o = A; c = Z; }                         // 24시간
+      else if (o < A) { if (c <= A) { o += 1440; c += 1440; } else o = A; }   // 새벽에 여는 곳 — 06시부터 그린다
+      const brk = (top.w.b || []).map(x => { const m = /(\d{1,2}:\d{2})-(\d{1,2}:\d{2})/.exec(x); if (!m) return ''; let s0 = cmpMin(m[1]), e0 = cmpMin(m[2]); if (s0 < o) s0 += 1440; if (e0 < s0) e0 += 1440; return `<u style="left:${pos(s0).toFixed(2)}%;width:${Math.max(0.5, pos(e0) - pos(s0)).toFixed(2)}%"></u>`; }).join('');
+      return `<div class="ht"><i style="left:${pos(o).toFixed(2)}%;width:${Math.max(1, pos(c) - pos(o)).toFixed(2)}%"></i>${brk}</div>`;
+    };
+    const row = (label, no, H, cls) => `<div class="hr${cls ? ` ${cls}` : ''}"><div class="hl">${no}<b>${label}</b></div>${H ? bar(H) : '<div class="ht"><em>영업시간 모름</em></div>'}<div class="hx">${H ? esc(cmpRuns(H)) : '—'}${H && (cmpWeekday(H) || {}).w && cmpWeekday(H).w.b && cmpWeekday(H).w.b.length ? ` <small>브레이크 ${esc(cmpWeekday(H).w.b.join(', ').replace(/-/g, '–'))}</small>` : ''}</div></div>`;
+    const rows = [row('이 매장', pmNo(null, true), me ? me.week : null, 'me')].concat(M.set.map(s => row(esc(s.name), pmNo(s), s.hours, ''))).join('');
+    const ticks = [6, 9, 12, 15, 18, 21, 24, 27, 30].map(h => `<span style="left:${pos(h * 60).toFixed(2)}%">${String(h % 24).padStart(2, '0')}</span>`).join('');
+    /* 요지 — 늦게까지 · 점심 · 일요일 */
+    const lines = [];
+    const myW = me ? cmpWeekday(me.week) : null;
+    const nbW = nb.map(s => ({ s, W: cmpWeekday(s.hours) })).filter(x => x.W);
+    if (myW && nbW.length >= 2) {
+      const later = nbW.filter(x => x.W.sp.c > myW.sp.c + 30);
+      const maxC = Math.max(...nbW.map(x => x.W.sp.c));
+      if (myW.sp.c > maxC) lines.push(`평일엔 이 매장이 <b>가장 늦게까지</b> 엽니다 (${esc(myW.w.c)}까지)`);
+      else if (later.length >= 2) lines.push(`옆 가게 ${later.length}곳이 이 매장(${esc(myW.w.c)})보다 늦게까지 엽니다`);
+      const lunch = (W) => W && W.sp.o <= 690 && W.sp.c >= 810 && !(W.w.b || []).some(x => { const m = /(\d{1,2}:\d{2})-(\d{1,2}:\d{2})/.exec(x); return m && cmpMin(m[1]) <= 720 && cmpMin(m[2]) >= 750; });
+      const nl = nbW.filter(x => lunch(x.W)).length;
+      if (!lunch(myW) && nl >= 2) lines.push(`점심(12시)에 여는 곳이 옆 가게 ${nl}곳 — 이 매장은 점심 영업을 하지 않습니다`);
+      else if (lunch(myW) && nl <= 1 && nbW.length >= 3) lines.push(`점심(12시)에 여는 곳은 이 매장 말고 ${nl ? '1곳뿐' : '없습니다'}`);
+    }
+    if (me) {
+      const sunOffNb = nb.filter(s => { const w = cmpDayAt(s.hours, 6); return w && w.off; }).length;
+      const mySun = cmpDayAt(me.week, 6);
+      if (mySun && !mySun.off && sunOffNb >= 2) lines.push(`일요일에 쉬는 옆 가게가 ${sunOffNb}곳 — 이 매장은 일요일에도 엽니다`);
+      else if (mySun && mySun.off && sunOffNb === 0 && nb.length >= 3) lines.push('옆 가게는 일요일에도 여는데 이 매장은 일요일에 쉽니다');
+    }
+    return `<div class="b s12 top brk cxs" id="skHours"><p class="k">영업시간 견주기 <small>막대는 평일(월~금) 영업시간 · 가운데 틈은 브레이크타임</small></p>
+      <p class="lead-read cxv">${lines.length ? lines.slice(0, 2).join('<br>') : '영업시간을 나란히 봅니다.'}</p>
+      <div class="cxh">${rows}<div class="hr hax"><div class="hl"></div><div class="ht">${ticks}</div><div class="hx"></div></div></div>
+      <p class="src9">가게가 네이버 플레이스에 올린 영업시간 기준${me ? ` · 이 매장: ${esc(me.src)}` : ' · 이 매장 영업시간은 못 읽음'}${M.set.length > nb.length ? ` · 영업시간을 못 읽은 곳 ${M.set.length - nb.length}곳` : ''}</p></div>`;
+  }
+  /* ── 3장에 들어가는 한 덩어리 — 머리 · 가격 · 메뉴판 · 편의시설 · 리뷰 · 영업시간 ── */
+  function cmpHTML(b){
+    const M = cmpModel(b);
+    if (!M) return state.cust ? '' : `<div class="b s12 top"><p class="k">옆 가게와 견주기</p><p class="src9 sale">수집 서버를 v1.52로 올리면 가까운 같은 업종 5곳과 가격표·메뉴판·편의시설·리뷰·영업시간을 나란히 봅니다.</p></div>`;
+    if (!M.set.length) return `<div class="b s12 top"><p class="k">옆 가게와 견주기</p><p class="src9">가까운 같은 업종 가게를 네이버 플레이스에서 찾지 못했습니다${M.skipped.length ? ` — ${esc(M.skipped.map(s => `${s.mark} ${s.name}(${s.why})`).join(', '))}` : ''}.</p></div>`;
+    const leg = M.set.map(s => `<li>${pmNo(s)}<b>${esc(s.name)}</b><small>${esc([s.distance !== null ? dist(s.distance) : '', s.fill ? '네이버에서 채움' : ''].filter(Boolean).join(' · '))}</small></li>`).join('');
+    const head = `<div class="b s12 top cxhd" id="skCmp"><p class="k">옆 가게와 견주기 <small>가까운 같은 업종 ${esc(num(M.set.length, '곳'))} · 가게가 네이버 플레이스에 올린 정보</small></p>
+      <p class="deck">가격표 · 메뉴판 · 편의시설 · 리뷰 · 영업시간을 가까운 같은 업종 ${esc(num(M.set.length, '곳'))}과 나란히 봅니다.</p>
+      <ul class="cxleg">${leg}</ul>
+      <p class="src9">숫자가 높거나 낮다고 좋은 가게, 나쁜 가게라는 뜻은 아닙니다 — 양·재료·서비스·자리가 가게마다 다릅니다. 손님이 네이버에서 가게를 고를 때 나란히 보는 모습을 옮겨 왔습니다.
+        번호는 위 지도와 같습니다${M.set.some(s => s.fill || !s.no) ? ' · 글자(A·B)는 모자란 자리를 네이버 목록의 가까운 같은 업종으로 채운 곳' : ''}${M.skipped.length ? ` · 못 넣은 곳: ${esc(M.skipped.map(s => `${s.mark} ${s.name}(${s.why})`).join(', '))}` : ''}${M.blocked ? '<span class="sale"> · 네이버가 잠시 막아 일부만 읽었습니다</span>' : ''}</p></div>`;
+    return head + cmpPriceHTML(M) + cmpMenuHTML(M) + cmpAmenHTML(M) + cmpReviewHTML(M) + cmpHoursHTML(M);
+  }
+  /* ▼ 더 보기 — 목록 하나씩 펼치고 접는다 */
+  document.addEventListener('click', (e) => {
+    const bt = e.target && e.target.closest ? e.target.closest('.pcx') : null; if (!bt) return;
+    const box = bt.closest('.pcm'); if (!box) return;
+    const open = box.classList.toggle('open');
+    bt.setAttribute('aria-expanded', open ? 'true' : 'false');
+    bt.textContent = open ? '▲ 접기' : bt.dataset.l;
+  });
+  /* ══ v3.56: 3장 영업 메모 — 옆 가게와 견주어 말하기. ① 먼저 칭찬 → ② 기분 상하지 않게 꺼내는 말 → ③ 아쉬운 점은 하이오더로 ══
+     규칙으로만 만든다. 하이오더 기능은 매뉴얼에 있는 이름만 (테이블 주문·직원 호출 · 사진 메뉴판 · 상품 설명 등록 9945 · 네이버 리뷰 QR 10245 · 스탬프·쿠폰 · 웨이팅 7351).
+     비교가 불리해도 쓸 수 있게 — 앞서는 숫자가 없으면 손님 리뷰의 칭찬·업력·평점에서 칭찬거리를 찾는다.
+     꺼내는 말도 숫자가 있는 말만 쓴다 ('다른 지역보다 잘하신다'처럼 확인 못 한 말 대신 — 전국 생존율·같은 업종 수·새 가게 비율) */
+  const talkName = (s) => String(s || '').replace(/\(.*?\)|\[.*?\]/g, '').replace(/\d+(\.\d+)?\s*(g|kg|인분|인|ml|cc)\b/gi, '').replace(/[★☆]/g, '').replace(/\s{2,}/g, ' ').trim();
+  const TALK_PRAISE = { kind: (n) => `리뷰 보면 손님들이 친절하다는 말을 제일 많이 하세요(${n}건). 이게 이 집 강점이에요.`, grill: (n) => `직접 구워 주신다는 칭찬이 ${n}건이나 돼요. 손님이 그걸 기억하고 다시 와요.`,
+    foreign: (n) => `외국인 손님이 편하다는 리뷰가 ${n}건이에요. 이 근처에선 흔치 않은 강점이에요.`, group: (n) => `단체·회식하기 좋다는 리뷰가 ${n}건이에요. 모임 손님이 찾는 집이에요.`,
+    revisit: (n) => `또 오겠다는 리뷰가 ${n}건이에요. 단골이 생기는 집이세요.`, fast: (n) => `음식이 빨리 나온다는 칭찬이 ${n}건이에요. 바쁜 손님이 좋아하는 집이에요.`,
+    signature: (n) => `대표 메뉴 칭찬이 ${n}건이에요. 이 집에 오는 이유가 분명해요.` };
+  const TALK_ONLY = { '주차': '주차 되는 집이 이 근처에 드물어요. 차 가져오는 손님은 사장님 가게로 와요.', '단체 이용 가능': '단체 손님 받을 수 있는 집이 옆에 별로 없어요. 회식 손님이 오기 좋아요.',
+    '대기공간': '기다릴 자리가 있는 집이 드물어요. 줄 서는 손님을 놓치지 않으세요.', '유아의자': '아이 의자가 있는 집이 드물어요. 아이 데리고 오는 가족 손님이 편해요.',
+    '예약': '예약되는 집이 옆에 별로 없어요. 모임 잡는 손님이 먼저 찾아요.', '네이버 예약': '네이버로 예약받는 집이 옆에 별로 없어요. 모임 잡는 손님이 먼저 찾아요.',
+    '포장': '포장되는 집이 드물어요. 포장 손님까지 받으시는 거예요.', '지역화폐': '지역화폐 받는 집이 드물어요. 지역화폐 쓰는 손님이 일부러 찾아와요.' };
+  function cmpTalk(b){
+    const M = cmpModel(b); if (!M || !M.set.length) return null;
+    const good = [], bad = [];
+    const P = M.price, K = M.K;
+    const tq = (t) => `<q>“${esc(t)}”</q>`;
+    const tip = (t, q) => `${t}${q ? tq(q) : ''}`;
+    /* 가격 */
+    if (P && !P.none && P.counted.length >= 3) {
+      const N = P.counted.length, p = Math.round((P.idx - 1) * 100);
+      if (P.idx <= 0.97 && P.lower.length > P.higher.length) {
+        const raw = P.lower.filter(r => r.raw && r.won < 0).sort((a, c) => a.won - c.won)[0];
+        const top = raw || P.lower.slice().sort((a, c) => a.ratio - c.ratio)[0];
+        const nm = talkName(top.me.name);
+        good.push({ w: 9, d: `같은 메뉴 ${N}개 가운데 <b>${P.lower.length}개가 옆 가게보다 쌈</b> — 평균 ${Math.abs(p)}% 낮음`,
+          p: tq(raw ? `${nm}${jo(nm, '이/가')} 옆 가게보다 ${pmW(-raw.won)}원 싸요. 가격 경쟁력은 충분하세요.` : `${nm}${jo(nm, '이/가')} 양으로 따지면 옆 가게보다 ${Math.round((1 - top.ratio) * 100)}% 싸요. 가격 경쟁력은 충분하세요.`) });
+      } else if (P.idx >= 1.03 && P.higher.length > P.lower.length) {
+        bad.push({ w: 8, d: `같은 메뉴 ${N}개 가운데 <b>${P.higher.length}개가 옆 가게보다 비쌈</b> — 평균 ${p}% 높음`,
+          p: tip('비싼 이유가 주문 화면에서 보이게 — 하이오더 메뉴판에 메뉴마다 사진과 설명(원산지·중량·숙성)을 넣습니다 (상품 설명 등록 9945)', '값이 조금 있으신 만큼, 손님이 주문하면서 ‘이래서 이 값이구나’ 하시게 보여 드리면 오히려 강점이 돼요.') });
+      } else good.push({ w: 4, d: `같은 메뉴 ${N}개 값이 옆 가게와 비슷함 (평균 차이 ${pmPct(P.idx)})`, p: tq('값은 이 동네 시세에 맞게 잘 잡으셨어요.') });
+    }
+    /* 리뷰 수 · 평점 */
+    if (K.mine !== null && K.n >= 3) {
+      if (K.pos === 1) good.push({ w: 8, d: `방문자 리뷰 <b>${esc(num(K.mine, '건'))}</b> — ${K.n}곳 중 가장 많음`, p: tq('리뷰가 옆 가게보다 제일 많으세요. 손님이 먼저 찾는 집이에요.') });
+      else if (rankLow(K)) bad.push({ w: 8, d: `방문자 리뷰 ${esc(num(K.mine, '건'))} — ${K.n}곳 중 ${K.pos}위 (1위 ${esc(K.top.name)} ${esc(num(K.top.reviews, '건'))})`,
+        p: tip('드신 손님이 그 자리에서 리뷰를 남기게 — 하이오더 주문 화면의 네이버 리뷰 QR (OKPOS 매장 · 10245)', '맛있게 드신 손님이 영수증 없이 바로 리뷰를 남기시게 해 드릴 수 있어요.') });
+    }
+    if (has(K.myScore) && has(K.avgScore)) {
+      const d = Math.round((K.myScore - K.avgScore) * 100) / 100;
+      if (d >= 0.1) good.push({ w: 7, d: `평점 <b>${esc(String(K.myScore))}</b> — 옆 가게 평균 ${esc(String(K.avgScore))}보다 ${d.toFixed(2)} 높음`, p: tq('평점이 옆 가게 평균보다 높으세요. 손님 만족이 숫자로 보여요.') });
+      else if (d <= -0.1) bad.push({ w: 7, d: `평점 ${esc(String(K.myScore))} — 옆 가게 평균 ${esc(String(K.avgScore))}보다 ${Math.abs(d).toFixed(2)} 낮음`,
+        p: tip('2장 손님 목소리의 불만 가운데 주문·호출이 늦다는 글부터 — 테이블 주문·직원 호출로 기다림을 줄입니다', '손님이 아쉬워하신 것 중에 주문 쪽은 바로 손볼 수 있어요.') });
+    }
+    /* 메뉴판 */
+    const Q = cmpMenuStat(M), mm = M.me.menu;
+    if (Q.img !== null && Q.nbN >= 2) {
+      if (Q.img >= 0.4 && Q.img >= Q.maxImg) good.push({ w: 5, d: `메뉴 사진 ${esc(num(mm.img, '개'))}/${esc(num(mm.n, '개'))} (${cmpPc(Q.img)}) — 옆 가게보다 잘 갖춤`, p: tq('메뉴 사진을 옆 가게보다 잘 올려 두셨어요. 손님이 고르기 편하세요.') });
+      else if (Q.nbImg !== null && Q.img <= Q.nbImg - 0.15) bad.push({ w: 9, d: `메뉴 사진 ${cmpPc(Q.img)} (${esc(num(mm.img, '개'))}/${esc(num(mm.n, '개'))}) — 옆 가게는 가운데 ${cmpPc(Q.nbImg)}`,
+        p: tip('하이오더 사진 메뉴판 — 메뉴마다 사진을 크게 (같은 사진을 네이버에도 올리면 가게 고를 때부터 보입니다)', '손님은 사진 보고 고르세요. 주문 화면에 메뉴마다 사진이 뜨게 해 드릴게요.') });
+    }
+    if (Q.desc !== null && Q.nbN >= 2 && Q.nbDesc !== null && Q.nbDesc >= 0.3 && Q.desc <= Q.nbDesc - 0.2)
+      bad.push({ w: 6, d: `메뉴 설명 ${cmpPc(Q.desc)} — 옆 가게는 가운데 ${cmpPc(Q.nbDesc)}`,
+        p: tip('상품 설명 등록(9945) — 메뉴마다 한 줄(맛·양·먹는 법)', '처음 오신 손님이 제일 많이 묻는 게 ‘이건 뭐예요’라서, 메뉴마다 한 줄 설명이 있으면 설명하실 일이 줄어요.') });
+    if (Q.myAge !== null && Q.myAge >= 12 && Q.nbAge !== null && Q.myAge >= Q.nbAge + 6)
+      bad.push({ w: 3, d: `네이버 메뉴판 ${esc(cmpAgo(mm.updated, M.refDate))} 갱신 — 옆 가게는 가운데 ${Q.nbAge}개월 전`,
+        p: tip('값을 바꾸면 매장 메뉴판은 하이오더 매니저앱에서 바로 바뀝니다 — 네이버 메뉴도 이참에 같이 맞추시게', '가격 바꾸실 때 매장 메뉴판은 앱에서 바로 바뀌어요.') });
+    /* 편의시설 · 네이버 기능 */
+    const AM = cmpAmenModel(M);
+    if (AM) {
+      const tb = AM.tools.find(r => r.k === 'table');
+      if (tb && tb.n >= 1 && tb.me !== true) bad.push({ w: 10, d: `옆 가게 ${tb.n}곳이 이미 네이버 테이블 주문을 씀`,
+        p: tip('이 동네 손님은 자리에서 주문하는 데 익숙합니다 — 하이오더 테이블 주문·직원 호출', '옆 가게 손님들은 이미 자리에서 주문하세요. 사장님도 주문받으러 뛰어다니실 필요가 없어요.') });
+      const cp = AM.tools.find(r => r.k === 'coupon');
+      if (cp && cp.n >= 2 && cp.me === false) bad.push({ w: 5, d: `옆 가게 ${cp.n}곳이 네이버 쿠폰으로 손님을 부름 — 이 매장은 없음`,
+        p: tip('한 번 온 손님이 다시 오게 — 하이오더 주문 화면의 스탬프·쿠폰', '옆 가게는 쿠폰으로 새 손님을 부르는데, 사장님은 한 번 오신 손님이 다시 오시게 스탬프로 가시면 돼요.') });
+      const wt = AM.lacks.find(r => r.l === '대기공간') || AM.lacks.find(r => r.l === '예약');
+      if (wt) bad.push({ w: 6, d: `옆 가게 대부분에 ‘${esc(wt.l)}’ 등록 — 이 매장은 없음`,
+        p: tip('손님이 몰리는 시간이 있다면 — 하이오더 웨이팅(대기번호·알림톡 7351)', '자리가 없을 때 그냥 가시는 손님을 번호표로 붙잡아 두실 수 있어요.') });
+      if (AM.only.length) good.push({ w: 6, d: `이 매장에만 있는 것: <b>${esc(AM.only.slice(0, 3).map(r => r.l).join(' · '))}</b> (옆 가게 ${AM.n}곳 중 0~1곳)`,
+        p: tq(TALK_ONLY[AM.only[0].l] || `‘${AM.only[0].l}’${jo(AM.only[0].l, '은/는')} 옆 가게엔 거의 없는 거라 사장님 가게만의 장점이에요.`) });
+      const regs = AM.lacks.filter(r => !r.tool && r.l !== '대기공간' && r.l !== '예약');
+      if (regs.length) bad.push({ w: 1, d: `옆 가게 대부분엔 있는데 이 매장엔 등록 안 됨: ${esc(regs.slice(0, 3).map(r => r.l).join(' · '))}`,
+        p: tip('실제로 되는 것이면 네이버 스마트플레이스에 등록만 — 손님이 가게를 고를 때 거르는 조건입니다 (하이오더와 별개지만 방문 때 챙겨 드리면 좋은 인상)', '') });
+    }
+    /* 영업시간 */
+    const myW = M.me.hours ? cmpWeekday(M.me.hours.week) : null;
+    const nbW = M.set.filter(s => s.hours).map(s => ({ s, W: cmpWeekday(s.hours) })).filter(x => x.W);
+    if (myW && nbW.length >= 2) {
+      const maxC = Math.max(...nbW.map(x => x.W.sp.c)), later = nbW.filter(x => x.W.sp.c > myW.sp.c + 30);
+      if (myW.sp.c > maxC) good.push({ w: 6, d: `평일 ${esc(myW.w.c)}까지 영업 — 옆 가게 가운데 가장 늦게까지`, p: tq('옆 가게가 다 닫은 뒤에도 여셔서 늦은 손님은 사장님 가게로 와요.') });
+      else if (later.length >= 2) bad.push({ w: 4, d: `옆 가게 ${later.length}곳이 이 매장(${esc(myW.w.c)})보다 늦게까지 엶`,
+        p: tip('손이 모자라 더 못 여시는 거라면 — 주문·호출을 태블릿이 받으면 같은 인원으로 조금 더 열어 볼 여지가 생깁니다', '늦게 오시는 손님이 옆 가게로 가요. 주문받는 일을 덜어 드리면 조금 더 여실 수 있어요.') });
+    }
+    /* 메뉴 구성 · 동네에서 가장 오래됨 */
+    if (P && !P.none && P.only.length >= 3 && P.cmp.length >= 3) {
+      const nm = talkName(P.only[0].me.name);
+      good.push({ w: 5, d: `옆 가게에 없는 메뉴 ${P.only.length}개 — ${esc(P.only.slice(0, 2).map(r => talkName(r.me.name)).join(' · '))} 등`, p: tq(`${nm} 같은 건 이 근처에서 사장님 가게에만 있어요. 이 집에 와야 먹는 메뉴죠.`) });
+    }
+    const AG = ageModel(b);
+    if (AG && AG.LR && AG.LR.pos === 1) good.push({ w: 4, d: `${esc(AG.LR.where)} ${esc(AG.LR.kind)} ${esc(num(AG.LR.n, '곳'))} 가운데 가장 먼저 문을 연 곳`, p: tq('이 동네에서 제일 오래된 집이세요. 그것만으로 단골이 있다는 뜻이죠.') });
+    /* 앞서는 숫자가 모자라면 — 손님 리뷰의 칭찬 · 업력 · 평점 */
+    const RV = state.reviews && state.reviews.data;
+    if (good.length < 2 && RV && RV.praise) {
+      const pz = (RV.praise.items || []).filter(x => x && x.n >= 3 && TALK_PRAISE[x.key]).sort((a, c) => c.n - a.n)[0];
+      if (pz) good.push({ w: 3, d: `손님 리뷰의 칭찬 — ‘${esc(pz.label)}’ ${esc(num(pz.n, '건'))}`, p: tq(TALK_PRAISE[pz.key](pz.n)) });
+    }
+    /* 업력은 ② 꺼내는 말에 전국 생존율과 함께 들어간다 — ①에 겹쳐 적지 않는다 */
+    if (good.length < 2 && has(K.myScore) && K.myScore >= 4.5 && !good.some(g => /평점/.test(g.d))) good.push({ w: 1, d: `네이버 평점 ${esc(String(K.myScore))}`, p: tq('평점이 4.5를 넘으세요. 다녀간 손님 만족이 높은 집이에요.') });
+    /* 꺼내는 말 — 숫자가 있는 말만 */
+    const A = axesOf(b).comp, cushion = [];
+    cushion.push({ q: '사장님 가게를 평가하려는 게 아니라, 손님이 네이버에서 가게 고를 때 나란히 보는 화면을 그대로 가져와 본 거예요.', why: '처음 꺼낼 때' });
+    if (A && (A.level >= 2 || A.total >= 10)) cushion.push({ q: `이 주변은 반경 ${dist(M.R)} 안에 같은 업종만 ${num(A.total, '곳')}${A.n100 >= 2 ? `(100m 안에만 ${A.n100}곳)` : ''}이 모인 곳이라 비교 기준이 워낙 높아요.`, why: `근거: 3장 같은 업종 ${num(A.total, '곳')}` });
+    if (A && A.newlyRatio !== null && A.newlyRatio >= 0.12) { const hood = hoodOf(b); cushion.push({ q: `최근 ${(hood && hood.years) || 2}년 사이 새로 문 연 가게가 ${Math.round(A.newlyRatio * 100)}%나 되는 동네라, 손님이 새 가게로 한 번씩 흩어져요.`, why: '근거: 인허가 동네 집계' }); }
+    if (AG && AG.L.months >= 36) { const S5 = AG.L.months >= 60, s = S5 ? AG.s5 : AG.s3;
+      cushion.push({ q: `이런 자리에서 ${AG.L.years}년째 하고 계신 것 자체가 실력이에요. 전국으로 봐도 ${survNm(s)} 100곳 중 ${S5 ? 5 : 3}년을 넘기는 곳이 ${Math.round(s.v)}곳뿐이거든요.`, why: `근거: ${SURV_SRC}` }); }
+    else if (AG && AG.L.months < 36) cushion.push({ q: `문 여신 지 ${ageText(AG.L)}이라, 오래된 옆 가게와 리뷰·사진 수가 차이 나는 건 당연해요. 지금부터 쌓으시면 돼요.`, why: '근거: 인허가일' });
+    if (!good.length) cushion.push({ q: '숫자로 앞서는 게 안 보여도, 손님이 모르는 장점은 알리기만 하면 돼요. 그걸 같이 찾아 드리려고 온 거예요.', why: '옆 가게보다 앞서는 숫자가 없을 때' });
+    const byW = (a, c) => (c.w || 0) - (a.w || 0);   // 하이오더로 이어지는 것·손님이 먼저 느끼는 것부터
+    return { good: good.slice().sort(byW).slice(0, 4), bad: bad.slice().sort(byW).slice(0, 4), cushion };
+  }
+  function cmpTalkHTML(b){
+    let T = null; try { T = cmpTalk(b); } catch (e) { console.error('cmp talk', e); }
+    if (!T || (!T.good.length && !T.bad.length)) return '';
+    const rows = (list, cls) => `<ol class="mrows cxtr ${cls}">${list.map(x => `<li><span class="md">${x.d}</span><span class="mp">${x.p}</span></li>`).join('')}</ol>`;
+    return `<div class="cxtalk"><p class="mk">옆 가게와 견주어 말하기 <small>① 칭찬 먼저 → ② 기분 상하지 않게 꺼내기 → ③ 아쉬운 점은 하이오더로 · 숫자는 위 ‘옆 가게와 견주기’</small></p>
+      ${T.good.length ? `<p class="cxk">① 먼저 칭찬 — 옆 가게보다 나은 점</p>${rows(T.good, 'good')}` : ''}
+      <p class="cxk">② 이렇게 꺼내세요 <small>비교 때문에 기분 상하지 않게</small></p>
+      <ul class="cxqs">${T.cushion.map(c => `<li><q>“${esc(c.q)}”</q><span>${esc(c.why)}</span></li>`).join('')}</ul>
+      ${T.bad.length ? `<p class="cxk">③ 아쉬운 점 → 하이오더로 <small>손님이 먼저 느끼게 말하고, 기능 이름은 그다음</small></p>${rows(T.bad, 'bad')}` : ''}</div>`;
+  }
+  /* v3.56: AI 첨부 — 3장 옆 가게와 견주기 (사실만, 영업 멘트는 넣지 않는다) */
+  function cmpMd(b){
+    const M = cmpModel(b); if (!M || !M.set.length) return [];
+    const L = ['', `### 옆 가게와 견주기 (가까운 같은 업종 ${M.set.length}곳 · 가게가 네이버 플레이스에 올린 정보)`];
+    L.push(`- 옆 가게: ${md(M.set.map(s => `${s.mark} ${s.name}${s.distance !== null ? ` ${dist(s.distance)}` : ''}${s.fill ? ' (네이버에서 채움)' : ''}`).join(', '))}`);
+    if (M.skipped.length) L.push(`- 못 넣은 곳: ${md(M.skipped.map(s => `${s.mark} ${s.name}(${s.why})`).join(', '))}`);
+    const P = M.price;
+    if (P && !P.none) {
+      if (P.counted.length) L.push(`- 가격: 같은 메뉴 ${P.counted.length}개 중 싼 것 ${P.lower.length} · 비싼 것 ${P.higher.length} · 같은 값 ${P.counted.length - P.lower.length - P.higher.length} · 평균 차이 ${pmPct(P.idx)} (메뉴마다 견준 비율의 기하평균)`);
+      if (P.cmp.length) {
+        L.push('', `| 메뉴 | 이 매장 | ${P.stores.map(s => md(s.mark)).join(' | ')} | 차이 |`, `|---|---|${P.stores.map(() => '---').join('|')}|---|`);
+        P.cmp.forEach(r => L.push(`| ${md(r.me.name)} | ${pmW(r.me.price)} | ${r.cells.map(c => !c ? '—' : `${c.rel === 'near' ? '≈' : ''}${pmW(c.it.price)}${talkName(c.it.name) !== talkName(r.me.name) ? ` (${md(c.it.name)})` : ''}`).join(' | ')} | ${r.ratio === null ? '—' : r.raw && r.won !== null ? (r.won === 0 ? '같음' : `${r.won > 0 ? '+' : '−'}${pmW(Math.abs(r.won))}원 (${pmPct(r.ratio)})`) : `${pmPct(r.ratio)} (${r.modes.filter(Boolean).map(m => PM_MODE[m]).join('·') || '양 맞춤'})`} |`));
+        L.push('- 같은 메뉴: 수식어·양·크기 표시를 뗀 이름이 같은 메뉴 · 양(g)이 둘 다 있으면 100g당 · ≈는 이름이 조금 다른 비슷한 메뉴(판정에서 뺌)');
+      }
+      if (P.only.length) L.push(`- 이 매장에만 있는 메뉴: ${md(P.only.map(r => `${r.me.name} ${pmW(r.me.price)}`).join(', '))}`);
+      if (P.gaps.length) L.push(`- 옆 가게 두 곳 이상이 파는데 이 매장엔 없는 메뉴: ${md(P.gaps.map(g => `${g.name}(${g.n}곳)`).join(', '))}`);
+    }
+    L.push('', '| 가게 | 메뉴 | 사진 있는 메뉴 | 설명 있는 메뉴 | 메뉴판 갱신 | 방문자 리뷰 | 평점 | 블로그 후기 | 사진 |', '|---|---|---|---|---|---|---|---|---|');
+    const rate = (m, k) => m && m.read && has(m[k]) && m.n ? `${m[k]} (${cmpPc(m[k] / m.n)})` : '—';
+    const row = (name, m, x) => `| ${md(name)} | ${m && m.read ? m.n : '—'} | ${rate(m, 'img')} | ${rate(m, 'desc')} | ${m && m.updated ? md(m.updated) : '—'} | ${num(x.reviews)} | ${has(x.score) ? x.score : '—'} | ${num(x.blogs)} | ${num(x.photos)} |`;
+    L.push(row('이 매장', M.me.menu, M.me));
+    M.set.forEach(s => L.push(row(`${s.mark} ${s.name}`, s.menu, s)));
+    const AM = cmpAmenModel(M);
+    if (AM) {
+      if (AM.lacks.length) L.push(`- 옆 가게 대부분에 있는데 이 매장엔 없는 것(네이버 등록 기준): ${md(AM.lacks.map(r => r.l).join(', '))}`);
+      if (AM.only.length) L.push(`- 이 매장에만 있는 것: ${md(AM.only.map(r => r.l).join(', '))}`);
+      const tb = AM.tools.find(r => r.k === 'table'); if (tb && tb.n) L.push(`- 네이버 테이블 주문을 쓰는 옆 가게: ${tb.n}곳`);
+    }
+    const hs = [['이 매장', M.me.hours && M.me.hours.week]].concat(M.set.map(s => [`${s.mark} ${s.name}`, s.hours])).filter(([, w]) => w);
+    if (hs.length) L.push(`- 영업시간: ${md(hs.map(([n, w]) => `${n} ${cmpRuns(w)}`).join(' / '))}`);
+    const pops = [['이 매장', M.me.popular]].concat(M.set.map(s => [`${s.mark} ${s.name}`, s.popular])).filter(([, t]) => t);
+    if (pops.length) L.push(`- 네이버 주간 인기 많은 메뉴(POS 연동 가게만): ${md(pops.map(([n, t]) => `${n} — ${t}`).join(' / '))}`);
+    return L;
+  }
+
   /* ── 같은 업종 점포 (세로 막대) ── */
   function renderComp(b){
     const m = mod(b,'competition');
@@ -4916,6 +5847,7 @@ ${GUARD}`,
         <div class="b s12"><div class="kpi4">${t3.join('')}</div></div>
         <div class="b s12 top"><p class="k">업종 깔때기 <small>대분류 › 중분류 › 소분류 · 반경 ${dist(R)}</small></p>${columnsSVG(data)}${legendCols(legend)}</div>
         ${nearBox ? `<div class="b s12 top">${nearBox}</div>` : ''}
+        ${(() => { try { return cmpHTML(b); } catch (e) { console.error('cmp', e); return ''; } })()}
         ${mtn ? `<div class="b s12 top" style="padding-top:0">${mtn}</div>` : ''}
         ${mix.length >= 2 ? `<div class="b s12 top">${mixHTML(mix, cd.mixTotal, R)}</div>` : ''}
         ${hoodHTML(hood3, R)}
@@ -6996,6 +7928,7 @@ ${GUARD}`,
         if (tot) L.push(`| 반경 안 음식점 구성 (${num(tot,'곳')}) | ${md(mix.slice(0,6).map(x => `${x.small} ${x.count}곳(${(x.count/tot*100).toFixed(1)}%)`).join(', '))} |`);
       }
       L.push(`| ${md(c.industry.large || '대분류')} 전체 | ${num(c.sameLarge.count, '곳')} |`);
+      try { cmpMd(b).forEach((x) => L.push(x)); } catch (e) { console.error('cmp md', e); }   // v3.56
     }
     L.push('');
 
@@ -7807,11 +8740,15 @@ ${GUARD}`,
         const why = locRes.status === 'rejected' ? String((locRes.reason && locRes.reason.message) || locRes.reason) : '응답 없음';
         bundle.modules.localdata = { ok:false, error:`인허가 조회 실패 — ${why}`, source:{ name:'행정안전부 식품_일반음식점 (인허가)', url:'https://www.data.go.kr/data/15154916/openapi.do' } };
       }
-      /* 이웃 매장 리뷰 수(눈금의 '기준')는 상가정보 이웃이 정해진 뒤 세 번째 호출로 */
-      const nbList = (((bundle.modules.competition||{}).data||{}).neighbors || []).filter(x => x && x.name).slice(0, 5);
+      /* 이웃 매장 리뷰 수(눈금의 '기준')는 상가정보 이웃이 정해진 뒤 세 번째 호출로
+         v3.56: 옆 가게와 견주기 — 이웃 6곳(지도 번호 no)과 menus:true · 업종어(채우기용) · 이 매장 네이버 ID (수집 서버 v1.52) */
+      const cdc = ((bundle.modules.competition||{}).data||{});
+      const nbList = (cdc.neighbors || []).filter(x => x && x.name).slice(0, 6).map((x, i) => ({ ...x, no: i + 1 }));
       if (nbList.length && bundle.modules.reviews && bundle.modules.reviews.ok && !bundle.modules.rank) {
-        el.progSub.textContent = '옆 가게 리뷰 수를 읽는 중…';
-        try { const r = await api('/direct/rank', { method:'POST', body:{ store: c, neighbors: nbList }, timeout: 45000 });
+        el.progSub.textContent = '옆 가게 리뷰·가격표를 읽는 중…';
+        const kindW = (() => { const h = [c.category, c.naverCategory, (cdc.industry || {}).small].filter(Boolean).join(' '); for (const [re, label] of KW_KIND) if (re.test(h)) return label; return ''; })();
+        const selfId = ((((bundle.modules.reviews.data || {}).sources || {}).naver || {}).place || {}).naverId || '';
+        try { const r = await api('/direct/rank', { method:'POST', body:{ store: c, neighbors: nbList, menus: true, kind: kindW, selfId: String(selfId || ''), radius: body.radius }, timeout: 60000 });
           if (r && r.rank && r.rank.ok && r.rank.data && (r.rank.data.neighbors||[]).length) bundle.modules.rank = r.rank;
           if (r && r.apiCalls) bundle.apiCalls = sumCalls(bundle.apiCalls, r.apiCalls);
         } catch (_) { /* 기준 눈금만 빠진다 */ }
