@@ -1683,7 +1683,7 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
       <div class="name" data-sk="1" data-sk-wide="1">밑그림</div>
       <div class="tag"><span class="en">SKETCH</span><em>밑</em>천이 되는 <em>그림</em></div>
     </div>
-    <div class="ver" id="pageVer">v3.55</div>
+    <div class="ver" id="pageVer">v3.56</div>
   </div>
 
   <section class="tool" id="tool" aria-label="수집 도구">
@@ -1691,8 +1691,8 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
       <form class="trow" id="searchForm" autocomplete="off">
         <div class="tf grow"><span class="tl">매장 찾기</span>
           <input id="q" type="search" maxlength="60" placeholder="상호와 동네 — 예: 우대포 명동" aria-label="상호와 동네" required></div>
-        <div class="tf w96"><span class="tl">반경</span>
-          <select id="radius" aria-label="조사 반경">
+        <div class="tf w96"><span class="tl">매장 기준 반경</span>
+          <select id="radius" aria-label="매장 기준 반경">
             <option value="300">300m</option><option value="500" selected>500m</option><option value="1000">1km</option>
           </select></div>
         <button class="tbtn" id="searchBtn" type="submit">검색</button>
@@ -1732,7 +1732,8 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
 
   // ▼ 배포 후 Cloudflare Worker 주소로 바꾸세요 (끝에 / 없이)
   const API_BASE = 'https://kt.roi0925003.workers.dev';
-  const PAGE_VERSION = 'v3.55';
+  const PAGE_VERSION = 'v3.56';
+  /* v3.56: 첫 화면 '반경' → '매장 기준 반경' · 0장 첫 문장 주어 '이 매장은' → 매장명 + 은/는 (받침으로 고름 · 이름이 없으면 그대로 '이 매장은') */
   /* v3.55: 메뉴 옆 사진(깨진 사진·엉뚱한 사진) · 강점·아쉬운 점 글자 크기 · 검색 추이 그래프(달 자리·곡선) · 검색어 후보 '지역 주차' */
   /* v3.54: 연필 동그라미가 1장 숫자 칸의 글자를 줄이고 줄을 바꾸던 것 · 2장 손님 목소리 연출(늦게 도착해도 제 칸이 오면 재생) */
   /* v3.53: 1장 영업 기간 — 동네에서 몇 번째로 오래된 가게인가(동네 상위 N%) · 수집 서버 v1.51 hood.older */
@@ -4073,9 +4074,13 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
     /* v3.35: 화면 첫 문단은 문장으로 (묶음·AI용은 위 facts 그대로) */
     const sents = [];
     { const idTxt = facts[0];
-      if (L && L.open) sents.push(`이 매장은 ${idTxt}${jo(idTxt, '으로/로')}, 인허가 기준 <b>${esc(ageText(L))}째</b>입니다.${LB ? ` <span class="src9">리뷰는 ${esc(LB)}부터 있어 그 전부터 영업한 자리입니다 — 주인이 바뀌어 새로 신고했을 수 있습니다.</span>` : ''}`);
-      else if (L) sents.push(`이 매장은 ${idTxt}입니다. 인허가 기록은 <b>${esc(L.state || '폐업')}</b> (${esc(L.closed || L.ymd)})${jo(L.closed || L.ymd,'이라/라')} 현장 확인이 필요합니다.`);
-      else sents.push(`이 매장은 ${idTxt}입니다.`);
+      /* v3.56: 첫 문장 주어는 매장명 — 받침 보고 은/는 (만복집은 · 우대포는). 끝에 붙은 괄호(지점명 등)는 조사 고를 때 뺀다. 이름이 없으면 '이 매장은' */
+      const who0 = String(s.name || '').trim();
+      const whoJo = who0 ? jo(who0.replace(/\s*[(\[][^()\[\]]*[)\]]$/, '') || who0, '은/는') : '';
+      const whoSub = who0 ? `${esc(who0)}${whoJo}` : '이 매장은';
+      if (L && L.open) sents.push(`${whoSub} ${idTxt}${jo(idTxt, '으로/로')}, 인허가 기준 <b>${esc(ageText(L))}째</b>입니다.${LB ? ` <span class="src9">리뷰는 ${esc(LB)}부터 있어 그 전부터 영업한 자리입니다 — 주인이 바뀌어 새로 신고했을 수 있습니다.</span>` : ''}`);
+      else if (L) sents.push(`${whoSub} ${idTxt}입니다. 인허가 기록은 <b>${esc(L.state || '폐업')}</b> (${esc(L.closed || L.ymd)})${jo(L.closed || L.ymd,'이라/라')} 현장 확인이 필요합니다.`);
+      else sents.push(`${whoSub} ${idTxt}입니다.`);
       if (L && has(L.area) && Number(L.area) > 0) sents.push(`영업장은 <b>${esc(num(Number(L.area)))}㎡</b>(약 ${esc(String(pyeong(L.area)))}평${L.floors ? ` · ${esc(floorsLabel(L.floors))}` : ''})입니다.`);
       if (cd && (cd.matched || cd.fallback) && has(cd.sameSmall && cd.sameSmall.count) && (cd.matched || Number(cd.sameSmall.count) > 0)) {   // v3.41: 업종을 못 찾아 0곳이면 쓰지 않음
         const sameB = near.filter(x => x.sameBldg).length;
