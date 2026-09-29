@@ -1909,7 +1909,7 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
       <div class="name" data-sk="1" data-sk-wide="1">밑그림</div>
       <div class="tag"><span class="en">SKETCH</span><em>밑</em>천이 되는 <em>그림</em></div>
     </div>
-    <div class="ver" id="pageVer">v3.58</div>
+    <div class="ver" id="pageVer">v3.59</div>
   </div>
 
   <section class="tool" id="tool" aria-label="수집 도구">
@@ -1917,8 +1917,8 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
       <form class="trow" id="searchForm" autocomplete="off">
         <div class="tf grow"><span class="tl">매장 찾기</span>
           <input id="q" type="search" maxlength="60" placeholder="상호와 동네 — 예: 우대포 명동" aria-label="상호와 동네" required></div>
-        <div class="tf w96"><span class="tl">반경</span>
-          <select id="radius" aria-label="조사 반경">
+        <div class="tf w96"><span class="tl">매장 기준 반경</span>
+          <select id="radius" aria-label="매장 기준 반경">
             <option value="300">300m</option><option value="500" selected>500m</option><option value="1000">1km</option>
           </select></div>
         <button class="tbtn" id="searchBtn" type="submit">검색</button>
@@ -1958,7 +1958,8 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
 
   // ▼ 배포 후 Cloudflare Worker 주소로 바꾸세요 (끝에 / 없이)
   const API_BASE = 'https://kt.roi0925003.workers.dev';
-  const PAGE_VERSION = 'v3.58';
+  const PAGE_VERSION = 'v3.59';
+  /* v3.59: 다른 작업(2026-09-29 GitHub 20084a2)에서 고친 두 곳을 되살림 — 첫 화면 '반경' → '매장 기준 반경' · 1장 첫 문장 주어 '이 매장은' → 매장명 + 은/는 */
   /* v3.58: 예상 테이블 한 칸 올림 — 테이블 1개당 면적 고기·주점 6~8㎡ · 일반 4.5~6㎡ · 그 업종이 여러 층이면 홀 55% (현장: 실제는 '많게 잡은 수' 근처이거나 그 위) */
   /* v3.57: 검색창 흐림막(최근 목록 뒤) · 2장 별점 평균 = 네이버 전체 분포 · 3장 가격표는 가운데 값 + 가게별 가격표(메뉴별 견주기 뺌) · '이 매장' 대신 상호 · 업력·예상 테이블 견주기(수집 서버 v1.53) */
   /* v3.56: 3장 옆 가게와 견주기 — 가격표(메뉴 전체) · 메뉴판 · 편의시설·결제 · 리뷰·인기 · 영업시간 + 영업 메모(칭찬 → 꺼내는 말 → 하이오더) · 수집 서버 v1.52 */
@@ -4316,9 +4317,13 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
     /* v3.35: 화면 첫 문단은 문장으로 (묶음·AI용은 위 facts 그대로) */
     const sents = [];
     { const idTxt = facts[0];
-      if (L && L.open) sents.push(`이 매장은 ${idTxt}${jo(idTxt, '으로/로')}, 인허가 기준 <b>${esc(ageText(L))}째</b>입니다.${LB ? ` <span class="src9">리뷰는 ${esc(LB)}부터 있어 그 전부터 영업한 자리입니다 — 주인이 바뀌어 새로 신고했을 수 있습니다.</span>` : ''}`);
-      else if (L) sents.push(`이 매장은 ${idTxt}입니다. 인허가 기록은 <b>${esc(L.state || '폐업')}</b> (${esc(L.closed || L.ymd)})${jo(L.closed || L.ymd,'이라/라')} 현장 확인이 필요합니다.`);
-      else sents.push(`이 매장은 ${idTxt}입니다.`);
+      /* v3.56(20084a2) · v3.59 되살림: 첫 문장 주어는 매장명 — 받침 보고 은/는 (만복집은 · 우대포는). 끝에 붙은 괄호(지점명 등)는 조사 고를 때 뺀다. 이름이 없으면 '이 매장은' */
+      const who0 = String(s.name || '').trim();
+      const whoJo = who0 ? jo(who0.replace(/\s*[(\[][^()\[\]]*[)\]]$/, '') || who0, '은/는') : '';
+      const whoSub = who0 ? `${esc(who0)}${whoJo}` : '이 매장은';
+      if (L && L.open) sents.push(`${whoSub} ${idTxt}${jo(idTxt, '으로/로')}, 인허가 기준 <b>${esc(ageText(L))}째</b>입니다.${LB ? ` <span class="src9">리뷰는 ${esc(LB)}부터 있어 그 전부터 영업한 자리입니다 — 주인이 바뀌어 새로 신고했을 수 있습니다.</span>` : ''}`);
+      else if (L) sents.push(`${whoSub} ${idTxt}입니다. 인허가 기록은 <b>${esc(L.state || '폐업')}</b> (${esc(L.closed || L.ymd)})${jo(L.closed || L.ymd,'이라/라')} 현장 확인이 필요합니다.`);
+      else sents.push(`${whoSub} ${idTxt}입니다.`);
       if (L && has(L.area) && Number(L.area) > 0) sents.push(`영업장은 <b>${esc(num(Number(L.area)))}㎡</b>(약 ${esc(String(pyeong(L.area)))}평${L.floors ? ` · ${esc(floorsLabel(L.floors))}` : ''})입니다.`);
       if (cd && (cd.matched || cd.fallback) && has(cd.sameSmall && cd.sameSmall.count) && (cd.matched || Number(cd.sameSmall.count) > 0)) {   // v3.41: 업종을 못 찾아 0곳이면 쓰지 않음
         const sameB = near.filter(x => x.sameBldg).length;
