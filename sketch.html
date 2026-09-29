@@ -1909,7 +1909,7 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
       <div class="name" data-sk="1" data-sk-wide="1">밑그림</div>
       <div class="tag"><span class="en">SKETCH</span><em>밑</em>천이 되는 <em>그림</em></div>
     </div>
-    <div class="ver" id="pageVer">v3.57</div>
+    <div class="ver" id="pageVer">v3.58</div>
   </div>
 
   <section class="tool" id="tool" aria-label="수집 도구">
@@ -1958,7 +1958,8 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
 
   // ▼ 배포 후 Cloudflare Worker 주소로 바꾸세요 (끝에 / 없이)
   const API_BASE = 'https://kt.roi0925003.workers.dev';
-  const PAGE_VERSION = 'v3.57';
+  const PAGE_VERSION = 'v3.58';
+  /* v3.58: 예상 테이블 한 칸 올림 — 테이블 1개당 면적 고기·주점 6~8㎡ · 일반 4.5~6㎡ · 그 업종이 여러 층이면 홀 55% (현장: 실제는 '많게 잡은 수' 근처이거나 그 위) */
   /* v3.57: 검색창 흐림막(최근 목록 뒤) · 2장 별점 평균 = 네이버 전체 분포 · 3장 가격표는 가운데 값 + 가게별 가격표(메뉴별 견주기 뺌) · '이 매장' 대신 상호 · 업력·예상 테이블 견주기(수집 서버 v1.53) */
   /* v3.56: 3장 옆 가게와 견주기 — 가격표(메뉴 전체) · 메뉴판 · 편의시설·결제 · 리뷰·인기 · 영업시간 + 영업 메모(칭찬 → 꺼내는 말 → 하이오더) · 수집 서버 v1.52 */
   /* v3.55: 메뉴 옆 사진(깨진 사진·엉뚱한 사진) · 강점·아쉬운 점 글자 크기 · 검색 추이 그래프(달 자리·곡선) · 검색어 후보 '지역 주차' */
@@ -3589,7 +3590,7 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
     if (!T) return null;
     const hi = T[1], fl = L.floors ? floorsLabel(L.floors) : '';
     const cls = hi <= 5 ? '작은 가게' : hi <= 12 ? '아담한 홀' : hi <= 25 ? '넉넉한 홀' : '큰 홀';
-    return { L, area, T, typed: Boolean(Q.typed), big: Boolean(Q.big),
+    return { L, area, T, typed: Boolean(Q.typed), big: Boolean(Q.big), hallR: Q.hallR, floors: Q.floors,
       h: `${cls} · 테이블 ${rngN(T, '개')}${Q.typed ? ' (실측)' : ''}`,
       t: `약 ${pyeong(area)}평${fl ? ` · ${fl}` : ''} · ${Q.typed ? '방문 때 센 테이블 수' : `${Q.density.label} 기준`}${Q.big ? ' · 100평이 넘어 오차가 큼, 실측 필요' : ''}` };
   }
@@ -3694,7 +3695,7 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
       return `<div class="kpi szk"><div class="k">매장 규모 · 인허가 영업장 면적</div>
       <div class="v" data-sk="1" data-n="${a}" data-d="0" data-suf="㎡" data-sk-wait="1">${esc(num(a))}㎡</div>
       ${meanHTML(mn)}${tableDots(Z.T, Z.typed)}
-      <div class="s">${esc([Z.typed ? '면적은 인허가 영업장 면적(주방·창고 포함) · 테이블은 방문 때 센 수' : '인허가 영업장 면적(주방·창고 포함)의 65%를 홀로 보고 4인 테이블 크기로 나눈 추정 — 가정값이라 방문 때 실측'].concat(state.cust ? [] : ['견적 대수도 같은 계산']).join(' · '))}</div></div>`;
+      <div class="s">${esc([Z.typed ? '면적은 인허가 영업장 면적(주방·창고 포함) · 테이블은 방문 때 센 수' : `인허가 영업장 면적(주방·창고 포함)의 ${Math.round((Z.hallR || QUOTE.hall) * 100)}%${Z.hallR < QUOTE.hall ? `(${Z.floors}개 층이라 낮춰 잡음)` : ''}를 홀로 보고 4인 테이블 크기로 나눈 추정 — 가정값이라 방문 때 실측`].concat(state.cust ? [] : ['견적 대수도 같은 계산']).join(' · '))}</div></div>`;
     };
     const kpis = '<div class="kpis" data-rule="ht,vc">' + [
       kpi(`같은 업종 (반경 ${dist(R)})`, cd && (cd.matched || (cd.fallback && Number(cd.sameSmall && cd.sameSmall.count) > 0)) ? num(cd.sameSmall.count) : '—',
@@ -5209,12 +5210,20 @@ ${GUARD}`,
     const d = new Date(+y.slice(0, 4), +y.slice(4, 6) - 1, +y.slice(6, 8));
     const mo = Math.max(0, Math.round((Date.now() - d.getTime()) / 2629800000));
     return { ymd: `${y.slice(0, 4)}-${y.slice(4, 6)}-${y.slice(6, 8)}`, months: mo, years: Math.floor(mo / 12), rest: mo % 12,
-      area: has(it.area) && Number(it.area) > 0 ? Number(it.area) : null, match: String(it.match || ''), name: String(it.name || '') };
+      area: has(it.area) && Number(it.area) > 0 ? Number(it.area) : null, match: String(it.match || ''), name: String(it.name || ''),
+      floors: cmpFloorsN(it.addr) };
   }
-  /* 예상 테이블 — 9장 견적과 같은 가정 (영업장 면적 × 홀 65% ÷ 업종별 4인 테이블 1개당 면적) */
-  function cmpTables(area, dens){
+  /* v3.58: 인허가 주소의 층 표기로 층 수 — '2,3,4층' → 3 · '1~2층' → 2 (floorsOf와 같은 셈) */
+  function cmpFloorsN(addr){
+    const f = floorsText(addr); if (!f) return 1;
+    const m = f.match(/\d+/g) || []; if (!m.length) return 1;
+    if (/[~-]/.test(f) && m.length >= 2) return Math.max(1, Math.abs(Number(m[1]) - Number(m[0])) + 1);
+    return Math.max(1, m.length);
+  }
+  /* 예상 테이블 — 9장 견적과 같은 가정 (영업장 면적 × 홀 65% — 고기·주점·일반이 여러 층이면 55% ÷ 업종별 4인 테이블 1개당 면적) */
+  function cmpTables(area, dens, floors){
     if (!(Number(area) >= 10) || !dens) return null;
-    const hall = Number(area) * QUOTE.hall;
+    const hall = Number(area) * hallOf(floors || 1, dens);
     const lo = Math.max(1, Math.floor(hall / dens.per[1]));
     return [lo, Math.max(lo, Math.round(hall / dens.per[0]))];
   }
@@ -5278,7 +5287,7 @@ ${GUARD}`,
     let letter = 0; set.forEach(s => { s.mark = s.fill || !s.no ? String.fromCharCode(65 + letter++) : String(s.no); });
     set.forEach(s => {
       const it = licBy.get(s.key) || null;
-      s.lic = cmpLicOf(it); s.tables = s.lic ? cmpTables(s.lic.area, dens) : null;
+      s.lic = cmpLicOf(it); s.tables = s.lic ? cmpTables(s.lic.area, dens, s.lic.floors) : null;
       s.licWhy = !nblOk || s.lic ? '' : !it ? '조회 안 함' : !it.ok ? String(it.why || '못 찾음') : '폐업 기록뿐';
     });
     /* 상가정보 이웃 가운데 견주기에 못 넣은 곳과 까닭 */
@@ -5300,8 +5309,8 @@ ${GUARD}`,
       menu: nm.length ? { read: true, ok: true, n: nm.length, img: nm.filter(x => x.image).length, desc: nm.filter(x => x.desc).length, updated: String(pd.naverMenuUpdated || ''), naver: true }
         : P && P.menus.length ? { read: true, ok: true, n: P.menus.length, img: null, desc: null, updated: String(P.menuUpdated || ''), naver: false } : { read: false },
       hours: cmpMyHours(pd, P), popular: self ? String(self.popular || '') : '',
-      lic: L0 ? { ymd: L0.ymd, months: L0.months, years: L0.years, rest: L0.rest, area: has(L0.area) && Number(L0.area) > 0 ? Number(L0.area) : null } : null,
-      tables: Z ? Z.T : (L0 ? cmpTables(L0.area, dens) : null), tablesTyped: Boolean(Z && Z.typed),
+      lic: L0 ? { ymd: L0.ymd, months: L0.months, years: L0.years, rest: L0.rest, area: has(L0.area) && Number(L0.area) > 0 ? Number(L0.area) : null, floors: floorsOf(b) } : null,
+      tables: Z ? Z.T : (L0 ? cmpTables(L0.area, dens, floorsOf(b)) : null), tablesTyped: Boolean(Z && Z.typed),
     };
     const price = cmpPrice(b, P, set);
     return { set, me, price, skipped, blocked: Boolean(rk.data.blocked), self, K, R: (b.options && b.options.radius) || 500, refDate: String(b.collectedAt || '').slice(0, 10),
@@ -5537,7 +5546,7 @@ ${GUARD}`,
     const row = (r) => {
       const age = r.L ? `<div class="yt">${guides}<i style="width:${Math.max(1.5, pY(r.L.months)).toFixed(2)}%"></i></div><span class="yv">${esc(ageText(r.L))}째<small>${esc(r.L.ymd)}</small></span>`
         : `<div class="yt">${guides}<em>${esc(why(r))}</em></div><span class="yv">—</span>`;
-      const tb = r.T ? `<div class="yt tb"><i style="width:${Math.max(1.5, pT(r.T[0])).toFixed(2)}%"></i>${r.T[1] > r.T[0] ? `<i class="hi" style="left:${pT(r.T[0]).toFixed(2)}%;width:${(pT(r.T[1]) - pT(r.T[0])).toFixed(2)}%"></i>` : ''}</div><span class="yv">${esc(rngN(r.T, '개'))}${r.typed ? '<small>실측</small>' : r.L && r.L.area ? `<small>약 ${esc(String(pyeong(r.L.area)))}평</small>` : ''}</span>`
+      const tb = r.T ? `<div class="yt tb"><i style="width:${Math.max(1.5, pT(r.T[0])).toFixed(2)}%"></i>${r.T[1] > r.T[0] ? `<i class="hi" style="left:${pT(r.T[0]).toFixed(2)}%;width:${(pT(r.T[1]) - pT(r.T[0])).toFixed(2)}%"></i>` : ''}</div><span class="yv">${esc(rngN(r.T, '개'))}${r.typed ? '<small>실측</small>' : r.L && r.L.area ? `<small>약 ${esc(String(pyeong(r.L.area)))}평${r.L.floors > 1 ? ` · ${r.L.floors}개 층` : ''}</small>` : ''}</span>`
         : `<div class="yt tb">${r.L ? '<em>면적 없음</em>' : ''}</div><span class="yv">—</span>`;
       const tt = r.L && r.L.match === 'name' ? ' title="주소 없이 상호로 찾은 인허가 기록"' : r.L && r.L.match === 'addr-name' ? ` title="같은 주소의 인허가 기록 — 상호 표기가 조금 다름(${esc(r.L.name)})"` : '';
       return `<div class="yr${r.me ? ' me' : ''}"${tt}><div class="yl">${r.me ? pmNo(null, true) : pmNo(r.s)}<b>${esc(r.name)}</b></div><div class="yc" data-l="성업">${age}</div><div class="yc" data-l="테이블">${tb}</div></div>`;
@@ -5558,13 +5567,13 @@ ${GUARD}`,
     }
     const byName = M.set.filter(s => s.lic && s.lic.match === 'name').map(s => s.mark);
     const miss = M.set.filter(s => !s.lic).map(s => `${s.mark} ${s.licWhy || '못 찾음'}`);
-    const D = M.dens || { per: QUOTE.perTable, label: '일반 음식점' };
+    const D = M.dens || DENSITY_DEFAULT;
     return `<div class="b s12 top brk cxs" id="skAge"><p class="k">업력·규모 견주기 <small>공공데이터포털 인허가 · 인허가일과 영업장 면적</small></p>
       <p class="lead-read cxv">${lines.length ? lines.join('<br>') : '옆 가게가 몇 년째 영업 중인지, 홀이 얼마나 되는지 나란히 봅니다.'}</p>
       <div class="cxy"><div class="yr yh"><div class="yl"></div><div class="yc"><b>몇 년째 성업 중</b><small>점선 3년·5년 — 국세청 생존율의 고비</small></div><div class="yc"><b>예상 테이블</b><small>진한 막대 적게 · 옅은 막대 많게 잡은 수</small></div></div>
         ${A.rows.map(row).join('')}
         <div class="yr yax"><div class="yl"></div><div class="yc"><div class="yt">${yTicks}</div></div><div class="yc"><div class="yt">${tTicks}</div></div></div></div>
-      <p class="src9">업력: 공공데이터포털 행정안전부 식품 인허가의 인허가일 기준 — 주인이 바뀌어 새로 신고했으면 그때부터 셉니다 · 예상 테이블: 인허가 영업장 면적(주방·창고 포함) × 홀 ${Math.round(QUOTE.hall * 100)}% ÷ 4인 테이블 1개당 ${esc(String(D.per[0]))}~${esc(String(D.per[1]))}㎡(${esc(D.label)}) — ${state.cust ? '면적으로 잡은 추정이라' : '9장 견적과 같은 가정이라'} 실제와 다를 수 있습니다${M.me.tablesTyped ? ` · ${esc(nm)}${jo(nm, '은/는')} 방문 때 센 테이블 수` : ''}${byName.length && !state.cust ? `<span class="sale"> · 주소 없이 상호로 찾은 곳: ${esc(byName.join(', '))}</span>` : ''}${miss.length && !state.cust ? `<span class="sale"> · 인허가 기록을 못 쓴 곳: ${esc(miss.join(', '))}</span>` : ''}</p></div>`;
+      <p class="src9">업력: 공공데이터포털 행정안전부 식품 인허가의 인허가일 기준 — 주인이 바뀌어 새로 신고했으면 그때부터 셉니다 · 예상 테이블: 인허가 영업장 면적(주방·창고 포함) × 홀 ${Math.round(QUOTE.hall * 100)}%${D.floorAdj ? `(여러 층이면 ${Math.round(QUOTE.hallMulti * 100)}%)` : ''} ÷ 4인 테이블 1개당 ${esc(String(D.per[0]))}~${esc(String(D.per[1]))}㎡(${esc(D.label)}) — ${state.cust ? '면적으로 잡은 추정이라' : '9장 견적과 같은 가정이라'} 실제와 다를 수 있습니다${M.me.tablesTyped ? ` · ${esc(nm)}${jo(nm, '은/는')} 방문 때 센 테이블 수` : ''}${byName.length && !state.cust ? `<span class="sale"> · 주소 없이 상호로 찾은 곳: ${esc(byName.join(', '))}</span>` : ''}${miss.length && !state.cust ? `<span class="sale"> · 인허가 기록을 못 쓴 곳: ${esc(miss.join(', '))}</span>` : ''}</p></div>`;
   }
   /* ── 영업시간 견주기 ── */
   const cmpMin = (t) => { const m = /(\d{1,2}):(\d{2})/.exec(String(t || '')); return m ? Number(m[1]) * 60 + Number(m[2]) : null; };
@@ -5800,9 +5809,9 @@ ${GUARD}`,
       const A = cmpAgeModel(M);
       const ages = A.rows.filter(r => r.L).map(r => `${r.me ? nm : `${r.s.mark} ${r.name}`} ${ageText(r.L)}째(${r.L.ymd})`);
       if (ages.length) L.push(`- 업력(인허가일 기준 — 주인이 바뀌어 새로 신고했으면 그때부터): ${md(ages.join(' / '))}`);
-      const tbs = A.rows.filter(r => r.T).map(r => `${r.me ? nm : `${r.s.mark} ${r.name}`} ${rngN(r.T, '개')}${r.typed ? '(실측)' : r.L && r.L.area ? `(약 ${pyeong(r.L.area)}평)` : ''}`);
-      const D = M.dens || { per: QUOTE.perTable };
-      if (tbs.length) L.push(`- 예상 테이블(인허가 영업장 면적 × 홀 ${Math.round(QUOTE.hall * 100)}% ÷ 4인 테이블 1개당 ${D.per[0]}~${D.per[1]}㎡ — 9장과 같은 가정, 추정): ${md(tbs.join(' / '))}`);
+      const tbs = A.rows.filter(r => r.T).map(r => `${r.me ? nm : `${r.s.mark} ${r.name}`} ${rngN(r.T, '개')}${r.typed ? '(실측)' : r.L && r.L.area ? `(약 ${pyeong(r.L.area)}평${r.L.floors > 1 ? ` · ${r.L.floors}개 층` : ''})` : ''}`);
+      const D = M.dens || DENSITY_DEFAULT;
+      if (tbs.length) L.push(`- 예상 테이블(인허가 영업장 면적 × 홀 ${Math.round(QUOTE.hall * 100)}%${D.floorAdj ? `, 여러 층이면 ${Math.round(QUOTE.hallMulti * 100)}%` : ''} ÷ 4인 테이블 1개당 ${D.per[0]}~${D.per[1]}㎡ — 9장과 같은 가정, 추정): ${md(tbs.join(' / '))}`);
       const miss = M.set.filter(s => !s.lic).map(s => `${s.mark} ${s.name}(${s.licWhy || '못 찾음'})`);
       if (miss.length) L.push(`- 인허가 기록을 못 쓴 옆 가게: ${md(miss.join(', '))}`);
       if (ages.length || tbs.length) L.push('- 규칙: 업력은 인허가일로 센 값, 테이블 수는 면적으로 잡은 추정입니다. "몇 년 됐다"·"테이블이 몇 개다"로 단정하지 말고 기준을 함께 쓰세요.');
@@ -6279,7 +6288,8 @@ ${GUARD}`,
     months: 36, vat: 1.1,
     wage: 10320, hours: 209, wageYear: 2026,   // 최저임금 월 환산 (주휴수당 포함)
     hall: 0.65,            // 영업장 면적 중 홀 비율 (가정)
-    perTable: [3.6, 4.8],  // 4인 테이블 1개당 홀 면적 ㎡ — 테이블 120~140cm + 통로 0.9~1.2m (일반업소 기준)
+    hallMulti: 0.55,       // v3.58: 한 칸 올린 업종(고기·주점·양식·일식·일반)이 여러 층이면 — 층마다 계단·화장실·카운터 (우대포 명동점 313㎡ · 3개 층 · 실제 22개로 맞춘 가정)
+    perTable: [4.5, 6],    // 4인 테이블 1개당 홀 면적 ㎡ (통로 포함) — 일반 음식점 기본값, 업종별 값은 DENSITY · v3.58: 5.5~7.5 → 4.5~6
     notice: 1,             // 알림판 10인치 1대
     tablesPerStaff: 12,    // 홀 인력 1명이 맡는 테이블 수 (피크 기준 · 팀 가정 · v3.10)
     bigArea: 330,          // ㎡ · 이보다 크면 면적 추정의 오차가 커서 「실측 필요」 배지 (약 100평)
@@ -6301,17 +6311,23 @@ ${GUARD}`,
 
   /* 대수 → 월 이용료 → 인건비 대비. 비율은 VAT 별도 금액으로 잰다(v3.00 — 큰 숫자를 VAT 별도로 앞세우고, VAT 포함 값은 옆에 병기).
      ratioVat은 VAT 포함으로 잰 값 — 보수적으로 말할 때 쓴다 */
-  /* v3.21 (#80): 테이블 밀도는 업종별 — 고기구이·횟집·한정식·주점은 테이블이 크고 통로가 넓다 (가정값, 9장에 표기) */
+  /* v3.21 (#80): 테이블 밀도는 업종별 — 고기구이·횟집·한정식·주점은 테이블이 크고 통로가 넓다 (가정값, 9장에 표기)
+     v3.58: 현장에서 본 매장은 실제 테이블이 '많게 잡은 수' 근처이거나 그 위였다 — 고기·주점 8~11 → 6~8㎡, 일반 5.5~7.5 → 4.5~6㎡로 한 칸 올림.
+     분식·카페·국밥(3.6~4.8㎡)은 이미 빠듯해 그대로. floorAdj: 여러 층이면 홀 55% (한 칸 올린 업종만 — 우대포 명동점처럼 층이 많은 곳이 부풀지 않게).
+     실제 테이블 수를 아는 매장이 모이면 다시 맞춘다 */
   const DENSITY = [
-    { re: /고기|육류|구이|횟집|회$|회 |한정식|코스|오마카세|샤브|주점|호프|술집|이자카야|스테이크/, per: [8, 11], label: '고기구이·횟집·한정식·주점 (테이블 크고 통로 넓음)' },
+    { re: /고기|육류|구이|횟집|회$|회 |한정식|코스|오마카세|샤브|주점|호프|술집|이자카야|스테이크/, per: [6, 8], label: '고기구이·횟집·한정식·주점 (테이블 크고 통로 넓음)', floorAdj: true },
     { re: /분식|김밥|치킨|카페|커피|국수|칼국수|떡볶이|토스트|샌드위치|햄버거|피자|도시락|죽|국밥|해장국|곰탕|설렁탕|백반|패스트|돈까스|돈가스|우동|라멘|라면|덮밥|규동|텐동|소바|냉면|밀면|막국수/, per: [3.6, 4.8], label: '분식·치킨·카페·국밥·면·돈가스 (좁은 테이블)' },   // v3.45: 돈가스·우동·라멘·덮밥·냉면
-    { re: /양식|일식/, per: [8, 11], label: '고기구이·횟집·한정식·주점 (테이블 크고 통로 넓음)' },   // v3.41: 윗칸(양식·일식)은 아랫칸(피자·햄버거) 다음에 — 회전 유형과 같은 순서
+    { re: /양식|일식/, per: [6, 8], label: '고기구이·횟집·한정식·주점 (테이블 크고 통로 넓음)', floorAdj: true },   // v3.41: 윗칸(양식·일식)은 아랫칸(피자·햄버거) 다음에 — 회전 유형과 같은 순서
   ];
+  const DENSITY_DEFAULT = { per: QUOTE.perTable, label: '일반 음식점', floorAdj: true };
   function densityOf(b){
     const cat = b && b.store ? [b.store.category, b.store.naverCategory].filter(Boolean).join(' ') : '';
     const hit = DENSITY.find(d => d.re.test(cat));
-    return hit ? { per: hit.per, label: hit.label } : { per: [5.5, 7.5], label: '일반 음식점' };
+    return hit ? { per: hit.per, label: hit.label, floorAdj: Boolean(hit.floorAdj) } : DENSITY_DEFAULT;
   }
+  /* v3.58: 홀 비율 — 한 층 65% · 한 칸 올린 업종(고기·주점·양식·일식·일반)이 여러 층이면 55% */
+  const hallOf = (floors, dens) => (Number(floors) > 1 && dens && dens.floorAdj ? QUOTE.hallMulti : QUOTE.hall);
   function floorsOf(b){
     const L = licence(b); if (!L || !L.floors) return 1;
     const m = L.floors.match(/\d+/g) || []; if (!m.length) return 1;
@@ -6346,15 +6362,16 @@ ${GUARD}`,
     let byArea = null;
     const dens = densityOf(b);
     QUOTE_FLOORS = floorsOf(b);
+    const hallR = hallOf(QUOTE_FLOORS, dens);           // v3.58: 한 칸 올린 업종이 여러 층이면 55%
     if (area){
-      const hall = area * QUOTE.hall;
+      const hall = area * hallR;
       const lo = Math.max(1, Math.floor(hall / dens.per[1]));
       const hi = Math.max(lo, Math.round(hall / dens.per[0]));
       byArea = { hall, ...quoteOf([lo, hi], staffTyped) };
     }
     const est = typed ? quoteOf([typed, typed], staffTyped) : byArea;
     return { area, typed, staffTyped, byArea, est, how: typed ? 'typed' : byArea ? 'area' : '', big: !typed && area >= QUOTE.bigArea,
-      density: dens, floors: QUOTE_FLOORS };
+      density: dens, floors: QUOTE_FLOORS, hallR };
   }
 
   function renderQuote(b){
@@ -6382,7 +6399,7 @@ ${GUARD}`,
         chain.push(`테이블 <b>${Q.typed}개</b> — 직접 넣은 값 (실측)`);
       } else {
         chain.push(`영업장 면적 <b>${esc(num(Q.area))}㎡</b> (약 ${Math.round(Q.area/PYEONG)}평) — 인허가 자료, 주방·창고 포함`);
-        chain.push(`홀 ${Math.round(QUOTE.hall*100)}% 가정 → ${esc(num(Math.round(Q.byArea.hall)))}㎡`);
+        chain.push(`홀 ${Math.round(Q.hallR*100)}% 가정${Q.hallR < QUOTE.hall ? ` (${Q.floors}개 층 — 층마다 계단·화장실이 있어 한 층보다 낮춤)` : ''} → ${esc(num(Math.round(Q.byArea.hall)))}㎡`);
         chain.push(`4인 테이블 1개당 홀 ${Q.density.per[0]}~${Q.density.per[1]}㎡ (통로 포함 · ${esc(Q.density.label)} 기준) → 테이블 <b>${esc(rngN(E.tables,'개'))}</b>`);
       }
       chain.push(`테이블당 1대 + 알림판 ${Math.max(1, Q.floors)}대${Q.floors > 1 ? ` (인허가 주소의 ${Q.floors}개 층, 층당 1대)` : ''} → 하이오더 <b>${esc(rngN(E.devices,'대'))}</b>`);
@@ -6432,7 +6449,7 @@ ${GUARD}`,
       <td>${esc(won(n*QUOTE_UNIT*QUOTE.vat))}</td><td>${esc(pct(n*QUOTE_UNIT/QUOTE_WAGE))}</td></tr>`).join('');
     const table = `<p class="k">대수별 환산표 — 알림판 포함 총 대수 기준</p>
       <table class="tbl qt"><tr class="hd9"><th>대수</th><td>월 이용료 (VAT 별도)</td><td>VAT 포함</td><td>홀 인력 1명 인건비 대비 (VAT 별도)</td></tr>${rows}</table>`;
-    const notes = `<p class="src9">가정: 홀 비율 ${Math.round(QUOTE.hall*100)}%, 4인 테이블 1개당 홀 ${Q.density.per[0]}~${Q.density.per[1]}㎡(${esc(Q.density.label)} · 통로 포함), 알림판 10인치 층당 1대(이 매장 ${Math.max(1,Q.floors)}대), 홀 인력 테이블 ${QUOTE.tablesPerStaff}개당 1명(피크 기준) — 시너지영업3팀 일반업소 기준.
+    const notes = `<p class="src9">가정: 홀 비율 ${Math.round(Q.hallR*100)}%${Q.hallR < QUOTE.hall ? `(${Q.floors}개 층이라 한 층 매장 ${Math.round(QUOTE.hall*100)}%보다 낮춤)` : ''}, 4인 테이블 1개당 홀 ${Q.density.per[0]}~${Q.density.per[1]}㎡(${esc(Q.density.label)} · 통로 포함), 알림판 10인치 층당 1대(이 매장 ${Math.max(1,Q.floors)}대), 홀 인력 테이블 ${QUOTE.tablesPerStaff}개당 1명(피크 기준) — 시너지영업3팀 일반업소 기준.
         인건비는 ${QUOTE.wageYear}년 최저임금 월 환산액(주휴수당 포함 · 사업주 4대보험 부담 제외)이라 실제 인건비는 이보다 큽니다.
         하이오더가 사람을 대신한다는 뜻이 아니라 비용의 크기를 재는 잣대입니다. 요금표: KT 하이오더 견적 계산기 ${QUOTE.calcVer}.</p>`;
 
@@ -6464,8 +6481,8 @@ ${GUARD}`,
       const E = Q.est;
       const head = Q.how === 'typed'
         ? `테이블 ${Q.typed}개 (직접 입력 · 실측)`
-        : `영업장 면적 ${num(Q.area)}㎡ (약 ${Math.round(Q.area/PYEONG)}평, 인허가 · 주방 포함) → 홀 ${Math.round(QUOTE.hall*100)}% 가정 ${num(Math.round(Q.byArea.hall))}㎡ → 4인 테이블 1개당 ${QUOTE.perTable[0]}~${QUOTE.perTable[1]}㎡ → 테이블 ${rngN(E.tables,'개')}`;
-      L.push(`- 이 매장 추정: ${head} → + 알림판 ${QUOTE.notice}대 → 하이오더 ${rngN(E.devices,'대')} → 월 이용료 ${wonRange(E.monthly)} → 홀 인력 1명 인건비 대비 ${pctRange(E.ratio)} (VAT 별도 기준 · VAT 포함이면 ${pctRange(E.ratioVat)})`);
+        : `영업장 면적 ${num(Q.area)}㎡ (약 ${Math.round(Q.area/PYEONG)}평, 인허가 · 주방 포함) → 홀 ${Math.round(Q.hallR*100)}% 가정${Q.hallR < QUOTE.hall ? `(${Q.floors}개 층)` : ''} ${num(Math.round(Q.byArea.hall))}㎡ → 4인 테이블 1개당 ${Q.density.per[0]}~${Q.density.per[1]}㎡(${Q.density.label}) → 테이블 ${rngN(E.tables,'개')}`;
+      L.push(`- 이 매장 추정: ${head} → + 알림판 ${Math.max(1, Q.floors)}대 → 하이오더 ${rngN(E.devices,'대')} → 월 이용료 ${wonRange(E.monthly)} → 홀 인력 1명 인건비 대비 ${pctRange(E.ratio)} (VAT 별도 기준 · VAT 포함이면 ${pctRange(E.ratioVat)})`);
       L.push(`- 한 달 비용의 크기: 홀 인력 1명 인건비 ${won(QUOTE_WAGE)}을 100으로 두면 하이오더 ${rngN(E.devices,'대')}는 ${rng(E.ratio, v => (v*100).toFixed(1))} — 사람을 대신한다는 뜻이 아니라 비용의 크기 비교`);
       if (E.staff[1] > 1) L.push(E.staffHow === 'typed'
         ? `- 홀 인력 ${E.staff[0]}명 (실측) 인건비 ${won(E.staffWage[0])} 대비 하이오더 ${pctRange(E.ratioStaff)}`
@@ -6477,7 +6494,7 @@ ${GUARD}`,
     }
     L.push('', '| 대수 (알림판 포함) | 월 이용료 (VAT 별도) | VAT 포함 | 홀 인력 1명 인건비 대비 (VAT 별도) |', '|---|---|---|---|');
     [5, 8, 10, 12, 15, 20].forEach(n => L.push(`| ${n}대 | ${won(n*QUOTE_UNIT)} | ${won(n*QUOTE_UNIT*QUOTE.vat)} | ${pct(n*QUOTE_UNIT/QUOTE_WAGE)} |`));
-    L.push(`- 가정: 홀 비율 ${Math.round(QUOTE.hall*100)}%, 4인 테이블 1개당 홀 ${QUOTE.perTable[0]}~${QUOTE.perTable[1]}㎡(테이블 120~140cm + 통로 0.9~1.2m), 알림판 10인치 1대, 홀 인력 테이블 ${QUOTE.tablesPerStaff}개당 1명(피크 기준) — 시너지영업3팀 일반업소 기준(가정). 요금표: KT 하이오더 견적 계산기 ${QUOTE.calcVer}. 인건비: ${QUOTE.wageYear}년 최저임금 고시.`);
+    L.push(`- 가정: 홀 비율 ${Math.round(Q.hallR*100)}%${Q.hallR < QUOTE.hall ? `(${Q.floors}개 층 · 한 층이면 ${Math.round(QUOTE.hall*100)}%)` : ''}, 4인 테이블 1개당 홀 ${Q.density.per[0]}~${Q.density.per[1]}㎡(${Q.density.label} · 통로 포함), 알림판 10인치 층당 1대, 홀 인력 테이블 ${QUOTE.tablesPerStaff}개당 1명(피크 기준) — 시너지영업3팀 일반업소 기준(가정). 요금표: KT 하이오더 견적 계산기 ${QUOTE.calcVer}. 인건비: ${QUOTE.wageYear}년 최저임금 고시.`);
     return L;
   }
   function quoteExport(b){
@@ -7928,7 +7945,7 @@ ${GUARD}`,
     const AG = ageModel(b);
     if (AG) L.push(`| 영업 기간의 뜻 | ${md(`${AG.h} — ${AG.t} (생존율 ${AG.S.nm}: 1년 ${AG.s1.v}% · 3년 ${AG.s3.v}% · 5년 ${AG.s5.v}%${[AG.s1, AG.s3, AG.s5].some(x => x.nm !== AG.S.nm) ? ' — 일부 해는 윗 분류·평균 값' : ''})${AG.LR && AG.L.months < 60 ? ` · 동네 순위: ${AG.LR.where} ${AG.LR.kind} ${AG.LR.n}곳 가운데 ${AG.LR.pos}번째로 오래됨(동네 상위 ${AG.LR.top}%)` : ''}`)} | ${md(SURV_SRC)}${AG.LR ? ' · 공공데이터포털 인허가' : ''} |`);
     const SZ = sizeModel(b);
-    if (SZ) L.push(`| 매장 규모 | ${md(`${num(Math.round(SZ.area))}㎡ (약 ${pyeong(SZ.area)}평, 주방·창고 포함) · 테이블 ${rngN(SZ.T, '개')} ${SZ.typed ? '(실측)' : '(면적으로 셈한 추정 · 홀 65%·4인 테이블 가정)'}`)} | 인허가 영업장 면적 |`);
+    if (SZ) L.push(`| 매장 규모 | ${md(`${num(Math.round(SZ.area))}㎡ (약 ${pyeong(SZ.area)}평, 주방·창고 포함) · 테이블 ${rngN(SZ.T, '개')} ${SZ.typed ? '(실측)' : `(면적으로 셈한 추정 · 홀 ${Math.round((SZ.hallR || QUOTE.hall) * 100)}%·4인 테이블 가정)`}`)} | 인허가 영업장 면적 |`);
     const DG = deliveryGuess(b);
     if (DG) L.push(`- 판단: 배달 전문점일 가능성 — 테이블 ${rngN(DG.T, '개')}로 셈되는데 네이버 리뷰 ${DG.n}건. 홀 영업을 확인하기 전에는 테이블 주문 대수를 단정하지 마세요.`);
     if (s.placeUrl) L.push(`| 카카오맵 | ${md(s.placeUrl)} | 카카오 로컬 API |`);
