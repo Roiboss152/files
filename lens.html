@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="robots" content="noindex, nofollow">
+<title>돋보기 · 플레이스 한눈에</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root{
+    --bg:#020204; --card:rgba(15,19,26,0.82); --line:rgba(79,172,254,0.16); --line2:rgba(255,255,255,0.08);
+    --acc:#4facfe; --acc-hi:#7cc4ff; --acc-lo:#2f7fd6; --mute:#8b93a1; --mute2:#5a6270; --soft:#c6cdd8;
+    --amber:#fbbf24; --green:#4ade80;
+    --grad:linear-gradient(180deg,#7cc4ff 0%,#4facfe 48%,#2f7fd6 100%);
+  }
+  *{box-sizing:border-box;}
+  [hidden]{display:none !important;}
+  html,body{margin:0;padding:0;background:var(--bg);color:#fff;font-family:'Pretendard Variable',Pretendard,-apple-system,'Malgun Gothic','Noto Sans KR',sans-serif;font-variant-numeric:tabular-nums;-webkit-tap-highlight-color:transparent;word-break:keep-all;}
+  a{color:var(--acc);text-decoration:none;} a:hover{color:#8cc8ff;}
+  input,button,select,textarea{font-family:inherit;}
+  @keyframes emberA{0%,100%{transform:translate(-50%,0) scale(1);opacity:.55;}25%{transform:translate(-46%,-3%) scale(1.08);opacity:.75;}50%{transform:translate(-52%,2%) scale(.96);opacity:.45;}75%{transform:translate(-48%,-2%) scale(1.05);opacity:.68;}}
+  @keyframes emberB{0%,100%{transform:translate(0,0) scale(1);opacity:.35;}33%{transform:translate(3%,-4%) scale(1.12);opacity:.55;}66%{transform:translate(-2%,3%) scale(.94);opacity:.28;}}
+  @keyframes emberC{0%,100%{transform:translate(0,0) scale(1);opacity:.30;}50%{transform:translate(-4%,-5%) scale(1.15);opacity:.5;}}
+  @keyframes riseIn{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+  @keyframes numFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-9px);}}
+  @keyframes shimmer{0%{background-position:200% 50%}100%{background-position:-200% 50%}}
+  @keyframes nudge{0%,100%{transform:translateX(0);}50%{transform:translateX(6px);}}
+  @media (prefers-reduced-motion: reduce){ *{animation:none !important;} }
+
+  .embers{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0;}
+  .embers div{position:absolute;border-radius:50%;}
+  .e1{top:-20%;left:50%;width:1100px;height:1100px;background:radial-gradient(circle,rgba(79,172,254,0.10) 0%,transparent 60%);animation:emberA 28s ease-in-out infinite;}
+  .e2{bottom:-30%;right:-15%;width:1000px;height:1000px;background:radial-gradient(circle,rgba(58,149,230,0.08) 0%,transparent 60%);animation:emberB 34s ease-in-out infinite;}
+  .e3{top:30%;left:-20%;width:900px;height:900px;background:radial-gradient(circle,rgba(152,175,199,0.06) 0%,transparent 60%);animation:emberC 40s ease-in-out infinite;}
+
+  .wrap{position:relative;z-index:1;display:flex;justify-content:center;padding:0 20px;}
+  main{flex:1;min-width:0;max-width:820px;padding:clamp(28px,5vw,64px) 0 120px;}
+
+  header.top{margin-bottom:clamp(20px,4vw,40px);animation:riseIn .7s ease both;}
+  h1{margin:0;font-size:clamp(33.6px,6vw,52.8px);font-weight:800;letter-spacing:-0.02em;line-height:1.15;}
+  .shine{background:linear-gradient(90deg,#4facfe,#b3e0ff,#4facfe);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:shimmer 3.5s linear infinite;}
+  .ver{font-size:11px;font-weight:500;color:#9aa1ab;letter-spacing:0;vertical-align:middle;}
+  .lead{margin:10px 0 0;color:var(--mute);font-size:clamp(16.8px,2.4vw,19.2px);line-height:1.5;}
+
+  section.sec{position:relative;padding-top:clamp(56px,9vw,88px);margin-bottom:clamp(36px,6vw,64px);}
+  .num{position:absolute;top:0;left:0;font-size:clamp(100px,15vw,150px);font-weight:900;line-height:.95;letter-spacing:-5px;background:linear-gradient(to right,rgba(79,172,254,0.14) 0%,#4facfe 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;user-select:none;pointer-events:none;animation:numFloat 7s ease-in-out infinite;}
+  .card{position:relative;z-index:1;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:22px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transition:transform .5s cubic-bezier(.22,1,.36,1),border-color .4s ease,box-shadow .5s ease;}
+  .card:hover{border-color:rgba(79,172,254,0.5);box-shadow:0 18px 50px rgba(0,0,0,0.4),0 0 34px rgba(79,172,254,0.14);}
+  h2{margin:0 0 16px;font-size:clamp(21.6px,3.6vw,26.4px);font-weight:800;color:var(--acc);letter-spacing:-0.01em;}
+  h3{margin:0 0 12px;font-size:18px;font-weight:800;color:#fff;}
+  .sub{color:var(--mute);font-size:15px;line-height:1.6;margin:0;}
+  .small{color:var(--mute2);font-size:13.2px;line-height:1.55;}
+
+  button{cursor:pointer;border:none;transition:transform .38s cubic-bezier(.34,1.56,.64,1),background .25s ease,color .25s ease,box-shadow .3s ease,opacity .25s ease;}
+  button:hover{transform:translateY(-2px);}
+  button:active{transform:translateY(1px) scale(.95);transition-duration:.12s;}
+  .btn-p{min-height:48px;padding:0 22px;border-radius:999px;background:var(--grad);color:#fff;font-size:16.8px;font-weight:700;box-shadow:0 1px 0 rgba(255,255,255,0.45) inset,0 -5px 8px rgba(10,58,120,0.45) inset,0 4px 10px rgba(0,0,0,0.4),0 6px 16px rgba(79,172,254,0.35);white-space:nowrap;}
+  .btn-s{min-height:42px;padding:0 18px;border-radius:999px;background:rgba(255,255,255,0.08);color:var(--soft);font-size:15px;font-weight:700;white-space:nowrap;}
+  .btn-s:hover{background:rgba(255,255,255,0.14);color:#fff;}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+  .inp{flex:1;min-width:0;min-height:48px;padding:0 16px;border-radius:14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.10);color:#fff;font-size:16.8px;outline:none;transition:border-color .25s ease;}
+  .inp::placeholder{color:#5a6270;}
+  .inp:focus{border-color:rgba(79,172,254,0.8);}
+  .gap{height:14px;}
+
+  /* 02 설치 */
+  details.inst summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  details.inst summary::-webkit-details-marker{display:none;}
+  details.inst summary .chev{color:var(--mute);font-size:14.4px;transition:transform .3s ease;}
+  details.inst[open] summary .chev{transform:rotate(180deg);}
+  .dragzone{margin:18px 0 6px;padding:22px;border:1.5px dashed rgba(79,172,254,0.35);border-radius:18px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;background:rgba(79,172,254,0.04);}
+  .bm{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:999px;background:var(--grad);color:#fff !important;font-weight:800;font-size:17.4px;box-shadow:0 1px 0 rgba(255,255,255,0.45) inset,0 -5px 8px rgba(10,58,120,0.45) inset,0 6px 16px rgba(79,172,254,0.35);cursor:grab;user-select:none;}
+  .bm svg{width:18px;height:18px;}
+  .arrow{color:var(--acc-hi);font-weight:800;animation:nudge 1.6s ease-in-out infinite;}
+  ol.steps{margin:14px 0 0;padding-left:22px;color:var(--soft);font-size:15.6px;line-height:1.75;}
+  ol.steps b{color:#fff;}
+  .kbd{display:inline-block;padding:1px 8px;border-radius:7px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);font-size:13.8px;color:#fff;}
+  .note{margin-top:14px;padding:12px 14px;border-radius:14px;background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.22);color:#f5d88a;font-size:14.4px;line-height:1.6;}
+  textarea.paste{width:100%;min-height:90px;margin-top:10px;padding:12px;border-radius:14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.10);color:#fff;font-size:13.2px;outline:none;resize:vertical;}
+
+  /* 03 결과 */
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+  .chip{display:inline-flex;align-items:center;gap:8px;min-height:38px;padding:0 8px 0 16px;border-radius:999px;background:rgba(255,255,255,0.05);color:var(--soft);font-size:15px;font-weight:700;}
+  .chip.on{background:rgba(79,172,254,0.16);color:#fff;box-shadow:0 0 0 1px rgba(79,172,254,0.5) inset;}
+  .chip .x{width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,0.08);color:var(--mute);font-size:14px;line-height:24px;text-align:center;padding:0;}
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 18px;}
+  .empty{padding:34px 10px;text-align:center;color:var(--mute);font-size:16.2px;line-height:1.7;}
+  .empty b{color:#fff;}
+
+  .store-h{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:6px;}
+  .store-name{font-size:clamp(24px,4.4vw,31.2px);font-weight:800;letter-spacing:-0.02em;}
+  .store-cat{color:var(--acc-hi);font-size:16.2px;font-weight:700;margin-left:6px;}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:14px 0 0;font-size:15.6px;line-height:1.55;}
+  .meta dt{color:var(--mute);font-weight:600;white-space:nowrap;}
+  .meta dd{margin:0;color:#e4e8ee;min-width:0;overflow-wrap:anywhere;}
+
+  .blk{margin-top:18px;}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr));gap:12px;}
+  .kpi{padding:16px 18px;border-radius:16px;background:rgba(255,255,255,0.04);border:1px solid var(--line2);}
+  .kpi .lab{color:var(--mute);font-size:14.4px;font-weight:600;}
+  .kpi .val{font-size:28.8px;font-weight:800;letter-spacing:-0.02em;margin-top:6px;}
+  .kpi .val small{font-size:15.6px;font-weight:600;color:var(--mute);margin-left:4px;}
+  .kpi .hint{color:var(--mute2);font-size:13.2px;margin-top:6px;line-height:1.5;}
+  .good{color:var(--green);} .warn{color:var(--amber);}
+
+  .counts{display:flex;gap:18px;flex-wrap:wrap;color:var(--soft);font-size:15.6px;margin-bottom:12px;}
+  .counts b{color:#fff;font-size:20.4px;margin-left:4px;}
+  .kw{display:grid;grid-template-columns:minmax(120px,max-content) 1fr auto;gap:8px 12px;align-items:center;}
+  .kw .l{font-size:15px;color:#e4e8ee;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .kw .bar{height:12px;border-radius:999px;background:rgba(255,255,255,0.05);overflow:hidden;}
+  .kw .bar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#2f7fd6,#4facfe,#7cc4ff);}
+  .kw .n{font-size:14.4px;color:var(--soft);min-width:40px;text-align:right;}
+
+  .rv{display:flex;flex-direction:column;gap:10px;}
+  .rv-i{padding:14px 16px;border-radius:16px;background:rgba(255,255,255,0.03);border:1px solid var(--line2);}
+  .rv-top{display:flex;gap:10px;align-items:center;flex-wrap:wrap;color:var(--mute);font-size:13.8px;margin-bottom:6px;}
+  .tag{display:inline-block;padding:2px 9px;border-radius:999px;background:rgba(255,255,255,0.06);font-size:12.6px;color:var(--soft);}
+  .tag.rep{background:rgba(74,222,128,0.12);color:var(--green);}
+  .tag.norep{background:rgba(251,191,36,0.10);color:var(--amber);}
+  .rv-t{font-size:15.6px;line-height:1.65;color:#eef1f5;white-space:pre-wrap;}
+  .rv-kw{margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;}
+
+  table.t{width:100%;border-collapse:collapse;font-size:15px;}
+  table.t th,table.t td{padding:10px 8px;border-bottom:1px solid var(--line2);text-align:left;vertical-align:top;}
+  table.t th{color:var(--mute);font-weight:600;font-size:13.8px;}
+  table.t td.pr{text-align:right;white-space:nowrap;color:#fff;font-weight:700;}
+  table.t td .d{display:block;color:var(--mute2);font-size:13.2px;margin-top:2px;}
+  .feed{display:flex;flex-direction:column;gap:8px;}
+  .feed div{display:flex;justify-content:space-between;gap:12px;font-size:15px;padding:10px 0;border-bottom:1px solid var(--line2);}
+  .feed span.d{color:var(--mute);white-space:nowrap;}
+  .notes{margin-top:18px;color:var(--mute2);font-size:13.2px;line-height:1.6;}
+
+  .quote{margin:12px 0 0;padding:12px 16px;border-left:3px solid var(--acc);background:rgba(79,172,254,0.06);border-radius:0 12px 12px 0;font-size:16.2px;line-height:1.6;color:#eef1f5;}
+  .sublab{margin:16px 0 8px;color:var(--mute);font-size:14.4px;font-weight:600;}
+  .tag b{color:#fff;font-weight:800;margin-left:2px;}
+  .reply{margin-top:8px;padding:8px 12px;border-radius:12px;background:rgba(74,222,128,0.06);color:#b8e6c8;font-size:14.4px;line-height:1.6;}
+  .linkbtn{background:none;border:none;color:var(--acc);font-size:13.2px;padding:0;cursor:pointer;text-decoration:underline;}
+  .linkbtn:hover{transform:none;}
+  dl.ctx dd{display:flex;flex-wrap:wrap;gap:6px;}
+  .cmp-wrap{overflow-x:auto;margin-top:6px;}
+  table.cmp{border-collapse:collapse;min-width:100%;font-size:14.4px;}
+  table.cmp th,table.cmp td{padding:10px 12px;border-bottom:1px solid var(--line2);text-align:left;white-space:nowrap;}
+  table.cmp th{color:var(--mute);font-weight:600;position:sticky;left:0;background:rgba(15,19,26,0.98);}
+  table.cmp thead td{color:#fff;font-weight:800;}
+
+  .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);opacity:0;padding:12px 20px;border-radius:999px;background:rgba(36,46,61,0.96);color:#fff;font-size:15px;font-weight:600;box-shadow:0 10px 30px rgba(0,0,0,0.45);transition:all .35s ease;z-index:50;pointer-events:none;}
+  .toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  footer{border-top:1px solid rgba(255,255,255,0.08);padding-top:16px;font-size:14.4px;color:var(--mute2);line-height:1.7;}
+
+  @media (max-width:560px){
+    .card{padding:18px;border-radius:18px;}
+    .kw{grid-template-columns:minmax(96px,40%) 1fr auto;}
+    .btn-p{width:100%;}
+    .row .btn-s{width:100%;}
+    .kpi .val{font-size:24px;}
+  }
+
+  @media print{
+    html,body{background:#fff !important;color:#000 !important;}
+    *{filter:grayscale(1);box-shadow:none !important;text-shadow:none !important;animation:none !important;}
+    .embers,.no-print,.num,header.top .lead,.toolbar,.chips,footer{display:none !important;}
+    .wrap{padding:0;} main{max-width:none;padding:0;}
+    section.sec{padding-top:0;margin:0;}
+    .card{background:#fff !important;border:none;padding:0;backdrop-filter:none;}
+    h1,h2,h3,.store-name,.kpi .val,.counts b,table.t td.pr,table.cmp thead td{color:#000 !important;-webkit-text-fill-color:#000 !important;}
+    .store-cat,.sub,.small,.meta dt,.meta dd,.kpi .lab,.kpi .hint,.kw .l,.kw .n,.rv-top,.rv-t,table.t th,table.t td,.feed div,.notes{color:#222 !important;}
+    .kpi,.rv-i{border:1px solid #bbb;background:#fff !important;}
+    .kw .bar{background:#e5e5e5 !important;} .kw .bar i{background:#555 !important;}
+    .tag{border:1px solid #999;background:#fff !important;color:#222 !important;}
+    .rv-i{break-inside:avoid;}
+    .quote,.reply{background:#fff !important;color:#222 !important;border-color:#999 !important;}
+    .shine{background:none !important;-webkit-text-fill-color:#000 !important;color:#000 !important;}
+    .counts span,.sublab,.ver{color:#333 !important;}
+    .tag b{color:#000 !important;}
+  }
+</style>
+</head>
+<body>
+<div class="embers" aria-hidden="true"><div class="e1"></div><div class="e2"></div><div class="e3"></div></div>
+
+<div class="wrap">
+<main>
+  <header class="top">
+    <h1>플레이스 <span class="shine">돋보기</span> <span class="ver">v1.00</span></h1>
+    <p class="lead">가게 한 곳의 네이버 플레이스 정보를 즐겨찾기 버튼 한 번으로 모아 봅니다. 밑그림 없이 가볍게.</p>
+  </header>
+
+  <!-- 01 가게 찾기 -->
+  <section class="sec no-print" id="sec-find">
+    <div class="num" aria-hidden="true">01</div>
+    <div class="card">
+      <h2>가게 찾기</h2>
+      <div class="row">
+        <input class="inp" id="q" type="search" placeholder="가게 이름 (예: 가야참치 구월점)" autocomplete="off">
+        <button class="btn-p" id="btnMap">네이버 지도에서 찾기</button>
+      </div>
+      <div class="gap"></div>
+      <div class="row">
+        <input class="inp" id="u" type="text" placeholder="또는 네이버 지도·플레이스 주소 붙여넣기" autocomplete="off">
+        <button class="btn-s" id="btnOpen">가게 화면 바로 열기</button>
+      </div>
+      <p class="sub" style="margin-top:14px;">지도에서 가게를 누른 뒤 북마크바의 <b style="color:#fff">[돋보기]</b>를 누르세요. 가게 화면으로 넘어가면 <b style="color:#fff">한 번 더</b> 누르면 됩니다. 20초쯤 탭이 저절로 넘어가며 읽고, 끝나면 이 화면에 결과가 뜹니다.</p>
+    </div>
+  </section>
+
+  <!-- 02 즐겨찾기 버튼 -->
+  <section class="sec no-print" id="sec-install">
+    <div class="num" aria-hidden="true">02</div>
+    <div class="card">
+      <details class="inst" id="inst" open>
+        <summary><h2 style="margin:0">즐겨찾기 버튼 <span style="color:var(--mute);font-size:15px;font-weight:600">처음 한 번만</span></h2><span class="chev">▼</span></summary>
+        <div class="dragzone">
+          <a class="bm" id="bm" href="#" draggable="true" title="북마크바로 끌어다 놓으세요">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>돋보기
+          </a>
+          <span class="arrow">←</span>
+          <span class="sub">이 버튼을 마우스로 잡아 <b style="color:#fff">북마크바로 끌어다 놓으세요</b>.</span>
+        </div>
+        <ol class="steps">
+          <li>북마크바가 안 보이면 <span class="kbd">Ctrl</span> + <span class="kbd">Shift</span> + <span class="kbd">B</span></li>
+          <li>위 <b>[돋보기]</b> 버튼을 북마크바로 끌어다 놓기 — 끝</li>
+          <li>끌기가 안 되면: <button class="btn-s" id="btnCopyBm" style="min-height:34px;padding:0 14px;font-size:14.4px">버튼 코드 복사</button> → <span class="kbd">Ctrl</span>+<span class="kbd">Shift</span>+<span class="kbd">O</span> 북마크 관리자 → ⋮ → 새 북마크 추가 → 이름 <b>돋보기</b>, URL에 붙여넣기 → 저장</li>
+        </ol>
+        <div class="note" id="bmNote" hidden></div>
+        <details style="margin-top:16px;">
+          <summary class="small" style="cursor:pointer">보내기가 안 될 때 (붙여넣기로 받기)</summary>
+          <p class="small" style="margin:8px 0 0">네이버 화면의 돋보기 창에서 [복사하기]를 누른 뒤 아래 칸에 붙여넣으세요.</p>
+          <textarea class="paste" id="paste" placeholder="여기에 붙여넣기 (Ctrl+V)"></textarea>
+        </details>
+      </details>
+    </div>
+  </section>
+
+  <!-- 03 결과 -->
+  <section class="sec" id="sec-result">
+    <div class="num" aria-hidden="true">03</div>
+    <div class="card">
+      <h2 class="no-print">모은 정보</h2>
+      <div class="chips no-print" id="chips"></div>
+      <div id="cmp" class="no-print"></div>
+      <div class="toolbar no-print" id="toolbar" hidden>
+        <button class="btn-s" id="btnText">글로 복사</button>
+        <button class="btn-s" id="btnCsv">엑셀(CSV) 저장</button>
+        <button class="btn-s" id="btnPrint">인쇄 (흑백)</button>
+      </div>
+      <div id="view"><div class="empty">아직 모은 가게가 없습니다.<br><b>01</b>에서 가게를 찾고, 네이버 가게 화면에서 북마크바의 <b>[돋보기]</b>를 누르세요.</div></div>
+    </div>
+  </section>
+
+  <footer>
+    모은 내용은 이 창에만 있고 어디로도 보내지 않습니다. 창을 닫으면 사라지니 남길 것은 CSV로 저장하세요.<br>
+    가게 한 곳씩 사람이 누를 때만 읽습니다 · 더보기는 세 번까지 · KT 인천지사 시너지영업3팀
+  </footer>
+</main>
+</div>
+<div class="toast" id="toast"></div>
+
+<!-- 즐겨찾기 버튼 원본 (네이버 가게 화면에서 실행됨). 줄바꿈은 버튼 만들 때 지워짐: 문장마다 세미콜론 필수, 주석 금지 -->
+<script type="text/plain" id="grab-src">
+(async()=>{
+const LENS='__LENS__';const O='__ORIGIN__';const BV=__BV__;
+if(window.__dotbogiRun){return;}
+window.__dotbogiRun=1;
+const S=ms=>new Promise(r=>setTimeout(r,ms));
+const T=e=>((e&&e.innerText)||'').trim();
+const pg=document.createElement('div');
+pg.style.cssText='position:fixed;left:12px;bottom:12px;z-index:2147483647;background:rgb(15,19,26);color:white;padding:12px 16px;border-radius:12px;font:15px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.45);border:1px solid rgba(79,172,254,.55);max-width:88vw;line-height:1.5;';
+const say=m=>{pg.textContent='돋보기 · '+m;};
+const bye=ms=>{setTimeout(()=>{pg.remove();window.__dotbogiRun=0;},ms);};
+document.body.appendChild(pg);
+const hn=location.hostname;
+if(hn==='map.naver.com'){
+const fr=[...document.querySelectorAll('iframe')].map(i=>i.src||'').find(s=>/place\.naver\.com\/[a-z]+\/\d+/.test(s));
+const mm=location.href.match(/place\/(\d+)/);
+let u='';
+if(fr){const x=fr.match(/place\.naver\.com\/([a-z]+)\/(\d+)/);u='https://pcmap.place.naver.com/'+x[1]+'/'+x[2]+'/home';}
+else if(mm){u='https://pcmap.place.naver.com/place/'+mm[1]+'/home';}
+if(!u){say('지도에서 가게를 먼저 눌러 주세요.');bye(3500);return;}
+say('가게 화면으로 넘어갑니다. 넘어가면 [돋보기]를 한 번 더 눌러 주세요.');
+setTimeout(()=>{location.href=u;},1200);
+return;
+}
+if(!/place\.naver\.com$/.test(hn)&&!/^(127\.0\.0\.1|localhost)$/.test(hn)){say('네이버 플레이스 가게 화면에서 눌러 주세요.');bye(3500);return;}
+const out={v:1,bv:BV,src:'dotbogi',at:new Date().toISOString(),url:location.origin+location.pathname,title:document.title,tabs:{},notes:[]};
+try{
+const pm=location.pathname.match(/^\/([a-z]+)\/(\d+)/);
+out.cat=pm?pm[1]:'';out.id=pm?pm[2]:'';
+out.name=T(document.getElementById('_title'));
+out.top=T(document.body).slice(0,1500);
+try{const A=window.__APOLLO_STATE__;if(A){const ks=Object.keys(A);const g=p=>ks.filter(k=>k.indexOf(p+':')===0).map(k=>A[k]);const b=g('PlaceDetailBase')[0];if(b){const c={};Object.keys(b).forEach(k=>{const s=JSON.stringify(b[k]);if(s&&s.length<2000)c[k]=b[k];});out.base=c;}const st=g('VisitorReviewStatsResult')[0];if(st&&JSON.stringify(st).length<40000){out.stats=st;}out.facA=g('InformationFacilities').map(f=>f.name);out.seatA=g('RestaurantSeatItems').map(f=>[f.name,f.description].filter(Boolean).join(' '));}}catch(e){out.notes.push('기본 데이터');}
+const tabEl=l=>[...document.querySelectorAll('[role=tab]')].find(e=>T(e)===l);
+const go=async(l,seg)=>{say(l+' 읽는 중');if(location.pathname.indexOf(seg)>=0){await S(300);return true;}const b=tabEl(l);if(!b){out.notes.push(l+' 탭');return false;}b.click();for(let i=0;i<16;i++){await S(250);if(location.pathname.indexOf(seg)>=0)break;}await S(1700);return true;};
+const txt=n=>T(document.body).slice(0,n);
+const clickText=re=>{const a=[...document.querySelectorAll('a,button,[role=button],[role=option]')].find(e=>re.test(T(e)));if(a){a.click();return true;}return false;};
+if(await go('홈','/home')){if(clickText(/^펼쳐보기$/)){await S(700);}out.tabs.home={text:txt(6000)};}
+if(await go('소식','/feed')){out.tabs.feed={items:[...document.querySelectorAll('li')].map(T).filter(t=>/\d{4}\.\d{2}\.\d{2}\.|\d{4}년 \d{1,2}월 \d{1,2}일/.test(t)&&t.length<3000).slice(0,8)};}
+if(await go('메뉴','/menu')){const ls=[...document.querySelectorAll('ul,ol')].map(u=>[...u.children].filter(c=>c.tagName==='LI').map(T).filter(t=>/\d[\d,]{2,}\s*원|변동/.test(t)));ls.sort((a,b)=>b.length-a.length);out.tabs.menu={items:(ls[0]||[]).slice(0,80)};if(!out.tabs.menu.items.length)out.notes.push('메뉴 목록');}
+if(await go('정보','/information')){out.tabs.info={text:txt(6000)};}
+if(await go('리뷰','/review')){
+const R={sort:'추천순',more:0};
+const kx=[...document.querySelectorAll('a,button')].find(e=>{if(T(e)!=='더보기')return false;let p=e.parentElement;for(let i=0;i<4&&p;i++,p=p.parentElement){if(/이 키워드를 선택한 인원/.test(T(p)))return true;}return false;});
+if(kx){kx.click();await S(900);}
+if(clickText(/^최신순$/)){say('최신순으로 바꾸는 중');await S(2400);R.sort='최신순';}else{out.notes.push('최신순');}
+const rvs=()=>[...document.querySelectorAll('li')].filter(li=>{if(!/방문일/.test(T(li)))return false;const up=li.parentElement&&li.parentElement.closest('li');return !(up&&/방문일/.test(T(up)));});
+for(let i=0;i<3;i++){const c0=rvs().length;const mb=[...document.querySelectorAll('a,button')].filter(e=>T(e)==='펼쳐서 더보기').pop();if(!mb)break;say('리뷰 더보기 '+(i+1)+'/3');mb.click();for(let k=0;k<20;k++){await S(250);if(rvs().length>c0)break;}if(rvs().length<=c0)break;R.more++;await S(1300);}
+R.items=rvs().map(T).slice(0,40);
+R.text=txt(8000);
+if(!R.items.length)out.notes.push('리뷰 목록');
+out.tabs.review=R;
+}
+}catch(e){out.notes.push('읽는 중 오류: '+(e&&e.message));}
+say('보내는 중');
+let ack=false;
+const onM=e=>{if(e.origin===O&&e.data&&e.data.src==='dotbogi'&&e.data.type==='ack'){ack=true;}};
+window.addEventListener('message',onM);
+if(window.opener){try{window.opener.postMessage({src:'dotbogi',type:'data',payload:out},O);}catch(e){}}
+for(let i=0;i<12&&!ack;i++){await S(150);}
+window.removeEventListener('message',onM);
+if(ack){say('돋보기로 보냈습니다. 이 창은 닫힙니다.');setTimeout(()=>{window.close();say('보냈습니다. 돋보기 창으로 돌아가세요.');bye(4000);},1000);return;}
+pg.remove();
+const js=JSON.stringify(out);
+const u8=new TextEncoder().encode(js);let bs='';for(let i=0;i<u8.length;i+=8192){bs+=String.fromCharCode.apply(null,u8.subarray(i,i+8192));}
+const b64=btoa(bs).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+const bx=document.createElement('div');
+bx.style.cssText='position:fixed;left:0;right:0;top:24px;margin:0 auto;z-index:2147483647;background:rgb(15,19,26);color:white;padding:18px;border-radius:16px;font:15px sans-serif;box-shadow:0 10px 30px rgba(0,0,0,.5);border:1px solid rgba(79,172,254,.55);width:min(440px,90vw);line-height:1.6;';
+const tx=document.createElement('div');
+tx.textContent='다 읽었습니다 (리뷰 '+((out.tabs.review&&out.tabs.review.items.length)||0)+'개). 아래 버튼으로 돋보기에 보내세요.';
+const rw=document.createElement('div');rw.style.cssText='display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;';
+const mk=(t,p,f)=>{const b=document.createElement('button');b.textContent=t;b.style.cssText='flex:1;min-width:110px;padding:11px 12px;border-radius:999px;border:none;cursor:pointer;font:700 15px sans-serif;'+(p?'background:rgb(79,172,254);color:white;':'background:rgba(255,255,255,.1);color:rgb(198,205,216);');b.onclick=()=>f(b);rw.appendChild(b);return b;};
+mk('돋보기로 보내기',1,b=>{const w=window.open(LENS+String.fromCharCode(35)+'d='+b64,'dotbogi');b.textContent=w?'보냈습니다':'팝업이 막혔습니다';});
+mk('복사하기',0,async b=>{try{await navigator.clipboard.writeText(js);b.textContent='복사됨';}catch(e){const ta=document.createElement('textarea');ta.value=js;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();b.textContent='복사됨';}});
+mk('닫기',0,()=>{bx.remove();window.__dotbogiRun=0;});
+const nt=document.createElement('div');nt.style.cssText='margin-top:10px;font-size:13px;color:rgb(139,147,161);';nt.textContent='복사한 경우: 돋보기 02의 [보내기가 안 될 때] 칸에 붙여넣으세요.';
+bx.append(tx,rw,nt);document.body.appendChild(bx);
+})();
+</script>
+
+<script>
+(function(){
+  'use strict';
+  var BV = 1;
+  var LENS = location.origin + location.pathname;
+  var ORIGIN = location.origin;
+  var OK_ORIGINS = ['https://pcmap.place.naver.com','https://m.place.naver.com','https://map.naver.com'];
+  if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) OK_ORIGINS.push(location.origin);
+  window.name = 'dotbogi';
+
+  var stores = [];
+  var cur = -1;
+  var $ = function(id){ return document.getElementById(id); };
+  var esc = function(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); };
+  var fmt = function(n){ return (n == null || isNaN(n)) ? '-' : Number(n).toLocaleString('ko-KR'); };
+  function toast(m){ var t=$('toast'); t.textContent=m; t.classList.add('on'); clearTimeout(toast._t); toast._t=setTimeout(function(){ t.classList.remove('on'); },2400); }
+
+  /* ---------- 즐겨찾기 버튼 만들기 ---------- */
+  function bookmarklet(){
+    var src = $('grab-src').textContent;
+    src = src.replace(/__LENS__/g, LENS).replace(/__ORIGIN__/g, ORIGIN).replace(/__BV__/g, String(BV));
+    src = src.split('\n').map(function(l){ return l.trim(); }).join('');
+    return 'javascript:' + src.replace(/%/g,'%25').replace(/#/g,'%23');
+  }
+  var BM = bookmarklet();
+  $('bm').setAttribute('href', BM);
+  $('bm').addEventListener('click', function(e){ e.preventDefault(); toast('클릭 말고, 북마크바로 끌어다 놓으세요'); });
+  $('btnCopyBm').addEventListener('click', function(){ copy(BM, '버튼 코드를 복사했습니다'); });
+
+  function copy(text, msg){
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function(){ toast(msg); }, function(){ fallbackCopy(text, msg); });
+    } else { fallbackCopy(text, msg); }
+  }
+  function fallbackCopy(text, msg){
+    var ta=document.createElement('textarea'); ta.value=text; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select(); try{ document.execCommand('copy'); toast(msg); }catch(e){ toast('복사가 막혔습니다'); } ta.remove();
+  }
+
+  /* ---------- 01 가게 찾기 ---------- */
+  function openNaver(url){ var w = window.open(url, 'dotbogi_naver'); if(!w) toast('팝업이 막혔습니다. 주소창 오른쪽에서 팝업을 허용해 주세요'); }
+  $('btnMap').addEventListener('click', function(){
+    var q = $('q').value.trim();
+    if(!q){ $('q').focus(); toast('가게 이름을 넣어 주세요'); return; }
+    openNaver('https://map.naver.com/p/search/' + encodeURIComponent(q));
+  });
+  $('q').addEventListener('keydown', function(e){ if(e.key==='Enter') $('btnMap').click(); });
+  $('btnOpen').addEventListener('click', function(){
+    var v = $('u').value.trim();
+    var m = v.match(/place\.naver\.com\/([a-z]+)\/(\d+)/), id = null, cat = 'place';
+    if (m){ cat = m[1]; id = m[2]; }
+    else { m = v.match(/\/place\/(\d+)/) || v.match(/^(\d{5,})$/); if (m) id = m[1]; }
+    if(!id){ toast('주소에서 가게 번호를 찾지 못했습니다'); return; }
+    openNaver('https://pcmap.place.naver.com/' + cat + '/' + id + '/home');
+  });
+
+  /* ---------- 데이터 받기 ---------- */
+  function b64dec(s){
+    s = s.replace(/-/g,'+').replace(/_/g,'/'); while(s.length % 4) s += '=';
+    var bin = atob(s), bytes = new Uint8Array(bin.length);
+    for (var i=0;i<bin.length;i++) bytes[i] = bin.charCodeAt(i);
+    return new TextDecoder().decode(bytes);
+  }
+  function receive(p){
+    if(!p || p.src !== 'dotbogi' || !p.tabs){ toast('돋보기 데이터가 아닙니다'); return false; }
+    var s = parseStore(p);
+    var at = -1;
+    for (var i=0;i<stores.length;i++) if (stores[i].id && stores[i].id === s.id) at = i;
+    if (at >= 0) stores[at] = s; else stores.push(s);
+    cur = at >= 0 ? at : stores.length - 1;
+    if ((p.bv||0) < BV) showNote('북마크바의 [돋보기] 버튼이 옛 버전입니다. 02에서 새 버튼을 다시 끌어다 놓아 주세요.');
+    $('inst').open = false;
+    render();
+    toast(s.name + ' 정보를 받았습니다');
+    setTimeout(function(){ var el=$('sec-result'); if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); }, 150);
+    return true;
+  }
+  function showNote(m){ var n=$('bmNote'); n.textContent=m; n.hidden=false; $('inst').open=true; }
+  function fromHash(){
+    var h = location.hash;
+    if (h.indexOf('#d=') !== 0) return;
+    try { receive(JSON.parse(b64dec(h.slice(3)))); } catch(e){ toast('받은 데이터를 읽지 못했습니다'); }
+    history.replaceState(null, '', location.pathname);
+  }
+  window.addEventListener('hashchange', fromHash);
+  window.addEventListener('message', function(ev){
+    if (OK_ORIGINS.indexOf(ev.origin) < 0) return;
+    var d = ev.data;
+    if (!d || d.src !== 'dotbogi' || d.type !== 'data') return;
+    var ok = false;
+    try { ok = receive(d.payload); } catch(e){ ok = false; console.error(e); }
+    try { ev.source.postMessage({src:'dotbogi', type:'ack', ok:ok}, ev.origin); } catch(e){}
+  });
+  $('paste').addEventListener('input', function(){
+    var v = this.value.trim(); if(!v) return;
+    try { var p = JSON.parse(v); if (receive(p)) this.value=''; } catch(e){ toast('붙여넣은 내용을 읽지 못했습니다'); }
+  });
+
+  /* ---------- 날짜 ---------- */
+  var TODAY = new Date(); TODAY.setHours(0,0,0,0);
+  function mkDate(y,m,d){ var t=new Date(y,m-1,d); t.setHours(0,0,0,0); return t; }
+  function parseDate(s){
+    if(!s) return null;
+    var m = String(s).match(/(\d{4}|\d{2})\s*[.\/년]\s*(\d{1,2})\s*[.\/월]\s*(\d{1,2})/);
+    if (m && +m[2] >= 1 && +m[2] <= 12 && +m[3] >= 1 && +m[3] <= 31){ var y=+m[1]; if(y<100) y+=2000; return mkDate(y,+m[2],+m[3]); }
+    m = String(s).match(/(^|[^\d.])(\d{1,2})\.(\d{1,2})\.?(?:\s*[월화수목금토일])?(?![\d])/);
+    if (m && +m[2] >= 1 && +m[2] <= 12 && +m[3] >= 1 && +m[3] <= 31){ var t=mkDate(TODAY.getFullYear(),+m[2],+m[3]); if(t>TODAY) t=mkDate(TODAY.getFullYear()-1,+m[2],+m[3]); return t; }
+    m = String(s).match(/(\d+)\s*(분|시간|일|주|개월|달|년)\s*전/);
+    if (m){ var n=+m[1], t2=new Date(TODAY); if(m[2]==='일') t2.setDate(t2.getDate()-n); else if(m[2]==='주') t2.setDate(t2.getDate()-7*n); else if(m[2]==='개월'||m[2]==='달') t2.setMonth(t2.getMonth()-n); else if(m[2]==='년') t2.setFullYear(t2.getFullYear()-n); return t2; }
+    if (/^어제$/.test(s)){ var t3=new Date(TODAY); t3.setDate(t3.getDate()-1); return t3; }
+    return null;
+  }
+  var daysAgo = function(d){ return d ? Math.round((TODAY - d)/86400000) : null; };
+  var ymd = function(d){ return d ? (d.getFullYear()+'.'+(d.getMonth()+1)+'.'+d.getDate()) : ''; };
+
+  /* ---------- 해석: 네이버 화면 글 → 항목 (네이버 화면이 바뀌면 여기만 고친다) ---------- */
+  var lines = function(t){ return String(t||'').split('\n').map(function(x){ return x.trim(); }).filter(Boolean); };
+  var numOf = function(s){ var m=String(s||'').replace(/,/g,'').match(/\d+/); return m ? +m[0] : null; };
+  var UI = /^(펼쳐보기|접기|안내|복사|더보기|내용 더보기|정보|지도|길찾기|공유)$/;
+  function after(L, label){ var i=L.indexOf(label); return i>=0 && L[i+1] ? L[i+1] : ''; }
+  function section(L, label, stops){
+    var i=L.indexOf(label); if(i<0) return [];
+    var out=[]; for (var j=i+1;j<L.length;j++){ if (stops.indexOf(L[j])>=0) break; if (!UI.test(L[j])) out.push(L[j]); }
+    return out;
+  }
+  var HOME_STOPS = ['주소','찾아가는길','영업시간','전화번호','편의','정보','네이버 예약','메뉴','AI 브리핑','홈페이지','가격표','주변'];
+  var INFO_HEADS = ['소개','인증 정보','편의시설 및 서비스','주류 및 콜키지','주차','좌석·공간','결제수단','결제 수단','홈페이지','SNS','찾아가는길','가격표','이용안내','리뷰','사진'];
+  var BADGE = /안심식당|모범음식점|착한가격|위생등급|블루리본|미쉐린|휠체어|백년가게|노키즈|제로페이|지역화폐/;
+  var PURPOSE = ['일상','데이트','친목','가족모임','나들이','여행','비즈니스','회식','기념일','혼밥','출장','접대'];
+  var WITH = ['혼자','연인・배우자','친구','아이','부모님','친척・형제자매','동료','반려동물','지인'];
+  function inc(o,k){ o[k]=(o[k]||0)+1; }
+  function joinDays(L){
+    var out=[]; for (var i=0;i<L.length;i++){
+      if ((/^(월|화|수|목|금|토|일|매일|평일|주말)(\(.*\))?$/.test(L[i]) || (!/\d/.test(L[i]) && L[i].length <= 12 && /\d{1,2}:\d{2}|휴무/.test(L[i+1]||''))) && L[i+1]){ out.push(L[i]+' '+L[i+1]); i++; }
+      else out.push(L[i]);
+    }
+    return out;
+  }
+  function labelNum(l){ var m=String(l).match(/^(.+?)\s*([\d,]+)$/); return m ? {label:m[1].trim(), n:numOf(m[2])} : null; }
+
+  function parseStore(p){
+    var T = p.tabs || {}, base = p.base || {};
+    var s = { raw:p, id:p.id||base.id||'', cat:p.cat||'', url:p.url||'', at:p.at ? new Date(p.at) : new Date(), notes:(p.notes||[]).slice() };
+    s.name = p.name || base.name || '이름 없음';
+
+    /* 머리 부분 (가게 이름 아래) */
+    var top = lines(p.top), k = -1;
+    for (var i=0;i<top.length && i<30;i++) if (top[i] === s.name) k = i;
+    s.category=''; s.total=null; s.status=''; s.aiSummary=''; s.badges=[];
+    if (k >= 0) for (var j=k+1;j<top.length && j<k+14;j++){
+      var l = top[j];
+      if (/^(출발|도착|거리뷰|공유|홈|소식)$/.test(l)) break;
+      var m = l.match(/^(.*?)\s*리뷰\s*([\d,]+)$/);
+      if (m && s.total == null){ s.category = m[1].trim(); s.total = numOf(m[2]); continue; }
+      if (/^(영업\s*(중|종료|전)|곧 영업|휴무|브레이크)/.test(l)){ s.status = l.replace(/^(영업\s*(?:중|종료|전)|휴무)\s*/,'$1 · '); continue; }
+      if (/AI 요약$/.test(l)){ s.aiSummary = l.replace(/\s*AI 요약$/,''); continue; }
+      if (BADGE.test(l) && l.length <= 16) s.badges.push(l);
+    }
+    if (!s.category && base.category) s.category = base.category;
+
+    /* 홈 */
+    var H = lines(T.home && T.home.text);
+    s.address = after(H,'주소') || base.roadAddress || base.address || '';
+    s.phone = after(H,'전화번호') || base.phone || base.virtualPhone || '';
+    s.hours = joinDays(section(H,'영업시간',HOME_STOPS).filter(function(x){ return !/^\d{1,2}시\s*\d{0,2}분?에 영업/.test(x) && !/^영업\s*(중|종료|전)/.test(x); })).slice(0,16);
+    s.amen = after(H,'편의').split(',').map(function(x){ return x.trim(); }).filter(Boolean);
+    s.aiBrief = (function(){ var a=H.indexOf('AI 브리핑'); if(a<0) return ''; for (var b=a+1;b<H.length&&b<a+6;b++){ if (/요약했습니다/.test(H[b])) continue; if (H[b].length > 30) return H[b].slice(0,420); } return ''; })();
+
+    /* 정보 */
+    var I = lines(T.info && T.info.text);
+    s.intro = section(I,'소개',INFO_HEADS).join(' ').slice(0,260);
+    s.facilities = section(I,'편의시설 및 서비스',INFO_HEADS);
+    if (!s.facilities.length && p.facA) s.facilities = p.facA;
+    s.alcohol = section(I,'주류 및 콜키지',INFO_HEADS).filter(function(x){ return x.length < 30; });
+    s.parking = section(I,'주차',INFO_HEADS).filter(function(x){ return x.length <= 40; }).slice(0,4);
+    s.seats = (p.seatA && p.seatA.length) ? p.seatA : (function(){ var L=section(I,'좌석·공간',INFO_HEADS), o=[]; L.forEach(function(x){ if (/^(최소|최대)/.test(x) && o.length) o[o.length-1]+=' '+x; else if (x.length<30) o.push(x); }); return o; })();
+
+    /* 리뷰 탭 머리 */
+    var R = T.review || {}, RT = lines(R.text);
+    var rvLine = RT.filter(function(x){ return /^리뷰\s*[\d,]+$/.test(x); })[0];
+    s.visitor = rvLine ? numOf(rvLine) : null;
+    s.blog = (s.total != null && s.visitor != null && s.total >= s.visitor) ? s.total - s.visitor : null;
+    s.keywords = []; var re = /"([^"\n]{2,40})"\s*\n\s*이 키워드를 선택한 인원\s*\n\s*([\d,]+)/g, km;
+    while ((km = re.exec(R.text||''))) s.keywords.push({label:km[1], n:numOf(km[2])});
+    var kp = (R.text||'').match(/([\d,]+)\s*회\s*([\d,]+)\s*명\s*참여/);
+    s.kwTimes = kp ? numOf(kp[1]) : null; s.kwPeople = kp ? numOf(kp[2]) : null;
+    var a0 = RT.indexOf('사진/영상 리뷰만'); if (a0 < 0) a0 = RT.indexOf(rvLine);
+    var mi = a0 >= 0 ? RT.indexOf('메뉴', a0) : -1, fi = RT.indexOf('특징', mi >= 0 ? mi : Math.max(a0,0)), ei = -1;
+    for (var e2 = Math.max(fi,0)+1; e2 < RT.length; e2++){ if (/^(추천순|최신순|리뷰 제공 기준)/.test(RT[e2])){ ei = e2; break; } }
+    s.mMenus = (mi >= 0 && fi > mi) ? RT.slice(mi+1, fi).map(labelNum).filter(Boolean) : [];
+    s.mFeats = (fi >= 0 && ei > fi) ? RT.slice(fi+1, ei).map(labelNum).filter(Boolean) : [];
+    var rs = (base.reviewSettings || {});
+    s.scoreHidden = rs.showVisitorReviewScore === false;
+    s.avgRating = (!s.scoreHidden && p.stats && p.stats.review && p.stats.review.avgRating) ? p.stats.review.avgRating : null;
+
+    /* 리뷰 하나하나 */
+    var kwSet = {}; s.keywords.forEach(function(x){ kwSet[x.label] = 1; });
+    s.reviews = (R.items||[]).map(function(t){ return parseReview(t, s.name, kwSet); }).filter(Boolean);
+    s.sort = R.sort || '';
+    s.ctx = {time:{}, reserve:{}, wait:{}, purpose:{}, withs:{}};
+    s.reviews.forEach(function(r){
+      var c = r.ctx; if (!c) return;
+      var tm = c.match(/(아침|점심|저녁|밤)에 방문/); if (tm) inc(s.ctx.time, tm[1]);
+      if (/예약 없이 이용/.test(c)) inc(s.ctx.reserve,'예약 없이'); else if (/예약 후 이용/.test(c)) inc(s.ctx.reserve,'예약 후');
+      var w = c.match(/대기 시간\s*(바로 입장|\d+분 이내|1시간 이내|1시간 이상)/); if (w) inc(s.ctx.wait, w[1]);
+      var c2 = c.replace(/·/g,'・');
+      PURPOSE.forEach(function(x){ if (c2.indexOf(x) >= 0) inc(s.ctx.purpose, x); });
+      WITH.forEach(function(x){ if (c2.indexOf(x) >= 0) inc(s.ctx.withs, x); });
+    });
+
+    /* 메뉴 · 소식 */
+    var seen = {};
+    s.menus = ((T.menu && T.menu.items) || []).map(parseMenu).filter(function(m){ if(!m) return false; var key=m.name+'|'+m.price; if(seen[key]) return false; seen[key]=1; return true; });
+    s.feed = ((T.feed && T.feed.items) || []).map(function(t){ return parseFeed(t, s.name); }).filter(Boolean);
+    calc(s);
+    return s;
+  }
+  function parseReview(t, storeName, kwSet){
+    var L = lines(t); if (L.length < 3) return null;
+    var r = {nick:L[0], rating:null, ctx:'', text:'', kws:[], date:null, dateStr:'', visit:null, auth:'', reply:false, replyText:''};
+    var bi = L.indexOf('별점'); if (bi >= 0 && /^\d(\.\d)?$/.test(L[bi+1]||'')) r.rating = +L[bi+1];
+    var ci = -1; for (var i=0;i<L.length;i++){ if (/(아침|점심|저녁|밤)에 방문|예약 (없이|후) 이용|대기 시간/.test(L[i])){ ci=i; break; } }
+    if (ci >= 0) r.ctx = L[ci];
+    var fo = L.indexOf('팔로우');
+    var start = ci >= 0 ? ci+1 : (bi >= 0 ? bi+3 : (fo >= 0 ? fo+1 : 1));
+    var endUI = L.indexOf('반응 남기기'); if (endUI < 0) endUI = L.indexOf('방문일'); if (endUI < 0) endUI = L.length;
+    var end = endUI;
+    for (var j=start;j<endUI;j++){ if (L[j] === '더보기' || kwSet[L[j]] || /^\+\d+$/.test(L[j])){ end=j; break; } }
+    r.text = L.slice(start, end).join('\n');
+    r.kws = L.slice(end, endUI).filter(function(x){ return x !== '더보기' && !/^\+\d+$/.test(x) && x.length < 24; });
+    var di = -1; for (var k=0;k<L.length;k++){ if (/^\d{4}년\s*\d{1,2}월\s*\d{1,2}일/.test(L[k])){ di=k; break; } }
+    if (di >= 0){ r.date = parseDate(L[di]); r.dateStr = L[di]; }
+    else { var vi = L.indexOf('방문일'); if (vi >= 0){ r.date = parseDate(L[vi+1]); r.dateStr = L[vi+1] || ''; } }
+    var vm = t.match(/(\d+)\s*번째\s*방문/); r.visit = vm ? +vm[1] : null;
+    var ai = L.indexOf('인증 수단'); if (ai >= 0) r.auth = L[ai+1] || '';
+    var last = Math.max(ai >= 0 ? ai+1 : -1, di, (function(){ for (var q=L.length-1;q>=0;q--) if (/번째\s*방문$/.test(L[q])) return q; return -1; })());
+    var tail = last >= 0 ? L.slice(last+1).filter(function(x){ return !/^(반응 남기기|더보기|접기|신고|번역|리뷰 신고|좋아요|답글|사장님|인증 수단|영수증|결제내역|예약)$/.test(x); }) : [];
+    if (tail.length){
+      var hasName = storeName && tail.some(function(x){ return x === storeName || x.indexOf(storeName) === 0; });
+      var isD = function(x){ return !!parseDate(x) && x.length < 30; };
+      var content = tail.filter(function(x){ return x !== storeName && !isD(x) && x.length >= 4; });
+      if (hasName || (tail.some(isD) && content.length)){ r.reply = true; r.replyText = content.join(' ').slice(0,300); }
+    }
+    return r;
+  }
+  function parseMenu(t){
+    var L = lines(t); if(!L.length) return null;
+    var rep = L[0] === '대표';
+    if (rep) L = L.slice(1);
+    var pm = t.replace(/\n/g,' ').match(/([\d,]{3,})\s*원/g);
+    var price = pm ? numOf(pm[pm.length-1]) : null;
+    var name = L[0];
+    var desc = L.slice(1).filter(function(x){ return !/원$/.test(x) && !/^변동$/.test(x); }).join(' ').slice(0,80);
+    if (!name || /원$/.test(name)) return null;
+    return {name:name, price:price, priceText: price ? null : (/변동|시가/.test(t) ? '변동' : ''), rep:rep, desc:desc};
+  }
+  function parseFeed(t, storeName){
+    var L = lines(t); if(!L.length) return null;
+    var dt = null;
+    for (var i=L.length-1;i>=0;i--){ if (/^\d{4}년\s*\d{1,2}월\s*\d{1,2}일/.test(L[i]) || /^\d{4}\.\d{2}\.\d{2}\.?$/.test(L[i])){ dt = parseDate(L[i]); if (dt) break; } }
+    var LB = /^(알림|임시휴무|이벤트|새소식|쿠폰|신메뉴|공지|휴무)(.*)$/;
+    var head = L.filter(function(x){ return LB.test(x); })[0];
+    if (!head){ var rest = L.filter(function(x, i){ return x !== storeName && !(i === 0 && L.length > 2) && !parseDate(x) && !/^(좋아요|기간|더보기)$/.test(x); }); head = rest[0] || L[0]; }
+    var tm = head.match(LB);
+    return {label: tm ? tm[1] : '', title: (tm ? tm[2] : head).trim() || head, date: dt};
+  }
+  function calc(s){
+    var n = s.reviews.length;
+    s.replyN = s.reviews.filter(function(r){ return r.reply; }).length;
+    s.replyRate = n ? s.replyN / n : null;
+    var ds = s.reviews.map(function(r){ return r.date; }).filter(Boolean).sort(function(a,b){ return a-b; });
+    s.revNewest = ds.length ? ds[ds.length-1] : null;
+    s.revOldest = ds.length ? ds[0] : null;
+    s.revSpan = ds.length >= 2 ? Math.max(1, Math.round((s.revNewest - s.revOldest)/86400000)) : null;
+    s.revPerMonth = (ds.length >= 5 && s.revSpan) ? Math.round(ds.length / s.revSpan * 30) : null;
+    var rated = s.reviews.filter(function(r){ return r.rating != null; });
+    s.ratedN = rated.length; s.lowN = rated.filter(function(r){ return r.rating <= 3; }).length;
+    var fd = s.feed.map(function(f){ return f.date; }).filter(Boolean).sort(function(a,b){ return b-a; });
+    s.feedLast = fd.length ? fd[0] : null;
+    var prices = s.menus.map(function(m){ return m.price; }).filter(function(x){ return x; });
+    s.priceMin = prices.length ? Math.min.apply(null, prices) : null;
+    s.priceMax = prices.length ? Math.max.apply(null, prices) : null;
+  }
+
+  /* ---------- 그리기 ---------- */
+  function render(){
+    $('chips').innerHTML = stores.map(function(s,i){
+      return '<span class="chip'+(i===cur?' on':'')+'"><button data-i="'+i+'" style="background:none;color:inherit;font:inherit;padding:0;border:none">'+esc(s.name)+'</button><button class="x" data-x="'+i+'" aria-label="빼기">×</button></span>';
+    }).join('');
+    $('toolbar').hidden = cur < 0;
+    renderCmp();
+    if (cur < 0){ $('view').innerHTML = '<div class="empty">아직 모은 가게가 없습니다.<br><b>01</b>에서 가게를 찾고, 네이버 가게 화면에서 북마크바의 <b>[돋보기]</b>를 누르세요.</div>'; return; }
+    $('view').innerHTML = storeHtml(stores[cur]);
+  }
+  $('chips').addEventListener('click', function(e){
+    var b = e.target.closest('button'); if(!b) return;
+    if (b.dataset.x != null){ stores.splice(+b.dataset.x,1); cur = Math.min(cur, stores.length-1); render(); return; }
+    if (b.dataset.i != null){ cur = +b.dataset.i; render(); }
+  });
+  $('view').addEventListener('click', function(e){
+    var b = e.target.closest('[data-act]'); if(!b || cur < 0) return;
+    if (b.dataset.act === 'raw') copy(JSON.stringify(stores[cur].raw), '원본을 복사했습니다. 채팅에 붙여넣어 주세요');
+  });
+
+  function prettyCtx(c){
+    var p = [], c2 = String(c).replace(/·/g,'・');
+    var tm = c2.match(/(아침|점심|저녁|밤)에 방문/); if (tm) p.push(tm[1]+' 방문');
+    if (/예약 없이 이용/.test(c2)) p.push('예약 없이'); else if (/예약 후 이용/.test(c2)) p.push('예약 후');
+    var w = c2.match(/대기 시간\s*(바로 입장|\d+분 이내|1시간 이내|1시간 이상)/); if (w) p.push('대기 '+w[1]);
+    PURPOSE.forEach(function(x){ if (c2.indexOf(x) >= 0) p.push(x); });
+    WITH.forEach(function(x){ if (c2.indexOf(x) >= 0) p.push(x); });
+    return p.length ? p.join(' · ') : c;
+  }
+  function chipsOf(obj, limit){
+    var arr = Object.keys(obj).map(function(k){ return [k,obj[k]]; }).sort(function(a,b){ return b[1]-a[1]; }).slice(0, limit||8);
+    return arr.length ? arr.map(function(x){ return '<span class="tag">'+esc(x[0])+' <b>'+x[1]+'</b></span>'; }).join(' ') : '<span class="small">-</span>';
+  }
+  function listChips(arr, limit){
+    return arr.slice(0, limit||10).map(function(x){ return '<span class="tag">'+esc(x.label)+' <b>'+fmt(x.n)+'</b></span>'; }).join(' ');
+  }
+  function kpiHtml(s){
+    var r = s.replyRate == null ? '<div class="val">-</div><div class="hint">리뷰를 못 읽었습니다</div>'
+      : '<div class="val '+(s.replyRate >= 0.5 ? 'good' : s.replyRate < 0.2 ? 'warn' : '')+'">'+Math.round(s.replyRate*100)+'<small>%</small></div><div class="hint">최근 리뷰 '+s.reviews.length+'개 중 '+s.replyN+'개에 답글</div>';
+    var fdays = daysAgo(s.feedLast);
+    var f = s.feedLast ? '<div class="val '+(fdays <= 30 ? 'good' : fdays > 90 ? 'warn' : '')+'">'+fdays+'<small>일 전</small></div><div class="hint">마지막 소식 '+ymd(s.feedLast)+'</div>'
+      : '<div class="val warn">없음</div><div class="hint">'+(s.feed.length ? '날짜를 못 읽었습니다' : '올린 소식이 없거나 못 읽었습니다')+'</div>';
+    var dn = s.reviews.filter(function(x){return x.date;}).length;
+    var v = s.revPerMonth != null ? '<div class="val">'+fmt(s.revPerMonth)+'<small>개/월</small></div><div class="hint">최근 '+dn+'개가 '+s.revSpan+'일 동안 · 가장 최근 '+daysAgo(s.revNewest)+'일 전</div>'
+      : '<div class="val">-</div><div class="hint">날짜가 있는 리뷰가 5개보다 적습니다</div>';
+    var lw = s.ratedN ? '<div class="val '+(s.lowN/s.ratedN >= 0.15 ? 'warn' : 'good')+'">'+s.lowN+'<small>/ '+s.ratedN+'개</small></div><div class="hint">최근 리뷰 중 별점 3점 이하</div>' : '<div class="val">-</div><div class="hint">별점이 보이는 리뷰가 없습니다</div>';
+    return '<div class="kpis"><div class="kpi"><div class="lab">사장님 답글 비율</div>'+r+'</div><div class="kpi"><div class="lab">마지막 소식</div>'+f+'</div><div class="kpi"><div class="lab">리뷰가 쌓이는 속도</div>'+v+'</div><div class="kpi"><div class="lab">낮은 별점</div>'+lw+'</div></div>';
+  }
+  function storeHtml(s){
+    var h = '';
+    h += '<div class="store-h"><div><span class="store-name">'+esc(s.name)+'</span>'+(s.category?'<span class="store-cat">'+esc(s.category)+'</span>':'')+'</div>';
+    h += '<div class="small">'+esc(ymd(s.at))+' '+String(s.at.getHours()).padStart(2,'0')+':'+String(s.at.getMinutes()).padStart(2,'0')+' 수집'+(s.url?' · <a href="'+esc(s.url)+'" target="_blank" rel="noopener">네이버에서 보기</a>':'')+'</div></div>';
+    if (s.status || s.badges.length) h += '<div class="rv-kw" style="margin-top:8px">'+(s.status?'<span class="tag">'+esc(s.status)+'</span>':'')+s.badges.map(function(b){ return '<span class="tag">'+esc(b)+'</span>'; }).join('')+'</div>';
+    if (s.aiSummary) h += '<div class="quote">“'+esc(s.aiSummary)+'” <span class="small">네이버 AI 요약</span></div>';
+    h += '<dl class="meta">';
+    if (s.address) h += '<dt>주소</dt><dd>'+esc(s.address)+'</dd>';
+    if (s.phone) h += '<dt>전화</dt><dd>'+esc(s.phone)+'</dd>';
+    if (s.hours.length) h += '<dt>영업</dt><dd>'+s.hours.map(esc).join('<br>')+'</dd>';
+    var fac = s.facilities.length ? s.facilities : s.amen;
+    if (fac.length) h += '<dt>편의</dt><dd>'+esc(fac.join(', '))+'</dd>';
+    if (s.parking.length) h += '<dt>주차</dt><dd>'+esc(s.parking.join(' · '))+'</dd>';
+    if (s.seats.length) h += '<dt>좌석</dt><dd>'+esc(s.seats.join(', '))+'</dd>';
+    if (s.alcohol.length) h += '<dt>주류</dt><dd>'+esc(s.alcohol.join(' · '))+'</dd>';
+    if (s.intro) h += '<dt>소개</dt><dd>'+esc(s.intro)+'</dd>';
+    h += '</dl>';
+
+    h += '<div class="blk"><h3>한눈 지표</h3>'+kpiHtml(s)+'</div>';
+
+    h += '<div class="blk"><h3>리뷰</h3><div class="counts"><span>방문자 리뷰<b>'+fmt(s.visitor)+'</b></span><span>블로그 리뷰<b>'+fmt(s.blog)+'</b></span>';
+    h += s.avgRating ? '<span>별점 평균<b>'+s.avgRating+'</b></span>' : (s.scoreHidden ? '<span class="small">별점 평균은 가게가 비공개로 설정</span>' : '');
+    h += '</div>';
+    if (s.keywords.length){
+      var mx = Math.max.apply(null, s.keywords.map(function(k){ return k.n; })) || 1;
+      h += '<div class="small" style="margin-bottom:10px">이런 점이 좋았어요'+(s.kwPeople?' · '+fmt(s.kwTimes)+'회 '+fmt(s.kwPeople)+'명 참여':'')+'</div><div class="kw">';
+      s.keywords.forEach(function(k){ h += '<div class="l" title="'+esc(k.label)+'">'+esc(k.label)+'</div><div class="bar"><i style="width:'+Math.max(2, Math.round(k.n/mx*100))+'%"></i></div><div class="n">'+fmt(k.n)+'</div>'; });
+      h += '</div>';
+    } else h += '<div class="small">키워드 집계를 못 읽었습니다.</div>';
+    if (s.mMenus.length) h += '<div class="sublab">리뷰에서 많이 나온 메뉴</div><div class="rv-kw">'+listChips(s.mMenus,12)+'</div>';
+    if (s.mFeats.length) h += '<div class="sublab">리뷰에서 많이 나온 특징</div><div class="rv-kw">'+listChips(s.mFeats,12)+'</div>';
+    h += '</div>';
+
+    var cn = s.reviews.filter(function(r){ return r.ctx; }).length;
+    if (cn){
+      h += '<div class="blk"><h3>방문 특징 <span class="small">최근 리뷰 '+cn+'개 기준</span></h3><dl class="meta ctx">';
+      h += '<dt>시간대</dt><dd>'+chipsOf(s.ctx.time)+'</dd><dt>예약</dt><dd>'+chipsOf(s.ctx.reserve)+'</dd><dt>대기</dt><dd>'+chipsOf(s.ctx.wait)+'</dd><dt>목적</dt><dd>'+chipsOf(s.ctx.purpose)+'</dd><dt>함께</dt><dd>'+chipsOf(s.ctx.withs)+'</dd>';
+      h += '</dl></div>';
+    }
+
+    h += '<div class="blk"><h3>최신 리뷰 <span class="small">'+s.reviews.length+'개'+(s.sort?' · '+esc(s.sort):'')+'</span></h3><div class="rv">';
+    if (!s.reviews.length) h += '<div class="small">리뷰를 못 읽었습니다.</div>';
+    s.reviews.forEach(function(r){
+      h += '<div class="rv-i"><div class="rv-top"><span>'+esc(r.date ? ymd(r.date) : (r.dateStr||'날짜 없음'))+'</span>'+(r.rating!=null?'<span class="tag'+(r.rating<=3?' norep':'')+'">별점 '+r.rating+'</span>':'')+(r.visit?'<span class="tag">'+r.visit+'번째 방문</span>':'')+(r.reply?'<span class="tag rep">사장님 답글</span>':'<span class="tag norep">답글 없음</span>')+'</div>';
+      if (r.ctx) h += '<div class="small" style="margin-bottom:6px">'+esc(prettyCtx(r.ctx))+'</div>';
+      h += '<div class="rv-t">'+esc(r.text || '(글 없이 키워드만 남긴 리뷰)')+'</div>';
+      if (r.kws.length) h += '<div class="rv-kw">'+r.kws.map(function(k){ return '<span class="tag">'+esc(k)+'</span>'; }).join('')+'</div>';
+      if (r.reply && r.replyText) h += '<div class="reply">↳ '+esc(r.replyText)+'</div>';
+      h += '</div>';
+    });
+    h += '</div></div>';
+
+    h += '<div class="blk"><h3>메뉴 <span class="small">'+s.menus.length+'개'+(s.priceMin?' · '+fmt(s.priceMin)+'~'+fmt(s.priceMax)+'원':'')+'</span></h3>';
+    if (s.menus.length){
+      h += '<table class="t"><thead><tr><th>메뉴</th><th style="text-align:right">가격</th></tr></thead><tbody>';
+      s.menus.forEach(function(m){ h += '<tr><td>'+(m.rep?'<span class="tag" style="margin-right:6px">대표</span>':'')+esc(m.name)+(m.desc?'<span class="d">'+esc(m.desc)+'</span>':'')+'</td><td class="pr">'+(m.price?fmt(m.price)+'원':esc(m.priceText||'-'))+'</td></tr>'; });
+      h += '</tbody></table>';
+    } else h += '<div class="small">메뉴를 못 읽었습니다.</div>';
+    h += '</div>';
+
+    h += '<div class="blk"><h3>소식 <span class="small">'+s.feed.length+'개</span></h3><div class="feed">';
+    if (!s.feed.length) h += '<div class="small" style="border:none">올린 소식이 없거나 못 읽었습니다.</div>';
+    s.feed.forEach(function(f){ h += '<div><span>'+(f.label?'<span class="tag" style="margin-right:6px">'+esc(f.label)+'</span>':'')+esc(f.title)+'</span><span class="d">'+esc(f.date ? ymd(f.date) : '')+'</span></div>'; });
+    h += '</div></div>';
+
+    if (s.aiBrief) h += '<div class="blk"><h3>네이버 AI 브리핑</h3><p class="sub">'+esc(s.aiBrief)+'</p></div>';
+    if (s.notes.length) h += '<div class="notes">못 가져온 것: '+s.notes.map(esc).join(' · ')+'</div>';
+    h += '<div class="notes">출처: 네이버 플레이스 화면 (수집 시점 기준, 사람이 연 화면에서 읽음) · <button class="linkbtn no-print" data-act="raw">원본 복사</button></div>';
+    return h;
+  }
+  function renderCmp(){
+    var el = $('cmp');
+    if (stores.length < 2){ el.innerHTML=''; return; }
+    var rows = [
+      ['업종', function(s){ return esc(s.category||'-'); }],
+      ['방문자 리뷰', function(s){ return fmt(s.visitor); }],
+      ['블로그 리뷰', function(s){ return fmt(s.blog); }],
+      ['좋았어요 1위', function(s){ return s.keywords[0] ? esc(s.keywords[0].label)+' '+fmt(s.keywords[0].n) : '-'; }],
+      ['사장님 답글', function(s){ return s.replyRate==null?'-':Math.round(s.replyRate*100)+'%'; }],
+      ['마지막 소식', function(s){ return s.feedLast ? daysAgo(s.feedLast)+'일 전' : '없음'; }],
+      ['리뷰 속도', function(s){ return s.revPerMonth==null?'-':fmt(s.revPerMonth)+'개/월'; }],
+      ['낮은 별점', function(s){ return s.ratedN ? s.lowN+'/'+s.ratedN : '-'; }],
+      ['메뉴 가격대', function(s){ return s.priceMin ? fmt(s.priceMin)+'~'+fmt(s.priceMax)+'원' : '-'; }]
+    ];
+    var h = '<h3>비교 <span class="small">모은 가게 '+stores.length+'곳</span></h3><div class="cmp-wrap"><table class="cmp"><thead><tr><th></th>'+stores.map(function(s){ return '<td>'+esc(s.name)+'</td>'; }).join('')+'</tr></thead><tbody>';
+    rows.forEach(function(r){ h += '<tr><th>'+r[0]+'</th>'+stores.map(function(s){ return '<td>'+r[1](s)+'</td>'; }).join('')+'</tr>'; });
+    h += '</tbody></table></div><div class="gap"></div>';
+    el.innerHTML = h;
+  }
+
+  /* ---------- 내보내기 ---------- */
+  function top3(o){ return Object.keys(o).sort(function(a,b){ return o[b]-o[a]; }).slice(0,3).map(function(k){ return k+' '+o[k]; }).join(', '); }
+  function asText(s){
+    var o = [];
+    o.push('[돋보기] '+s.name+(s.category?' ('+s.category+')':'')+' · '+ymd(s.at)+' 수집');
+    if (s.address) o.push('주소: '+s.address);
+    if (s.phone) o.push('전화: '+s.phone);
+    if (s.hours.length) o.push('영업: '+s.hours.join(' / '));
+    o.push('리뷰: 방문자 '+fmt(s.visitor)+' · 블로그 '+fmt(s.blog));
+    if (s.keywords.length) o.push('좋았어요'+(s.kwPeople?'('+fmt(s.kwPeople)+'명)':'')+': '+s.keywords.map(function(k){ return k.label+' '+fmt(k.n); }).join(', '));
+    if (s.mMenus.length) o.push('리뷰에 많이 나온 메뉴: '+s.mMenus.slice(0,8).map(function(k){ return k.label+' '+k.n; }).join(', '));
+    o.push('한눈 지표: 사장님 답글 '+(s.replyRate==null?'-':s.replyN+'/'+s.reviews.length+'('+Math.round(s.replyRate*100)+'%)')+' · 마지막 소식 '+(s.feedLast?daysAgo(s.feedLast)+'일 전':'없음')+' · 리뷰 속도 '+(s.revPerMonth==null?'-':'한 달 약 '+s.revPerMonth+'개')+' · 낮은 별점 '+(s.ratedN?s.lowN+'/'+s.ratedN:'-'));
+    var cn = s.reviews.filter(function(r){ return r.ctx; }).length;
+    if (cn) o.push('방문 특징(리뷰 '+cn+'개): 시간대 '+top3(s.ctx.time)+' / 예약 '+top3(s.ctx.reserve)+' / 목적 '+top3(s.ctx.purpose)+' / 함께 '+top3(s.ctx.withs));
+    if (s.menus.length) o.push('메뉴: '+s.menus.map(function(m){ return m.name+(m.price?' '+fmt(m.price)+'원':''); }).join(', '));
+    if (s.feed.length) o.push('소식: '+s.feed.map(function(f){ return f.title+(f.date?'('+ymd(f.date)+')':''); }).join(', '));
+    if (s.reviews.length){ o.push('최신 리뷰:'); s.reviews.forEach(function(r){ o.push('- '+(r.date?ymd(r.date):'')+(r.rating!=null?' 별점'+r.rating:'')+(r.visit?' ('+r.visit+'번째 방문)':'')+(r.reply?' [답글]':'')+' '+r.text.replace(/\n/g,' ')); }); }
+    o.push('출처: 네이버 플레이스 '+(s.url||''));
+    return o.join('\n');
+  }
+  $('btnText').addEventListener('click', function(){ if(cur>=0) copy(asText(stores[cur]), '글로 복사했습니다'); });
+  $('btnCsv').addEventListener('click', function(){
+    if (cur < 0) return;
+    var s = stores[cur], R = [['구분','항목','값','비고','날짜']];
+    R.push(['기본','가게',s.name,s.category,ymd(s.at)]);
+    if (s.address) R.push(['기본','주소',s.address,'','']);
+    if (s.phone) R.push(['기본','전화',s.phone,'','']);
+    s.hours.forEach(function(x){ R.push(['기본','영업',x,'','']); });
+    R.push(['리뷰','방문자 리뷰',s.visitor==null?'':s.visitor,'','']);
+    R.push(['리뷰','블로그 리뷰',s.blog==null?'':s.blog,'합계에서 방문자 리뷰를 뺀 값','']);
+    s.keywords.forEach(function(k){ R.push(['좋았어요',k.label,k.n,'','']); });
+    s.mMenus.forEach(function(k){ R.push(['리뷰 언급 메뉴',k.label,k.n,'','']); });
+    s.mFeats.forEach(function(k){ R.push(['리뷰 언급 특징',k.label,k.n,'','']); });
+    R.push(['지표','사장님 답글 비율',s.replyRate==null?'':Math.round(s.replyRate*100)+'%',s.replyN+'/'+s.reviews.length,'']);
+    R.push(['지표','마지막 소식',s.feedLast?daysAgo(s.feedLast)+'일 전':'없음','',ymd(s.feedLast)]);
+    R.push(['지표','리뷰 속도(월)',s.revPerMonth==null?'':s.revPerMonth,s.revSpan?s.revSpan+'일':'','']);
+    R.push(['지표','낮은 별점(3점 이하)',s.ratedN?s.lowN+'/'+s.ratedN:'','','']);
+    ['time','reserve','wait','purpose','withs'].forEach(function(key){ var nm={time:'시간대',reserve:'예약',wait:'대기',purpose:'목적',withs:'함께'}[key]; Object.keys(s.ctx[key]).forEach(function(k){ R.push(['방문 특징',nm+': '+k,s.ctx[key][k],'','']); }); });
+    s.menus.forEach(function(m){ R.push(['메뉴',m.name,m.price||m.priceText||'',m.rep?'대표':'','']); });
+    s.feed.forEach(function(f){ R.push(['소식',(f.label?'['+f.label+'] ':'')+f.title,'','',ymd(f.date)]); });
+    s.reviews.forEach(function(r){ R.push(['리뷰',r.text.replace(/\n/g,' '),r.reply?'답글 있음':'답글 없음',[r.rating!=null?'별점 '+r.rating:'',r.visit?r.visit+'번째 방문':'',r.ctx].filter(Boolean).join(' / '),r.date?ymd(r.date):r.dateStr]); });
+    var csv = '﻿' + R.map(function(row){ return row.map(function(c){ c = String(c==null?'':c); return /[",\n]/.test(c) ? '"'+c.replace(/"/g,'""')+'"' : c; }).join(','); }).join('\r\n');
+    var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+    var pad = function(n){ return String(n).padStart(2,'0'); };
+    a.download = '돋보기_'+s.name.replace(/[\\\/:*?"<>|\s&]+/g,'_')+'_'+s.at.getFullYear()+pad(s.at.getMonth()+1)+pad(s.at.getDate())+'.csv';
+    document.body.appendChild(a); a.click(); a.remove();
+    toast('CSV로 저장했습니다');
+  });
+  $('btnPrint').addEventListener('click', function(){ window.print(); });
+
+  fromHash();
+  window.__dotbogi = { receive: receive, parseStore: parseStore, bookmarklet: function(){ return BM; } };
+})();
+</script>
+
+</body>
+</html>
