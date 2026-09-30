@@ -803,6 +803,8 @@ html.sbov-on,html.sbov-on body{overflow:hidden}
 .mform input:focus{background:var(--paper);border-color:rgba(32,30,29,.16);box-shadow:0 0 0 4px rgba(236,48,19,.13)}
 .mcard .msg{margin-top:14px}
 .mcard .chips{margin-top:13px}
+.mcard .mnote{margin-top:14px;font-size:11.5px;line-height:1.5;color:var(--faint)}
+.mform input{min-width:0}   /* v3.60: 데스크톱에서 입력칸이 줄지 않아 [연결] 버튼이 카드 밖으로 밀려나던 것 */
 
 /* ══ 리뷰·차트 부속 ══ */
 .rvbar{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-top:16px}
@@ -1823,6 +1825,7 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
       <button class="tbtn" id="authBtn" type="submit">연결</button>
     </form>
     <p class="msg" id="authMsg" role="status" aria-live="polite"></p>
+    <p class="mnote">비밀번호는 시너지영업3팀에서 안내합니다.</p>
     <div class="chips" id="keyChips" aria-label="중계 서버 키 상태"></div>
   </div>
 </div>
@@ -1909,7 +1912,7 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
       <div class="name" data-sk="1" data-sk-wide="1">밑그림</div>
       <div class="tag"><span class="en">SKETCH</span><em>밑</em>천이 되는 <em>그림</em></div>
     </div>
-    <div class="ver" id="pageVer">v3.59</div>
+    <div class="ver" id="pageVer">v3.60</div>
   </div>
 
   <section class="tool" id="tool" aria-label="수집 도구">
@@ -1958,7 +1961,9 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
 
   // ▼ 배포 후 Cloudflare Worker 주소로 바꾸세요 (끝에 / 없이)
   const API_BASE = 'https://kt.roi0925003.workers.dev';
-  const PAGE_VERSION = 'v3.59';
+  const PAGE_VERSION = 'v3.60';
+  /* v3.60: 비밀번호 잠금 — 공개 토큰(PUBLIC_PASS) 자동 연결을 없앴다. 처음 온 사람은 첫 화면에서 팀 비밀번호를 넣는다.
+     맞게 연결되면 이 브라우저에 기억(sketch.team.pass)하고, 워커에서 비밀번호를 바꾸면 기억한 값이 401을 받아 지워지고 다시 묻는다 */
   /* v3.59: 다른 작업(2026-09-29 GitHub 20084a2)에서 고친 두 곳을 되살림 — 첫 화면 '반경' → '매장 기준 반경' · 1장 첫 문장 주어 '이 매장은' → 매장명 + 은/는 */
   /* v3.58: 예상 테이블 한 칸 올림 — 테이블 1개당 면적 고기·주점 6~8㎡ · 일반 4.5~6㎡ · 그 업종이 여러 층이면 홀 55% (현장: 실제는 '많게 잡은 수' 근처이거나 그 위) */
   /* v3.57: 검색창 흐림막(최근 목록 뒤) · 2장 별점 평균 = 네이버 전체 분포 · 3장 가격표는 가운데 값 + 가게별 가격표(메뉴별 견주기 뺌) · '이 매장' 대신 상호 · 업력·예상 테이블 견주기(수집 서버 v1.53) */
@@ -1988,15 +1993,13 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
      회전 유형은 업종이 먼저(국밥·피자가 긴 체류로 나오던 것) · 같은 업종을 못 센 매장에 '사실상 이 집'을 내지 않음 ·
      옆 가게 평점 비교 기준을 ±0.1로 통일 */
   const WORKER_VERSION = 'v1.53';   // v3.57: 옆 가게 업력·면적(/localdata/near)은 v1.53부터 · v3.56: 옆 가게와 견주기(rank.neighbors[].menu · self)는 v1.52부터 · v3.53: 동네 순위(hood.older)는 v1.51부터   // 이 페이지와 짝이 되는 worker.js 버전 (이보다 낮으면 경고)
-  /* 직원 공개용 토큰 — 비밀번호가 아닙니다. 소스 보기로 누구나 볼 수 있습니다.
-     중계 서버의 PUBLIC_PASS와 같은 값이어야 하고, 남이 긁는 게 보이면
-     양쪽을 같이 바꿔서 다시 올리면 됩니다. 리뷰는 이 토큰으로 부를 수 없습니다. */
   /* 네이버 지도 Client ID — 네이버 클라우드 콘솔 > AI·NAVER API > Application > 인증 정보.
      비워 두면 1장에 지도가 그려지지 않습니다(다른 항목은 그대로). 이 값은 페이지 소스에 보이며,
      Application의 Web 서비스 URL에 등록한 도메인에서만 동작합니다. */
   const NAVER_MAP_KEY = 'wwyjv4w62s';
 
-  const PUBLIC_PASS = 'sk-bbwkqqcpjx4yty';
+  /* v3.60: 공개 토큰(PUBLIC_PASS)은 없앴다 — 팀 비밀번호를 받은 사람만 연결한다.
+     비밀번호는 이 파일에 적지 않는다(소스 보기로 누구나 읽는다). 잠금은 중계 서버가 건다 */
   // 'show' = 발표 모드(느리고 우아한 연출) / 'fast' = 업무 모드(0.4초, 카운트업 없음)
   const MOTION = 'show';
   document.documentElement.dataset.motion = MOTION;
@@ -2020,6 +2023,10 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
   /* 리뷰 비밀번호는 이 브라우저에만 남는다 — 한 번 넣으면 그 PC에서는 다시 묻지 않는다 */
   const RVKEY = 'sketch.rv.pass';
   try { state.rvPass = (localStorage.getItem(RVKEY) || '').trim(); } catch (_) { state.rvPass = ''; }
+  /* v3.60: 팀 비밀번호도 이 브라우저에만 남는다 — 맞게 연결되면 저장하고, 401을 받으면 지운다 */
+  const PASS_KEY = 'sketch.team.pass';
+  const savedPass = () => { try { return (localStorage.getItem(PASS_KEY) || '').trim(); } catch (_) { return ''; } };
+  const keepPass = (v) => { try { if (v) localStorage.setItem(PASS_KEY, v); else localStorage.removeItem(PASS_KEY); } catch (_) {} };
 
   const RV_LABEL = { naver:'네이버', kakao:'카카오', google:'구글', place:'플레이스 정보' };
   const KEY_LABEL = { kakao:'카카오', naver:'네이버', dataGoKr:'공공데이터포털', sgis:'SGIS',
@@ -2148,6 +2155,7 @@ body.cust .sale,body.cust .fx,body.cust .so,body.cust .flag2,body.cust .int,body
 
   function lockAuth(message) {
     state.pass = '';
+    keepPass('');   // v3.60: 기억해 둔 비밀번호도 지운다 — 워커에서 비밀번호를 바꾼 경우
     el.searchSet.disabled = true;
     el.chips.innerHTML = '';
     setMsg(el.authMsg, message, 'err');
@@ -8527,8 +8535,10 @@ ${GUARD}`,
   }
 
   /* 1. 연결 */
+  let autoTry = false;   // v3.60: 기억해 둔 비밀번호로 스스로 들어오는 중인지
   el.authForm.addEventListener('submit', async (e) => {
     e.preventDefault();
+    const wasAuto = autoTry; autoTry = false;
     if (!configured) return setMsg(el.authMsg, '이 파일의 API_BASE 값을 Worker 주소로 바꿔서 올려 주세요.', 'err');
     const pass = el.pass.value.trim();
     if (!pass) return;
@@ -8539,6 +8549,7 @@ ${GUARD}`,
     try {
       const s = await api('/status', { timeout: 12000 });
       state.pass = pass;
+      keepPass(pass);   // v3.60: 맞게 들어왔으니 이 브라우저에 기억
       const keys = s.keys || {};
       el.chips.innerHTML = Object.keys(KEY_LABEL)
         .map(k => `<span class="chip${keys[k] ? '' : ' off'}">${esc(KEY_LABEL[k])}${keys[k] ? '' : ' 없음'}</span>`).join('');
@@ -8559,35 +8570,28 @@ ${GUARD}`,
     } catch (err) {
       state.pass = ''; setBusy(false);
       const _lg = document.getElementById('login'); if (_lg) _lg.classList.remove('done');
-      if (pass !== PUBLIC_PASS) { showError(err, el.authMsg); return; }
-      /* 자동 연결이 막힌 것이다 — 원인을 짚어 준다. 공개 토큰이 거부되는 경우가 대부분이고,
-         그건 중계 서버가 아직 옛 버전이거나 PUBLIC_PASS가 없다는 뜻이다. */
-      el.pass.value = '';
-      let note = (err && err.message) ? err.message : String(err);
+      /* v3.60: 401 = 비밀번호가 틀렸다. 기억해 둔 값으로 들어오다 막혔으면 워커에서 비밀번호를 바꾼 것이다 */
       if (err && err.status === 401) {
-        let wv = '';
-        try {
-          const r = await fetch(API_BASE + '/', { cache: 'no-store' });
-          wv = String(await r.text() || '').trim().slice(0, 80);
-        } catch (_) { /* 버전을 못 읽어도 아래 안내는 그대로 쓴다 */ }
-        note = (wv && wv.indexOf(WORKER_VERSION) < 0)
-          ? `중계 서버가 아직 옛 버전입니다 — ${wv}. worker.js를 ${WORKER_VERSION}로 올린 뒤 PUBLIC_PASS를 넣어 주세요.`
-          : `중계 서버에 PUBLIC_PASS가 없거나 값이 다릅니다. Workers → Settings → Variables and Secrets에서 PUBLIC_PASS를 ${PUBLIC_PASS} 로 넣고 Deploy 해 주세요.`;
-        note += ' 그 전까지는 팀 비밀번호로 들어가시면 됩니다.';
+        keepPass('');
+        el.pass.value = '';
+        setMsg(el.authMsg, wasAuto ? '비밀번호가 바뀌었습니다. 새 비밀번호를 넣어 주세요.' : '비밀번호가 맞지 않습니다.', 'err');
+        el.pass.focus();
+        return;
       }
-      setMsg(el.authMsg, note, 'err');
+      setMsg(el.authMsg, err && err.message ? err.message : String(err), 'err');   // 연결 실패 등 — 기억한 값은 두고 [연결]을 다시 누르게 한다
       el.pass.focus();
     }
   });
 
-  /* 1-b. 자동 연결 — 직원은 비밀번호를 넣지 않는다.
-     페이지에 적어 둔 공개 토큰으로 바로 연결하고, 실패하면 팝업이 열려
-     팀 비밀번호로 직접 들어갈 수 있다. */
-  (function autoConnect(){
-    if (!configured || !PUBLIC_PASS) return;
+  /* 1-b. v3.60: 스스로 연결하는 건 이 브라우저에 기억해 둔 팀 비밀번호가 있을 때뿐이다.
+     처음 온 사람은 비밀번호 창부터 본다. */
+  (function autoResume(){
+    const saved = savedPass();
+    if (!configured || !saved) return;
     const lg = document.getElementById('login');
     if (lg) lg.classList.add('done');          // 팝업이 깜빡이지 않게 먼저 숨긴다
-    el.pass.value = PUBLIC_PASS;
+    el.pass.value = saved;
+    autoTry = true;
     setTimeout(() => {
       if (el.authForm.requestSubmit) el.authForm.requestSubmit();
       else el.authForm.dispatchEvent(new Event('submit', { cancelable:true }));
