@@ -169,6 +169,7 @@
   .status.ok{background:rgba(74,222,128,0.07);border-color:rgba(74,222,128,0.30);color:#c9f2d7;}
   .status.warn{background:rgba(251,191,36,0.07);border-color:rgba(251,191,36,0.28);color:#f5d88a;}
   .status b{color:#fff;}
+  .status a.lnk{display:inline-block;margin-left:6px;color:#fff;font-weight:700;text-decoration:underline;text-underline-offset:3px;}
   details.alt{margin-top:16px;}
   details.alt summary{cursor:pointer;}
   details.alt .row{margin-top:10px;}
@@ -297,7 +298,7 @@
 <div class="wrap">
 <main>
   <header class="top">
-    <h1>플레이스 <span class="shine">돋보기</span> <span class="ver">v1.10</span></h1>
+    <h1>플레이스 <span class="shine">돋보기</span> <span class="ver">v1.11</span></h1>
     <p class="lead">가게 이름만 치면 네이버 플레이스 상세와 주변 같은 업종 비교표를 모아 봅니다. 밑그림 없이 가볍게.</p>
   </header>
 
@@ -690,11 +691,26 @@ await done(ack,out);
 
   /* ---------- 01 가게 찾기 ---------- */
   var cands = [];
+  /* 네이버 창은 늘 새 탭으로 열고 앞으로 가져온다.
+     (v1.10은 같은 이름의 탭을 다시 썼다 — 예전에 열어 둔 네이버 탭이 뒤에서 바뀌기만 해서 안 열린 것처럼 보였다) */
+  var lastNaver = '';
+  function naverLink(label){ return lastNaver ? ' <a class="lnk" href="' + esc(lastNaver) + '" target="_blank" rel="opener">' + (label || '네이버 창이 안 보이면 여기를 누르세요') + '</a>' : ''; }
   function openNaver(url){
-    var w = window.open(url, 'dotbogi_naver');
-    if (!w){ toast('팝업이 막혔습니다. 주소창 오른쪽에서 팝업을 허용해 주세요'); return false; }
+    lastNaver = url;
+    var w = null;
+    try { w = window.open(url, 'dotbogi_naver_' + Date.now()); } catch(e){ w = null; }
+    var blocked = false;
+    try { blocked = !w || w.closed; } catch(e){ blocked = !w; }
+    if (blocked){
+      setStatus('네이버 창이 막혔습니다. 주소창 오른쪽의 팝업 차단 표시를 눌러 이 사이트의 팝업을 허용하거나,' + naverLink('여기를 눌러 직접 여세요') + '.', 'warn');
+      return false;
+    }
+    try { w.focus(); } catch(e){}
+    setTimeout(function(){ try { if (w.closed && !gotHello) setStatus('네이버 창이 바로 닫혔습니다. 회사 보안 프로그램이 막았을 수 있습니다.' + naverLink('여기를 눌러 직접 열어 보세요'), 'warn'); } catch(e){} }, 2500);
+    gotHello = false;
     return true;
   }
+  var gotHello = false;
   function jobOpts(){ return { r: +$('optR').value || 0, k: $('optK').value.trim(), ph: $('optPh').checked }; }
   function listUrl(name, x, y){ return MP + '/restaurant/list?query=' + encodeURIComponent(name) + '&x=' + x + '&y=' + y; }
   async function doSearch(){
@@ -733,29 +749,30 @@ await done(ack,out);
   });
   function startJob(name, x, y, mode){
     if (x == null || y == null){
-      toast('좌표가 없는 후보라 네이버 지도로 엽니다');
-      openNaver('https://map.naver.com/p/search/' + encodeURIComponent(name));
+      pendingJob = { mode: 'b', ph: jobOpts().ph };
+      if (openNaver('https://map.naver.com/p/search/' + encodeURIComponent(name)))
+        setStatus('이 후보는 좌표가 없어 네이버 지도로 열었습니다. 지도에서 가게를 누른 뒤 <b>[돋보기]</b>를 두 번 누르면 상세가 들어옵니다.' + naverLink());
       return;
     }
     var o = jobOpts();
     pendingJob = { mode: mode, r: o.r, k: o.k, ph: o.ph, t: { name: name, x: x, y: y } };
     if (!openNaver(listUrl(name, x, y))) return;
-    setStatus(mode === 'a'
-      ? '네이버 창이 열렸습니다. 목록이 뜨면 북마크바의 <b>[돋보기]</b>를 <b>한 번</b> 누르세요.'
-      : '네이버 창이 열렸습니다. 목록이 뜨면 북마크바의 <b>[돋보기]</b>를 누르세요. 비교표를 보낸 뒤 가게 화면으로 넘어가면 <b>한 번 더</b> 누르면 됩니다.');
+    setStatus((mode === 'a'
+      ? '새 탭에 네이버 목록을 열었습니다. 목록이 뜨면 북마크바의 <b>[돋보기]</b>를 <b>한 번</b> 누르세요.'
+      : '새 탭에 네이버 목록을 열었습니다. 목록이 뜨면 북마크바의 <b>[돋보기]</b>를 누르세요. 비교표를 보낸 뒤 가게 화면으로 넘어가면 <b>한 번 더</b> 누르면 됩니다.') + naverLink());
   }
   function openDetail(z){
     var o = jobOpts();
     pendingJob = { mode: 'b', ph: o.ph };
     if (openNaver(PC + '/' + (z.bt || 'restaurant') + '/' + z.id + '/home'))
-      setStatus('네이버 가게 화면이 열렸습니다. 화면이 뜨면 북마크바의 <b>[돋보기]</b>를 누르세요. 20초쯤 탭이 넘어가며 읽습니다.');
+      setStatus('새 탭에 네이버 가게 화면을 열었습니다. 화면이 뜨면 북마크바의 <b>[돋보기]</b>를 누르세요. 20초쯤 탭이 넘어가며 읽습니다.' + naverLink());
   }
   $('btnMap').addEventListener('click', function(){
     var q = $('q').value.trim();
     if (!q){ $('q').focus(); toast('가게 이름을 넣어 주세요'); return; }
     pendingJob = { mode: 'b', ph: jobOpts().ph };
-    openNaver('https://map.naver.com/p/search/' + encodeURIComponent(q));
-    setStatus('지도에서 가게를 누른 뒤 <b>[돋보기]</b>를 누르세요. 가게 화면으로 넘어가면 <b>한 번 더</b> 누르면 됩니다.');
+    if (openNaver('https://map.naver.com/p/search/' + encodeURIComponent(q)))
+      setStatus('새 탭에 네이버 지도를 열었습니다. 지도에서 가게를 누른 뒤 <b>[돋보기]</b>를 누르세요. 가게 화면으로 넘어가면 <b>한 번 더</b> 누르면 됩니다.' + naverLink());
   });
   $('btnOpen').addEventListener('click', function(){
     var v = $('u').value.trim();
@@ -825,6 +842,7 @@ await done(ack,out);
     if (!d || d.src !== 'dotbogi') return;
     if (d.type === 'hello'){
       try { ev.source.postMessage({ src: 'dotbogi', type: 'job', job: pendingJob || {} }, ev.origin); } catch(e){}
+      gotHello = true;
       setStatus('네이버 창과 연결됐습니다. 읽는 중입니다…');
       return;
     }
