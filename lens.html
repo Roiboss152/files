@@ -149,12 +149,111 @@
 
   footer{border-top:1px solid rgba(255,255,255,0.08);padding-top:16px;font-size:14.4px;color:var(--mute2);line-height:1.7;}
 
+
+  /* 01 찾기 (v1.10) */
+  .opts{display:flex;gap:10px 18px;flex-wrap:wrap;align-items:center;margin-top:12px;color:var(--mute);font-size:14.4px;}
+  .opts label{display:inline-flex;align-items:center;gap:8px;}
+  .opts select,.inp.sm{min-height:38px;padding:0 12px;border-radius:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.10);color:#fff;font-size:14.4px;outline:none;}
+  .inp.sm{flex:none;width:130px;}
+  .opts select option{background:#0f131a;}
+  .opts .ck input{width:18px;height:18px;accent-color:#4facfe;}
+  #cands{margin-top:14px;}
+  .cand{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:12px 2px;border-bottom:1px solid var(--line2);}
+  .cand:last-child{border-bottom:none;}
+  .cand-t{min-width:0;flex:1 1 260px;font-size:16.2px;line-height:1.45;}
+  .cand-c{color:var(--acc-hi);font-size:13.8px;font-weight:600;margin-left:4px;}
+  .cand-b{display:flex;gap:8px;flex-wrap:wrap;}
+  .btn-p.sm{min-height:42px;padding:0 18px;font-size:15px;}
+  .btn-s.xs{min-height:30px;padding:0 12px;font-size:13.2px;}
+  .status{margin-top:14px;padding:12px 14px;border-radius:14px;background:rgba(79,172,254,0.08);border:1px solid rgba(79,172,254,0.28);color:#dbeafe;font-size:15px;line-height:1.6;}
+  .status.ok{background:rgba(74,222,128,0.07);border-color:rgba(74,222,128,0.30);color:#c9f2d7;}
+  .status.warn{background:rgba(251,191,36,0.07);border-color:rgba(251,191,36,0.28);color:#f5d88a;}
+  .status b{color:#fff;}
+  details.alt{margin-top:16px;}
+  details.alt summary{cursor:pointer;}
+  details.alt .row{margin-top:10px;}
+
+  /* 인증 창 */
+  .modal{position:fixed;inset:0;z-index:60;background:rgba(2,2,4,0.72);display:flex;align-items:center;justify-content:center;padding:20px;}
+  .modal-card{width:min(440px,100%);background:#0f131a;border:1px solid rgba(79,172,254,0.35);border-radius:20px;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,0.6);}
+  .modal-card .inp{width:100%;margin:12px 0 4px;}
+  .modal-card .row{margin-top:12px;justify-content:flex-end;}
+  #authMsg{margin-top:8px;color:var(--amber);}
+
+  /* 03 기록 칩 */
+  .chip-k{display:inline-block;margin-right:6px;padding:1px 7px;border-radius:999px;background:rgba(79,172,254,0.18);color:var(--acc-hi);font-size:12px;font-weight:700;}
+
+  /* 비교표: 한 줄에 한 가게 */
+  table.nb{border-collapse:collapse;width:100%;font-size:14.4px;}
+  table.nb th,table.nb td{padding:10px 7px;border-bottom:1px solid var(--line2);text-align:left;vertical-align:top;}
+  table.nb th{color:var(--mute);font-weight:600;font-size:13.2px;white-space:nowrap;}
+  table.nb td.n,table.nb th.n{text-align:right;white-space:nowrap;}
+  table.nb td .d{display:block;color:var(--mute2);font-size:12.6px;margin-top:3px;line-height:1.45;}
+  table.nb tr.me td{background:rgba(79,172,254,0.08);}
+  table.nb tr.me td:first-child{box-shadow:3px 0 0 var(--acc) inset;}
+  table.nb td.nm{min-width:150px;}
+  table.nb td.ft{min-width:132px;}
+  table.nb td.lc{white-space:nowrap;font-size:13.8px;}
+  .fts{display:flex;flex-wrap:wrap;gap:4px;}
+  .fts .tag.f{margin:0;font-size:12px;padding:2px 8px;}
+  .nb-i.me{min-width:0;padding:1px 7px;border-radius:999px;background:rgba(79,172,254,0.25);color:#fff;font-weight:700;font-size:11.4px;}
+  table.nb tfoot td{color:var(--soft);font-weight:700;border-top:1px solid rgba(79,172,254,0.35);border-bottom:none;}
+  table.nb td.act{text-align:right;}
+  .nb-n{font-weight:700;color:#fff;display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+  .nb-n a{color:#fff;} .nb-n a:hover{color:var(--acc-hi);}
+  .nb-i{display:inline-block;min-width:20px;color:var(--mute2);font-weight:600;font-size:12.6px;}
+  .tag.me{background:rgba(79,172,254,0.22);color:#fff;font-weight:700;}
+  .tag.f{margin:0 4px 4px 0;}
+  .tag.sm{font-size:11.4px;padding:1px 7px;}
+  .vs{margin-top:16px;padding:14px 16px;border-radius:16px;background:rgba(255,255,255,0.03);border:1px solid var(--line2);font-size:15px;line-height:1.75;color:#e4e8ee;}
+  .vs-h{color:var(--mute);font-size:13.8px;font-weight:600;margin-bottom:4px;}
+  .vs b{color:#fff;} .vs .rt{color:var(--acc-hi);font-weight:700;} .vs .sep{color:var(--mute2);margin:0 10px;}
+  details.multi{margin-top:22px;}
+  details.multi summary{cursor:pointer;color:var(--soft);font-weight:700;font-size:15px;}
+
+  /* 사진 */
+  .ph-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:8px;}
+  .ph{position:relative;display:block;width:100%;aspect-ratio:1/1;padding:0;border-radius:12px;overflow:hidden;background:rgba(255,255,255,0.05);border:1px solid var(--line2);}
+  .ph:hover{transform:translateY(-2px);border-color:rgba(79,172,254,0.6);}
+  .ph img{width:100%;height:100%;object-fit:cover;display:block;}
+  .ph-k{position:absolute;left:6px;bottom:6px;padding:1px 7px;border-radius:999px;background:rgba(2,2,4,0.72);color:#fff;font-size:11.4px;font-weight:600;}
+  .ph.cust{border-style:dashed;}
+  .ph.broken img{visibility:hidden;}
+  .ph.broken::after{content:'사진 안 열림';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--mute2);font-size:12px;}
+  .ph-row{display:flex;gap:6px;margin-top:8px;}
+  .ph.sm{width:64px;height:64px;}
+  .ph.sm .ph-k{display:none;}
+  .ph.xs{width:52px;height:52px;border-radius:10px;}
+  .ph.xs .ph-k{display:none;}
+  td.mimg{width:64px;} th.mimg-h{width:64px;}
+  .noimg{display:inline-flex;width:52px;height:52px;border-radius:10px;border:1px dashed rgba(255,255,255,0.12);align-items:center;justify-content:center;color:var(--mute2);font-size:11.4px;}
+  .lb{position:fixed;inset:0;z-index:70;background:rgba(2,2,4,0.9);display:flex;align-items:center;justify-content:center;padding:24px;cursor:zoom-out;}
+  .lb figure{margin:0;max-width:min(1100px,100%);text-align:center;}
+  .lb img{max-width:100%;max-height:80vh;border-radius:12px;display:block;margin:0 auto;}
+  .lb figcaption{margin-top:12px;color:var(--soft);font-size:14.4px;line-height:1.6;}
+
   @media (max-width:560px){
     .card{padding:18px;border-radius:18px;}
     .kw{grid-template-columns:minmax(96px,40%) 1fr auto;}
     .btn-p{width:100%;}
     .row .btn-s{width:100%;}
     .kpi .val{font-size:24px;}
+    .cand-b{width:100%;} .cand-b button{flex:1;}
+    table.nb thead{display:none;}
+    table.nb,table.nb tbody,table.nb tfoot,table.nb tr,table.nb td{display:block;width:100%;}
+    table.nb tr{padding:10px 12px;margin-bottom:10px;border:1px solid var(--line2);border-radius:14px;background:rgba(255,255,255,0.02);}
+    table.nb td{border:none;padding:3px 0;text-align:left !important;display:flex;justify-content:space-between;gap:12px;}
+    table.nb td::before{content:attr(data-l);color:var(--mute);font-size:13.2px;font-weight:600;white-space:nowrap;}
+    table.nb td:first-child{display:block;padding-bottom:6px;}
+    table.nb td:first-child::before{content:none;}
+    table.nb td.act{justify-content:flex-end;}
+    table.nb td.act::before{content:none;}
+    table.nb tr.me td{background:none;box-shadow:none !important;} table.nb tr.me{background:rgba(79,172,254,0.08);border-color:rgba(79,172,254,0.4);}
+    table.nb td .fts{justify-content:flex-end;}
+    table.nb td .v{text-align:right;}
+    table.nb td.nm{min-width:0;} table.nb td.ft{min-width:0;}
+    table.nb tfoot tr{border-color:rgba(79,172,254,0.35);}
+    .ph-grid{grid-template-columns:repeat(3,1fr);}
   }
 
   @media print{
@@ -174,6 +273,21 @@
     .shine{background:none !important;-webkit-text-fill-color:#000 !important;color:#000 !important;}
     .counts span,.sublab,.ver{color:#333 !important;}
     .tag b{color:#000 !important;}
+    .cust,.status,.modal,.lb,details.multi,details.alt{display:none !important;}
+    table.nb{font-size:11.5pt;}
+    table.nb th,table.nb td{color:#111 !important;border-bottom:1px solid #bbb !important;padding:5px 6px;}
+    table.nb td .d{color:#444 !important;}
+    table.nb tr.me td{background:#eee !important;box-shadow:none !important;font-weight:700;}
+    .nb-i.me{background:#fff !important;border:1px solid #333;color:#000 !important;}
+    table.nb tfoot td{border-top:1.5px solid #333 !important;}
+    .nb-n,.nb-n a,.nb-i{color:#000 !important;}
+    .vs{border:1px solid #999 !important;background:#fff !important;color:#111 !important;}
+    .vs b,.vs .rt,.vs-h{color:#000 !important;}
+    .ph{border:1px solid #bbb !important;break-inside:avoid;}
+    .ph-k{background:#fff !important;color:#000 !important;border:1px solid #999;}
+    .ph-grid{grid-template-columns:repeat(6,1fr);}
+    .note{background:#fff !important;border:1px solid #999 !important;color:#222 !important;}
+    .cmp-wrap{overflow:visible;}
   }
 </style>
 </head>
@@ -183,8 +297,8 @@
 <div class="wrap">
 <main>
   <header class="top">
-    <h1>플레이스 <span class="shine">돋보기</span> <span class="ver">v1.00</span></h1>
-    <p class="lead">가게 한 곳의 네이버 플레이스 정보를 즐겨찾기 버튼 한 번으로 모아 봅니다. 밑그림 없이 가볍게.</p>
+    <h1>플레이스 <span class="shine">돋보기</span> <span class="ver">v1.10</span></h1>
+    <p class="lead">가게 이름만 치면 네이버 플레이스 상세와 주변 같은 업종 비교표를 모아 봅니다. 밑그림 없이 가볍게.</p>
   </header>
 
   <!-- 01 가게 찾기 -->
@@ -194,14 +308,21 @@
       <h2>가게 찾기</h2>
       <div class="row">
         <input class="inp" id="q" type="search" placeholder="가게 이름 (예: 가야참치 구월점)" autocomplete="off">
-        <button class="btn-p" id="btnMap">네이버 지도에서 찾기</button>
+        <button class="btn-p" id="btnFind">찾기</button>
       </div>
-      <div class="gap"></div>
-      <div class="row">
-        <input class="inp" id="u" type="text" placeholder="또는 네이버 지도·플레이스 주소 붙여넣기" autocomplete="off">
-        <button class="btn-s" id="btnOpen">가게 화면 바로 열기</button>
+      <div class="opts">
+        <label>반경 <select id="optR"><option value="0">500m, 모자라면 1km</option><option value="500">500m만</option><option value="1000">1km</option></select></label>
+        <label>업종 단어 <input class="inp sm" id="optK" type="text" placeholder="자동" autocomplete="off"></label>
+        <label class="ck"><input type="checkbox" id="optPh"> 사진 탭까지 읽기 <span class="small">(상세 때 화면 하나 더)</span></label>
       </div>
-      <p class="sub" style="margin-top:14px;">지도에서 가게를 누른 뒤 북마크바의 <b style="color:#fff">[돋보기]</b>를 누르세요. 가게 화면으로 넘어가면 <b style="color:#fff">한 번 더</b> 누르면 됩니다. 20초쯤 탭이 저절로 넘어가며 읽고, 끝나면 이 화면에 결과가 뜹니다.</p>
+      <div id="cands"></div>
+      <div class="status" id="status" hidden></div>
+      <p class="sub" style="margin-top:14px;"><b style="color:#fff">[비교표]</b> 네이버 창에서 북마크바의 [돋보기]를 한 번 누르면 지정 가게와 가까운 같은 업종 9곳이 들어옵니다.<br><b style="color:#fff">[상세 + 비교표]</b> 한 번 누르면 비교표, 가게 화면으로 넘어가면 한 번 더 누르면 상세(리뷰·메뉴·사진)까지 들어옵니다.</p>
+      <details class="alt" id="alt">
+        <summary class="small">다른 방법 · 가게 찾기가 안 될 때</summary>
+        <div class="row"><button class="btn-s" id="btnMap">네이버 지도에서 찾기</button><span class="small">위 칸의 이름으로 지도를 엽니다. 가게를 누른 뒤 [돋보기]를 두 번 누르면 상세가 들어옵니다.</span></div>
+        <div class="row"><input class="inp" id="u" type="text" placeholder="네이버 지도·플레이스 주소 붙여넣기" autocomplete="off"><button class="btn-s" id="btnOpen">가게 화면 바로 열기</button></div>
+      </details>
     </div>
   </section>
 
@@ -221,12 +342,13 @@
         <ol class="steps">
           <li>북마크바가 안 보이면 <span class="kbd">Ctrl</span> + <span class="kbd">Shift</span> + <span class="kbd">B</span></li>
           <li>위 <b>[돋보기]</b> 버튼을 북마크바로 끌어다 놓기 — 끝</li>
+          <li><b>v1.10에서 버튼이 바뀌었습니다.</b> 예전 [돋보기]는 북마크바에서 오른쪽 클릭 → 삭제하고 새로 끌어다 놓으세요.</li>
           <li>끌기가 안 되면: <button class="btn-s" id="btnCopyBm" style="min-height:34px;padding:0 14px;font-size:14.4px">버튼 코드 복사</button> → <span class="kbd">Ctrl</span>+<span class="kbd">Shift</span>+<span class="kbd">O</span> 북마크 관리자 → ⋮ → 새 북마크 추가 → 이름 <b>돋보기</b>, URL에 붙여넣기 → 저장</li>
         </ol>
         <div class="note" id="bmNote" hidden></div>
         <details style="margin-top:16px;">
-          <summary class="small" style="cursor:pointer">보내기가 안 될 때 (붙여넣기로 받기)</summary>
-          <p class="small" style="margin:8px 0 0">네이버 화면의 돋보기 창에서 [복사하기]를 누른 뒤 아래 칸에 붙여넣으세요.</p>
+          <summary class="small" style="cursor:pointer">원본 붙여넣기로 받기</summary>
+          <p class="small" style="margin:8px 0 0">다른 돋보기에서 [원본 복사]한 내용을 아래 칸에 붙여넣으면 그대로 다시 봅니다.</p>
           <textarea class="paste" id="paste" placeholder="여기에 붙여넣기 (Ctrl+V)"></textarea>
         </details>
       </details>
@@ -239,22 +361,28 @@
     <div class="card">
       <h2 class="no-print">모은 정보</h2>
       <div class="chips no-print" id="chips"></div>
-      <div id="cmp" class="no-print"></div>
-      <div class="toolbar no-print" id="toolbar" hidden>
-        <button class="btn-s" id="btnText">글로 복사</button>
-        <button class="btn-s" id="btnCsv">엑셀(CSV) 저장</button>
-        <button class="btn-s" id="btnPrint">인쇄 (흑백)</button>
-      </div>
-      <div id="view"><div class="empty">아직 모은 가게가 없습니다.<br><b>01</b>에서 가게를 찾고, 네이버 가게 화면에서 북마크바의 <b>[돋보기]</b>를 누르세요.</div></div>
+      <div id="view"><div class="empty">아직 모은 가게가 없습니다.<br><b>01</b>에서 가게를 찾고 <b>[비교표]</b>나 <b>[상세 + 비교표]</b>를 누르세요.</div></div>
+      <div id="multi"></div>
     </div>
   </section>
 
   <footer>
     모은 내용은 이 창에만 있고 어디로도 보내지 않습니다. 창을 닫으면 사라지니 남길 것은 CSV로 저장하세요.<br>
-    가게 한 곳씩 사람이 누를 때만 읽습니다 · 더보기는 세 번까지 · KT 인천지사 시너지영업3팀
+    네이버는 사람이 버튼을 누를 때 내 브라우저에서만 읽습니다 · 주변 목록은 한두 장 · 리뷰 더보기는 세 번까지 · 워커는 가게 찾기·업력·사진 받기에만 씁니다 · KT 인천지사 시너지영업3팀
   </footer>
 </main>
 </div>
+<div class="modal" id="auth" hidden>
+  <div class="modal-card">
+    <h3 id="authT">팀 비밀번호</h3>
+    <p class="sub" id="authD"></p>
+    <div id="authW" hidden><input class="inp" id="wurl" type="url" placeholder="https://kt.○○○.workers.dev" autocomplete="off"></div>
+    <div id="authP"><input class="inp" id="pass" type="password" placeholder="비밀번호" autocomplete="off"></div>
+    <div class="small" id="authMsg"></div>
+    <div class="row"><button class="btn-s" id="authCancel">취소</button><button class="btn-p sm" id="authOk">확인</button></div>
+  </div>
+</div>
+<div class="lb" id="lb" hidden><figure><img id="lbImg" alt="" referrerpolicy="no-referrer"><figcaption id="lbCap"></figcaption></figure></div>
 <div class="toast" id="toast"></div>
 
 <!-- 즐겨찾기 버튼 원본 (네이버 가게 화면에서 실행됨). 줄바꿈은 버튼 만들 때 지워짐: 문장마다 세미콜론 필수, 주석 금지 -->
@@ -265,94 +393,197 @@ if(window.__dotbogiRun){return;}
 window.__dotbogiRun=1;
 const S=ms=>new Promise(r=>setTimeout(r,ms));
 const T=e=>((e&&e.innerText)||'').trim();
+const PC=window.__dotbogiPC||'https://pcmap.place.naver.com';
 const pg=document.createElement('div');
 pg.style.cssText='position:fixed;left:12px;bottom:12px;z-index:2147483647;background:rgb(15,19,26);color:white;padding:12px 16px;border-radius:12px;font:15px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.45);border:1px solid rgba(79,172,254,.55);max-width:88vw;line-height:1.5;';
 const say=m=>{pg.textContent='돋보기 · '+m;};
 const bye=ms=>{setTimeout(()=>{pg.remove();window.__dotbogiRun=0;},ms);};
 document.body.appendChild(pg);
-const hn=location.hostname;
+const hn=location.hostname;const P=location.pathname;
+const local=/^(127\.0\.0\.1|localhost)$/.test(hn);
 if(hn==='map.naver.com'){
 const fr=[...document.querySelectorAll('iframe')].map(i=>i.src||'').find(s=>/place\.naver\.com\/[a-z]+\/\d+/.test(s));
 const mm=location.href.match(/place\/(\d+)/);
 let u='';
-if(fr){const x=fr.match(/place\.naver\.com\/([a-z]+)\/(\d+)/);u='https://pcmap.place.naver.com/'+x[1]+'/'+x[2]+'/home';}
-else if(mm){u='https://pcmap.place.naver.com/place/'+mm[1]+'/home';}
+if(fr){const x=fr.match(/place\.naver\.com\/([a-z]+)\/(\d+)/);u=PC+'/'+x[1]+'/'+x[2]+'/home';}
+else if(mm){u=PC+'/place/'+mm[1]+'/home';}
 if(!u){say('지도에서 가게를 먼저 눌러 주세요.');bye(3500);return;}
 say('가게 화면으로 넘어갑니다. 넘어가면 [돋보기]를 한 번 더 눌러 주세요.');
 setTimeout(()=>{location.href=u;},1200);
 return;
 }
-if(!/place\.naver\.com$/.test(hn)&&!/^(127\.0\.0\.1|localhost)$/.test(hn)){say('네이버 플레이스 가게 화면에서 눌러 주세요.');bye(3500);return;}
-const out={v:1,bv:BV,src:'dotbogi',at:new Date().toISOString(),url:location.origin+location.pathname,title:document.title,tabs:{},notes:[]};
+if(!/place\.naver\.com$/.test(hn)&&!local){say('네이버 플레이스 화면에서 눌러 주세요.');bye(3500);return;}
+say('준비 중');
+let job=null;
+const onJ=e=>{if(e.origin===O&&e.data&&e.data.src==='dotbogi'&&e.data.type==='job'){job=e.data.job||{};}};
+window.addEventListener('message',onJ);
+if(window.opener){try{window.opener.postMessage({src:'dotbogi',type:'hello',bv:BV},O);}catch(e){}for(let i=0;i<8&&!job;i++){await S(100);}}
+window.removeEventListener('message',onJ);
+const J=job||{};
+const HT=window.__dotbogiHost||(/^m\./.test(hn)?'m':'pc');
+const pm=P.match(/^\/([a-z]+)\/(\d+)/);
+const isList=/^\/[a-z]+\/list/.test(P);
+const send=async o=>{let ack=null;const onM=e=>{if(e.origin===O&&e.data&&e.data.src==='dotbogi'&&e.data.type==='ack'){ack=e.data;}};window.addEventListener('message',onM);if(window.opener){try{window.opener.postMessage({src:'dotbogi',type:'data',payload:o},O);}catch(e){}for(let i=0;i<14&&!ack;i++){await S(150);}}window.removeEventListener('message',onM);return ack;};
+const done=async(ack,o)=>{
+if(ack&&ack.ok===false){say('돋보기가 받은 자료를 읽지 못했습니다. 돋보기 화면의 안내를 봐 주세요.');bye(6000);return;}
+if(ack){say('돋보기로 보냈습니다. 이 창은 닫힙니다.');setTimeout(()=>{window.close();say('보냈습니다. 돋보기 창으로 돌아가세요.');bye(4000);},900);return;}
+const js=JSON.stringify(o);
+const u8=new TextEncoder().encode(js);let bs='';for(let i=0;i<u8.length;i+=8192){bs+=String.fromCharCode.apply(null,u8.subarray(i,i+8192));}
+const b64=btoa(bs).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+say('돋보기 창으로 옮깁니다. 이미 열린 돋보기 창이 있으면 거기에도 들어갑니다.');
+await S(1300);
+location.href=LENS+String.fromCharCode(35)+'d='+b64;
+};
+if(isList||HT==='m'){
+if(!isList&&!pm){say('가게 화면이나 목록 화면에서 눌러 주세요.');bye(3500);return;}
+if(!isList&&(J.mode||'b')==='b'){say('PC용 가게 화면으로 넘어갑니다. 넘어가면 [돋보기]를 한 번 더 눌러 주세요.');setTimeout(()=>{location.href=PC+'/'+pm[1]+'/'+pm[2]+'/home';},1200);return;}
+const num=v=>{if(v==null||v===''){return null;}const s=String(v).replace(/[^0-9.]/g,'');const n=Number(s);return (s!==''&&isFinite(n))?n:null;};
+const nm=s=>String(s||'').replace(/\s+/g,'').toLowerCase();
+const pre=(a,b)=>{let i=0;while(i<a.length&&i<b.length&&a[i]===b[i]){i++;}return i;};
+const AP=h=>{const m=String(h||'').match(/window\.__APOLLO_STATE__\s*=\s*(\{[\s\S]*?\});\s*(?:window\.|<\/)/);if(!m){return null;}try{return JSON.parse(m[1]);}catch(e){return null;}};
+const DI=(a,b)=>{if(!a||!b||a.x==null||b.x==null||a.y==null||b.y==null){return null;}const t=Math.PI/180;const dy=(b.y-a.y)*t;const dx=(b.x-a.x)*t;const h=Math.sin(dy/2)**2+Math.cos(a.y*t)*Math.cos(b.y*t)*Math.sin(dx/2)**2;return Math.round(12742000*Math.asin(Math.sqrt(h)));};
+const tcount=A=>{const o={};Object.keys(A||{}).forEach(k=>{const t=k.split(':')[0];o[t]=(o[t]||0)+1;});return o;};
+const itemOf=(v,A)=>{
+const d=x=>(x&&typeof x==='object'&&x.__ref&&A&&A[x.__ref])?A[x.__ref]:x;
+const cp=d(v.coupon)||null;const no=d(v.naverOrder)||null;const ps=d(v.posInfo)||null;const bh=d(v.newBusinessHours)||null;const co=d(v.coordinate)||{};const rs=d(v.reviewSettings)||{};
+let pop='';
+if(ps&&Array.isArray(ps.items)){const q=ps.items.map(d).find(z=>z&&/popular/i.test(String(z.value||'')));pop=q?String(q.description||'').slice(0,80):'';}
+const pr=(cp&&Array.isArray(cp.promotions))?cp.promotions.map(d).map(z=>String((z&&z.title)||'').slice(0,30)).filter(Boolean).slice(0,2):[];
+const tv=v.broadcasts||v.uniqueBroadcasts||v.broadcastInfo;
+return {id:String(v.id||''),n:String(v.name||''),c:String(v.category||''),bt:String(v.businessCategory||v.businessType||'restaurant'),
+x:num(v.x!=null?v.x:co.x),y:num(v.y!=null?v.y:co.y),ra:String(v.roadAddress||''),ad:String(v.address||''),
+rv:num(v.visitorReviewCount!=null?v.visitorReviewCount:v.visitorReviewsTotal),
+sc:rs.showVisitorReviewScore===false?null:num(v.visitorReviewScore!=null?v.visitorReviewScore:v.visitorReviewsScore),
+bl:num(v.blogCafeReviewCount),bk:!!(v.hasBooking||v.naverBookingUrl||v.bookingUrl),np:!!v.hasNPay,nw:!!v.newOpening,op:String(v.options||'').slice(0,200),
+cp:num(cp&&cp.total)||0,ct:pr,tk:!!v.talktalkUrl,od:no?{t:!!no.isTableOrder,p:!!no.isPreOrder,k:!!no.isPickup,d:!!no.isDelivery}:null,pos:!!(ps&&ps.isPOS),pop:pop,
+ic:num(v.imageCount),sv:String(v.saveCount||''),mr:String(v.microReview||'').slice(0,60),
+td:bh?String((bh.status||'')+' '+(bh.description||'')).trim():'',tv:Array.isArray(tv)?tv.length:(tv?1:0),mi:!!v.michelinGuide};
+};
+const itemsOf=A=>{const out=[];if(!A){return out;}Object.keys(A).forEach(k=>{const v=A[k];if(!v||typeof v!=='object'||!v.name||!v.id){return;}const tn=k.split(':')[0];if(/ListBusinessesItem|ListSummary|^RestaurantBase$|^PlaceDetailBase$|^PlaceDetail$/.test(tn)||('visitorReviewCount' in v&&'x' in v)){out.push(itemOf(v,A));}});return out.filter(z=>z.id&&z.n);};
+const G=[[/조개|해산물|해물|생선|횟집|회$|수산|굴|대게|장어|참치|활어|복어|아귀/,'횟집'],[/육류|고기|구이|갈비|삼겹|막창|곱창|돼지|소고기|한우|양꼬치|닭갈비|족발|보쌈|양고기|오리/,'고깃집'],[/치킨|닭강정/,'치킨'],[/중식|중국|짜장|짬뽕|마라/,'중식당'],[/초밥|스시|오마카세|이자카야|일식/,'일식당'],[/돈가스|돈까스|라멘|우동|소바|덮밥|규동/,'돈가스'],[/분식|떡볶이|김밥/,'분식'],[/주점|술집|호프|포차|와인|칵테일|맥주/,'술집'],[/카페|커피|디저트|베이커리|제과|빵|케이크|아이스크림|빙수|찻집/,'카페'],[/햄버거|버거|패스트푸드/,'햄버거'],[/피자/,'피자'],[/양식|이탈리|파스타|스테이크|레스토랑|브런치|멕시|프랑스|샐러드/,'양식'],[/베트남|태국|인도|아시아|쌀국수/,'아시아음식'],[/뷔페/,'뷔페'],[/한식|백반|국밥|찌개|국수|냉면|칼국수|해장국|설렁탕|곰탕|한정식|순대|감자탕|추어탕|비빔밥|쌈밥|죽/,'한식']];
+const gOf=c=>{const t=String(c||'');if(!t){return -1;}for(let i=0;i<G.length;i++){if(G[i][0].test(t)){return i;}}return -1;};
+const REL={0:[4],4:[0]};
+const sameG=(g,c)=>{if(g<0){return true;}const h=gOf(c);return h<0||h===g||(REL[g]||[]).indexOf(h)>=0;};
+let diag=null;
+const LIST=async(q,c,bt)=>{const u=location.origin+'/'+(bt||'restaurant')+'/list?query='+encodeURIComponent(q)+'&x='+c.x+'&y='+c.y;const r=await fetch(u,{credentials:'include'});const h=await r.text();if(r.status===403||r.status===429||/ncaptcha|captcha_challenge|비정상적인 접근|자동 입력 방지/.test(h.slice(0,5000))){throw new Error('네이버가 자동 입력 방지 화면을 띄웠습니다');}const A=AP(h);if(!A){throw new Error('목록 구조를 읽지 못했습니다');}const it=itemsOf(A);if(!it.length){diag=tcount(A);}return it;};
+const out={v:2,bv:BV,src:'dotbogi',kind:'cmp',at:new Date().toISOString(),url:location.origin+location.pathname,notes:[],q:[],r:0,self:null,items:[],pool:0};
 try{
-const pm=location.pathname.match(/^\/([a-z]+)\/(\d+)/);
+say('목록 읽는 중');
+let A0=window.__APOLLO_STATE__||null;
+if(!A0){try{A0=AP(await (await fetch(location.href,{credentials:'include'})).text());}catch(e){A0=null;}}
+const it0=itemsOf(A0);
+const sp=new URLSearchParams(location.search);
+const tq=J.t||(sp.get('query')?{name:sp.get('query'),x:num(sp.get('x')),y:num(sp.get('y'))}:null);
+let self=null;
+if(pm&&!isList){self=it0.find(z=>z.id===pm[2])||null;}
+else if(tq){const tn=nm(tq.name);const ws=it0.map(z=>Object.assign({},z,{d:DI(tq,z)}));self=ws.filter(z=>z.d!=null&&z.d<=200&&pre(nm(z.n),tn)>=2).sort((a,b)=>a.d-b.d)[0]||ws.find(z=>nm(z.n)===tn)||ws.filter(z=>z.d!=null&&z.d<=40).sort((a,b)=>a.d-b.d)[0]||null;}
+if(self){self=Object.assign({},self,{d:0});}
+if(!it0.length){out.diag0=tcount(A0);}
+out.self=self;
+out.t=tq?{name:tq.name}:null;
+const c=(self&&self.x!=null)?{x:self.x,y:self.y}:((tq&&tq.x!=null)?{x:tq.x,y:tq.y}:null);
+if(!c){throw new Error('가게 좌표를 몰라 주변을 찾지 못했습니다');}
+out.c=c;
+const g0=gOf(J.k)>=0?gOf(J.k):gOf(self&&self.c);
+const w1=J.k||((self&&self.c)?String(self.c).split(',')[0].trim():'')||(g0>=0?G[g0][1]:'');
+const w2=g0>=0?G[g0][1]:'';
+const words=[w1,w2].filter((w,i,a)=>w&&a.indexOf(w)===i);
+if(!words.length){throw new Error('업종을 몰라 주변을 찾지 못했습니다');}
+out.g=g0>=0?G[g0][1]:'';
+const pool={};
+const add=a=>{a.forEach(z=>{if(z.id&&!pool[z.id]){pool[z.id]=z;}});};
+add(it0);
+const sn=nm((self&&self.n)||(tq&&tq.name)||'');
+const pick=R=>Object.keys(pool).map(k=>pool[k]).filter(z=>!(self&&z.id===self.id)).map(z=>Object.assign({},z,{d:DI(c,z)})).filter(z=>z.d!=null&&z.d<=R&&sameG(g0,z.c)&&!(z.d<60&&sn&&pre(nm(z.n),sn)>=2)).sort((a,b)=>a.d-b.d).slice(0,9);
+const auto=!J.r;const R0=J.r||500;
+let R=R0;let got=[];
+for(let i=0;i<words.length;i++){
+if(i>0){await S(700);}
+say('주변 같은 업종 찾는 중 · '+words[i]);
+try{add(await LIST(words[i],c,self&&self.bt));out.q.push(words[i]);}catch(e){out.notes.push(String((e&&e.message)||e));break;}
+R=R0;got=pick(R);
+if(got.length<9&&auto&&R<1000){R=1000;got=pick(R);}
+if(got.length>=9){break;}
+}
+out.r=R;out.items=got;out.pool=Object.keys(pool).length;
+if(!got.length&&diag){out.diag=diag;}
+}catch(e){out.notes.push(String((e&&e.message)||e));}
+say('보내는 중');
+const ack=await send(out);
+if(ack&&ack.next){say('비교표를 보냈습니다. 가게 화면으로 넘어갑니다. 넘어가면 [돋보기]를 한 번 더 눌러 주세요.');setTimeout(()=>{location.href=ack.next;},1500);return;}
+await done(ack,out);
+return;
+}
+{
+const out={v:2,bv:BV,src:'dotbogi',kind:'detail',at:new Date().toISOString(),url:location.origin+location.pathname,title:document.title,tabs:{},notes:[],ph:{}};
+const A=window.__APOLLO_STATE__||null;
+const g=p=>A?Object.keys(A).filter(k=>k.indexOf(p+':')===0).map(k=>A[k]):[];
+const src=i=>(i&&(i.currentSrc||i.src||i.getAttribute('data-src')))||'';
+const org=u=>{try{const x=new URL(u);if(x.hostname==='search.pstatic.net'){return x.searchParams.get('src')||u;}}catch(e){}return u;};
+const deepU=(o,dp)=>{if(!o||typeof o!=='object'||dp>2){return '';}const ks=Object.keys(o);for(let i=0;i<ks.length;i++){if(ks[i]==='author'){continue;}const v=o[ks[i]];if(typeof v==='string'&&/^https:\/\/[a-z0-9.-]+\.pstatic\.net\//.test(v)){return v;}if(v&&typeof v==='object'){const r=deepU(v,dp+1);if(r){return r;}}}return '';};
+try{
 out.cat=pm?pm[1]:'';out.id=pm?pm[2]:'';
 out.name=T(document.getElementById('_title'));
 out.top=T(document.body).slice(0,1500);
-try{const A=window.__APOLLO_STATE__;if(A){const ks=Object.keys(A);const g=p=>ks.filter(k=>k.indexOf(p+':')===0).map(k=>A[k]);const b=g('PlaceDetailBase')[0];if(b){const c={};Object.keys(b).forEach(k=>{const s=JSON.stringify(b[k]);if(s&&s.length<2000)c[k]=b[k];});out.base=c;}const st=g('VisitorReviewStatsResult')[0];if(st&&JSON.stringify(st).length<40000){out.stats=st;}out.facA=g('InformationFacilities').map(f=>f.name);out.seatA=g('RestaurantSeatItems').map(f=>[f.name,f.description].filter(Boolean).join(' '));}}catch(e){out.notes.push('기본 데이터');}
+try{if(A){const b=g('PlaceDetailBase')[0];if(b){const bb={};Object.keys(b).forEach(k=>{const s=JSON.stringify(b[k]);if(s&&s.length<2000){bb[k]=b[k];}});out.base=bb;}const st=g('VisitorReviewStatsResult')[0];if(st&&JSON.stringify(st).length<40000){out.stats=st;}out.facA=g('InformationFacilities').map(f=>f.name);out.seatA=g('RestaurantSeatItems').map(f=>[f.name,f.description].filter(Boolean).join(' '));out.ph.ta=g('PlaceDetailTopPhotoItem').slice(0,14).map(v=>({id:String(v.id||''),w:v.width||null,h:v.height||null,u:deepU(v,0)}));out.ph.ma=g('PlaceMenuItem').slice(0,80).map(v=>({n:String(v.name||''),u:String(v.thumbnailUrl||'')||deepU({i:v.images},0)}));}}catch(e){out.notes.push('기본 데이터');}
 const tabEl=l=>[...document.querySelectorAll('[role=tab]')].find(e=>T(e)===l);
-const go=async(l,seg)=>{say(l+' 읽는 중');if(location.pathname.indexOf(seg)>=0){await S(300);return true;}const b=tabEl(l);if(!b){out.notes.push(l+' 탭');return false;}b.click();for(let i=0;i<16;i++){await S(250);if(location.pathname.indexOf(seg)>=0)break;}await S(1700);return true;};
+const go=async(l,seg)=>{say(l+' 읽는 중');if(location.pathname.indexOf(seg)>=0){await S(300);return true;}const b=tabEl(l);if(!b){out.notes.push(l+' 탭');return false;}b.click();for(let i=0;i<16;i++){await S(250);if(location.pathname.indexOf(seg)>=0){break;}}await S(1700);return true;};
 const txt=n=>T(document.body).slice(0,n);
 const clickText=re=>{const a=[...document.querySelectorAll('a,button,[role=button],[role=option]')].find(e=>re.test(T(e)));if(a){a.click();return true;}return false;};
-if(await go('홈','/home')){if(clickText(/^펼쳐보기$/)){await S(700);}out.tabs.home={text:txt(6000)};}
+const low=async()=>{const h=document.documentElement.scrollHeight;for(let i=1;i<=4;i++){window.scrollTo(0,h*i/4);await S(220);}window.scrollTo(0,0);await S(150);};
+if(await go('홈','/home')){if(clickText(/^펼쳐보기$/)){await S(700);}out.tabs.home={text:txt(6000)};try{out.ph.top=[...document.querySelectorAll('a[href*="/photo"]')].filter(a=>a.querySelector('img')).slice(0,14).map(a=>{let t='';try{t=new URL(a.href).searchParams.get('filterType')||'';}catch(e){}return {s:src(a.querySelector('img')),t:t,w:T(a).slice(0,24)};}).filter(z=>z.s);}catch(e){out.notes.push('대표 사진');}}
 if(await go('소식','/feed')){out.tabs.feed={items:[...document.querySelectorAll('li')].map(T).filter(t=>/\d{4}\.\d{2}\.\d{2}\.|\d{4}년 \d{1,2}월 \d{1,2}일/.test(t)&&t.length<3000).slice(0,8)};}
-if(await go('메뉴','/menu')){const ls=[...document.querySelectorAll('ul,ol')].map(u=>[...u.children].filter(c=>c.tagName==='LI').map(T).filter(t=>/\d[\d,]{2,}\s*원|변동/.test(t)));ls.sort((a,b)=>b.length-a.length);out.tabs.menu={items:(ls[0]||[]).slice(0,80)};if(!out.tabs.menu.items.length)out.notes.push('메뉴 목록');}
+if(await go('메뉴','/menu')){await low();const ls=[...document.querySelectorAll('ul,ol')].map(u=>[...u.children].filter(c=>c.tagName==='LI'&&/\d[\d,]{2,}\s*원|변동/.test(T(c))));ls.sort((a,b)=>b.length-a.length);const L=(ls[0]||[]).slice(0,80);const um=txt(5000).match(/최근\s?업데이트\s*([\d.]+)/);out.tabs.menu={items:L.map(T),imgs:L.map(li=>src(li.querySelector('img'))),upd:um?um[1]:''};if(!L.length){out.notes.push('메뉴 목록');}try{out.ph.mb=[...document.querySelectorAll('a[data-nlog-area*="menupanimg"] img')].map(src).filter(Boolean).slice(0,10);}catch(e){}}
 if(await go('정보','/information')){out.tabs.info={text:txt(6000)};}
 if(await go('리뷰','/review')){
 const R={sort:'추천순',more:0};
-const kx=[...document.querySelectorAll('a,button')].find(e=>{if(T(e)!=='더보기')return false;let p=e.parentElement;for(let i=0;i<4&&p;i++,p=p.parentElement){if(/이 키워드를 선택한 인원/.test(T(p)))return true;}return false;});
+const kx=[...document.querySelectorAll('a,button')].find(e=>{if(T(e)!=='더보기'){return false;}let p=e.parentElement;for(let i=0;i<4&&p;i++,p=p.parentElement){if(/이 키워드를 선택한 인원/.test(T(p))){return true;}}return false;});
 if(kx){kx.click();await S(900);}
 if(clickText(/^최신순$/)){say('최신순으로 바꾸는 중');await S(2400);R.sort='최신순';}else{out.notes.push('최신순');}
-const rvs=()=>[...document.querySelectorAll('li')].filter(li=>{if(!/방문일/.test(T(li)))return false;const up=li.parentElement&&li.parentElement.closest('li');return !(up&&/방문일/.test(T(up)));});
-for(let i=0;i<3;i++){const c0=rvs().length;const mb=[...document.querySelectorAll('a,button')].filter(e=>T(e)==='펼쳐서 더보기').pop();if(!mb)break;say('리뷰 더보기 '+(i+1)+'/3');mb.click();for(let k=0;k<20;k++){await S(250);if(rvs().length>c0)break;}if(rvs().length<=c0)break;R.more++;await S(1300);}
-R.items=rvs().map(T).slice(0,40);
+const rvs=()=>[...document.querySelectorAll('li')].filter(li=>{if(!/방문일/.test(T(li))){return false;}const up=li.parentElement&&li.parentElement.closest('li');return !(up&&/방문일/.test(T(up)));});
+for(let i=0;i<3;i++){const c0=rvs().length;const mb=[...document.querySelectorAll('a,button')].filter(e=>T(e)==='펼쳐서 더보기').pop();if(!mb){break;}say('리뷰 더보기 '+(i+1)+'/3');mb.click();for(let k=0;k<20;k++){await S(250);if(rvs().length>c0){break;}}if(rvs().length<=c0){break;}R.more++;await S(1300);}
+await low();
+const RL=rvs().slice(0,40);
+R.items=RL.map(T);
+R.ph=RL.map(li=>[...li.querySelectorAll('img')].map(src).filter(u=>/pup-review-phinf|video-phinf|clip-service-phinf/.test(org(u))).slice(0,4));
 R.text=txt(8000);
-if(!R.items.length)out.notes.push('리뷰 목록');
+if(!R.items.length){out.notes.push('리뷰 목록');}
 out.tabs.review=R;
 }
+if(J.ph&&await go('사진','/photo')){await S(700);out.ph.tab=[...document.querySelectorAll('img')].map(src).filter(u=>/ldb-phinf|pup-review-phinf|video-phinf|clip-service-phinf/.test(org(u))).filter((u,i,a)=>a.indexOf(u)===i).slice(0,60);}
 }catch(e){out.notes.push('읽는 중 오류: '+(e&&e.message));}
 say('보내는 중');
-let ack=false;
-const onM=e=>{if(e.origin===O&&e.data&&e.data.src==='dotbogi'&&e.data.type==='ack'){ack=true;}};
-window.addEventListener('message',onM);
-if(window.opener){try{window.opener.postMessage({src:'dotbogi',type:'data',payload:out},O);}catch(e){}}
-for(let i=0;i<12&&!ack;i++){await S(150);}
-window.removeEventListener('message',onM);
-if(ack){say('돋보기로 보냈습니다. 이 창은 닫힙니다.');setTimeout(()=>{window.close();say('보냈습니다. 돋보기 창으로 돌아가세요.');bye(4000);},1000);return;}
-pg.remove();
-const js=JSON.stringify(out);
-const u8=new TextEncoder().encode(js);let bs='';for(let i=0;i<u8.length;i+=8192){bs+=String.fromCharCode.apply(null,u8.subarray(i,i+8192));}
-const b64=btoa(bs).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
-const bx=document.createElement('div');
-bx.style.cssText='position:fixed;left:0;right:0;top:24px;margin:0 auto;z-index:2147483647;background:rgb(15,19,26);color:white;padding:18px;border-radius:16px;font:15px sans-serif;box-shadow:0 10px 30px rgba(0,0,0,.5);border:1px solid rgba(79,172,254,.55);width:min(440px,90vw);line-height:1.6;';
-const tx=document.createElement('div');
-tx.textContent='다 읽었습니다 (리뷰 '+((out.tabs.review&&out.tabs.review.items.length)||0)+'개). 아래 버튼으로 돋보기에 보내세요.';
-const rw=document.createElement('div');rw.style.cssText='display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;';
-const mk=(t,p,f)=>{const b=document.createElement('button');b.textContent=t;b.style.cssText='flex:1;min-width:110px;padding:11px 12px;border-radius:999px;border:none;cursor:pointer;font:700 15px sans-serif;'+(p?'background:rgb(79,172,254);color:white;':'background:rgba(255,255,255,.1);color:rgb(198,205,216);');b.onclick=()=>f(b);rw.appendChild(b);return b;};
-mk('돋보기로 보내기',1,b=>{const w=window.open(LENS+String.fromCharCode(35)+'d='+b64,'dotbogi');b.textContent=w?'보냈습니다':'팝업이 막혔습니다';});
-mk('복사하기',0,async b=>{try{await navigator.clipboard.writeText(js);b.textContent='복사됨';}catch(e){const ta=document.createElement('textarea');ta.value=js;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();b.textContent='복사됨';}});
-mk('닫기',0,()=>{bx.remove();window.__dotbogiRun=0;});
-const nt=document.createElement('div');nt.style.cssText='margin-top:10px;font-size:13px;color:rgb(139,147,161);';nt.textContent='복사한 경우: 돋보기 02의 [보내기가 안 될 때] 칸에 붙여넣으세요.';
-bx.append(tx,rw,nt);document.body.appendChild(bx);
+const ack=await send(out);
+await done(ack,out);
+}
 })();
 </script>
 
 <script>
 (function(){
   'use strict';
-  var BV = 1;
+  var BV = 2;
   var LENS = location.origin + location.pathname;
   var ORIGIN = location.origin;
+  var LOCAL = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+  var QS = new URLSearchParams(location.search);
+  var MP = (LOCAL && QS.get('mp')) || 'https://m.place.naver.com';
+  var PC = (LOCAL && QS.get('pc')) || 'https://pcmap.place.naver.com';
   var OK_ORIGINS = ['https://pcmap.place.naver.com','https://m.place.naver.com','https://map.naver.com'];
-  if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) OK_ORIGINS.push(location.origin);
+  function okOrigin(o){ return OK_ORIGINS.indexOf(o) >= 0 || (LOCAL && /^http:\/\/(127\.0\.0\.1|localhost):\d+$/.test(o)); }
+  /* 밑그림이 쓰는 워커 주소. 비워 두면 같은 사이트의 밑그림 페이지에서 찾아 쓴다 */
+  var WORKER_URL = '';
   window.name = 'dotbogi';
 
-  var stores = [];
+  var recs = [];          /* {type:'store'|'cmp', key, s} */
   var cur = -1;
+  var pendingJob = null;  /* 네이버 창에 넘겨줄 일 */
   var $ = function(id){ return document.getElementById(id); };
   var esc = function(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); };
   var fmt = function(n){ return (n == null || isNaN(n)) ? '-' : Number(n).toLocaleString('ko-KR'); };
-  function toast(m){ var t=$('toast'); t.textContent=m; t.classList.add('on'); clearTimeout(toast._t); toast._t=setTimeout(function(){ t.classList.remove('on'); },2400); }
+  var sleep = function(ms){ return new Promise(function(r){ setTimeout(r, ms); }); };
+  function toast(m){ var t=$('toast'); t.textContent=m; t.classList.add('on'); clearTimeout(toast._t); toast._t=setTimeout(function(){ t.classList.remove('on'); },2600); }
+  function setStatus(m, kind){ var el=$('status'); if(!m){ el.hidden=true; return; } el.hidden=false; el.className='status'+(kind?' '+kind:''); el.innerHTML=m; }
 
   /* ---------- 즐겨찾기 버튼 만들기 ---------- */
   function bookmarklet(){
@@ -375,63 +606,243 @@ bx.append(tx,rw,nt);document.body.appendChild(bx);
     var ta=document.createElement('textarea'); ta.value=text; ta.style.position='fixed'; ta.style.opacity='0';
     document.body.appendChild(ta); ta.select(); try{ document.execCommand('copy'); toast(msg); }catch(e){ toast('복사가 막혔습니다'); } ta.remove();
   }
+  function saveBlob(blob, name){
+    var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name;
+    document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 2000);
+  }
+
+  /* ---------- 워커 (가게 찾기 · 업력 · 사진 받기에만 씀) ---------- */
+  var W = { base: WORKER_URL.replace(/\/+$/,''), pass: '', tried: false, pending: null };
+  async function findWorker(){
+    if (W.base || W.tried) return W.base;
+    W.tried = true;
+    var dir = location.pathname.replace(/[^\/]*$/, '');
+    var re = LOCAL ? /https:\/\/[a-z0-9.-]+\.workers\.dev|http:\/\/127\.0\.0\.1:\d+/gi : /https:\/\/[a-z0-9.-]+\.workers\.dev/gi;
+    var cands = [];
+    var pages = ['sketch.html','collect.html','menu.html'];
+    for (var i=0; i<pages.length && cands.length < 6; i++){
+      try {
+        var r = await fetch(dir + pages[i], {cache:'no-store'});
+        if (!r.ok) continue;
+        ((await r.text()).match(re) || []).forEach(function(u){ u=u.replace(/\/+$/,''); if (cands.indexOf(u) < 0 && u !== location.origin) cands.push(u); });
+      } catch(e){}
+    }
+    for (var j=0; j<cands.length && j<6; j++){
+      try { var r2 = await fetch(cands[j] + '/'); if (/매장 데이터 수집기/.test(await r2.text())) { W.base = cands[j]; break; } } catch(e){}
+    }
+    return W.base;
+  }
+  function passErr(){ var e = new Error('팀 비밀번호가 맞지 않습니다'); e.pass = true; return e; }
+  async function api(path, body){
+    var opt = { method: body ? 'POST' : 'GET', headers: {'X-Team-Pass': W.pass} };
+    if (body){ opt.headers['Content-Type'] = 'application/json'; opt.body = JSON.stringify(body); }
+    var r;
+    try { r = await fetch(W.base + path, opt); }
+    catch(e){ throw new Error('워커에 연결하지 못했습니다'); }
+    var j = null; try { j = await r.json(); } catch(e){}
+    if (r.status === 401) throw passErr();
+    if (!r.ok) throw new Error((j && j.error) || ('워커 오류 (HTTP ' + r.status + ')'));
+    return j;
+  }
+  async function withWorker(fn){
+    if (!W.base) await findWorker();
+    if (!W.base){ W.pending = fn; openAuth('worker'); return; }
+    if (!W.pass){ W.pending = fn; openAuth('pass'); return; }
+    try { await fn(); }
+    catch(e){
+      if (e && e.pass){ W.pass = ''; W.pending = fn; openAuth('pass', '비밀번호가 맞지 않습니다. 다시 넣어 주세요.'); }
+      else toast((e && e.message) || '오류가 났습니다');
+    }
+  }
+  function openAuth(what, msg){
+    $('authW').hidden = what !== 'worker';
+    $('authP').hidden = what === 'worker' && !!W.pass;
+    $('authT').textContent = what === 'worker' ? '워커 주소' : '팀 비밀번호';
+    $('authD').innerHTML = what === 'worker'
+      ? '밑그림이 쓰는 워커 주소를 넣어 주세요. 이 창을 닫으면 잊습니다.'
+      : '밑그림과 같은 팀 비밀번호입니다. 이 창을 닫으면 잊습니다.<br><span class="small">매번 넣기 번거로우면 돋보기 주소 끝에 <b>#k=비밀번호</b>를 붙인 즐겨찾기를 만들어 쓰세요 (내 PC에서만).</span>';
+    $('authMsg').textContent = msg || '';
+    $('auth').hidden = false;
+    setTimeout(function(){ (what === 'worker' ? $('wurl') : $('pass')).focus(); }, 50);
+  }
+  function closeAuth(){ $('auth').hidden = true; $('pass').value = ''; }
+  $('authCancel').addEventListener('click', function(){ W.pending = null; closeAuth(); });
+  $('authOk').addEventListener('click', async function(){
+    if (!$('authW').hidden){
+      var u = $('wurl').value.trim().replace(/\/+$/,'');
+      if (!/^https?:\/\//.test(u)){ $('authMsg').textContent = 'https:// 로 시작하는 주소를 넣어 주세요'; return; }
+      $('authMsg').textContent = '확인하는 중…';
+      try { var r = await fetch(u + '/'); var t = await r.text(); if (!/매장 데이터 수집기/.test(t)) throw 0; }
+      catch(e){ $('authMsg').textContent = '이 주소에서 워커가 답하지 않습니다. 주소를 다시 확인해 주세요.'; return; }
+      W.base = u;
+    }
+    if (!$('authP').hidden){
+      var p = $('pass').value;
+      if (!p){ $('authMsg').textContent = '비밀번호를 넣어 주세요'; return; }
+      W.pass = p;
+    }
+    closeAuth();
+    var f = W.pending; W.pending = null;
+    if (f) withWorker(f);
+  });
+  $('pass').addEventListener('keydown', function(e){ if (e.key === 'Enter') $('authOk').click(); });
+  $('wurl').addEventListener('keydown', function(e){ if (e.key === 'Enter') $('authOk').click(); });
 
   /* ---------- 01 가게 찾기 ---------- */
-  function openNaver(url){ var w = window.open(url, 'dotbogi_naver'); if(!w) toast('팝업이 막혔습니다. 주소창 오른쪽에서 팝업을 허용해 주세요'); }
+  var cands = [];
+  function openNaver(url){
+    var w = window.open(url, 'dotbogi_naver');
+    if (!w){ toast('팝업이 막혔습니다. 주소창 오른쪽에서 팝업을 허용해 주세요'); return false; }
+    return true;
+  }
+  function jobOpts(){ return { r: +$('optR').value || 0, k: $('optK').value.trim(), ph: $('optPh').checked }; }
+  function listUrl(name, x, y){ return MP + '/restaurant/list?query=' + encodeURIComponent(name) + '&x=' + x + '&y=' + y; }
+  async function doSearch(){
+    var q = $('q').value.trim();
+    if (q.length < 2){ $('q').focus(); toast('가게 이름을 두 글자 이상 넣어 주세요'); return; }
+    withWorker(async function(){
+      $('cands').innerHTML = '<div class="small" style="padding:12px 2px">찾는 중…</div>';
+      var j;
+      try { j = await api('/search?q=' + encodeURIComponent(q)); }
+      catch(e){
+        if (e && e.pass){ $('cands').innerHTML = ''; throw e; }
+        $('cands').innerHTML = '<div class="note">' + esc((e && e.message) || '가게 찾기가 안 됩니다') + ' — 아래 <b>[다른 방법]</b>의 네이버 지도에서 찾기로 계속할 수 있습니다.</div>';
+        $('alt').open = true;
+        return;
+      }
+      cands = (j && j.candidates) || [];
+      var h = '';
+      if (!cands.length) h = '<div class="small" style="padding:12px 2px">찾은 가게가 없습니다. 이름을 줄여 보거나, 아래 [다른 방법]을 써 보세요.</div>';
+      cands.forEach(function(c, i){
+        var cat = String(c.category || c.naverCategory || '').split('>').map(function(x){ return x.trim(); }).filter(Boolean).slice(-2).join(' › ');
+        h += '<div class="cand"><div class="cand-t"><b>' + esc(c.name) + '</b>' + (cat ? ' <span class="cand-c">' + esc(cat) + '</span>' : '')
+          + '<div class="small">' + esc(c.roadAddress || c.address || '') + '</div></div>'
+          + '<div class="cand-b"><button class="btn-s" data-go="a" data-i="' + i + '">비교표</button><button class="btn-p sm" data-go="ab" data-i="' + i + '">상세 + 비교표</button></div></div>';
+      });
+      if (j && j.notes && j.notes.length) h += '<div class="small" style="margin-top:8px">' + j.notes.map(esc).join(' · ') + '</div>';
+      $('cands').innerHTML = h;
+      setStatus('');
+    });
+  }
+  $('btnFind').addEventListener('click', doSearch);
+  $('q').addEventListener('keydown', function(e){ if (e.key === 'Enter') doSearch(); });
+  $('cands').addEventListener('click', function(e){
+    var b = e.target.closest('[data-go]'); if (!b) return;
+    var c = cands[+b.dataset.i]; if (!c) return;
+    startJob(c.name, c.x, c.y, b.dataset.go);
+  });
+  function startJob(name, x, y, mode){
+    if (x == null || y == null){
+      toast('좌표가 없는 후보라 네이버 지도로 엽니다');
+      openNaver('https://map.naver.com/p/search/' + encodeURIComponent(name));
+      return;
+    }
+    var o = jobOpts();
+    pendingJob = { mode: mode, r: o.r, k: o.k, ph: o.ph, t: { name: name, x: x, y: y } };
+    if (!openNaver(listUrl(name, x, y))) return;
+    setStatus(mode === 'a'
+      ? '네이버 창이 열렸습니다. 목록이 뜨면 북마크바의 <b>[돋보기]</b>를 <b>한 번</b> 누르세요.'
+      : '네이버 창이 열렸습니다. 목록이 뜨면 북마크바의 <b>[돋보기]</b>를 누르세요. 비교표를 보낸 뒤 가게 화면으로 넘어가면 <b>한 번 더</b> 누르면 됩니다.');
+  }
+  function openDetail(z){
+    var o = jobOpts();
+    pendingJob = { mode: 'b', ph: o.ph };
+    if (openNaver(PC + '/' + (z.bt || 'restaurant') + '/' + z.id + '/home'))
+      setStatus('네이버 가게 화면이 열렸습니다. 화면이 뜨면 북마크바의 <b>[돋보기]</b>를 누르세요. 20초쯤 탭이 넘어가며 읽습니다.');
+  }
   $('btnMap').addEventListener('click', function(){
     var q = $('q').value.trim();
-    if(!q){ $('q').focus(); toast('가게 이름을 넣어 주세요'); return; }
+    if (!q){ $('q').focus(); toast('가게 이름을 넣어 주세요'); return; }
+    pendingJob = { mode: 'b', ph: jobOpts().ph };
     openNaver('https://map.naver.com/p/search/' + encodeURIComponent(q));
+    setStatus('지도에서 가게를 누른 뒤 <b>[돋보기]</b>를 누르세요. 가게 화면으로 넘어가면 <b>한 번 더</b> 누르면 됩니다.');
   });
-  $('q').addEventListener('keydown', function(e){ if(e.key==='Enter') $('btnMap').click(); });
   $('btnOpen').addEventListener('click', function(){
     var v = $('u').value.trim();
     var m = v.match(/place\.naver\.com\/([a-z]+)\/(\d+)/), id = null, cat = 'place';
     if (m){ cat = m[1]; id = m[2]; }
     else { m = v.match(/\/place\/(\d+)/) || v.match(/^(\d{5,})$/); if (m) id = m[1]; }
-    if(!id){ toast('주소에서 가게 번호를 찾지 못했습니다'); return; }
-    openNaver('https://pcmap.place.naver.com/' + cat + '/' + id + '/home');
+    if (!id){ toast('주소에서 가게 번호를 찾지 못했습니다'); return; }
+    openDetail({ id: id, bt: cat });
   });
 
-  /* ---------- 데이터 받기 ---------- */
+  /* ---------- 받기: 네이버 창 · 주소 · 다른 돋보기 창 ---------- */
   function b64dec(s){
-    s = s.replace(/-/g,'+').replace(/_/g,'/'); while(s.length % 4) s += '=';
+    s = s.replace(/-/g,'+').replace(/_/g,'/'); while (s.length % 4) s += '=';
     var bin = atob(s), bytes = new Uint8Array(bin.length);
     for (var i=0;i<bin.length;i++) bytes[i] = bin.charCodeAt(i);
     return new TextDecoder().decode(bytes);
   }
-  function receive(p){
-    if(!p || p.src !== 'dotbogi' || !p.tabs){ toast('돋보기 데이터가 아닙니다'); return false; }
-    var s = parseStore(p);
+  function upsert(rec){
     var at = -1;
-    for (var i=0;i<stores.length;i++) if (stores[i].id && stores[i].id === s.id) at = i;
-    if (at >= 0) stores[at] = s; else stores.push(s);
-    cur = at >= 0 ? at : stores.length - 1;
-    if ((p.bv||0) < BV) showNote('북마크바의 [돋보기] 버튼이 옛 버전입니다. 02에서 새 버튼을 다시 끌어다 놓아 주세요.');
-    $('inst').open = false;
+    for (var i=0;i<recs.length;i++) if (recs[i].key === rec.key) at = i;
+    if (at >= 0) recs[at] = rec; else recs.push(rec);
+    cur = at >= 0 ? at : recs.length - 1;
+  }
+  function receive(p, quiet){
+    if (!p || p.src !== 'dotbogi'){ toast('돋보기 데이터가 아닙니다'); return false; }
+    var name;
+    if (p.kind === 'cmp'){
+      var c = parseCmp(p); upsert({ type: 'cmp', key: c.key, s: c }); name = c.name;
+      if (!quiet) setStatus('비교표를 받았습니다 — ' + esc(c.name) + ' 주변 ' + c.items.length + '곳.' + (c.items.length ? '' : ' (주변 가게를 못 찾았습니다. 아래 안내를 봐 주세요)'), c.items.length ? 'ok' : 'warn');
+    } else if (p.tabs){
+      var s = parseStore(p); upsert({ type: 'store', key: 's:' + (s.id || s.name), s: s }); name = s.name;
+      if (!quiet) setStatus('상세를 받았습니다 — ' + esc(s.name) + '.', 'ok');
+    } else { toast('돋보기 데이터가 아닙니다'); return false; }
+    if ((p.bv || 0) < BV) showNote('북마크바의 [돋보기] 버튼이 옛 버전입니다. 02에서 새 버튼을 다시 끌어다 놓아 주세요.');
+    else $('inst').open = false;
     render();
-    toast(s.name + ' 정보를 받았습니다');
-    setTimeout(function(){ var el=$('sec-result'); if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); }, 150);
+    toast(name + ' 정보를 받았습니다');
+    setTimeout(function(){ var el=$('sec-result'); if (el) el.scrollIntoView({behavior:'smooth', block:'start'}); }, 150);
     return true;
   }
   function showNote(m){ var n=$('bmNote'); n.textContent=m; n.hidden=false; $('inst').open=true; }
-  function fromHash(){
-    var h = location.hash;
-    if (h.indexOf('#d=') !== 0) return;
-    try { receive(JSON.parse(b64dec(h.slice(3)))); } catch(e){ toast('받은 데이터를 읽지 못했습니다'); }
-    history.replaceState(null, '', location.pathname);
+
+  var BC = null, myCast = '';
+  try { BC = new BroadcastChannel('dotbogi'); } catch(e){ BC = null; }
+  if (BC) BC.onmessage = function(ev){
+    var d = ev.data || {};
+    if (d.type === 'data' && d.payload){ if (receive(d.payload, true)){ setStatus('다른 창에서 온 자료를 넣었습니다.', 'ok'); BC.postMessage({ type: 'got', id: d.id }); } }
+    else if (d.type === 'got' && d.id === myCast) setStatus('이미 열려 있던 돋보기 창에도 넣었습니다. 이 창은 닫아도 됩니다.', 'ok');
+  };
+  function readHash(){
+    var h = location.hash.replace(/^#/, ''); if (!h) return;
+    var kv = {};
+    h.split('&').forEach(function(x){ var i = x.indexOf('='); if (i > 0) kv[x.slice(0,i)] = x.slice(i+1); });
+    if (kv.k){ try { W.pass = decodeURIComponent(kv.k); } catch(e){ W.pass = kv.k; } }
+    if (kv.w){ try { W.base = decodeURIComponent(kv.w).replace(/\/+$/,''); } catch(e){} }
+    history.replaceState(null, '', location.pathname + location.search);
+    if (kv.d){
+      var p = null;
+      try { p = JSON.parse(b64dec(kv.d)); } catch(e){ toast('받은 데이터를 읽지 못했습니다'); }
+      if (p && receive(p) && BC){ myCast = String(Date.now()); BC.postMessage({ type: 'data', payload: p, id: myCast }); }
+    }
   }
-  window.addEventListener('hashchange', fromHash);
+  window.addEventListener('hashchange', readHash);
   window.addEventListener('message', function(ev){
-    if (OK_ORIGINS.indexOf(ev.origin) < 0) return;
+    if (!okOrigin(ev.origin)) return;
     var d = ev.data;
-    if (!d || d.src !== 'dotbogi' || d.type !== 'data') return;
-    var ok = false;
-    try { ok = receive(d.payload); } catch(e){ ok = false; console.error(e); }
-    try { ev.source.postMessage({src:'dotbogi', type:'ack', ok:ok}, ev.origin); } catch(e){}
+    if (!d || d.src !== 'dotbogi') return;
+    if (d.type === 'hello'){
+      try { ev.source.postMessage({ src: 'dotbogi', type: 'job', job: pendingJob || {} }, ev.origin); } catch(e){}
+      setStatus('네이버 창과 연결됐습니다. 읽는 중입니다…');
+      return;
+    }
+    if (d.type !== 'data') return;
+    var ok = false, p = d.payload || {};
+    try { ok = receive(p); } catch(e){ ok = false; console.error(e); toast('받은 자료를 읽다가 오류가 났습니다'); }
+    var ack = { src: 'dotbogi', type: 'ack', ok: ok };
+    if (ok && p.kind === 'cmp' && pendingJob && pendingJob.mode === 'ab'){
+      if (p.self && p.self.id){
+        ack.next = PC + '/' + (p.self.bt || 'restaurant') + '/' + p.self.id + '/home';
+        pendingJob = { mode: 'b', ph: pendingJob.ph };
+        setStatus('비교표를 받았습니다. 네이버 창이 가게 화면으로 넘어가면 북마크바의 <b>[돋보기]</b>를 <b>한 번 더</b> 누르세요.', 'ok');
+      } else setStatus('비교표는 받았지만 목록에서 지정 가게를 찾지 못해 상세는 건너뜁니다. 네이버 목록에서 가게를 눌러 들어간 뒤 [돋보기]를 누르세요.', 'warn');
+    }
+    try { ev.source.postMessage(ack, ev.origin); } catch(e){}
   });
   $('paste').addEventListener('input', function(){
-    var v = this.value.trim(); if(!v) return;
+    var v = this.value.trim(); if (!v) return;
     try { var p = JSON.parse(v); if (receive(p)) this.value=''; } catch(e){ toast('붙여넣은 내용을 읽지 못했습니다'); }
   });
 
@@ -439,26 +850,43 @@ bx.append(tx,rw,nt);document.body.appendChild(bx);
   var TODAY = new Date(); TODAY.setHours(0,0,0,0);
   function mkDate(y,m,d){ var t=new Date(y,m-1,d); t.setHours(0,0,0,0); return t; }
   function parseDate(s){
-    if(!s) return null;
+    if (!s) return null;
     var m = String(s).match(/(\d{4}|\d{2})\s*[.\/년]\s*(\d{1,2})\s*[.\/월]\s*(\d{1,2})/);
-    if (m && +m[2] >= 1 && +m[2] <= 12 && +m[3] >= 1 && +m[3] <= 31){ var y=+m[1]; if(y<100) y+=2000; return mkDate(y,+m[2],+m[3]); }
+    if (m && +m[2] >= 1 && +m[2] <= 12 && +m[3] >= 1 && +m[3] <= 31){ var y=+m[1]; if (y<100) y+=2000; return mkDate(y,+m[2],+m[3]); }
     m = String(s).match(/(^|[^\d.])(\d{1,2})\.(\d{1,2})\.?(?:\s*[월화수목금토일])?(?![\d])/);
-    if (m && +m[2] >= 1 && +m[2] <= 12 && +m[3] >= 1 && +m[3] <= 31){ var t=mkDate(TODAY.getFullYear(),+m[2],+m[3]); if(t>TODAY) t=mkDate(TODAY.getFullYear()-1,+m[2],+m[3]); return t; }
+    if (m && +m[2] >= 1 && +m[2] <= 12 && +m[3] >= 1 && +m[3] <= 31){ var t=mkDate(TODAY.getFullYear(),+m[2],+m[3]); if (t>TODAY) t=mkDate(TODAY.getFullYear()-1,+m[2],+m[3]); return t; }
     m = String(s).match(/(\d+)\s*(분|시간|일|주|개월|달|년)\s*전/);
-    if (m){ var n=+m[1], t2=new Date(TODAY); if(m[2]==='일') t2.setDate(t2.getDate()-n); else if(m[2]==='주') t2.setDate(t2.getDate()-7*n); else if(m[2]==='개월'||m[2]==='달') t2.setMonth(t2.getMonth()-n); else if(m[2]==='년') t2.setFullYear(t2.getFullYear()-n); return t2; }
+    if (m){ var n=+m[1], t2=new Date(TODAY); if (m[2]==='일') t2.setDate(t2.getDate()-n); else if (m[2]==='주') t2.setDate(t2.getDate()-7*n); else if (m[2]==='개월'||m[2]==='달') t2.setMonth(t2.getMonth()-n); else if (m[2]==='년') t2.setFullYear(t2.getFullYear()-n); return t2; }
     if (/^어제$/.test(s)){ var t3=new Date(TODAY); t3.setDate(t3.getDate()-1); return t3; }
     return null;
   }
   var daysAgo = function(d){ return d ? Math.round((TODAY - d)/86400000) : null; };
   var ymd = function(d){ return d ? (d.getFullYear()+'.'+(d.getMonth()+1)+'.'+d.getDate()) : ''; };
+  var ym = function(d){ return d ? (d.getFullYear()+'.'+String(d.getMonth()+1).padStart(2,'0')) : ''; };
+  var hm = function(d){ return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); };
+  var ymd8 = function(d){ return d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0'); };
+  var safeName = function(s){ return String(s||'').replace(/[\\\/:*?"<>|\s&]+/g,'_').slice(0,40); };
+
+  /* ---------- 사진 주소 ---------- */
+  function orig(u){ if (!u) return ''; try { var x = new URL(u); if (x.hostname === 'search.pstatic.net'){ var s = x.searchParams.get('src'); if (s) return s; } } catch(e){} return u; }
+  function thumbOf(u){
+    if (!u) return '';
+    if (/^https:\/\/search\.pstatic\.net\//.test(u)) return u;
+    if (/^https:\/\/[a-z0-9.-]+\.pstatic\.net\//.test(u)) return 'https://search.pstatic.net/common/?autoRotate=true&type=f320_320&src=' + encodeURIComponent(u);
+    return u;
+  }
+  function kindOf(u){ var o = orig(u); if (/ldb-phinf/.test(o)) return 'shop'; if (/pup-review-phinf/.test(o)) return 'cust'; if (/video-phinf|clip-service-phinf/.test(o)) return 'clip'; return 'etc'; }
+  function ldbDate(u){ var m = String(orig(u)).match(/ldb-phinf\.pstatic\.net\/(\d{4})(\d{2})(\d{2})_/); return m ? mkDate(+m[1],+m[2],+m[3]) : null; }
+  var KL = { shop: '가게', cust: '손님', clip: '영상', etc: '' };
 
   /* ---------- 해석: 네이버 화면 글 → 항목 (네이버 화면이 바뀌면 여기만 고친다) ---------- */
   var lines = function(t){ return String(t||'').split('\n').map(function(x){ return x.trim(); }).filter(Boolean); };
   var numOf = function(s){ var m=String(s||'').replace(/,/g,'').match(/\d+/); return m ? +m[0] : null; };
+  var fnum = function(v){ if (v == null || v === '') return null; var s = String(v).replace(/[^0-9.\-]/g,''); var n = Number(s); return (s !== '' && isFinite(n)) ? n : null; };
   var UI = /^(펼쳐보기|접기|안내|복사|더보기|내용 더보기|정보|지도|길찾기|공유)$/;
   function after(L, label){ var i=L.indexOf(label); return i>=0 && L[i+1] ? L[i+1] : ''; }
   function section(L, label, stops){
-    var i=L.indexOf(label); if(i<0) return [];
+    var i=L.indexOf(label); if (i<0) return [];
     var out=[]; for (var j=i+1;j<L.length;j++){ if (stops.indexOf(L[j])>=0) break; if (!UI.test(L[j])) out.push(L[j]); }
     return out;
   }
@@ -478,9 +906,12 @@ bx.append(tx,rw,nt);document.body.appendChild(bx);
   function labelNum(l){ var m=String(l).match(/^(.+?)\s*([\d,]+)$/); return m ? {label:m[1].trim(), n:numOf(m[2])} : null; }
 
   function parseStore(p){
-    var T = p.tabs || {}, base = p.base || {};
+    var T = p.tabs || {}, base = p.base || {}, PH = p.ph || {};
     var s = { raw:p, id:p.id||base.id||'', cat:p.cat||'', url:p.url||'', at:p.at ? new Date(p.at) : new Date(), notes:(p.notes||[]).slice() };
     s.name = p.name || base.name || '이름 없음';
+    var co = base.coordinate || {};
+    s.x = fnum(base.x != null ? base.x : co.x); s.y = fnum(base.y != null ? base.y : co.y);
+    s.bt = base.businessType || base.businessCategory || s.cat || 'restaurant';
 
     /* 머리 부분 (가게 이름 아래) */
     var top = lines(p.top), k = -1;
@@ -503,7 +934,7 @@ bx.append(tx,rw,nt);document.body.appendChild(bx);
     s.phone = after(H,'전화번호') || base.phone || base.virtualPhone || '';
     s.hours = joinDays(section(H,'영업시간',HOME_STOPS).filter(function(x){ return !/^\d{1,2}시\s*\d{0,2}분?에 영업/.test(x) && !/^영업\s*(중|종료|전)/.test(x); })).slice(0,16);
     s.amen = after(H,'편의').split(',').map(function(x){ return x.trim(); }).filter(Boolean);
-    s.aiBrief = (function(){ var a=H.indexOf('AI 브리핑'); if(a<0) return ''; for (var b=a+1;b<H.length&&b<a+6;b++){ if (/요약했습니다/.test(H[b])) continue; if (H[b].length > 30) return H[b].slice(0,420); } return ''; })();
+    s.aiBrief = (function(){ var a=H.indexOf('AI 브리핑'); if (a<0) return ''; for (var b=a+1;b<H.length&&b<a+6;b++){ if (/요약했습니다/.test(H[b])) continue; if (H[b].length > 30) return H[b].slice(0,420); } return ''; })();
 
     /* 정보 */
     var I = lines(T.info && T.info.text);
@@ -534,7 +965,8 @@ bx.append(tx,rw,nt);document.body.appendChild(bx);
 
     /* 리뷰 하나하나 */
     var kwSet = {}; s.keywords.forEach(function(x){ kwSet[x.label] = 1; });
-    s.reviews = (R.items||[]).map(function(t){ return parseReview(t, s.name, kwSet); }).filter(Boolean);
+    var RP = R.ph || [];
+    s.reviews = (R.items||[]).map(function(t, ix){ var r = parseReview(t, s.name, kwSet); if (r) r.photos = (RP[ix] || []).map(function(u){ return { s: u, o: orig(u), k: kindOf(u) === 'clip' ? 'clip' : 'cust' }; }); return r; }).filter(Boolean);
     s.sort = R.sort || '';
     s.ctx = {time:{}, reserve:{}, wait:{}, purpose:{}, withs:{}};
     s.reviews.forEach(function(r){
@@ -548,9 +980,32 @@ bx.append(tx,rw,nt);document.body.appendChild(bx);
     });
 
     /* 메뉴 · 소식 */
+    var byName = {};
+    (PH.ma || []).forEach(function(x){ if (x && x.n && x.u && !byName[x.n]) byName[x.n] = x.u; });
+    var imgs = (T.menu && T.menu.imgs) || [];
     var seen = {};
-    s.menus = ((T.menu && T.menu.items) || []).map(parseMenu).filter(function(m){ if(!m) return false; var key=m.name+'|'+m.price; if(seen[key]) return false; seen[key]=1; return true; });
+    s.menus = ((T.menu && T.menu.items) || []).map(function(t, ix){
+      var mm = parseMenu(t); if (!mm) return null;
+      var u = orig(imgs[ix] || '') || byName[mm.name] || '';
+      mm.img = u ? { s: imgs[ix] || u, o: orig(u), k: 'shop', d: ldbDate(u), label: mm.name } : null;
+      return mm;
+    }).filter(function(m){ if (!m) return false; var key=m.name+'|'+m.price; if (seen[key]) return false; seen[key]=1; return true; });
+    s.menuUpd = (T.menu && T.menu.upd) ? parseDate(T.menu.upd) : null;
     s.feed = ((T.feed && T.feed.items) || []).map(function(t){ return parseFeed(t, s.name); }).filter(Boolean);
+
+    /* 사진 */
+    var wh = {};
+    (PH.ta || []).forEach(function(x){ if (x && x.u && x.w) wh[orig(x.u)] = x.w + '×' + x.h; });
+    var used = {};
+    var mk = function(u, k, extra){ var o = orig(u); if (!o || used[o]) return null; used[o] = 1; var q = { s: u, o: o, k: k || kindOf(u), d: ldbDate(o), wh: wh[o] || '' }; for (var key in (extra || {})) q[key] = extra[key]; return q; };
+    s.ph = { top: [], board: [], tab: [] };
+    (PH.top || []).forEach(function(z){
+      var k2 = z.t === '업체' ? 'shop' : (z.t === '클립' ? 'clip' : kindOf(z.s));
+      var q = mk(z.s, k2, { t: z.t || '', who: z.w || '' }); if (q) s.ph.top.push(q);
+    });
+    (PH.mb || []).forEach(function(u){ var q = mk(u, 'shop', { t: '메뉴판' }); if (q) s.ph.board.push(q); });
+    s.menus.forEach(function(mm){ if (mm.img) used[mm.img.o] = 1; });
+    (PH.tab || []).forEach(function(u){ var q = mk(u); if (q) s.ph.tab.push(q); });
     calc(s);
     return s;
   }
@@ -583,7 +1038,7 @@ bx.append(tx,rw,nt);document.body.appendChild(bx);
     return r;
   }
   function parseMenu(t){
-    var L = lines(t); if(!L.length) return null;
+    var L = lines(t); if (!L.length) return null;
     var rep = L[0] === '대표';
     if (rep) L = L.slice(1);
     var pm = t.replace(/\n/g,' ').match(/([\d,]{3,})\s*원/g);
@@ -594,7 +1049,7 @@ bx.append(tx,rw,nt);document.body.appendChild(bx);
     return {name:name, price:price, priceText: price ? null : (/변동|시가/.test(t) ? '변동' : ''), rep:rep, desc:desc};
   }
   function parseFeed(t, storeName){
-    var L = lines(t); if(!L.length) return null;
+    var L = lines(t); if (!L.length) return null;
     var dt = null;
     for (var i=L.length-1;i>=0;i--){ if (/^\d{4}년\s*\d{1,2}월\s*\d{1,2}일/.test(L[i]) || /^\d{4}\.\d{2}\.\d{2}\.?$/.test(L[i])){ dt = parseDate(L[i]); if (dt) break; } }
     var LB = /^(알림|임시휴무|이벤트|새소식|쿠폰|신메뉴|공지|휴무)(.*)$/;
@@ -619,26 +1074,67 @@ bx.append(tx,rw,nt);document.body.appendChild(bx);
     var prices = s.menus.map(function(m){ return m.price; }).filter(function(x){ return x; });
     s.priceMin = prices.length ? Math.min.apply(null, prices) : null;
     s.priceMax = prices.length ? Math.max.apply(null, prices) : null;
+    /* 사진 */
+    s.menuImgN = s.menus.filter(function(m){ return m.img; }).length;
+    var md = s.menus.map(function(m){ return m.img && m.img.d; }).filter(Boolean).sort(function(a,b){ return a-b; });
+    s.menuImgFirst = md.length ? md[0] : null; s.menuImgLast = md.length ? md[md.length-1] : null;
+    var sd = s.ph.top.concat(s.ph.board, s.ph.tab).filter(function(q){ return q.k === 'shop' && q.d; }).map(function(q){ return q.d; }).concat(md).sort(function(a,b){ return b-a; });
+    s.shopLast = sd.length ? sd[0] : null;
+    s.custN = s.reviews.reduce(function(a, r){ return a + ((r.photos || []).length); }, 0);
+  }
+
+  /* ---------- 해석: 비교표 ---------- */
+  function svNum(v){ var t = String(v||'').replace(/,/g,''); var m = t.match(/([\d.]+)\s*(만|천)?/); if (!m) return null; var n = parseFloat(m[1]); if (m[2]==='만') n *= 10000; else if (m[2]==='천') n *= 1000; return isFinite(n) ? Math.round(n) : null; }
+  function nz(z){ var o = {}; for (var k in z) o[k] = z[k]; o.svN = svNum(z.sv); o.sc = (z.sc && z.sc > 0) ? z.sc : null; o.cp = z.cp || 0; return o; }
+  function avg(a){ var v = a.filter(function(x){ return x != null && !isNaN(x); }); return v.length ? v.reduce(function(x,y){ return x+y; }, 0) / v.length : null; }
+  function parseCmp(p){
+    var c = { raw: p, at: p.at ? new Date(p.at) : new Date(), self: p.self ? nz(p.self) : null, items: (p.items || []).map(nz),
+      r: p.r || 0, q: p.q || [], g: p.g || '', c: p.c || null, notes: (p.notes || []).slice(), pool: p.pool || 0, lic: null, url: p.url || '', diag: p.diag || p.diag0 || null };
+    c.name = c.self ? c.self.n : ((p.t && p.t.name) || '지정 가게');
+    c.key = 'c:' + (c.self && c.self.id ? c.self.id : c.name);
+    var it = c.items, st = { n: it.length };
+    ['rv','bl','ic','svN','sc'].forEach(function(k){ st[k] = avg(it.map(function(z){ return z[k]; })); });
+    var cnt = function(f){ return it.filter(f).length; };
+    st.bk = cnt(function(z){ return z.bk; }); st.tk = cnt(function(z){ return z.tk; }); st.np = cnt(function(z){ return z.np; });
+    st.cp = cnt(function(z){ return z.cp > 0; });
+    st.od = cnt(function(z){ return z.od && (z.od.t || z.od.p || z.od.k || z.od.d); }); st.odT = cnt(function(z){ return z.od && z.od.t; });
+    c.st = st;
+    return c;
   }
 
   /* ---------- 그리기 ---------- */
+  var PHS = [];
   function render(){
-    $('chips').innerHTML = stores.map(function(s,i){
-      return '<span class="chip'+(i===cur?' on':'')+'"><button data-i="'+i+'" style="background:none;color:inherit;font:inherit;padding:0;border:none">'+esc(s.name)+'</button><button class="x" data-x="'+i+'" aria-label="빼기">×</button></span>';
+    $('chips').innerHTML = recs.map(function(r,i){
+      return '<span class="chip'+(i===cur?' on':'')+'"><button data-i="'+i+'" style="background:none;color:inherit;font:inherit;padding:0;border:none"><span class="chip-k">'+(r.type==='cmp'?'비교':'상세')+'</span>'+esc(r.s.name)+'</button><button class="x" data-x="'+i+'" aria-label="빼기">×</button></span>';
     }).join('');
-    $('toolbar').hidden = cur < 0;
-    renderCmp();
-    if (cur < 0){ $('view').innerHTML = '<div class="empty">아직 모은 가게가 없습니다.<br><b>01</b>에서 가게를 찾고, 네이버 가게 화면에서 북마크바의 <b>[돋보기]</b>를 누르세요.</div>'; return; }
-    $('view').innerHTML = storeHtml(stores[cur]);
+    PHS = [];
+    $('multi').innerHTML = multiHtml();
+    if (cur < 0){ $('view').innerHTML = '<div class="empty">아직 모은 가게가 없습니다.<br><b>01</b>에서 가게를 찾고 <b>[비교표]</b>나 <b>[상세 + 비교표]</b>를 누르세요.</div>'; return; }
+    var r = recs[cur];
+    $('view').innerHTML = r.type === 'cmp' ? cmpHtml(r.s) : storeHtml(r.s);
   }
   $('chips').addEventListener('click', function(e){
-    var b = e.target.closest('button'); if(!b) return;
-    if (b.dataset.x != null){ stores.splice(+b.dataset.x,1); cur = Math.min(cur, stores.length-1); render(); return; }
+    var b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.x != null){ recs.splice(+b.dataset.x,1); cur = Math.min(cur, recs.length-1); render(); return; }
     if (b.dataset.i != null){ cur = +b.dataset.i; render(); }
   });
   $('view').addEventListener('click', function(e){
-    var b = e.target.closest('[data-act]'); if(!b || cur < 0) return;
-    if (b.dataset.act === 'raw') copy(JSON.stringify(stores[cur].raw), '원본을 복사했습니다. 채팅에 붙여넣어 주세요');
+    var ph = e.target.closest('[data-ph]');
+    if (ph){ openLb(+ph.dataset.ph); return; }
+    var b = e.target.closest('[data-act]'); if (!b || cur < 0) return;
+    var r = recs[cur], s = r.s, act = b.dataset.act;
+    if (act === 'raw') copy(JSON.stringify(s.raw), '원본을 복사했습니다. 채팅에 붙여넣어 주세요');
+    else if (act === 'text') copy(r.type === 'cmp' ? cmpText(s) : asText(s), '글로 복사했습니다');
+    else if (act === 'csv') (r.type === 'cmp' ? cmpCsv(s) : storeCsv(s));
+    else if (act === 'print') doPrint(r.type === 'cmp');
+    else if (act === 'lic') addLicence(s);
+    else if (act === 'dlph') dlPhotos(s);
+    else if (act === 'det'){ var z = b.dataset.id === (s.self && s.self.id) ? s.self : s.items.filter(function(x){ return x.id === b.dataset.id; })[0]; if (z) openDetail(z); }
+    else if (act === 'mkcmp'){
+      if (s.x == null || s.y == null){ toast('이 가게의 좌표를 몰라 비교표를 만들 수 없습니다. 01에서 찾아 주세요'); return; }
+      startJob(s.name, s.x, s.y, 'a');
+    }
   });
 
   function prettyCtx(c){
@@ -657,6 +1153,12 @@ bx.append(tx,rw,nt);document.body.appendChild(bx);
   function listChips(arr, limit){
     return arr.slice(0, limit||10).map(function(x){ return '<span class="tag">'+esc(x.label)+' <b>'+fmt(x.n)+'</b></span>'; }).join(' ');
   }
+  function phThumb(q, cls){
+    var i = PHS.push(q) - 1;
+    var lab = [KL[q.k], q.t && ['업체','클립','리뷰','메뉴판'].indexOf(q.t) < 0 ? q.t : '', q.d ? ym(q.d) : ''].filter(Boolean).join(' · ');
+    var hide = q.k === 'cust' || q.k === 'clip';
+    return '<button class="ph'+(hide?' cust no-print':'')+(cls?' '+cls:'')+'" data-ph="'+i+'" title="'+esc(lab)+'"><img src="'+esc(thumbOf(q.o || q.s))+'" alt=""'+(hide?' loading="lazy"':'')+' referrerpolicy="no-referrer" onerror="this.parentNode.classList.add(\'broken\')">'+(lab?'<span class="ph-k">'+esc(lab)+'</span>':'')+'</button>';
+  }
   function kpiHtml(s){
     var r = s.replyRate == null ? '<div class="val">-</div><div class="hint">리뷰를 못 읽었습니다</div>'
       : '<div class="val '+(s.replyRate >= 0.5 ? 'good' : s.replyRate < 0.2 ? 'warn' : '')+'">'+Math.round(s.replyRate*100)+'<small>%</small></div><div class="hint">최근 리뷰 '+s.reviews.length+'개 중 '+s.replyN+'개에 답글</div>';
@@ -667,12 +1169,27 @@ bx.append(tx,rw,nt);document.body.appendChild(bx);
     var v = s.revPerMonth != null ? '<div class="val">'+fmt(s.revPerMonth)+'<small>개/월</small></div><div class="hint">최근 '+dn+'개가 '+s.revSpan+'일 동안 · 가장 최근 '+daysAgo(s.revNewest)+'일 전</div>'
       : '<div class="val">-</div><div class="hint">날짜가 있는 리뷰가 5개보다 적습니다</div>';
     var lw = s.ratedN ? '<div class="val '+(s.lowN/s.ratedN >= 0.15 ? 'warn' : 'good')+'">'+s.lowN+'<small>/ '+s.ratedN+'개</small></div><div class="hint">최근 리뷰 중 별점 3점 이하</div>' : '<div class="val">-</div><div class="hint">별점이 보이는 리뷰가 없습니다</div>';
-    return '<div class="kpis"><div class="kpi"><div class="lab">사장님 답글 비율</div>'+r+'</div><div class="kpi"><div class="lab">마지막 소식</div>'+f+'</div><div class="kpi"><div class="lab">리뷰가 쌓이는 속도</div>'+v+'</div><div class="kpi"><div class="lab">낮은 별점</div>'+lw+'</div></div>';
+    var mp = s.menus.length ? '<div class="val '+(s.menuImgN/s.menus.length >= 0.7 ? 'good' : s.menuImgN/s.menus.length < 0.3 ? 'warn' : '')+'">'+s.menuImgN+'<small>/ '+s.menus.length+'개</small></div><div class="hint">사진 있는 메뉴'+(s.menuImgFirst?' · 올린 때 '+(ym(s.menuImgFirst)===ym(s.menuImgLast)?ym(s.menuImgFirst):ym(s.menuImgFirst)+'~'+ym(s.menuImgLast)):'')+'</div>' : '<div class="val">-</div><div class="hint">메뉴를 못 읽었습니다</div>';
+    var sm = daysAgo(s.shopLast);
+    var sp = s.shopLast ? '<div class="val '+(sm <= 365 ? 'good' : sm > 730 ? 'warn' : '')+'">'+ym(s.shopLast)+'</div><div class="hint">가게가 올린 사진 중 가장 최근 (사진 주소에 적힌 날짜)</div>' : '<div class="val">-</div><div class="hint">가게가 올린 사진 날짜를 못 찾았습니다</div>';
+    return '<div class="kpis"><div class="kpi"><div class="lab">사장님 답글 비율</div>'+r+'</div><div class="kpi"><div class="lab">마지막 소식</div>'+f+'</div><div class="kpi"><div class="lab">리뷰가 쌓이는 속도</div>'+v+'</div><div class="kpi"><div class="lab">낮은 별점</div>'+lw+'</div><div class="kpi"><div class="lab">메뉴 사진</div>'+mp+'</div><div class="kpi"><div class="lab">가게 사진 최근 등록</div>'+sp+'</div></div>';
+  }
+  function toolbar(items){ return '<div class="toolbar no-print">'+items.map(function(x){ return '<button class="btn-s" data-act="'+x[0]+'">'+x[1]+'</button>'; }).join('')+'</div>'; }
+  function shopPhotos(s){
+    var out = [], seen = {};
+    var add = function(q, label){ if (!q || !/ldb-phinf\.pstatic\.net/.test(q.o) || seen[q.o]) return; seen[q.o] = 1; out.push({ o: q.o, d: q.d, label: label }); };
+    s.ph.top.forEach(function(q){ if (q.k === 'shop') add(q, '대표'); });
+    s.menus.forEach(function(m){ if (m.img) add(m.img, '메뉴_' + m.name); });
+    s.ph.board.forEach(function(q){ add(q, '메뉴판'); });
+    s.ph.tab.forEach(function(q){ if (q.k === 'shop') add(q, '사진탭'); });
+    return out;
   }
   function storeHtml(s){
     var h = '';
+    var nShop = shopPhotos(s).length;
+    h += toolbar([['text','글로 복사'],['csv','엑셀(CSV) 저장'],['print','인쇄 (흑백)'],['mkcmp','주변 비교표 만들기']].concat(nShop ? [['dlph','가게 사진 받기 ('+nShop+'장)']] : []));
     h += '<div class="store-h"><div><span class="store-name">'+esc(s.name)+'</span>'+(s.category?'<span class="store-cat">'+esc(s.category)+'</span>':'')+'</div>';
-    h += '<div class="small">'+esc(ymd(s.at))+' '+String(s.at.getHours()).padStart(2,'0')+':'+String(s.at.getMinutes()).padStart(2,'0')+' 수집'+(s.url?' · <a href="'+esc(s.url)+'" target="_blank" rel="noopener">네이버에서 보기</a>':'')+'</div></div>';
+    h += '<div class="small">'+esc(ymd(s.at))+' '+hm(s.at)+' 수집'+(s.url?' · <a href="'+esc(s.url)+'" target="_blank" rel="noopener">네이버에서 보기</a>':'')+'</div></div>';
     if (s.status || s.badges.length) h += '<div class="rv-kw" style="margin-top:8px">'+(s.status?'<span class="tag">'+esc(s.status)+'</span>':'')+s.badges.map(function(b){ return '<span class="tag">'+esc(b)+'</span>'; }).join('')+'</div>';
     if (s.aiSummary) h += '<div class="quote">“'+esc(s.aiSummary)+'” <span class="small">네이버 AI 요약</span></div>';
     h += '<dl class="meta">';
@@ -688,6 +1205,16 @@ bx.append(tx,rw,nt);document.body.appendChild(bx);
     h += '</dl>';
 
     h += '<div class="blk"><h3>한눈 지표</h3>'+kpiHtml(s)+'</div>';
+
+    /* 사진 */
+    var shopTop = s.ph.top.filter(function(q){ return q.k === 'shop'; }).length;
+    if (s.ph.top.length || s.ph.board.length || s.ph.tab.length){
+      h += '<div class="blk"><h3>사진 <span class="small">가게가 올린 사진 '+nShop+'장 · 손님 사진은 화면에서만 보이고 인쇄되지 않습니다</span></h3>';
+      if (s.ph.top.length) h += '<div class="sublab">대표 사진 <span class="small">네이버 가게 화면 맨 위 '+s.ph.top.length+'장 (가게 '+shopTop+')</span></div><div class="ph-grid">'+s.ph.top.map(function(q){ return phThumb(q); }).join('')+'</div>';
+      if (s.ph.board.length) h += '<div class="sublab">메뉴판</div><div class="ph-grid">'+s.ph.board.map(function(q){ return phThumb(q); }).join('')+'</div>';
+      if (s.ph.tab.length) h += '<div class="sublab">사진 탭 첫 화면 <span class="small">'+s.ph.tab.length+'장</span></div><div class="ph-grid">'+s.ph.tab.map(function(q){ return phThumb(q); }).join('')+'</div>';
+      h += '</div>';
+    }
 
     h += '<div class="blk"><h3>리뷰</h3><div class="counts"><span>방문자 리뷰<b>'+fmt(s.visitor)+'</b></span><span>블로그 리뷰<b>'+fmt(s.blog)+'</b></span>';
     h += s.avgRating ? '<span>별점 평균<b>'+s.avgRating+'</b></span>' : (s.scoreHidden ? '<span class="small">별점 평균은 가게가 비공개로 설정</span>' : '');
@@ -709,22 +1236,23 @@ bx.append(tx,rw,nt);document.body.appendChild(bx);
       h += '</dl></div>';
     }
 
-    h += '<div class="blk"><h3>최신 리뷰 <span class="small">'+s.reviews.length+'개'+(s.sort?' · '+esc(s.sort):'')+'</span></h3><div class="rv">';
+    h += '<div class="blk"><h3>최신 리뷰 <span class="small">'+s.reviews.length+'개'+(s.sort?' · '+esc(s.sort):'')+(s.custN?' · 손님 사진 '+s.custN+'장':'')+'</span></h3><div class="rv">';
     if (!s.reviews.length) h += '<div class="small">리뷰를 못 읽었습니다.</div>';
     s.reviews.forEach(function(r){
       h += '<div class="rv-i"><div class="rv-top"><span>'+esc(r.date ? ymd(r.date) : (r.dateStr||'날짜 없음'))+'</span>'+(r.rating!=null?'<span class="tag'+(r.rating<=3?' norep':'')+'">별점 '+r.rating+'</span>':'')+(r.visit?'<span class="tag">'+r.visit+'번째 방문</span>':'')+(r.reply?'<span class="tag rep">사장님 답글</span>':'<span class="tag norep">답글 없음</span>')+'</div>';
       if (r.ctx) h += '<div class="small" style="margin-bottom:6px">'+esc(prettyCtx(r.ctx))+'</div>';
       h += '<div class="rv-t">'+esc(r.text || '(글 없이 키워드만 남긴 리뷰)')+'</div>';
+      if (r.photos && r.photos.length) h += '<div class="ph-row no-print">'+r.photos.map(function(q){ return phThumb(q, 'sm'); }).join('')+'</div>';
       if (r.kws.length) h += '<div class="rv-kw">'+r.kws.map(function(k){ return '<span class="tag">'+esc(k)+'</span>'; }).join('')+'</div>';
       if (r.reply && r.replyText) h += '<div class="reply">↳ '+esc(r.replyText)+'</div>';
       h += '</div>';
     });
     h += '</div></div>';
 
-    h += '<div class="blk"><h3>메뉴 <span class="small">'+s.menus.length+'개'+(s.priceMin?' · '+fmt(s.priceMin)+'~'+fmt(s.priceMax)+'원':'')+'</span></h3>';
+    h += '<div class="blk"><h3>메뉴 <span class="small">'+s.menus.length+'개'+(s.priceMin?' · '+fmt(s.priceMin)+'~'+fmt(s.priceMax)+'원':'')+(s.menus.length?' · 사진 있는 메뉴 '+s.menuImgN+'개':'')+(s.menuUpd?' · 네이버 메뉴 최근 업데이트 '+ymd(s.menuUpd):'')+'</span></h3>';
     if (s.menus.length){
-      h += '<table class="t"><thead><tr><th>메뉴</th><th style="text-align:right">가격</th></tr></thead><tbody>';
-      s.menus.forEach(function(m){ h += '<tr><td>'+(m.rep?'<span class="tag" style="margin-right:6px">대표</span>':'')+esc(m.name)+(m.desc?'<span class="d">'+esc(m.desc)+'</span>':'')+'</td><td class="pr">'+(m.price?fmt(m.price)+'원':esc(m.priceText||'-'))+'</td></tr>'; });
+      h += '<table class="t"><thead><tr><th class="mimg-h">사진</th><th>메뉴</th><th style="text-align:right">가격</th></tr></thead><tbody>';
+      s.menus.forEach(function(m){ h += '<tr><td class="mimg">'+(m.img ? phThumb(m.img, 'xs') : '<span class="noimg">없음</span>')+'</td><td>'+(m.rep?'<span class="tag" style="margin-right:6px">대표</span>':'')+esc(m.name)+(m.desc?'<span class="d">'+esc(m.desc)+'</span>':'')+'</td><td class="pr">'+(m.price?fmt(m.price)+'원':esc(m.priceText||'-'))+'</td></tr>'; });
       h += '</tbody></table>';
     } else h += '<div class="small">메뉴를 못 읽었습니다.</div>';
     h += '</div>';
@@ -736,14 +1264,86 @@ bx.append(tx,rw,nt);document.body.appendChild(bx);
 
     if (s.aiBrief) h += '<div class="blk"><h3>네이버 AI 브리핑</h3><p class="sub">'+esc(s.aiBrief)+'</p></div>';
     if (s.notes.length) h += '<div class="notes">못 가져온 것: '+s.notes.map(esc).join(' · ')+'</div>';
-    h += '<div class="notes">출처: 네이버 플레이스 화면 (수집 시점 기준, 사람이 연 화면에서 읽음) · <button class="linkbtn no-print" data-act="raw">원본 복사</button></div>';
+    h += '<div class="notes">출처: 네이버 플레이스 화면 (수집 시점 기준, 사람이 연 화면에서 읽음) · 사진 날짜는 가게가 올린 사진 주소에 적힌 날짜 · <button class="linkbtn no-print" data-act="raw">원본 복사</button></div>';
     return h;
   }
-  function renderCmp(){
-    var el = $('cmp');
-    if (stores.length < 2){ el.innerHTML=''; return; }
-    var rows = [
-      ['업종', function(s){ return esc(s.category||'-'); }],
+
+  /* 비교표 — 한 줄에 한 가게, 지정 가게 맨 위, 나머지는 가까운 순. 순위·평가 말은 쓰지 않는다 */
+  function dist(d){ return d == null ? '-' : (d >= 1000 ? (d/1000).toFixed(1)+'km' : d+'m'); }
+  function featTags(z){
+    var t = [];
+    if (z.bk) t.push('예약');
+    if (z.od){ var o = []; if (z.od.t) o.push('테이블'); if (z.od.k) o.push('포장'); if (z.od.d) o.push('배달'); if (z.od.p) o.push('미리'); if (o.length) t.push('주문('+o.join('·')+')'); }
+    if (z.tk) t.push('톡톡');
+    if (z.cp > 0) t.push('쿠폰 '+z.cp);
+    if (z.np) t.push('N페이');
+    return t;
+  }
+  function licDate(v){ var m = String(v||'').match(/(\d{4})\D?(\d{2})\D?(\d{2})/); return m ? mkDate(+m[1],+m[2],+m[3]) : null; }
+  function licOf(c, key){
+    if (!c.lic) return null;
+    var L = c.lic[key];
+    if (!L) return { s: '-', a: '-' };
+    if (!L.ok) return { s: '<span class="small" title="'+esc(L.why||'')+'">못 찾음</span>', a: '-' };
+    var d = licDate(L.ymd), yrs = d ? Math.floor((TODAY - d) / 31557600000) : null;
+    return { s: (L.match && L.match !== 'exact' ? '≈ ' : '') + (d ? ym(d) + ' (' + (yrs < 1 ? '1년 미만' : yrs + '년') + ')' : '-'),
+             a: L.area ? fmt(Math.round(L.area)) + '㎡ (' + fmt(Math.round(L.area / 3.3058)) + '평)' : '-' };
+  }
+  function ratio(a, b){ if (a == null || !b) return ''; var r = a / b; return (r >= 10 ? Math.round(r) : Math.round(r * 10) / 10) + '배'; }
+  function cmpHtml(c){
+    var st = c.st, hasSc = c.items.concat(c.self ? [c.self] : []).some(function(z){ return z.sc; });
+    var rows = (c.self ? [c.self] : []).concat(c.items);
+    var h = toolbar([['lic', c.lic ? '업력·면적 다시 받기' : '업력·면적 더하기'],['text','글로 복사'],['csv','엑셀(CSV) 저장'],['print','인쇄 (흑백·가로)']]);
+    h += '<div class="store-h"><div><span class="store-name">'+esc(c.name)+'</span><span class="store-cat">주변 같은 업종 비교</span></div>';
+    h += '<div class="small">'+esc(ymd(c.at))+' '+hm(c.at)+' 수집 · 반경 '+(c.r >= 1000 ? (c.r/1000)+'km' : c.r+'m')+(c.g?' · 업종 묶음 \''+esc(c.g)+'\'':'')+(c.q.length?' · 네이버 검색어 '+c.q.map(function(x){ return '\''+esc(x)+'\''; }).join(', '):'')+'</div></div>';
+    if (!c.self) h += '<div class="note">지정 가게를 네이버 목록에서 찾지 못해 주변 가게만 보여 줍니다. 네이버 목록에서 가게를 눌러 들어간 뒤 [돋보기]를 누르면 지정 가게까지 들어갑니다.</div>';
+    if (!c.items.length) h += '<div class="note">주변 같은 업종 가게를 찾지 못했습니다.'+(c.notes.length?' ('+c.notes.map(esc).join(' · ')+')':'')+(c.diag?' 네이버 목록 구조가 달라졌을 수 있습니다. 아래 [원본 복사]를 눌러 채팅에 붙여 주세요.':'')+' 업종 단어를 바꾸거나 반경을 1km로 넓혀 다시 해 보세요.</div>';
+    else if (c.items.length < 9) h += '<div class="small" style="margin:8px 0">반경 '+dist(c.r)+' 안에서 같은 업종 '+c.items.length+'곳을 찾았습니다.</div>';
+    if (rows.length){
+      h += '<div class="cmp-wrap"><table class="nb"><thead><tr><th>가게</th><th class="n">거리</th><th class="n">방문자 리뷰</th><th class="n">블로그 리뷰</th>'+(hasSc?'<th class="n">별점</th>':'')+'<th class="n">사진</th><th class="n">저장</th><th>네이버 기능</th>'+(c.lic?'<th>업력 · 면적</th>':'')+'<th class="no-print"></th></tr></thead><tbody>';
+      rows.forEach(function(z, i){
+        var me = c.self && i === 0, key = me ? 'self' : z.id, L = licOf(c, key);
+        var tags = (z.nw?'<span class="tag sm">새로 오픈</span>':'')+(z.tv?'<span class="tag sm">방송 '+z.tv+'</span>':'')+(z.mi?'<span class="tag sm">미쉐린</span>':'');
+        var ft = featTags(z);
+        h += '<tr'+(me?' class="me"':'')+'>';
+        h += '<td class="nm" data-l="가게"><div class="nb-n">'+(me?'<span class="nb-i me">지정</span>':'<span class="nb-i">'+(c.self ? i : i+1)+'</span>')+'<a href="'+esc(MP+'/'+(z.bt||'restaurant')+'/'+z.id+'/home')+'" target="_blank" rel="noopener">'+esc(z.n)+'</a>'+tags+'</div><span class="d">'+esc(z.c||'')+(z.pop?' · 인기 '+esc(z.pop):'')+'</span></td>';
+        h += '<td class="n" data-l="거리">'+(me?'-':dist(z.d))+'</td>';
+        h += '<td class="n" data-l="방문자 리뷰">'+fmt(z.rv)+'</td><td class="n" data-l="블로그 리뷰">'+fmt(z.bl)+'</td>';
+        if (hasSc) h += '<td class="n" data-l="별점">'+(z.sc ? z.sc.toFixed(2) : '<span class="small">비공개</span>')+'</td>';
+        h += '<td class="n" data-l="사진">'+fmt(z.ic)+'</td><td class="n" data-l="저장">'+esc(z.sv||'-')+'</td>';
+        h += '<td class="ft" data-l="네이버 기능"><span class="fts">'+(ft.length ? ft.map(function(x){ return '<span class="tag f">'+esc(x)+'</span>'; }).join('') : '<span class="small">-</span>')+'</span></td>';
+        if (c.lic) h += '<td class="lc" data-l="업력 · 면적"><span class="v">'+L.s+(L.a && L.a !== '-' ? '<span class="d">'+L.a+'</span>' : '')+'</span></td>';
+        h += '<td class="no-print act"><button class="btn-s xs" data-act="det" data-id="'+esc(z.id)+'">상세</button></td></tr>';
+      });
+      h += '</tbody>';
+      if (st.n){
+        var feats = ['예약 '+st.bk+'곳', '주문 '+st.od+'곳', '톡톡 '+st.tk+'곳', '쿠폰 '+st.cp+'곳', 'N페이 '+st.np+'곳'];
+        h += '<tfoot><tr class="avg"><td data-l="">주변 '+st.n+'곳 평균</td><td class="n" data-l="거리"></td><td class="n" data-l="방문자 리뷰">'+fmt(st.rv == null ? null : Math.round(st.rv))+'</td><td class="n" data-l="블로그 리뷰">'+fmt(st.bl == null ? null : Math.round(st.bl))+'</td>'+(hasSc?'<td class="n" data-l="별점">'+(st.sc ? st.sc.toFixed(2) : '-')+'</td>':'')+'<td class="n" data-l="사진">'+fmt(st.ic == null ? null : Math.round(st.ic))+'</td><td class="n" data-l="저장">'+(st.svN == null ? '-' : '약 '+fmt(Math.round(st.svN)))+'</td><td class="ft" data-l="쓰는 곳"><span class="v">'+feats.join(' · ')+'</span></td>'+(c.lic?'<td class="lc"></td>':'')+'<td class="no-print"></td></tr></tfoot>';
+      }
+      h += '</table></div>';
+    }
+    if (c.self && st.n){
+      var z = c.self, part = [];
+      [['방문자 리뷰','rv'],['블로그 리뷰','bl'],['사진','ic'],['저장','svN']].forEach(function(x){
+        var a = z[x[1]], b = st[x[1]]; if (a == null || b == null) return;
+        part.push(x[0]+' <b>'+(x[1]==='svN' ? esc(z.sv) : fmt(a))+'</b> · 평균 '+fmt(Math.round(b))+(ratio(a,b)?' <span class="rt">('+ratio(a,b)+')</span>':''));
+      });
+      var yes = function(v){ return v ? '○' : '×'; };
+      h += '<div class="vs"><div class="vs-h">지정 가게와 주변 '+st.n+'곳 평균</div>'+(part.length?'<div>'+part.join('<span class="sep">|</span>')+'</div>':'')
+        + '<div>주변 '+st.n+'곳 중 네이버 예약 <b>'+st.bk+'</b>곳 · 네이버 주문 <b>'+st.od+'</b>곳'+(st.odT?' (테이블 주문 '+st.odT+')':'')+' · 톡톡 <b>'+st.tk+'</b>곳 · 쿠폰 <b>'+st.cp+'</b>곳 · N페이 <b>'+st.np+'</b>곳</div>'
+        + '<div>지정 가게: 예약 '+yes(z.bk)+' · 네이버 주문 '+yes(z.od && (z.od.t||z.od.p||z.od.k||z.od.d))+' · 톡톡 '+yes(z.tk)+' · 쿠폰 '+yes(z.cp > 0)+' · N페이 '+yes(z.np)+'</div></div>';
+    }
+    var nts = c.notes.filter(function(x){ return x; });
+    h += '<div class="notes">출처: 네이버 플레이스 목록에 공개된 정보 ('+esc(ymd(c.at))+' '+hm(c.at)+' 수집) · 기준: 지정 가게에서 반경 '+dist(c.r)+(c.g?', \''+esc(c.g)+'\' 업종 묶음':'')+' · 가까운 순서이며 순위가 아닙니다 · 별점은 가게가 공개한 경우만 · 리뷰·사진·저장 수는 영업 기간과 규모에 따라 달라집니다'
+      + (c.lic ? ' · 영업 시작일·면적: 행정안전부 식품 인허가(공공데이터포털)를 상호·주소로 짝지은 값, ≈는 주소·상호가 비슷한 기록' : '')
+      + (nts.length ? ' · 안내: '+nts.map(esc).join(' · ') : '')
+      + ' · <button class="linkbtn no-print" data-act="raw">원본 복사</button></div>';
+    return h;
+  }
+  function multiHtml(){
+    var ss = recs.filter(function(r){ return r.type === 'store'; }).map(function(r){ return r.s; });
+    if (ss.length < 2) return '';
+    var cols = [
       ['방문자 리뷰', function(s){ return fmt(s.visitor); }],
       ['블로그 리뷰', function(s){ return fmt(s.blog); }],
       ['좋았어요 1위', function(s){ return s.keywords[0] ? esc(s.keywords[0].label)+' '+fmt(s.keywords[0].n) : '-'; }],
@@ -751,12 +1351,98 @@ bx.append(tx,rw,nt);document.body.appendChild(bx);
       ['마지막 소식', function(s){ return s.feedLast ? daysAgo(s.feedLast)+'일 전' : '없음'; }],
       ['리뷰 속도', function(s){ return s.revPerMonth==null?'-':fmt(s.revPerMonth)+'개/월'; }],
       ['낮은 별점', function(s){ return s.ratedN ? s.lowN+'/'+s.ratedN : '-'; }],
+      ['메뉴 사진', function(s){ return s.menus.length ? s.menuImgN+'/'+s.menus.length : '-'; }],
       ['메뉴 가격대', function(s){ return s.priceMin ? fmt(s.priceMin)+'~'+fmt(s.priceMax)+'원' : '-'; }]
     ];
-    var h = '<h3>비교 <span class="small">모은 가게 '+stores.length+'곳</span></h3><div class="cmp-wrap"><table class="cmp"><thead><tr><th></th>'+stores.map(function(s){ return '<td>'+esc(s.name)+'</td>'; }).join('')+'</tr></thead><tbody>';
-    rows.forEach(function(r){ h += '<tr><th>'+r[0]+'</th>'+stores.map(function(s){ return '<td>'+r[1](s)+'</td>'; }).join('')+'</tr>'; });
-    h += '</tbody></table></div><div class="gap"></div>';
-    el.innerHTML = h;
+    var h = '<details class="multi no-print"><summary>상세로 모은 가게 '+ss.length+'곳 나란히 보기</summary><div class="cmp-wrap"><table class="nb"><thead><tr><th>가게</th>'+cols.map(function(c){ return '<th>'+c[0]+'</th>'; }).join('')+'</tr></thead><tbody>';
+    ss.forEach(function(s){ h += '<tr><td data-l="가게"><div class="nb-n">'+esc(s.name)+'</div><span class="d">'+esc(s.category||'')+'</span></td>'+cols.map(function(c){ return '<td data-l="'+c[0]+'">'+c[1](s)+'</td>'; }).join('')+'</tr>'; });
+    return h + '</tbody></table></div></details>';
+  }
+
+  /* ---------- 사진 크게 보기 ---------- */
+  function openLb(i){
+    var q = PHS[i]; if (!q) return;
+    var img = $('lbImg');
+    img.onerror = function(){ img.onerror = null; img.src = thumbOf(q.o || q.s); };
+    img.src = q.o || q.s;
+    var cap = [KL[q.k] ? KL[q.k] + ' 사진' : '', q.t && q.t !== '업체' && q.t !== '클립' ? q.t : '', q.label || '', q.d ? '올린 날 ' + ymd(q.d) : '', q.wh || ''].filter(Boolean).join(' · ');
+    $('lbCap').innerHTML = esc(cap) + (q.o ? ' · <a href="'+esc(q.o)+'" target="_blank" rel="noopener noreferrer">원본 새 창</a>' : '') + (q.k === 'cust' ? '<br><span class="small">손님이 찍은 사진입니다. 보기만 하고 자료에는 넣지 마세요.</span>' : '');
+    $('lb').hidden = false;
+  }
+  function closeLb(){ $('lb').hidden = true; $('lbImg').removeAttribute('src'); }
+  $('lb').addEventListener('click', function(e){ if (e.target.closest('a')) return; closeLb(); });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape'){ if (!$('lb').hidden) closeLb(); if (!$('auth').hidden) closeAuth(); } });
+
+  /* ---------- 가게 사진 받기 (워커 /img 중계 → 압축 파일) ---------- */
+  var CRC = null;
+  function crc32(b){
+    if (!CRC){ CRC = []; for (var n=0;n<256;n++){ var c=n; for (var k=0;k<8;k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; CRC[n] = c >>> 0; } }
+    var x = -1; for (var i=0;i<b.length;i++) x = (x >>> 8) ^ CRC[(x ^ b[i]) & 255];
+    return (x ^ -1) >>> 0;
+  }
+  function zipBlob(files){
+    var enc = new TextEncoder(), parts = [], cen = [], off = 0, now = new Date();
+    var dt = ((now.getFullYear()-1980) << 9) | ((now.getMonth()+1) << 5) | now.getDate(), tm = (now.getHours() << 11) | (now.getMinutes() << 5) | (now.getSeconds() >> 1);
+    files.forEach(function(f){
+      var nm = enc.encode(f.name), d = f.data, crc = crc32(d);
+      var h = new DataView(new ArrayBuffer(30));
+      h.setUint32(0,0x04034b50,true); h.setUint16(4,20,true); h.setUint16(6,0x0800,true); h.setUint16(8,0,true); h.setUint16(10,tm,true); h.setUint16(12,dt,true);
+      h.setUint32(14,crc,true); h.setUint32(18,d.length,true); h.setUint32(22,d.length,true); h.setUint16(26,nm.length,true); h.setUint16(28,0,true);
+      parts.push(new Uint8Array(h.buffer), nm, d);
+      var c = new DataView(new ArrayBuffer(46));
+      c.setUint32(0,0x02014b50,true); c.setUint16(4,20,true); c.setUint16(6,20,true); c.setUint16(8,0x0800,true); c.setUint16(10,0,true); c.setUint16(12,tm,true); c.setUint16(14,dt,true);
+      c.setUint32(16,crc,true); c.setUint32(20,d.length,true); c.setUint32(24,d.length,true); c.setUint16(28,nm.length,true); c.setUint16(30,0,true); c.setUint16(32,0,true);
+      c.setUint16(34,0,true); c.setUint16(36,0,true); c.setUint32(38,0,true); c.setUint32(42,off,true);
+      cen.push(new Uint8Array(c.buffer), nm);
+      off += 30 + nm.length + d.length;
+    });
+    var cs = cen.reduce(function(a,b){ return a + b.length; }, 0);
+    var e = new DataView(new ArrayBuffer(22));
+    e.setUint32(0,0x06054b50,true); e.setUint16(8,files.length,true); e.setUint16(10,files.length,true); e.setUint32(12,cs,true); e.setUint32(16,off,true);
+    return new Blob(parts.concat(cen, [new Uint8Array(e.buffer)]), { type: 'application/zip' });
+  }
+  function dlPhotos(s){
+    var list = shopPhotos(s);
+    if (!list.length){ toast('받을 가게 사진이 없습니다'); return; }
+    withWorker(async function(){
+      var files = [], fail = 0;
+      for (var i=0;i<list.length;i++){
+        toast('가게 사진 받는 중 '+(i+1)+' / '+list.length);
+        var r;
+        try { r = await fetch(W.base + '/img?u=' + encodeURIComponent(list[i].o), { headers: { 'X-Team-Pass': W.pass } }); }
+        catch(e){ fail++; continue; }
+        if (r.status === 401) throw passErr();
+        if (!r.ok){ fail++; continue; }
+        var ct = r.headers.get('content-type') || '';
+        var ext = /png/.test(ct) ? 'png' : /webp/.test(ct) ? 'webp' : 'jpg';
+        files.push({ name: String(files.length+1).padStart(2,'0') + '_' + safeName(list[i].label) + (list[i].d ? '_' + ymd8(list[i].d) : '') + '.' + ext, data: new Uint8Array(await r.arrayBuffer()) });
+        await sleep(120);
+      }
+      if (!files.length){ toast('사진을 받지 못했습니다'); return; }
+      saveBlob(zipBlob(files), '돋보기_가게사진_' + safeName(s.name) + '_' + ymd8(s.at) + '.zip');
+      toast('가게 사진 ' + files.length + '장을 압축 파일로 저장했습니다' + (fail ? ' (' + fail + '장은 못 받음)' : ''));
+    });
+  }
+
+  /* ---------- 업력·면적 (공공데이터포털 인허가, 워커 /localdata/near를 6곳씩 두 번) ---------- */
+  function addLicence(c){
+    withWorker(async function(){
+      var rows = (c.self ? [c.self] : []).concat(c.items);
+      var list = rows.map(function(z, i){ return { key: (c.self && i === 0) ? 'self' : z.id, name: z.n, road: z.ra || '', lot: z.ad || '', cat: z.c || '' }; });
+      var base = c.self || rows[0] || {};
+      var store = { name: base.n || c.name, x: (c.c && c.c.x) || base.x, y: (c.c && c.c.y) || base.y, roadAddress: base.ra || '', address: base.ad || '' };
+      var got = {};
+      for (var i=0;i<list.length;i+=6){
+        toast('업력·면적 찾는 중 ' + Math.min(i+6, list.length) + ' / ' + list.length);
+        var j = await api('/localdata/near', { store: store, neighbors: list.slice(i, i+6), kind: '' });
+        var m = j && j.modules && j.modules.nblic;
+        if (!m || !m.ok) throw new Error('인허가 조회가 안 됐습니다' + (m && m.error ? ' — ' + m.error : ''));
+        ((m.data && m.data.items) || []).forEach(function(it){ got[it.key] = it; });
+      }
+      c.lic = got;
+      render();
+      toast('업력·면적을 넣었습니다');
+    });
   }
 
   /* ---------- 내보내기 ---------- */
@@ -771,6 +1457,7 @@ bx.append(tx,rw,nt);document.body.appendChild(bx);
     if (s.keywords.length) o.push('좋았어요'+(s.kwPeople?'('+fmt(s.kwPeople)+'명)':'')+': '+s.keywords.map(function(k){ return k.label+' '+fmt(k.n); }).join(', '));
     if (s.mMenus.length) o.push('리뷰에 많이 나온 메뉴: '+s.mMenus.slice(0,8).map(function(k){ return k.label+' '+k.n; }).join(', '));
     o.push('한눈 지표: 사장님 답글 '+(s.replyRate==null?'-':s.replyN+'/'+s.reviews.length+'('+Math.round(s.replyRate*100)+'%)')+' · 마지막 소식 '+(s.feedLast?daysAgo(s.feedLast)+'일 전':'없음')+' · 리뷰 속도 '+(s.revPerMonth==null?'-':'한 달 약 '+s.revPerMonth+'개')+' · 낮은 별점 '+(s.ratedN?s.lowN+'/'+s.ratedN:'-'));
+    o.push('사진: 사진 있는 메뉴 '+s.menuImgN+'/'+s.menus.length+(s.menuImgFirst?' (메뉴 사진 올린 때 '+ym(s.menuImgFirst)+(ym(s.menuImgFirst)!==ym(s.menuImgLast)?'~'+ym(s.menuImgLast):'')+')':'')+' · 가게 사진 최근 등록 '+(s.shopLast?ym(s.shopLast):'-'));
     var cn = s.reviews.filter(function(r){ return r.ctx; }).length;
     if (cn) o.push('방문 특징(리뷰 '+cn+'개): 시간대 '+top3(s.ctx.time)+' / 예약 '+top3(s.ctx.reserve)+' / 목적 '+top3(s.ctx.purpose)+' / 함께 '+top3(s.ctx.withs));
     if (s.menus.length) o.push('메뉴: '+s.menus.map(function(m){ return m.name+(m.price?' '+fmt(m.price)+'원':''); }).join(', '));
@@ -779,10 +1466,40 @@ bx.append(tx,rw,nt);document.body.appendChild(bx);
     o.push('출처: 네이버 플레이스 '+(s.url||''));
     return o.join('\n');
   }
-  $('btnText').addEventListener('click', function(){ if(cur>=0) copy(asText(stores[cur]), '글로 복사했습니다'); });
-  $('btnCsv').addEventListener('click', function(){
-    if (cur < 0) return;
-    var s = stores[cur], R = [['구분','항목','값','비고','날짜']];
+  function zLine(z){ var ft = featTags(z); return z.n+(z.c?' ('+z.c+')':'')+' · 방문자 리뷰 '+fmt(z.rv)+' · 블로그 '+fmt(z.bl)+(z.sc?' · 별점 '+z.sc.toFixed(2):'')+' · 사진 '+fmt(z.ic)+' · 저장 '+(z.sv||'-')+(ft.length?' · '+ft.join(', '):''); }
+  function cmpText(c){
+    var o = [];
+    o.push('[돋보기 비교표] '+c.name+' 주변 '+dist(c.r)+' 같은 업종 '+c.items.length+'곳 · '+ymd(c.at)+' 수집 (네이버 플레이스 공개 정보)');
+    if (c.self) o.push('지정 가게: '+zLine(c.self));
+    c.items.forEach(function(z, i){ o.push((i+1)+'. '+dist(z.d)+' '+zLine(z)); });
+    var st = c.st;
+    if (st.n){
+      o.push('주변 평균: 방문자 리뷰 '+fmt(st.rv==null?null:Math.round(st.rv))+' · 블로그 '+fmt(st.bl==null?null:Math.round(st.bl))+' · 사진 '+fmt(st.ic==null?null:Math.round(st.ic))+' · 저장 약 '+fmt(st.svN==null?null:Math.round(st.svN)));
+      o.push('주변 '+st.n+'곳 중 네이버 예약 '+st.bk+'곳 · 네이버 주문 '+st.od+'곳'+(st.odT?'(테이블 '+st.odT+')':'')+' · 톡톡 '+st.tk+'곳 · 쿠폰 '+st.cp+'곳 · N페이 '+st.np+'곳');
+    }
+    o.push('※ 가까운 순서이며 순위가 아닙니다. 별점은 공개한 가게만.');
+    return o.join('\n');
+  }
+  function csvOut(R, name){
+    var csv = '﻿' + R.map(function(row){ return row.map(function(c){ c = String(c==null?'':c); return /[",\n]/.test(c) ? '"'+c.replace(/"/g,'""')+'"' : c; }).join(','); }).join('\r\n');
+    saveBlob(new Blob([csv],{type:'text/csv;charset=utf-8'}), name);
+    toast('CSV로 저장했습니다');
+  }
+  function cmpCsv(c){
+    var R = [['구분','가게','업종','거리(m)','방문자 리뷰','블로그 리뷰','별점(공개만)','사진 수','저장 수','네이버 예약','네이버 주문','톡톡','쿠폰','N페이','인기 메뉴','영업 시작(인허가)','영업장 면적(㎡)','도로명 주소','네이버 가게 번호']];
+    var rows = (c.self ? [c.self] : []).concat(c.items);
+    rows.forEach(function(z, i){
+      var me = c.self && i === 0, L = c.lic && c.lic[me ? 'self' : z.id];
+      var od = z.od ? [z.od.t?'테이블':'', z.od.k?'포장':'', z.od.d?'배달':'', z.od.p?'미리':''].filter(Boolean).join('·') : '';
+      R.push([me ? '지정 가게' : '주변 '+(c.self ? i : i+1), z.n, z.c, me ? '' : z.d, z.rv, z.bl, z.sc ? z.sc.toFixed(2) : '', z.ic, z.sv, z.bk?'○':'', od, z.tk?'○':'', z.cp||'', z.np?'○':'', z.pop, L && L.ok ? String(L.ymd||'') : '', L && L.ok && L.area ? Math.round(L.area) : '', z.ra, z.id]);
+    });
+    var st = c.st;
+    if (st.n) R.push(['주변 평균','','','',st.rv==null?'':Math.round(st.rv),st.bl==null?'':Math.round(st.bl),st.sc?st.sc.toFixed(2):'',st.ic==null?'':Math.round(st.ic),st.svN==null?'':Math.round(st.svN),st.bk+'곳',st.od+'곳',st.tk+'곳',st.cp+'곳',st.np+'곳','','','','','']);
+    R.push(['출처','네이버 플레이스 목록 공개 정보 '+ymd(c.at)+' '+hm(c.at)+' 수집 · 반경 '+dist(c.r)+' · 가까운 순서(순위 아님)']);
+    csvOut(R, '돋보기_비교_'+safeName(c.name)+'_'+ymd8(c.at)+'.csv');
+  }
+  function storeCsv(s){
+    var R = [['구분','항목','값','비고','날짜']];
     R.push(['기본','가게',s.name,s.category,ymd(s.at)]);
     if (s.address) R.push(['기본','주소',s.address,'','']);
     if (s.phone) R.push(['기본','전화',s.phone,'','']);
@@ -796,21 +1513,25 @@ bx.append(tx,rw,nt);document.body.appendChild(bx);
     R.push(['지표','마지막 소식',s.feedLast?daysAgo(s.feedLast)+'일 전':'없음','',ymd(s.feedLast)]);
     R.push(['지표','리뷰 속도(월)',s.revPerMonth==null?'':s.revPerMonth,s.revSpan?s.revSpan+'일':'','']);
     R.push(['지표','낮은 별점(3점 이하)',s.ratedN?s.lowN+'/'+s.ratedN:'','','']);
+    R.push(['지표','사진 있는 메뉴',s.menuImgN+'/'+s.menus.length,'','']);
+    R.push(['지표','가게 사진 최근 등록',s.shopLast?ym(s.shopLast):'','사진 주소의 날짜','']);
     ['time','reserve','wait','purpose','withs'].forEach(function(key){ var nm={time:'시간대',reserve:'예약',wait:'대기',purpose:'목적',withs:'함께'}[key]; Object.keys(s.ctx[key]).forEach(function(k){ R.push(['방문 특징',nm+': '+k,s.ctx[key][k],'','']); }); });
-    s.menus.forEach(function(m){ R.push(['메뉴',m.name,m.price||m.priceText||'',m.rep?'대표':'','']); });
+    s.menus.forEach(function(m){ R.push(['메뉴',m.name,m.price||m.priceText||'',(m.rep?'대표 ':'')+(m.img?'사진 '+m.img.o:''),m.img&&m.img.d?ymd(m.img.d):'']); });
+    shopPhotos(s).forEach(function(q){ R.push(['가게 사진',q.label,q.o,'',q.d?ymd(q.d):'']); });
     s.feed.forEach(function(f){ R.push(['소식',(f.label?'['+f.label+'] ':'')+f.title,'','',ymd(f.date)]); });
     s.reviews.forEach(function(r){ R.push(['리뷰',r.text.replace(/\n/g,' '),r.reply?'답글 있음':'답글 없음',[r.rating!=null?'별점 '+r.rating:'',r.visit?r.visit+'번째 방문':'',r.ctx].filter(Boolean).join(' / '),r.date?ymd(r.date):r.dateStr]); });
-    var csv = '﻿' + R.map(function(row){ return row.map(function(c){ c = String(c==null?'':c); return /[",\n]/.test(c) ? '"'+c.replace(/"/g,'""')+'"' : c; }).join(','); }).join('\r\n');
-    var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
-    var pad = function(n){ return String(n).padStart(2,'0'); };
-    a.download = '돋보기_'+s.name.replace(/[\\\/:*?"<>|\s&]+/g,'_')+'_'+s.at.getFullYear()+pad(s.at.getMonth()+1)+pad(s.at.getDate())+'.csv';
-    document.body.appendChild(a); a.click(); a.remove();
-    toast('CSV로 저장했습니다');
-  });
-  $('btnPrint').addEventListener('click', function(){ window.print(); });
+    csvOut(R, '돋보기_'+safeName(s.name)+'_'+ymd8(s.at)+'.csv');
+  }
+  function doPrint(land){
+    var st = null;
+    if (land){ st = document.createElement('style'); st.textContent = '@page{size:A4 landscape;margin:10mm}'; document.head.appendChild(st); }
+    var off = function(){ if (st) st.remove(); window.removeEventListener('afterprint', off); };
+    window.addEventListener('afterprint', off);
+    window.print();
+  }
 
-  fromHash();
-  window.__dotbogi = { receive: receive, parseStore: parseStore, bookmarklet: function(){ return BM; } };
+  readHash();
+  window.__dotbogi = { receive: receive, parseStore: parseStore, parseCmp: parseCmp, bookmarklet: function(){ return BM; }, W: W, zipBlob: zipBlob };
 })();
 </script>
 
