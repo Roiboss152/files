@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>밑그림 — 매장운영진단 기초자료 | KT 시너지영업3팀</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+/* 입구 v1.00 — 승인 코드를 확인한 뒤 본문을 문지기 워커(kt-gate)에서 받아 이 자리에 그린다.
+   이 파일에는 본문이 없다. 공개 저장소에는 이 파일만 올라간다 */
+:root{--paper:#fff;--panel:#F5F5F7;--ink:#201E1D;--sub:#6E6E73;--faint:#86868B;--accent:#EC3013;--accent-ink:#AE1800}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:#DCDCE1;color:var(--ink);font-family:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,sans-serif;
+  font-size:13px;line-height:1.6;word-break:keep-all;-webkit-font-smoothing:antialiased;display:grid;place-items:center;padding:24px}
+.card{width:min(420px,100%);background:rgba(255,255,255,.62);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,.8);border-radius:20px;padding:30px 24px 22px;box-shadow:0 30px 80px rgba(32,30,29,.20),inset 0 1px 0 rgba(255,255,255,.95)}
+.top{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.name{font-size:26px;font-weight:800;letter-spacing:-.03em;line-height:1}
+.ver{font-size:11px;color:#aaa}
+.tag{font-size:11px;color:var(--faint);margin-top:7px}
+.tag .en{color:var(--accent);font-weight:700;letter-spacing:.08em;margin-right:7px}
+.tag em{font-style:normal;color:var(--accent);font-weight:700}
+form{display:flex;gap:8px;margin-top:26px}
+input{flex:1;min-width:0;font:inherit;font-size:15px;color:var(--ink);background:rgba(233,233,236,.9);border:1px solid transparent;border-radius:12px;
+  padding:12px 15px;outline:none;box-shadow:inset 4px 4px 10px rgba(32,30,29,.10),inset -4px -4px 10px rgba(255,255,255,.92)}
+input:focus{box-shadow:inset 4px 4px 10px rgba(32,30,29,.12),inset -4px -4px 10px rgba(255,255,255,.92),0 0 0 4px rgba(236,48,19,.14)}
+button{font:inherit;font-size:14px;font-weight:600;border:0;border-radius:12px;padding:12px 18px;background:var(--ink);color:#fff;cursor:pointer;flex:none;
+  box-shadow:6px 6px 14px rgba(32,30,29,.24),-5px -5px 12px rgba(255,255,255,.7)}
+button:disabled{opacity:.5;cursor:default}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.msg{min-height:20px;margin:12px 0 0;font-size:12px;line-height:1.6;color:var(--sub)}
+.msg.err{color:var(--accent-ink);font-weight:600}
+.note{margin:14px 0 0;font-size:11.5px;line-height:1.55;color:var(--faint)}
+</style>
+</head>
+<body>
+<main class="card">
+  <div class="top"><div class="name">밑그림</div><div class="ver">입구 v1.00</div></div>
+  <div class="tag"><span class="en">SKETCH</span><em>밑</em>천이 되는 <em>그림</em></div>
+  <form id="f" autocomplete="off">
+    <input id="c" type="password" placeholder="승인 코드" aria-label="승인 코드" autocomplete="off" spellcheck="false" required>
+    <button id="b" type="submit">들어가기</button>
+  </form>
+  <p class="msg" id="m" role="status" aria-live="polite"></p>
+  <p class="note">승인 코드는 TF 관리자가 한 사람씩 발급합니다. 코드를 다른 사람과 나눠 쓰지 마세요 — 화면과 인쇄물에 이름이 남습니다.</p>
+</main>
+<script>
+(() => {
+  'use strict';
+  const GATE = 'https://kt-gate.roi0925003.workers.dev';   // 문지기 워커 주소 (끝에 / 없이)
+  const APP = 'sketch';
+  const KEY = 'tf.code', NAME = 'tf.name';
+  const $ = (id) => document.getElementById(id);
+  const say = (t, err) => { $('m').textContent = t || ''; $('m').className = 'msg' + (err ? ' err' : ''); };
+  const read = () => { try { return (localStorage.getItem(KEY) || '').trim(); } catch (_) { return ''; } };
+  const keep = (c, n) => { try { localStorage.setItem(KEY, c); if (n) localStorage.setItem(NAME, n); } catch (_) {} };
+  const forget = () => { try { localStorage.removeItem(KEY); localStorage.removeItem(NAME); } catch (_) {} };
+  if (/[?&#]out\b/.test(location.search + location.hash)) forget();       // 주소 끝에 ?out — 이 PC에서 코드 지우기
+
+  async function enter(code, auto) {
+    $('b').disabled = true;
+    say(auto ? '들어가는 중…' : '확인하는 중…');
+    try {
+      const a = await fetch(GATE + '/tf/auth', { method: 'POST', headers: { 'X-TF-Code': code }, cache: 'no-store' });
+      if (a.status === 401) {
+        forget(); $('c').value = '';
+        say(auto ? '승인 코드가 바뀌었거나 회수되었습니다. 새 코드를 넣어 주세요.' : '승인 코드가 맞지 않습니다.', true);
+        $('b').disabled = false; $('c').focus(); return;
+      }
+      if (!a.ok) throw new Error('문지기 서버 오류 (HTTP ' + a.status + ')');
+      const who = await a.json();
+      keep(code, who.name);
+      say((who.name ? who.name + ' 님, ' : '') + '여는 중…');
+      const r = await fetch(GATE + '/tf/app?f=' + encodeURIComponent(APP), { headers: { 'X-TF-Code': code }, cache: 'no-store' });
+      if (!r.ok) { let j = null; try { j = await r.json(); } catch (_) {} throw new Error((j && j.error) || ('본문을 받지 못했습니다 (HTTP ' + r.status + ')')); }
+      const html = await r.text();
+      window.__TF_GATE__ = GATE;                                         // 본문이 같은 주소의 문지기를 쓰게
+      document.open(); document.write(html); document.close();
+    } catch (e) {
+      const net = e instanceof TypeError;
+      say(net ? '문지기 서버에 연결하지 못했습니다. 회사망에서 주소가 막혔는지 확인해 주세요.' : (e && e.message) || String(e), true);
+      $('b').disabled = false;
+    }
+  }
+  $('f').addEventListener('submit', (e) => { e.preventDefault(); const c = $('c').value.trim(); if (c) enter(c, false); });
+  const saved = read();
+  if (saved) enter(saved, true); else setTimeout(() => $('c').focus(), 60);
+})();
+</script>
+</body>
+</html>
