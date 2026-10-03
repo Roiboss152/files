@@ -238,9 +238,13 @@ footer{margin-top:20px;color:var(--faint);font-size:12px;line-height:1.7}
      v1.03: 정면 기기는 창가 테이블 위 기기 사진(hiorder_frame_front_room.webp — 화면 칸이 반듯한 네모)으로 바꾼다.
             제안 전단 가운데 사진도 이 사진이 기본(로고는 기기 반대편 왼쪽) — 카페·흰 배경 기기도 그대로 고를 수 있다. 옛 정면 사진(hiorder_frame_front.webp)은 더 쓰지 않는다.
             kt 로고는 사이트 ai 폴더의 KT CI(KT_CI_BR01·KT_CI_W01)로 그린다 — 전에는 파일 이름이 달라 ‘kt’ 글자로 그려졌다. */
-  const API_BASE = 'https://kt.roi0925003.workers.dev';
+  const API_BASE = 'https://kt-gate.roi0925003.workers.dev';   // v1.04: 문지기 워커(kt-gate) — 승인 코드로 연결
+  const LIB_BASE = 'https://kt.roi0925003.workers.dev';        // 사진함 그림(/lib/img)은 지금처럼 열린 주소
   const PUBLIC_PASS = 'sk-bbwkqqcpjx4yty';   // 직원 공개용 토큰(밑그림·차림표와 같은 값) — 비밀번호가 아니다
-  const PAGE_VERSION = 'v1.03';
+  const PAGE_VERSION = 'v1.04';
+  /* v1.04: 승인 코드 — 밑그림 입구에서 넣은 코드를 읽기만 한다. 없으면 한 번 묻는다 */
+  let TF_CODE = '';
+  async function tfCode(){ if (TF_CODE) return TF_CODE; try { TF_CODE = (localStorage.getItem('tf.code') || '').trim(); } catch (_) {} if (!TF_CODE) TF_CODE = (window.prompt('승인 코드를 넣어 주세요 — TF 관리자가 발급합니다') || '').trim(); return TF_CODE; }
   const IMG_BASE = 'https://kt-img.roi0925003.workers.dev';   // v1.01: 배민 메뉴 사진 중계(kt-img). v1.02: 중계 서버 v1.45부터는 /img가 배민 사진도 받아, 옛 서버일 때만 쓴다
   const FEW_MENUS = 5;   // v1.02: 네이버 메뉴판이 이보다 적으면 주문 메뉴·카카오맵 메뉴로 채워 본다
   const EXT_IMG_HOSTS = ['imagefarm.baemin.com'];
@@ -305,7 +309,7 @@ footer{margin-top:20px;color:var(--faint);font-size:12px;line-height:1.7}
     const t = setTimeout(() => ctrl.abort(), timeout);
     let res;
     try {
-      res = await fetch(API_BASE + path, { method, cache: 'no-store', signal: ctrl.signal, headers: Object.assign({ 'X-Team-Pass': PUBLIC_PASS }, body ? { 'Content-Type': 'application/json' } : {}), body: body ? JSON.stringify(body) : undefined });
+      res = await fetch(API_BASE + path, { method, cache: 'no-store', signal: ctrl.signal, headers: Object.assign({ 'X-TF-Code': await tfCode() }, body ? { 'Content-Type': 'application/json' } : {}), body: body ? JSON.stringify(body) : undefined });
     } catch (e) {
       throw new Error(e && e.name === 'AbortError' ? '응답이 너무 늦습니다. 잠시 뒤 다시 해 주세요.' : '중계 서버에 연결하지 못했습니다. 인터넷 연결이나 회사 PC 차단을 확인해 주세요.');
     } finally { clearTimeout(t); }
@@ -566,7 +570,7 @@ footer{margin-top:20px;color:var(--faint);font-size:12px;line-height:1.7}
     const got = (m) => { const p = m.url && M.photos.get(m.url); return Boolean(p && p.bmp); };   // v1.01: 사진 주소가 있어도 못 받았으면 사진함으로 채운다
     const todo = M.menus.filter((m) => !got(m)).map((m) => [m, find(m.name)]).filter((x) => x[1]);
     for (const [m, it] of todo) {
-      const url = `${API_BASE}/lib/img?id=${encodeURIComponent(it.id)}&v=${it.ver || 0}`;
+      const url = `${LIB_BASE}/lib/img?id=${encodeURIComponent(it.id)}&v=${it.ver || 0}`;
       if (!M.photos.has(url)) {
         try { const res = await fetch(url, { cache: 'force-cache' }); const bmp = res.ok ? await decode(await res.blob()) : null; M.photos.set(url, bmp ? { bmp } : null); } catch (_) { M.photos.set(url, null); }
       }
