@@ -813,9 +813,10 @@ footer{margin-top:22px;color:var(--muted);font-size:14px;line-height:1.7}
   const API_BASE = 'https://kt-gate.roi0925003.workers.dev';   // v1.05: 문지기 워커(kt-gate) — 승인 코드로 연결 (본부장 지시 · TF만)
   const LIB_BASE = 'https://kt.roi0925003.workers.dev';        // 사진함 그림(/lib/img)은 지금처럼 열린 주소에서 받는다
   const PUBLIC_PASS = 'sk-bbwkqqcpjx4yty';   // 직원 공개용 토큰 — 비밀번호가 아니다(밑그림과 같은 값). 중계 서버의 PUBLIC_PASS와 같아야 한다
-  const PAGE_VERSION = 'v1.05';
+  const PAGE_VERSION = 'v1.06';   // v1.06 (2026-10-05): 문지기 v1.16 — 기기 번호(X-TF-Dev)를 같이 보낸다
   /* v1.05: 승인 코드 — 밑그림 입구에서 넣은 코드를 읽기만 한다(이 페이지는 아무것도 저장하지 않는다). 없으면 한 번 묻고 이 페이지를 닫으면 잊는다 */
   let TF_CODE = '';
+  const TF_DEV = (() => { let d = ''; try { d = localStorage.getItem('tf.dev') || ''; } catch (_) {} if (/^[A-Za-z0-9_-]{16,64}$/.test(d)) return d; try { const a = new Uint8Array(15); crypto.getRandomValues(a); d = 'd' + Array.from(a, (x) => x.toString(36).padStart(2, '0')).join('').slice(0, 24); } catch (_) { d = 'd' + Math.random().toString(36).slice(2, 14) + Date.now().toString(36); } try { localStorage.setItem('tf.dev', d); } catch (_) {} return d; })();   // v1.06: 기기 번호 — 문지기 v1.16(코드 하나에 기기 3대 · 틀린 코드 잠금)
   async function tfCode(){ if (TF_CODE) return TF_CODE; try { TF_CODE = (localStorage.getItem('tf.code') || '').trim(); } catch (_) {} if (!TF_CODE) TF_CODE = (window.prompt('승인 코드를 넣어 주세요 — TF 관리자가 발급합니다') || '').trim(); return TF_CODE; }
   const IMG_BASE = 'https://kt-img.roi0925003.workers.dev';   // v1.02: 배민 메뉴 사진 중계(kt-img). v1.03: 중계 서버 v1.45부터는 /img가 배민 사진도 받아, 옛 서버일 때만 쓴다
   const FEW_MENUS = 5;   // v1.03: 네이버 메뉴판이 이보다 적으면 주문 메뉴·카카오맵 메뉴로 채워 본다
@@ -893,7 +894,7 @@ footer{margin-top:22px;color:var(--muted);font-size:14px;line-height:1.7}
     try {
       res = await fetch(API_BASE + path, {
         method, cache: 'no-store', signal: ctrl.signal,
-        headers: Object.assign({ 'X-TF-Code': await tfCode() }, body ? { 'Content-Type': 'application/json' } : {}),
+        headers: Object.assign({ 'X-TF-Code': await tfCode(), 'X-TF-Dev': TF_DEV }, body ? { 'Content-Type': 'application/json' } : {}),
         body: body ? JSON.stringify(body) : undefined,
       });
     } catch (e) {

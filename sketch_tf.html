@@ -8,8 +8,10 @@
 <title>밑그림 AI — 매장운영진단 기초자료 | KT 시너지영업3팀</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
-/* 입구 v1.00 — 승인 코드를 확인한 뒤 본문을 문지기 워커(kt-gate)에서 받아 이 자리에 그린다.
-   이 파일에는 본문이 없다. 공개 저장소에는 이 파일만 올라간다 */
+/* 입구 v1.02 — 승인 코드를 확인한 뒤 본문을 문지기 워커(kt-gate)에서 받아 이 자리에 그린다.
+   이 파일에는 본문이 없다. 공개 저장소에는 이 파일만 올라간다.
+   v1.02 (2026-10-05, 문지기 v1.16과 함께): 이 브라우저의 기기 번호(localStorage 'tf.dev')를 같이 보낸다 — 코드 하나에 기기 3대 · 틀린 코드 5번이면 이 브라우저만 30분 잠금.
+   잠김·밀려남·코드 잠금·옛 화면 안내를 문지기가 준 말 그대로 보여 주고, 그때는 기억해 둔 코드를 지우지 않는다(관리자가 풀면 그대로 들어온다) */
 :root{--paper:#fff;--panel:#F5F5F7;--ink:#201E1D;--sub:#6E6E73;--faint:#86868B;--accent:#EC3013;--accent-ink:#AE1800}
 *{box-sizing:border-box}
 html,body{margin:0;height:100%}
@@ -39,43 +41,60 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 </head>
 <body>
 <main class="card">
-  <div class="top"><div class="name">밑그림<span class="ai">AI</span></div><div class="ver">입구 v1.01</div></div>
+  <div class="top"><div class="name">밑그림<span class="ai">AI</span></div><div class="ver">입구 v1.02</div></div>
   <div class="tag"><span class="en">SKETCH</span><em>밑</em>천이 되는 <em>그림</em></div>
   <form id="f" autocomplete="off">
     <input id="c" type="password" placeholder="승인 코드" aria-label="승인 코드" autocomplete="off" spellcheck="false" required>
     <button id="b" type="submit">들어가기</button>
   </form>
   <p class="msg" id="m" role="status" aria-live="polite"></p>
-  <p class="note">승인 코드는 TF 관리자가 한 사람씩 발급합니다. 코드를 다른 사람과 나눠 쓰지 마세요 — 화면과 인쇄물에 이름이 남습니다.</p>
+  <p class="note">승인 코드는 TF 관리자가 한 사람씩 발급합니다. 코드를 다른 사람과 나눠 쓰지 마세요 — 화면과 인쇄물에 이름이 남고, 코드 하나에 기기는 3대까지입니다.</p>
 </main>
 <script>
 (() => {
   'use strict';
   const GATE = 'https://kt-gate.roi0925003.workers.dev';   // 문지기 워커 주소 (끝에 / 없이)
   const APP = 'sketch';
-  const KEY = 'tf.code', NAME = 'tf.name';
+  const KEY = 'tf.code', NAME = 'tf.name', DEVK = 'tf.dev';
   const $ = (id) => document.getElementById(id);
   const say = (t, err) => { $('m').textContent = t || ''; $('m').className = 'msg' + (err ? ' err' : ''); };
   const read = () => { try { return (localStorage.getItem(KEY) || '').trim(); } catch (_) { return ''; } };
   const keep = (c, n) => { try { localStorage.setItem(KEY, c); if (n) localStorage.setItem(NAME, n); } catch (_) {} };
   const forget = () => { try { localStorage.removeItem(KEY); localStorage.removeItem(NAME); } catch (_) {} };
   if (/[?&#]out\b/.test(location.search + location.hash)) forget();       // 주소 끝에 ?out — 이 PC에서 코드 지우기
+  /* v1.02: 기기 번호 — 이 브라우저에 한 번 만들어 둔다. 지문·쿠키가 아니라 무작위 번호 하나다 */
+  const DEV = (() => { let d = ''; try { d = localStorage.getItem(DEVK) || ''; } catch (_) {}
+    if (/^[A-Za-z0-9_-]{16,64}$/.test(d)) return d;
+    try { const a = new Uint8Array(15); crypto.getRandomValues(a); d = 'd' + Array.from(a, (x) => x.toString(36).padStart(2, '0')).join('').slice(0, 24); }
+    catch (_) { d = 'd' + Math.random().toString(36).slice(2, 14) + Date.now().toString(36); }
+    try { localStorage.setItem(DEVK, d); } catch (_) {}
+    return d; })();
+  const H = (code) => ({ 'X-TF-Code': code, 'X-TF-Dev': DEV });
 
   async function enter(code, auto) {
     $('b').disabled = true;
     say(auto ? '들어가는 중…' : '확인하는 중…');
     try {
-      const a = await fetch(GATE + '/tf/auth', { method: 'POST', headers: { 'X-TF-Code': code }, cache: 'no-store' });
+      const a = await fetch(GATE + '/tf/auth', { method: 'POST', headers: H(code), cache: 'no-store' });
+      let who = null; try { who = await a.json(); } catch (_) {}
       if (a.status === 401) {
         forget(); $('c').value = '';
-        say(auto ? '승인 코드가 바뀌었거나 회수되었습니다. 새 코드를 넣어 주세요.' : '승인 코드가 맞지 않습니다.', true);
+        say(auto ? '승인 코드가 바뀌었거나 회수되었습니다. 새 코드를 넣어 주세요.' : ((who && who.error) || '승인 코드가 맞지 않습니다.'), true);
         $('b').disabled = false; $('c').focus(); return;
       }
-      if (!a.ok) throw new Error('문지기 서버 오류 (HTTP ' + a.status + ')');
-      const who = await a.json();
+      /* v1.02: 잠김(틀린 코드 5번) · 밀려남(4대째 기기) · 코드 잠금(새 기기가 너무 잦음) · 옛 화면 — 문지기가 준 말 그대로, 기억한 코드는 둔다 */
+      if (who && (who.locked || who.evicted || who.codeLocked || who.needReload || who.ipLocked)) {
+        if (who.locked || who.ipLocked) { $('c').value = ''; }
+        say(who.error || '지금은 들어갈 수 없습니다.', true); $('b').disabled = false; return;
+      }
+      if (!a.ok || !who) throw new Error((who && who.error) || ('문지기 서버 오류 (HTTP ' + a.status + ')'));
       keep(code, who.name);
-      say((who.name ? who.name + ' 님, ' : '') + '여는 중…');
-      const r = await fetch(GATE + '/tf/app?f=' + encodeURIComponent(APP), { headers: { 'X-TF-Code': code }, cache: 'no-store' });
+      const dv = who.dev || null;
+      const note = dv && dv.pushed ? '새 기기로 등록했습니다 — 가장 오래 안 쓴 기기(' + dv.pushed + ')는 이제 못 들어갑니다. 본인 기기가 아니면 관리자에게 알려 주세요.'
+        : dv && dv.newDev ? '새 기기로 등록했습니다 (' + dv.n + '/' + dv.limit + '대).' : '';
+      say((who.name ? who.name + ' 님, ' : '') + (note ? note + ' ' : '') + '여는 중…');
+      if (dv && dv.pushed) await new Promise((r) => setTimeout(r, 2600));   // 밀려난 기기 안내는 읽을 시간을 준다
+      const r = await fetch(GATE + '/tf/app?f=' + encodeURIComponent(APP), { headers: H(code), cache: 'no-store' });
       if (!r.ok) { let j = null; try { j = await r.json(); } catch (_) {} throw new Error((j && j.error) || ('본문을 받지 못했습니다 (HTTP ' + r.status + ')')); }
       const html = await r.text();
       window.__TF_GATE__ = GATE;                                         // 본문이 같은 주소의 문지기를 쓰게
