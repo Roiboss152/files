@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>필름 스튜디오 · KT 인천지사 시너지영업3팀</title>
-<meta name="description" content="기획·촬영·편집에 AI 영상 생성까지, 시너지영업3팀이 직접 만든 영상입니다. 밑그림 소개 영상과 협약식장·사내 행사·매장 단말·옥외 전광판에서 상영한 영상을 모았습니다.">
+<meta name="description" content="기획·촬영·편집에 AI 영상 생성까지, 시너지영업3팀이 직접 만든 영상입니다. 밑그림·하이오더 소개 영상과 협약식장·사내 행사·매장 단말·옥외 전광판에서 상영한 영상을 모았습니다.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="필름 스튜디오 · KT 인천지사 시너지영업3팀">
-<meta property="og:description" content="밑그림 소개 영상 — 매장을 먼저 읽는 영업. 협약식장·사내 행사·매장 단말·옥외 전광판에서 상영한 영상도 함께 모았습니다.">
+<meta property="og:description" content="밑그림 소개 영상 — 매장을 먼저 읽는 영업. 하이오더 소개 영상 — 부르지 않아도 되는 가게, 뛰지 않아도 되는 점심. 협약식장·사내 행사·매장 단말·옥외 전광판에서 상영한 영상도 함께 모았습니다.">
 <meta property="og:image" content="https://kt-synergy.com/assets/image/files/thum05.jpg">
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 <style>
@@ -202,6 +202,13 @@ a{color:inherit}
   gap:24px 44px; align-items:start;
 }
 .feature-body .screened{grid-column:1 / -1; margin-top:4px}
+/* 메인 영상 카드가 이어질 때 사이 간격 */
+.wrap > .reel + .reel{margin-top:40px}
+
+/* 직접 올린 영상(mp4) — 누르면 썸네일 자리에서 바로 재생 */
+.stage--video{cursor:default}
+.stage--video::after{display:none}
+.stage video{width:100%; height:100%; display:block; background:#000; object-fit:contain}
 
 /* 밑그림 바로 가기 */
 .sketch-cta{
@@ -231,6 +238,7 @@ a{color:inherit}
   font-family:var(--mono); font-size:.68rem; letter-spacing:.4px; color:var(--text-3);
   overflow-wrap:anywhere;
 }
+.sketch-cta .url .nw{white-space:nowrap} /* 긴 주소는 / 에서만 줄바꿈 */
 
 /* ── 지난 작품 ── */
 .section-label{
@@ -280,6 +288,7 @@ a{color:inherit}
   .stage--paper .play{left:14px; bottom:12px; gap:8px; padding:8px 15px 8px 12px}
   .play-label{font-size:.8rem}
   .section-label{margin-top:64px}
+  .wrap > .reel + .reel{margin-top:28px}
   .sub-grid{gap:24px; margin-top:20px}
 }
 @media (max-width:520px){
@@ -309,7 +318,7 @@ a{color:inherit}
 <main class="wrap">
 
   <section class="hero reveal">
-    <h1>Film <span class="shim">Studio</span> <span class="page-ver">v1.10</span></h1>
+    <h1>Film <span class="shim">Studio</span> <span class="page-ver">v1.20</span></h1>
     <p class="hero-desc">
       필요한 영상은, 직접 만듭니다 — 기획·촬영·편집에 이제는 AI 영상 생성까지 시너지영업3팀 안에서 해결합니다.
       협약식장·사내 행사·매장 단말·옥외 전광판에서 상영한 영상과, 팀이 만든 도구를 소개하는 영상을 모았습니다.
@@ -358,6 +367,54 @@ a{color:inherit}
       </aside>
       <div class="screened">
         <span><b>제작</b> 시너지영업3팀 콘티·AI 영상 생성·편집</span>
+      </div>
+    </div>
+  </article>
+
+  <!-- 하이오더 소개 영상 (v1.20 신작) — 저장소에 직접 올린 mp4, 누르면 이 자리에서 재생 -->
+  <article class="reel reveal">
+    <button class="stage stage--paper" type="button" data-src="assets/video/hiorder_intro.mp4" aria-label="하이오더 소개 영상 재생">
+      <img src="assets/image/files/thum06.webp" loading="lazy" decoding="async"
+           onerror="this.onerror=null;this.src='assets/image/files/thum06.jpg';"
+           alt="하이오더 소개 영상 — 점심 피크 13:00, 손님들의 「여기요!!」 사이로 뛰어다니는 직원">
+      <span class="play" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
+        <span class="play-label">영상 보기</span>
+      </span>
+      <span class="runtime">36초</span>
+    </button>
+    <div class="reel-body feature-body">
+      <div>
+        <span class="reel-role"><em class="new-tag">NEW</em>서비스 소개 영상</span>
+        <h2>하이오더 소개 영상</h2>
+        <p>
+          점심 피크 30분, 손님의 「여기요!」에 직원 한 명이 얼마나 뛰어다니는지 매장 도면 위에 그렸습니다.
+          뛸수록 붉어지던 직원이 지쳐 쓰러지면, 그 빨강이 테이블 위 하이오더로 옮겨 갑니다.
+          하이오더가 들어간 같은 점심에는 손님이 앉은 자리에서 주문하고, 물 한 잔도 눈치 보지 않고 부르며, 말이 안 통해도 주문이 통합니다.
+          주문은 받아 적지 않아도 빠짐없이 주방에 들어가고, 음식은 서빙로봇이 나릅니다.
+        </p>
+        <ul class="chips">
+          <li>직원 동선</li>
+          <li>자리에서 주문</li>
+          <li>직원 호출</li>
+          <li>외국어 메뉴</li>
+          <li>주방 프린터</li>
+          <li>서빙로봇</li>
+        </ul>
+        <p class="reel-quote">“부르지 않아도 되는 가게, 뛰지 않아도 되는 점심”</p>
+      </div>
+      <aside class="sketch-cta" aria-label="하이오더 쇼룸 바로 가기">
+        <span class="kicker">HIORDER</span>
+        <strong>하이오더 쇼룸</strong>
+        <span class="sub">기능·도입 사례</span>
+        <a class="sketch-btn" href="./document/showroom/appweb.html">
+          쇼룸 열기
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </a>
+        <span class="url"><span class="nw">kt-synergy.com/document/</span><wbr><span class="nw">showroom/appweb.html</span></span>
+      </aside>
+      <div class="screened">
+        <span><b>제작</b> 시너지영업3팀 기획·AI 모션그래픽·효과음</span>
       </div>
     </div>
   </article>
@@ -523,9 +580,31 @@ function buildFrame(stage, id, jsapi) {
   return f;
 }
 
+// 저장소에 직접 올린 영상(mp4) — 유튜브를 거치지 않고 썸네일 자리에서 바로 재생
+// 버튼 안에 컨트롤 달린 video를 넣으면 클릭이 엉키므로 같은 크기의 div로 바꿔 넣는다
+function playFile(stage) {
+  var img = stage.querySelector('img');
+  var box = document.createElement('div');
+  box.className = 'stage stage--video';
+  var v = document.createElement('video');
+  v.src = stage.dataset.src;
+  v.controls = true;
+  v.playsInline = true;
+  v.setAttribute('playsinline', '');
+  v.preload = 'auto';
+  if (img) v.poster = img.currentSrc || img.src;
+  v.setAttribute('aria-label', (stage.getAttribute('aria-label') || '영상').replace(/ 재생$/, ''));
+  box.appendChild(v);
+  stage.parentNode.replaceChild(box, stage);
+  var p = v.play();                              // 클릭 직후라 소리와 함께 재생됨
+  if (p && p.catch) p.catch(function () {});     // 막히더라도 컨트롤로 재생 가능
+  try { v.focus({ preventScroll: true }); } catch (_) {}
+}
+
 // 썸네일 클릭 시에만 플레이어를 삽입 — 초기 로딩 부담 제거
 document.querySelectorAll('.stage').forEach(function (stage) {
   stage.addEventListener('click', function () {
+    if (stage.dataset.src) { playFile(stage); return; }
     var id = stage.dataset.id;
     if (!id || stage.dataset.loaded) return;
     stage.dataset.loaded = '1';
