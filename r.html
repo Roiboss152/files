@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://cdn.jsdelivr.net; font-src https://cdn.jsdelivr.net data:; img-src https: data: blob:; connect-src https://kt-gate.roi0925003.workers.dev; base-uri 'none'; form-action 'none'">
+<title>매장 진단서 — KT 인천지사 시너지영업3팀</title>
+<meta name="description" content="우리 가게를 숫자와 손님 목소리로 정리한 매장 진단서입니다.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="매장 진단서">
+<meta property="og:description" content="우리 가게를 숫자와 손님 목소리로 정리했습니다 · KT 인천지사 시너지영업3팀">
+<meta property="og:image" content="https://kt-synergy.com/ai/og-report.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+/* 공유 진단서 보기 r1.00 — 밑그림 v4.00의 카톡 공유 링크(?k=)를 연다. 이 파일에는 진단서 내용이 없다. 링크는 만든 날부터 120일 동안 열린다 */
+:root{--ink:#201E1D;--sub:#6E6E73;--faint:#86868B;--accent:#E8331C}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:#F4F2EE;color:var(--ink);font-family:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,sans-serif;-webkit-font-smoothing:antialiased;word-break:keep-all}
+.wait{min-height:100vh;display:grid;place-items:center;padding:24px;text-align:center}
+.wait b{display:block;font-size:22px;font-weight:800;letter-spacing:-.02em}
+.wait p{margin:10px 0 0;font-size:14px;line-height:1.6;color:var(--sub)}
+.wait .dot{display:inline-block;width:9px;height:9px;margin-right:8px;border-radius:50%;background:var(--accent);animation:p 1s ease-in-out infinite alternate;vertical-align:1px}
+@keyframes p{to{opacity:.25}}
+.wait.err .dot{animation:none}
+#f{display:block;width:100%;height:100vh;border:0;background:#F4F2EE}
+.foot{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;justify-content:center;padding:18px 16px 34px;font-size:12.5px;line-height:1.6;color:var(--faint);text-align:center}
+.foot .ver{font-size:11px;color:#aaa}
+.foot button{font:inherit;font-size:12.5px;font-weight:600;color:var(--ink);background:#fff;border:1px solid #D9D6D0;border-radius:999px;padding:5px 14px;cursor:pointer}
+[hidden]{display:none!important}
+@media print{.foot{display:none}}
+</style>
+</head>
+<body>
+<div class="wait" id="wait"><div><b><span class="dot"></span><span id="wt">매장 진단서를 여는 중</span></b><p id="wp">잠시만 기다려 주세요.</p></div></div>
+<iframe id="f" title="매장 진단서" sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-modals" scrolling="no" hidden></iframe>
+<div class="foot" id="foot" hidden><span id="ft"></span><button type="button" id="pr">인쇄</button><span class="ver">r1.00</span></div>
+<script>
+(() => {
+  'use strict';
+  const GATE = 'https://kt-gate.roi0925003.workers.dev';
+  const $ = (s) => document.getElementById(s);
+  const k = (new URLSearchParams(location.search).get('k') || '').trim();
+  const fail = (t, p) => { $('wait').classList.add('err'); $('wt').textContent = t; $('wp').textContent = p || ''; document.title = t; };
+  if (!/^[A-Za-z0-9_-]{22}$/.test(k)) { fail('링크 주소가 잘렸습니다', '받은 메시지의 주소를 처음부터 끝까지 다시 눌러 주세요.'); return; }
+  let dev = ''; try { dev = localStorage.getItem('tf.dev') || ''; } catch (_) {}
+  const H = /^[A-Za-z0-9_-]{16,64}$/.test(dev) ? { 'X-TF-Dev': dev } : {};
+  const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  function clean(html) {
+    const doc = new DOMParser().parseFromString('<!doctype html><html><body>' + String(html || '') + '</body></html>', 'text/html');
+    doc.querySelectorAll('script,noscript,iframe,frame,frameset,object,embed,applet,portal,form,input,button,textarea,select,option,meta,link,base,dialog,template').forEach((e) => e.remove());
+    doc.querySelectorAll('*').forEach((e) => {
+      [...e.attributes].forEach((a) => {
+        const n = a.name.toLowerCase(), v = a.value || '';
+        if (n.startsWith('on') || n === 'srcdoc' || n === 'formaction' || n === 'action' || n === 'contenteditable') e.removeAttribute(a.name);
+        else if (/^(href|xlink:href|src|poster|background|data)$/.test(n) && /^\s*(javascript|vbscript|data:text\/html)/i.test(v)) e.removeAttribute(a.name);
+        else if (n === 'style' && /expression\s*\(|javascript:|behavior\s*:/i.test(v)) e.removeAttribute(a.name);
+      });
+    });
+    doc.querySelectorAll('a').forEach((a) => { const h = a.getAttribute('href') || ''; if (/^https?:\/\//i.test(h)) { a.setAttribute('target', '_blank'); a.setAttribute('rel', 'noopener noreferrer'); } else a.removeAttribute('href'); });
+    doc.querySelectorAll('use').forEach((u) => ['href', 'xlink:href'].forEach((n) => { const v = u.getAttribute(n); if (v && v.charAt(0) !== '#') u.removeAttribute(n); }));
+    return doc.body.innerHTML;
+  }
+  const safeCss = (c) => String(c || '').replace(/<\/?(style|script)/gi, '').replace(/expression\s*\(/gi, '(');
+  /* 틀 안에서는 화면 높이(vh)가 틀 높이가 되어 틀을 늘릴수록 표지가 같이 늘어난다 — 지금 화면 높이로 고정한다 */
+  const vh = Math.max(480, Math.min(1200, window.innerHeight || 800));
+  const VIEW_CSS = 'html,body{overflow:hidden!important}body{padding-bottom:8px}.phnote,.hv,.tp{display:none!important}'
+    + '.sec{opacity:1!important}a[target]{cursor:pointer}'
+    + '.cv{min-height:' + Math.round(vh * 0.78) + 'px!important}.cv2{min-height:' + Math.round(vh * 0.72) + 'px!important;padding:' + Math.round(vh * 0.06) + 'px 7% ' + Math.round(vh * 0.08) + 'px!important}';
+  function draw(j, exp) {
+    const fonts = (Array.isArray(j.fonts) ? j.fonts : []).filter((h) => /^https:\/\/cdn\.jsdelivr\.net\//.test(h)).slice(0, 4);
+    const hs = /javascript:|expression\s*\(/i.test(String(j.htmlStyle || '')) ? '' : String(j.htmlStyle || '');
+    const doc = '<!doctype html><html lang="ko"' + (hs ? ' style="' + esc(hs) + '"' : '') + (j.motion ? ' data-motion="' + esc(j.motion) + '"' : '') + '><head><meta charset="utf-8">'
+      + '<meta name="viewport" content="width=device-width, initial-scale=1"><meta name="referrer" content="no-referrer">'
+      + fonts.map((h) => '<link rel="stylesheet" href="' + esc(h) + '">').join('')
+      + '<style>' + safeCss(j.css) + '</style><style>' + VIEW_CSS + '</style></head><body class="cust shv">' + clean(j.html) + '</body></html>';
+    const f = $('f');
+    f.addEventListener('load', () => { $('wait').hidden = true; f.hidden = false; $('foot').hidden = false; fit(); watch(); }, { once: true });
+    f.srcdoc = doc;
+    document.title = String(j.title || '매장 진단서');
+    const who = j.by && j.by.name ? '담당 ' + j.by.name + ' · ' : '';
+    $('ft').textContent = who + (j.by && j.by.team ? j.by.team : 'KT 인천지사 시너지영업3팀') + (exp ? ' · 이 링크는 ' + exp + '까지 열립니다' : '');
+  }
+  /* 틀 높이를 본문에 맞춘다 — 글꼴·사진이 늦게 들어와 길이가 바뀌어도 따라간다 */
+  function fit() {
+    const f = $('f');
+    try {
+      const d = f.contentDocument; if (!d || !d.body) return;
+      const pg = d.querySelector('main.page') || d.body, r = pg.getBoundingClientRect();   // 본문 끝까지 — 틀 높이에 끌려가지 않게(줄어들 때도 따라간다)
+      const h = Math.ceil(r.bottom) + 48;
+      if (h > 200 && Math.abs(f.offsetHeight - h) > 2) f.style.height = h + 'px';
+    } catch (_) {}
+  }
+  function watch() {
+    const f = $('f'); let n = 0; const t = setInterval(() => { fit(); if (++n > 40) clearInterval(t); }, 500);
+    try { const d = f.contentDocument; if ('ResizeObserver' in window && d && d.body) new ResizeObserver(fit).observe(d.body); } catch (_) {}
+    try { const d = f.contentDocument; d.querySelectorAll('img').forEach((im) => im.addEventListener('load', fit)); if (d.fonts && d.fonts.ready) d.fonts.ready.then(fit); } catch (_) {}
+    addEventListener('resize', () => setTimeout(fit, 120), { passive: true });
+  }
+  $('pr').addEventListener('click', () => { try { $('f').contentWindow.focus(); $('f').contentWindow.print(); } catch (_) { print(); } });
+  fetch(GATE + '/pub/s?id=' + encodeURIComponent(k), { headers: H, cache: 'no-store', referrerPolicy: 'no-referrer', credentials: 'omit' })
+    .then((r) => r.json().catch(() => null).then((j) => ({ r, j })))
+    .then(({ r, j }) => {
+      if (!r.ok || !j) { if (r.status === 404) fail('기한이 지났거나 지운 링크입니다', '진단서 링크는 만든 날부터 120일 동안 열립니다. 담당자에게 새 링크를 받아 주세요.'); else fail('진단서를 열지 못했습니다', '잠시 뒤 다시 열어 주세요.'); return; }
+      draw(j, r.headers.get('x-share-exp') || '');
+    })
+    .catch(() => fail('진단서를 열지 못했습니다', '인터넷 연결을 확인하고 다시 열어 주세요.'));
+})();
+</script>
+</body>
+</html>
