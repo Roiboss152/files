@@ -13,7 +13,8 @@
    v1.02 (2026-10-05, 문지기 v1.16과 함께): 이 브라우저의 기기 번호(localStorage 'tf.dev')를 같이 보낸다 — 코드 하나에 기기 3대 · 틀린 코드 5번이면 이 브라우저만 30분 잠금.
    잠김·밀려남·코드 잠금·옛 화면 안내를 문지기가 준 말 그대로 보여 주고, 그때는 기억해 둔 코드를 지우지 않는다(관리자가 풀면 그대로 들어온다)
    v1.03 (2026-10-07, 문지기 v1.25와 함께): 주소 끝에 ?test 를 붙이면 테스트 페이지 — 비공개 저장소 test 칸의 본문을 받는다(관리자만).
-   입구와 본문 머리에 '테스트'를 빨갛게 붙여 실제 화면과 헷갈리지 않게 한다 */
+   입구와 본문 머리에 '테스트'를 빨갛게 붙여 실제 화면과 헷갈리지 않게 한다
+   v1.04 (2026-10-08): 직원과 대리점이 같이 쓰게 되어 안내의 'TF 관리자' → '관리자' */
 :root{--paper:#fff;--panel:#F5F5F7;--ink:#201E1D;--sub:#6E6E73;--faint:#86868B;--accent:#EC3013;--accent-ink:#AE1800}
 *{box-sizing:border-box}
 html,body{margin:0;height:100%}
@@ -44,14 +45,14 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 </head>
 <body>
 <main class="card">
-  <div class="top"><div class="name">밑그림<span class="ai">AI</span></div><div class="ver" id="ver">입구 v1.03</div></div>
+  <div class="top"><div class="name">밑그림<span class="ai">AI</span></div><div class="ver" id="ver">입구 v1.04</div></div>
   <div class="tag"><span class="en">SKETCH</span><em>밑</em>천이 되는 <em>그림</em></div>
   <form id="f" autocomplete="off">
     <input id="c" type="password" placeholder="승인 코드" aria-label="승인 코드" autocomplete="off" spellcheck="false" required>
     <button id="b" type="submit">들어가기</button>
   </form>
   <p class="msg" id="m" role="status" aria-live="polite"></p>
-  <p class="note">승인 코드는 TF 관리자가 한 사람씩 발급합니다. 코드를 다른 사람과 나눠 쓰지 마세요 — 화면과 인쇄물에 이름이 남고, 코드 하나에 기기는 3대까지입니다.</p>
+  <p class="note">승인 코드는 관리자가 한 사람씩 발급합니다. 코드를 다른 사람과 나눠 쓰지 마세요 — 화면과 인쇄물에 이름이 남고, 코드 하나에 기기는 3대까지입니다.</p>
 </main>
 <script>
 (() => {
@@ -59,7 +60,7 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
   const GATE = 'https://kt-gate.roi0925003.workers.dev';   // 문지기 워커 주소 (끝에 / 없이)
   const TEST = /[?&]test\b/.test(location.search);                 // v1.03: 테스트 페이지(관리자만 — 문지기가 가린다)
   const APP = TEST ? 'sketchtest' : 'sketch';
-  if (TEST) { const v = document.getElementById('ver'); if (v) { v.textContent = '입구 v1.03 · 테스트'; v.classList.add('test'); } document.title = '[테스트] ' + document.title; }
+  if (TEST) { const v = document.getElementById('ver'); if (v) { v.textContent = '입구 v1.04 · 테스트'; v.classList.add('test'); } document.title = '[테스트] ' + document.title; }
   const KEY = 'tf.code', NAME = 'tf.name', DEVK = 'tf.dev';
   const $ = (id) => document.getElementById(id);
   const say = (t, err) => { $('m').textContent = t || ''; $('m').className = 'msg' + (err ? ' err' : ''); };
