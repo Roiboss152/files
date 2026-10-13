@@ -9,7 +9,7 @@
 <title>참가 신청</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <!--
-  참가 신청 페이지 v1.04 (2026-10-13) — KT 소상공인 전문대리점 창업설명회 2기 신청 한 장. 초대장 모양.
+  참가 신청 페이지 v1.05 (2026-10-13) — KT 소상공인 전문대리점 창업설명회 2기 신청 한 장. 초대장 모양.
   받는 것: 이름·휴대전화(+선택 회차)·어떤 광고를 보고 오셨는지. 행사 안내 연락에만 쓰고 행사 후 N일 안에 파기. 쿠키·localStorage·광고 픽셀·분석 도구 없음.
   광고 주소 끝에 ?utm_source= 를 붙이면 어떤 광고를 보고 오셨는지 구분한다.
   채울 곳: 노란 점선 【 】 와 아래 CFG. CFG.applyUrl 이 비어 있으면 폼 없이 전화·1:1 채팅 안내만 보인다(주소 끝에 ?demo 를 붙이면 시험 화면).
@@ -116,6 +116,11 @@ h2{font-size:23px;font-weight:800;letter-spacing:-.025em;line-height:1.3}
 .prod div{padding:13px 0;border-bottom:1px solid var(--rule);font-weight:700}
 .prod div:nth-child(odd){border-right:1px solid var(--rule)}
 .prod div:nth-child(even){padding-left:14px}
+.prod div:nth-child(odd){padding-right:12px}
+.prod small{display:block;margin-top:4px;font-size:13px;font-weight:400;line-height:1.45;color:var(--ink2)}
+.prodnote{margin-top:12px;font-size:14px;color:var(--ink2)}
+.addr{display:block;margin-top:4px;font-size:13px;line-height:1.45;color:var(--ink2)}
+.map{display:inline-flex;align-items:center;min-height:44px;font-size:14px;font-weight:700;color:var(--red);text-decoration:underline}
 
 /* ── 신청: 빨간 면 위에 입장권 한 장 ── */
 #apply{position:relative;margin-top:56px;padding:40px 0 32px;background:var(--red);color:#fff;box-shadow:0 0 0 100vmax var(--red);clip-path:inset(0 -100vmax)}
@@ -181,7 +186,7 @@ footer p+p{margin-top:4px}
 
 <header class="top">
   <div class="in">
-    <div class="brandrow"><span class="logobox"><img class="logo" src="https://kt-synergy.com/ai/KT_CI_WR01.png" alt="KT" width="20" height="17"></span><div class="brand"><span data-v="eventShort"></span><span class="ver">v1.04</span></div></div>
+    <div class="brandrow"><span class="logobox"><img class="logo" src="https://kt-synergy.com/ai/KT_CI_WR01.png" alt="KT" width="20" height="17"></span><div class="brand"><span data-v="eventShort"></span><span class="ver">v1.05</span></div></div>
     <a class="btn-sm" href="#apply">신청하기</a>
   </div>
 </header>
@@ -199,7 +204,7 @@ footer p+p{margin-top:4px}
       </div>
       <dl class="slots">
         <div class="slot l"><dt>일시</dt><dd><span class="big">11월 4일(수)</span><br><small class="ph">【시작 시간】</small></dd></div>
-        <div class="slot"><dt>장소</dt><dd>KT 인천지사<br><small class="ph">【상세 주소·찾아오는 길】</small></dd></div>
+        <div class="slot"><dt>장소</dt><dd>KT 인천지사<br><small class="addr">인천 남동구 간석동 520-3<br>KT 인천지사 3층 대회의실</small><br><a class="map" href="https://map.naver.com/p/search/%EC%9D%B8%EC%B2%9C%20%EB%82%A8%EB%8F%99%EA%B5%AC%20%EA%B0%84%EC%84%9D%EB%8F%99%20520-3" target="_blank" rel="noopener">네이버 지도 보기 →</a></dd></div>
         <div class="slot wide"><dt>대상</dt><dd>창업을 생각하는 1인·청년, 그리고 기존 사업자</dd></div>
         <div class="slot l"><dt>참가비</dt><dd>무료 · 사은품</dd></div>
         <div class="slot"><dt>신청 마감</dt><dd>11월 2일(월)</dd></div>
@@ -263,7 +268,6 @@ footer p+p{margin-top:4px}
         <ul class="bul">
           <li>참가비 무료</li>
           <li>참가 사은품 증정</li>
-          <li><span class="ph">【그 밖의 혜택·제공 자료】</span></li>
         </ul>
       </div>
     </div>
@@ -283,12 +287,12 @@ footer p+p{margin-top:4px}
   <section class="sec" id="promo">
     <div class="head"><span class="mono" aria-hidden="true">05</span><h2>전문대리점이 다루는 상품</h2></div>
     <div class="prod">
-      <div>테이블오더</div>
-      <div>AI 서빙로봇</div>
-      <div>AI 전화</div>
-      <div>지능형 CCTV</div>
+      <div>테이블오더<small>손님이 자리에서 메뉴를 보고 바로 주문합니다.</small></div>
+      <div>AI 서빙로봇<small>주방에서 테이블까지 음식을 나릅니다.</small></div>
+      <div>AI 전화<small>가게로 온 전화를 AI가 받아 예약·문의에 답합니다.</small></div>
+      <div>지능형 CCTV<small>매장을 지켜보다 이상 상황을 알려 줍니다.</small></div>
     </div>
-    <p class="small mute" style="margin-top:10px"><span class="ph">【상품 한 줄 소개 — 기능 위주, 과장·한시 혜택 표현 없이】</span></p>
+    <p class="prodnote">모두 가게 일손을 덜고 운영을 돕는 KT의 소상공인 DX 상품입니다.</p>
   </section>
 
   <!-- 신청: 빨간 면 위 입장권 -->
@@ -334,7 +338,7 @@ footer p+p{margin-top:4px}
         <div class="done" id="done" hidden tabindex="-1">
           <span class="stamp" aria-hidden="true">접수</span>
           <h3>신청이 접수됐습니다</h3>
-          <p>입력하신 휴대전화번호로 행사 안내를 드립니다.</p>
+          <p>이틀 안에 입력하신 휴대전화번호로 개별 연락을 드립니다.</p>
           <p class="small">입력하신 정보는 행사 종료 후 <span data-v="destroyDays"></span>일 안에 파기됩니다. 중간에 지우고 싶으시면 <span data-v="contact"></span>로 알려 주세요.</p>
           <dl class="slots dslots">
             <div class="slot l"><dt>일시</dt><dd>11월 4일(수)<br><small class="ph">【시작 시간】</small></dd></div>
@@ -355,15 +359,15 @@ footer p+p{margin-top:4px}
     <div class="head"><span class="mono" aria-hidden="true">07</span><h2>자주 묻는 질문</h2></div>
     <details><summary>참가비가 있나요?</summary><div class="a"><p>참가비는 무료입니다. 참가 사은품도 드립니다.</p></div></details>
     <details><summary>신청은 언제까지 받나요?</summary><div class="a"><p>11월 2일(월)까지 받습니다. 설명회는 11월 4일(수) KT 인천지사에서 열립니다.</p></div></details>
-    <details><summary>창업 비용과 수입 방식은 어디서 알 수 있나요?</summary><div class="a"><p><span class="ph">【확인 후 입력 — 근거 있는 사실만】</span></p></div></details>
+    <details><summary>창업 비용과 수입 방식은 어디서 알 수 있나요?</summary><div class="a"><p>설명회에서 자세히 설명해 드립니다.</p></div></details>
     <details><summary>설명회에 가면 꼭 계약해야 하나요?</summary><div class="a"><p><span class="ph">【확인 후 입력】</span></p></div></details>
-    <details><summary>신청하면 어떻게 연락이 오나요?</summary><div class="a"><p>신청하신 휴대전화번호로 행사 안내를 드립니다. <span class="ph">【연락 방법·시점】</span></p></div></details>
+    <details><summary>신청하면 어떻게 연락이 오나요?</summary><div class="a"><p>신청하시면 이틀 안에 담당자가 휴대전화로 개별 연락을 드립니다.</p></div></details>
     <details><summary>행사가 끝난 뒤에도 연락이 오나요?</summary><div class="a"><p>아니요. 받은 정보는 이 행사 안내에만 쓰고 행사 뒤 지웁니다. 더 궁금하시면 <span data-v="contact"></span>로 먼저 연락 주세요.</p></div></details>
     <details><summary>신청을 취소하거나 정보를 지우고 싶어요.</summary><div class="a"><p><span data-v="contact"></span>로 알려 주시면 바로 지웁니다. 행사가 끝나면 알려 주지 않으셔도 <span data-v="destroyDays"></span>일 안에 모두 지웁니다.</p></div></details>
   </section>
 
   <footer>
-    <p>주관 <span class="ph">【주관 부서·단체】</span></p>
+    <p>주관 KT 인천지사</p>
     <p>문의 <span data-v="contact"></span></p>
     <p>이 페이지는 광고 픽셀이나 분석 도구를 쓰지 않습니다.</p>
 
@@ -372,11 +376,11 @@ footer p+p{margin-top:4px}
         <li><b>수집 항목</b>: 이름(닉네임 가능), 휴대전화번호, 희망 회차(회차를 고르는 경우), 어떤 광고를 보고 오셨는지(광고 주소로 구분하며, 개인을 알아보는 정보는 아닙니다).</li>
         <li><b>이용 목적</b>: 행사 참가 확인, 일정 안내와 변경 연락. 어떤 광고를 보고 오셨는지는 광고 효과를 세는 데에만 쓰고 이름·휴대전화번호와 함께 파기합니다. 이 밖의 마케팅이나 제3자 제공에는 쓰지 않습니다.</li>
         <li><b>보유·파기</b>: 행사 종료 후 <span data-v="destroyDays"></span>일 이내에 담당자 휴대폰의 신청 메시지와 다시 전달한 메시지, 휴대폰 알림 기록, 저장해 둔 연락처를 삭제합니다. 삭제한 날짜와 담당자를 기록합니다.</li>
-        <li><b>전달 경로</b>: 신청 내용은 접수 서버(Cloudflare)를 거쳐 담당자의 카카오톡과 휴대폰 알림으로 전달되고, 필요하면 행사 담당 직원에게 카카오톡으로 다시 전달합니다. 접수 서버는 신청 내용을 명단으로 저장하지 않으며, 접속 기록은 서버 운영상 남을 수 있습니다. 카카오톡 메시지는 카카오 서버를, 휴대폰 알림은 기기·브라우저 제공사의 알림 서비스를 거칩니다. <span class="ph">【국외 경유 고지 문구 — 개인정보 담당 확인】</span></li>
+        <li><b>전달 경로</b>: 신청 내용은 접수 서버(Cloudflare)를 거쳐 담당자의 카카오톡과 휴대폰 알림으로 전달되고, 필요하면 행사 담당 직원에게 카카오톡으로 다시 전달합니다. 접수 서버는 신청 내용을 명단으로 저장하지 않으며, 접속 기록은 서버 운영상 남을 수 있습니다. 카카오톡 메시지는 카카오 서버를, 휴대폰 알림은 기기·브라우저 제공사의 알림 서비스를 거칩니다.</li>
         <li><b>동의 거부</b>: 동의하지 않으실 수 있으며, 이 경우 이번 신청은 받을 수 없습니다.</li>
         <li><b>신청하신 분의 권리</b>: 열람·정정·삭제·처리정지는 문의처로 요청하시면 지체 없이 처리합니다.</li>
         <li><b>연령</b>: 만 14세 미만은 신청할 수 없습니다.</li>
-        <li><b>개인정보 담당</b>: <span class="ph">【담당 부서·연락처 — 부서 번호로】</span></li>
+        <li><b>개인정보 담당</b>: KT 인천지사 · <span data-v="contact"></span></li>
       </ol></div>
     </details>
   </footer>
