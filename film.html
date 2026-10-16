@@ -229,6 +229,12 @@ a{color:inherit}
 .tall-item figcaption{font-family:var(--mono); font-size:.72rem; font-weight:700; letter-spacing:2px; color:var(--text-2); padding-left:2px}
 .tall-pair .stage.stage--tall{width:clamp(170px,16vw,224px)}
 .tall-pair .runtime{top:10px; bottom:auto; right:10px} /* 좁은 화면에서 재생 버튼과 겹치지 않게 위로 */
+/* 가로 영상(16:9) 두 편 나란히 (v1.36) */
+.wide-pair{display:grid; grid-template-columns:1fr 1fr; gap:16px; padding:26px 26px 0}
+.wide-item{margin:0; display:flex; flex-direction:column; gap:10px; min-width:0}
+.wide-item figcaption{font-family:var(--mono); font-size:.72rem; font-weight:700; letter-spacing:2px; color:var(--text-2); padding-left:2px}
+.wide-item .stage{border-radius:12px; box-shadow:0 14px 36px rgba(0,0,0,.45), 0 0 0 1px rgba(255,255,255,.07)}
+.wide-item .runtime{top:10px; bottom:auto; right:10px}
 
 /* 밑그림 바로 가기 */
 .sketch-cta{
@@ -302,6 +308,8 @@ a{color:inherit}
   /* 두 편은 휴대폰에서도 반씩 나란히 */
   .tall-wrap.tall-pair{padding:22px 16px 0; gap:12px; justify-content:center}
   .tall-pair .stage.stage--tall{width:min(calc((100vw - 110px) / 2), 240px)}
+  /* 가로 두 편은 휴대폰에서 위아래로 */
+  .wide-pair{grid-template-columns:1fr; padding:20px 16px 0; gap:18px}
 }
 @media (max-width:768px){
   .topbar{padding:14px 20px}
@@ -345,7 +353,7 @@ a{color:inherit}
 <main class="wrap">
 
   <section class="hero reveal">
-    <h1>Film <span class="shim">Studio</span> <span class="page-ver">v1.35</span></h1>
+    <h1>Film <span class="shim">Studio</span> <span class="page-ver">v1.36</span></h1>
     <p class="hero-desc">
       필요한 영상은, 직접 만듭니다 — 기획·촬영·편집에 이제는 AI 영상 생성까지 시너지영업3팀 안에서 해결합니다.
       협약식장·사내 행사·매장 단말·옥외 전광판에서 상영한 영상과, 팀이 만든 도구를 소개하는 영상을 모았습니다.
@@ -415,6 +423,56 @@ a{color:inherit}
       <div class="screened">
         <span><b>상영</b> 인스타그램 릴스 광고</span>
         <span><b>제작</b> 시너지영업3팀 기획·타이포그래피 모션·효과음</span>
+      </div>
+    </div>
+  </article>
+
+  <!-- 참치락 하이오더 인트로 영상 2편 (v1.36 신작) — 가로 16:9 두 편 나란히, 저장소에 직접 올린 mp4 -->
+  <article class="reel reveal">
+    <div class="wide-pair">
+      <figure class="wide-item">
+        <button class="stage" type="button" data-src="assets/video/chamchirak_intro1.mp4?v=136" aria-label="참치락 하이오더 인트로 1편 재생">
+          <img src="assets/image/files/thum10.webp" loading="lazy" decoding="async"
+               onerror="this.onerror=null;this.src='assets/image/files/thum10.jpg';"
+               alt="참치락 인트로 1편 — 바닷속 참다랑어 위로 「깊은 바다의 참다랑어」 글자">
+          <span class="play" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
+          </span>
+          <span class="runtime">26초</span>
+        </button>
+        <figcaption>1편 · 참치락 인트로</figcaption>
+      </figure>
+      <figure class="wide-item">
+        <button class="stage" type="button" data-src="assets/video/chamchirak_intro2.mp4?v=136" aria-label="참치락 하이오더 인트로 2편 재생">
+          <img src="assets/image/files/thum11.webp" loading="lazy" decoding="async"
+               onerror="this.onerror=null;this.src='assets/image/files/thum11.jpg';"
+               alt="참치락 인트로 2편 — 참치 눈 접사 위로 「참치 눈물주」 글자">
+          <span class="play" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
+          </span>
+          <span class="runtime">19초</span>
+        </button>
+        <figcaption>2편 · 실장 테이블 서비스</figcaption>
+      </figure>
+    </div>
+    <div class="reel-body">
+      <span class="reel-role"><em class="new-tag">NEW</em>매장 단말 인트로 영상</span>
+      <h2>참치락 하이오더 인트로</h2>
+      <p>
+        청라 참치락의 하이오더 대기화면에 트는 영상입니다.
+        제미나이로 만든 바닷속 장면에 코드로 짠 글자 연출과 로고 애니메이션을 얹었습니다.
+        2편은 실장님이 테이블에서 즉석으로 만들어 주는 참치 눈물주를 앞세워, 손님이 태블릿의 「실장 호출」로 실장님을 찾게 만든 영상입니다.
+      </p>
+      <ul class="chips">
+        <li>매장 단말</li>
+        <li>소리 없음</li>
+        <li>반복 재생</li>
+        <li>AI 영상 + 코드 모션그래픽</li>
+      </ul>
+      <p class="reel-quote">“실장이 고객님의 테이블에서 즉석으로”</p>
+      <div class="screened">
+        <span><b>제작</b> 시너지영업3팀 기획 · AI 영상 생성 · 코드 모션그래픽</span>
+        <span><b>상영</b> 참치락 하이오더 대기화면</span>
       </div>
     </div>
   </article>
