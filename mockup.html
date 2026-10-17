@@ -240,8 +240,9 @@ footer{margin-top:20px;color:var(--faint);font-size:12px;line-height:1.7}
             kt 로고는 사이트 ai 폴더의 KT CI(KT_CI_BR01·KT_CI_W01)로 그린다 — 전에는 파일 이름이 달라 ‘kt’ 글자로 그려졌다. */
   const API_BASE = 'https://kt-gate.roi0925003.workers.dev';   // v1.04: 문지기 워커(kt-gate) — 승인 코드로 연결
   const LIB_BASE = 'https://kt.roi0925003.workers.dev';        // 사진함 그림(/lib/img)은 지금처럼 열린 주소
-  const PUBLIC_PASS = 'sk-bbwkqqcpjx4yty';   // 직원 공개용 토큰(밑그림·차림표와 같은 값) — 비밀번호가 아니다
-  const PAGE_VERSION = 'v1.05';   // v1.05 (2026-10-05): 문지기 v1.16 — 기기 번호(X-TF-Dev)를 같이 보낸다
+  const PUBLIC_PASS = '';   // 옛 공개용 토큰 — 값은 v1.06에서 지움(더 이상 쓰지 않음)
+  const PAGE_VERSION = 'v1.06';   // v1.06 (2026-10-18): 옛 공개용 토큰 값을 지움(수집 서버가 이미 받지 않는 값 · 사진 중계 kt-img는 없어진 워커)
+  // v1.05 (2026-10-05): 문지기 v1.16 — 기기 번호(X-TF-Dev)를 같이 보낸다
   /* v1.04: 승인 코드 — 밑그림 입구에서 넣은 코드를 읽기만 한다. 없으면 한 번 묻는다 */
   let TF_CODE = '';
   const TF_DEV = (() => { let d = ''; try { d = localStorage.getItem('tf.dev') || ''; } catch (_) {} if (/^[A-Za-z0-9_-]{16,64}$/.test(d)) return d; try { const a = new Uint8Array(15); crypto.getRandomValues(a); d = 'd' + Array.from(a, (x) => x.toString(36).padStart(2, '0')).join('').slice(0, 24); } catch (_) { d = 'd' + Math.random().toString(36).slice(2, 14) + Date.now().toString(36); } try { localStorage.setItem('tf.dev', d); } catch (_) {} return d; })();   // v1.05: 기기 번호 — 문지기 v1.16(코드 하나에 기기 3대 · 틀린 코드 잠금)

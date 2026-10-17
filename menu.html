@@ -810,10 +810,11 @@ footer{margin-top:22px;color:var(--muted);font-size:14px;line-height:1.7}
      v1.04: 사용자 중심 개편 — 55세 넘은 분도 읽기 쉽게 글씨·단추를 키우고(본문 16px·흐린 글씨 대비 4.5:1 이상), 위에 4단계 안내.
             메뉴명 밑 [설명 ▾]로 설명을 바로 보고 고친다 · 구분은 직접 입력 + ▾ 목록 · 사진을 누르면 자르기·넣기·빼기 메뉴 · 휴대폰은 카드(구분·가격도 보임).
             공통 사진함에 여러 장을 끌어다 놓아 올린다(확인 창 → 한 장씩 차례로 · 같은 이름은 체크해야 바꿈). 작업대는 좁은 화면에서 접어 둔다. */
-  const API_BASE = 'https://kt-gate.roi0925003.workers.dev';   // v1.05: 문지기 워커(kt-gate) — 승인 코드로 연결 (본부장 지시 · TF만)
+  const API_BASE = 'https://kt-gate.roi0925003.workers.dev';   // v1.05: 문지기 워커(kt-gate) — 승인 코드로 연결 (승인된 사람만)
   const LIB_BASE = 'https://kt.roi0925003.workers.dev';        // 사진함 그림(/lib/img)은 지금처럼 열린 주소에서 받는다
-  const PUBLIC_PASS = 'sk-bbwkqqcpjx4yty';   // 직원 공개용 토큰 — 비밀번호가 아니다(밑그림과 같은 값). 중계 서버의 PUBLIC_PASS와 같아야 한다
-  const PAGE_VERSION = 'v1.06';   // v1.06 (2026-10-05): 문지기 v1.16 — 기기 번호(X-TF-Dev)를 같이 보낸다
+  const PUBLIC_PASS = '';   // 옛 공개용 토큰 — 값은 v1.07에서 지움(더 이상 쓰지 않음)
+  const PAGE_VERSION = 'v1.07';   // v1.07 (2026-10-18): 옛 공개용 토큰 값을 지움(수집 서버가 이미 받지 않는 값 · 사진 중계 kt-img는 없어진 워커)
+  // v1.06 (2026-10-05): 문지기 v1.16 — 기기 번호(X-TF-Dev)를 같이 보낸다
   /* v1.05: 승인 코드 — 밑그림 입구에서 넣은 코드를 읽기만 한다(이 페이지는 아무것도 저장하지 않는다). 없으면 한 번 묻고 이 페이지를 닫으면 잊는다 */
   let TF_CODE = '';
   const TF_DEV = (() => { let d = ''; try { d = localStorage.getItem('tf.dev') || ''; } catch (_) {} if (/^[A-Za-z0-9_-]{16,64}$/.test(d)) return d; try { const a = new Uint8Array(15); crypto.getRandomValues(a); d = 'd' + Array.from(a, (x) => x.toString(36).padStart(2, '0')).join('').slice(0, 24); } catch (_) { d = 'd' + Math.random().toString(36).slice(2, 14) + Date.now().toString(36); } try { localStorage.setItem('tf.dev', d); } catch (_) {} return d; })();   // v1.06: 기기 번호 — 문지기 v1.16(코드 하나에 기기 3대 · 틀린 코드 잠금)
