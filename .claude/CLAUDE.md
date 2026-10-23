@@ -44,6 +44,7 @@
 | `calculator/cal.html` | 하이오더 통합 견적 계산기 |
 | `calculator/r_cal.html` | 서빙로봇(B02·T9) 견적 계산기 |
 | `document/QR_generator/QR-Studio.html` | QR·포스터 스튜디오 (네이버 플레이스 리뷰 QR) |
+| `document/QR_generator/qr-easy.html` | QR 포스터 만들기 — 3단계 쉬운 판. 업종별 배경 264장(`assets/image/qr_templates2/`)·사진으로 와이파이 자동 입력 |
 | `dx-assets.html` | 리플릿·자산 스튜디오 |
 | `wifi-gen/wifi.html` / `wifi-gen/wifi-generator.html` | 네이버 플레이스 와이파이 QR |
 | `contract.html` | 하이오더 전자계약 서명 |

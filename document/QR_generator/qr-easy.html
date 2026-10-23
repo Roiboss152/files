@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>QR 포스터 만들기 · KT 시너지영업3팀</title>
+<meta name="description" content="와이파이·네이버 리뷰·명함 QR을 세 단계로 만드는 포스터 도구">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+<style>
+:root{
+  color-scheme: dark;
+  --bg:#020204; --panel:#0b0c0f; --line:#1e2026; --line2:#2a2d35;
+  --text:#e8eaed; --sub:#a3a9b5; --mute:#6b7280;
+  --blue:#4facfe; --blue2:#2f8fe8; --ok:#3ecf8e; --warn:#ffb547; --bad:#ff6b6b;
+  --r:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--text);font-family:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+a{color:var(--blue)}
+.top{position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:space-between;height:48px;padding:0 20px;background:rgba(2,2,4,.86);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.top a{color:var(--sub);text-decoration:none;font-size:13px;font-weight:600}
+.top a:hover{color:var(--text)}
+.top .tag{font:500 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.18em;color:var(--mute)}
+.main{min-width:0}
+.pc-only{}.mo-only{display:none}
+.wrap{max-width:1180px;margin:0 auto;padding:36px 20px 120px;display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:48px;align-items:start}
+h1{font-size:30px;font-weight:800;letter-spacing:-.02em;line-height:1.25}
+h1 .ver{font-size:11px;font-weight:500;color:#aaa;letter-spacing:0;margin-left:8px;vertical-align:middle}
+.lead{color:var(--sub);margin:8px 0 28px}
+.step{padding:26px 0;border-top:1px solid var(--line)}
+.step h2{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:700;margin-bottom:16px}
+.step h2 .n{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--blue);color:#021;font-size:13px;font-weight:800}
+.step h2 small{font-size:13px;font-weight:500;color:var(--mute)}
+/* 1. 유형 */
+.types{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
+.types button{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 4px 12px;border:1px solid var(--line2);border-radius:var(--r);background:var(--panel);font-size:13px;font-weight:600;color:var(--sub);transition:border-color .15s,color .15s,background .15s}
+.types button svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.types button:hover{color:var(--text);border-color:#3a3e48}
+.types button[aria-pressed="true"]{color:#fff;border-color:var(--blue);background:rgba(79,172,254,.1)}
+/* 2. 정보 */
+.fields{display:none;grid-template-columns:1fr 1fr;gap:14px 14px}
+.fields.on{display:grid}
+.f{display:flex;flex-direction:column;gap:6px;min-width:0}
+.f.wide{grid-column:1/-1}
+.f label{font-size:13px;font-weight:600;color:var(--sub)}
+.f label em{font-style:normal;color:var(--blue);font-weight:700;margin-left:2px}
+.f label .opt{font-weight:500;color:var(--mute)}
+.f input,.f textarea{width:100%;padding:12px 14px;border:1px solid var(--line2);border-radius:var(--r);background:#07080b;outline:none;transition:border-color .15s,box-shadow .15s;font-size:15px}
+.f textarea{resize:vertical;min-height:72px}
+.f input:focus,.f textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(79,172,254,.15)}
+.f input.auto{border-color:var(--warn);box-shadow:0 0 0 3px rgba(255,181,71,.12)}
+.f .help{font-size:12.5px;color:var(--mute)}
+.f .help.ok{color:var(--ok)}.f .help.warn{color:var(--warn)}
+.pwrow{position:relative}
+.pwrow input{padding-right:64px}
+.pwrow button{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--sub);padding:6px 8px}
+.seg{display:inline-flex;border:1px solid var(--line2);border-radius:var(--r);overflow:hidden}
+.seg button{padding:9px 14px;font-size:13px;font-weight:600;color:var(--sub);border-right:1px solid var(--line2)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:rgba(79,172,254,.14);color:#fff}
+/* 사진으로 채우기 */
+.photo{grid-column:1/-1;display:flex;align-items:center;gap:14px;padding:14px 16px;border:1px dashed #3a3e48;border-radius:var(--r);background:#07080b}
+.photo .ic{flex:none;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:rgba(79,172,254,.12)}
+.photo .ic svg{width:20px;height:20px;stroke:var(--blue);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.photo .tx{flex:1;min-width:0}
+.photo .tx b{display:block;font-size:14px}
+.photo .tx span{font-size:12.5px;color:var(--mute)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 16px;border-radius:var(--r);font-weight:700;font-size:14px;white-space:nowrap}
+.btn.pri{background:var(--blue);color:#02121f}
+.btn.pri:hover{background:#6bbcff}
+.btn.sec{border:1px solid var(--line2);color:var(--text);background:var(--panel)}
+.btn.sec:hover{border-color:#3a3e48}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.ocrmsg{grid-column:1/-1;display:none;padding:12px 14px;border-radius:var(--r);font-size:13.5px;background:#0d1520;border:1px solid #1d3550;color:#cfe6ff}
+.ocrmsg.on{display:block}
+.ocrmsg.warn{background:#1d160a;border-color:#4d3815;color:#ffdca3}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chip{padding:6px 10px;border:1px solid var(--line2);border-radius:999px;font-size:12.5px;color:var(--sub);background:var(--panel);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chip:hover{color:var(--text);border-color:var(--blue)}
+.chip[aria-pressed="true"]{color:#fff;border-color:var(--blue);background:rgba(79,172,254,.14)}
+/* 3. 그림 */
+.filters{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+.frow{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.frow::-webkit-scrollbar{display:none}
+.frow .chip{flex:none}
+.search{display:flex;gap:10px;align-items:center}
+.search input{flex:1;min-width:0;padding:10px 14px;border:1px solid var(--line2);border-radius:var(--r);background:#07080b;outline:none;font-size:14px}
+.search input:focus{border-color:var(--blue)}
+.search .cnt{font-size:12.5px;color:var(--mute);white-space:nowrap}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:10px;max-height:640px;overflow-y:auto;padding:2px 4px 4px 2px;overscroll-behavior:contain}
+.tile{position:relative;display:block;border-radius:8px;overflow:hidden;background:#111318;outline:2px solid transparent;outline-offset:2px;transition:outline-color .12s,transform .12s;text-align:left}
+.tile:hover{transform:translateY(-2px)}
+.tile[aria-pressed="true"]{outline-color:var(--blue)}
+.tile img,.tile .ph{display:block;width:100%;aspect-ratio:1240/1754;object-fit:cover;background:#15171d}
+.tile .ph{display:grid;place-items:center;color:var(--sub);font-size:12px;font-weight:600;text-align:center;padding:8px}
+.tile .ph svg{width:28px;height:28px;stroke:var(--sub);fill:none;stroke-width:1.6;margin-bottom:6px}
+.tile .nm{position:absolute;left:0;right:0;bottom:0;padding:16px 7px 6px;font-size:11.5px;font-weight:700;color:#fff;background:linear-gradient(transparent,rgba(0,0,0,.72));text-shadow:0 1px 2px rgba(0,0,0,.6)}
+.tile .nm i{font-style:normal;font-weight:500;opacity:.8}
+.tile .ck{position:absolute;top:6px;right:6px;width:20px;height:20px;border-radius:50%;background:var(--blue);display:none;place-items:center}
+.tile[aria-pressed="true"] .ck{display:grid}
+.tile .ck svg{width:12px;height:12px;stroke:#02121f;stroke-width:3;fill:none}
+.empty{grid-column:1/-1;padding:28px 0;text-align:center;color:var(--mute);font-size:13.5px}
+/* 더 꾸미기 */
+details.more{border-top:1px solid var(--line);padding:22px 0}
+details.more summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;font-size:16px;font-weight:700;color:var(--sub)}
+details.more summary::-webkit-details-marker{display:none}
+details.more summary::before{content:'';width:8px;height:8px;border-right:2px solid var(--sub);border-bottom:2px solid var(--sub);transform:rotate(-45deg);transition:transform .15s;margin:0 6px 0 4px}
+details.more[open] summary::before{transform:rotate(45deg)}
+details.more summary small{font-size:13px;font-weight:500;color:var(--mute)}
+.mopts{display:grid;grid-template-columns:1fr 1fr;gap:18px 20px;margin-top:18px}
+.opt h3{font-size:13px;font-weight:600;color:var(--sub);margin-bottom:8px}
+.swatches{display:flex;gap:8px;flex-wrap:wrap}
+.sw{width:30px;height:30px;border-radius:50%;border:2px solid transparent;box-shadow:inset 0 0 0 1px rgba(255,255,255,.15)}
+.sw[aria-pressed="true"]{border-color:var(--blue);box-shadow:0 0 0 2px var(--bg) inset}
+.toggle{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--sub);cursor:pointer}
+.toggle input{width:18px;height:18px;accent-color:var(--blue)}
+.oldlink{grid-column:1/-1;font-size:13px;color:var(--mute);padding-top:6px;border-top:1px dashed var(--line2)}
+/* 미리보기 */
+.side{position:sticky;top:72px}
+.pv{position:relative;border-radius:12px;overflow:hidden;background:#0d0f13;border:1px solid var(--line)}
+.pv canvas{display:block;width:100%;height:auto}
+.pv .blank{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:24px;color:var(--sub);font-size:14px;background:rgba(5,6,9,.72)}
+.pv .blank b{display:block;color:var(--text);font-size:15px;margin-bottom:4px}
+.status{display:flex;align-items:flex-start;gap:8px;margin:12px 2px;font-size:13px;color:var(--sub);min-height:20px}
+.status .dot{flex:none;width:8px;height:8px;border-radius:50%;margin-top:6px;background:var(--mute)}
+.status.ok .dot{background:var(--ok)}.status.warn .dot{background:var(--warn)}.status.bad .dot{background:var(--bad)}
+.acts{display:grid;grid-template-columns:1fr auto;gap:8px}
+.acts .btn.pri{padding:14px 16px;font-size:15px}
+.side .meta{margin-top:10px;font-size:12px;color:var(--mute)}
+/* 모바일 */
+.mbar{display:none}
+.sheet{display:none}
+@media (max-width: 920px){
+  .wrap{grid-template-columns:minmax(0,1fr);gap:0;padding:24px 16px 120px}
+  .pc-only{display:none}.mo-only{display:inline}
+  h1{font-size:24px}
+  .side{display:none}
+  .types{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .fields{grid-template-columns:1fr}
+  .mopts{grid-template-columns:1fr}
+  .grid{grid-template-columns:repeat(3,minmax(0,1fr));max-height:none;overflow:visible}
+  .mbar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:40;align-items:center;gap:12px;padding:10px 16px calc(10px + env(safe-area-inset-bottom));background:rgba(8,9,12,.94);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line)}
+  .mbar .mthumb{flex:none;width:44px;height:62px;border-radius:6px;overflow:hidden;background:#15171d;border:1px solid var(--line2)}
+  .mbar .mthumb canvas{width:100%;height:100%;display:block;object-fit:cover}
+  .mbar .mtx{flex:1;min-width:0;font-size:12.5px;color:var(--sub);line-height:1.35}
+  .mbar .mtx b{display:block;color:var(--text);font-size:14px}
+  .mbar .btn{padding:12px 16px}
+  .sheet.on{display:flex;position:fixed;inset:0;z-index:50;flex-direction:column;background:#020204;padding:16px 16px calc(16px + env(safe-area-inset-bottom))}
+  .sheet .shd{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-weight:700}
+  .sheet .sbody{flex:1;min-height:0;display:grid;place-items:center}
+  .sheet .sbody canvas{max-width:100%;max-height:100%;width:auto;height:auto;border-radius:8px}
+  .sheet .acts{margin-top:12px}
+}
+@media (max-width: 380px){ .types{grid-template-columns:repeat(3,minmax(0,1fr))} }
+@media print{ body *{visibility:hidden} }
+@media (prefers-reduced-motion: reduce){ *{transition:none!important} }
+</style>
+</head>
+<body>
+<header class="top">
+  <a href="https://kt-synergy.com/">&larr; kt-synergy.com</a>
+  <span class="tag">QR POSTER</span>
+</header>
+
+<main class="wrap">
+<div class="main">
+  <h1>QR 포스터 만들기<span class="ver" id="ver">v1.00</span></h1>
+  <p class="lead">고르고, 넣고, 받으면 끝입니다. <span class="pc-only">결과는 오른쪽에 바로 보입니다.</span><span class="mo-only">결과는 아래 띠를 누르면 크게 보입니다.</span></p>
+
+  <section class="step" id="s1">
+    <h2><span class="n">1</span>무엇을 만들까요</h2>
+    <div class="types" id="types" role="group" aria-label="QR 종류"></div>
+  </section>
+
+  <section class="step" id="s2">
+    <h2><span class="n">2</span>정보 넣기 <small id="s2sub"></small></h2>
+
+    <div class="fields" data-type="wifi">
+      <div class="photo">
+        <div class="ic"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></div>
+        <div class="tx"><b>공유기 스티커나 기존 안내문을 찍으면 자동으로 채워요</b><span>사진은 이 휴대폰 안에서만 읽고, 어디에도 보내지 않습니다.</span></div>
+        <label class="btn sec" for="photoIn">사진 넣기</label>
+        <input id="photoIn" type="file" accept="image/*" hidden>
+      </div>
+      <div class="ocrmsg" id="ocrMsg"></div>
+      <div class="f wide"><label for="wStore">가게 이름 <span class="opt">(포스터에 크게 들어가요, 비워도 됩니다)</span></label><input id="wStore" data-k="store" placeholder="예: 우대포 명동점" autocomplete="off"><div class="chips" id="storeChips"></div></div>
+      <div class="f"><label for="wSsid">와이파이 이름<em>*</em></label><input id="wSsid" data-k="ssid" placeholder="예: KT_GiGA_2G_Wave2_9B77" autocomplete="off" autocapitalize="off" spellcheck="false"><div class="chips" id="ssidChips"></div></div>
+      <div class="f"><label for="wPw">비밀번호</label><div class="pwrow"><input id="wPw" data-k="pw" placeholder="비밀번호가 없으면 비워 두세요" autocomplete="off" autocapitalize="off" spellcheck="false"><button type="button" id="pwEye">가리기</button></div><div class="help" id="pwHelp"></div></div>
+    </div>
+
+    <div class="fields" data-type="review">
+      <div class="f wide"><label for="rStore">가게 이름 <span class="opt">(포스터에 크게 들어가요)</span></label><input id="rStore" data-k="store" placeholder="예: 우대포 명동점"></div>
+      <div class="f wide"><label>QR을 찍으면 열릴 화면</label>
+        <div class="seg" id="rDest"><button type="button" data-v="write" aria-pressed="true">리뷰 쓰기 화면</button><button type="button" data-v="mine">우리 가게 리뷰</button></div>
+        <div class="help" id="rDestHelp">어느 가게든 그대로 쓸 수 있습니다. 손님이 가게를 고르고 리뷰를 씁니다.</div>
+      </div>
+      <div class="f wide" id="rPlaceBox" hidden><label for="rPlace">네이버 지도 가게 주소<em>*</em></label><input id="rPlace" data-k="place" placeholder="네이버 지도에서 가게를 연 뒤 주소창 주소를 붙여 넣으세요" autocomplete="off" spellcheck="false"><div class="help" id="rPlaceHelp">예: map.naver.com/p/entry/place/1234567 · 공유 주소(naver.me)도 됩니다</div></div>
+    </div>
+
+    <div class="fields" data-type="map">
+      <div class="f wide"><label for="mStore">가게 이름<em>*</em> <span class="opt">(네이버 지도에서 이 이름으로 찾아요)</span></label><input id="mStore" data-k="store" placeholder="예: 우대포 명동점"></div>
+      <div class="f wide"><label for="mAddr">주소 <span class="opt">(같은 이름 가게가 많으면 넣어 주세요)</span></label><input id="mAddr" data-k="addr" placeholder="예: 서울 중구 명동8가길"></div>
+    </div>
+
+    <div class="fields" data-type="url">
+      <div class="f wide"><label for="uStore">제목 <span class="opt">(포스터에 크게 들어가요)</span></label><input id="uStore" data-k="store" placeholder="예: 우리 가게 메뉴판"></div>
+      <div class="f wide"><label for="uUrl">웹 주소<em>*</em></label><input id="uUrl" data-k="url" placeholder="예: https://kt-synergy.com" inputmode="url" autocapitalize="off" spellcheck="false"></div>
+    </div>
+
+    <div class="fields" data-type="vcard">
+      <div class="f"><label for="vName">이름<em>*</em></label><input id="vName" data-k="vname" placeholder="예: 홍길동"></div>
+      <div class="f"><label for="vTel">휴대폰<em>*</em></label><input id="vTel" data-k="vtel" placeholder="예: 010-1234-5678" inputmode="tel"></div>
+      <div class="f"><label for="vOrg">회사·소속</label><input id="vOrg" data-k="vorg" placeholder="예: KT 인천지사 시너지영업3팀"></div>
+      <div class="f"><label for="vTitle">직급</label><input id="vTitle" data-k="vtitle" placeholder="예: 과장"></div>
+      <div class="f"><label for="vMail">이메일</label><input id="vMail" data-k="vmail" placeholder="예: name@kt.com" inputmode="email" autocapitalize="off"></div>
+      <div class="f"><label for="vAddr">주소</label><input id="vAddr" data-k="vaddr" placeholder="예: 인천 남동구 경인로 508"></div>
+    </div>
+
+    <div class="fields" data-type="tel">
+      <div class="f wide"><label for="tStore">제목 <span class="opt">(포스터에 크게 들어가요)</span></label><input id="tStore" data-k="store" placeholder="예: 예약 문의"></div>
+      <div class="f wide"><label for="tTel">전화번호<em>*</em></label><input id="tTel" data-k="tel" placeholder="예: 032-123-4567" inputmode="tel"></div>
+    </div>
+
+    <div class="fields" data-type="sms">
+      <div class="f wide"><label for="sStore">제목 <span class="opt">(포스터에 크게 들어가요)</span></label><input id="sStore" data-k="store" placeholder="예: 문자로 예약하기"></div>
+      <div class="f"><label for="sTel">받을 번호<em>*</em></label><input id="sTel" data-k="tel" placeholder="예: 010-1234-5678" inputmode="tel"></div>
+      <div class="f"><label for="sMsg">미리 채워 둘 내용</label><input id="sMsg" data-k="msg" placeholder="예: 예약 문의드립니다"></div>
+    </div>
+  </section>
+
+  <section class="step" id="s3">
+    <h2><span class="n">3</span>그림 고르기 <small class="pc-only">누르면 오른쪽에 바로 보여요</small><small class="mo-only">누르면 아래 띠에 바로 반영돼요</small></h2>
+    <div class="filters">
+      <div class="frow" id="catRow" role="group" aria-label="업종"></div>
+      <div class="frow" id="styRow" role="group" aria-label="스타일"></div>
+      <div class="search"><input id="q" type="search" placeholder="업종으로 찾기 (예: 족발, 카페, 국밥)" autocomplete="off"><span class="cnt" id="cnt"></span></div>
+    </div>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <details class="more" id="more">
+    <summary>더 꾸미기 <small>색·로고·안내 문구</small></summary>
+    <div class="mopts">
+      <div class="opt"><h3>QR 색</h3><div class="swatches" id="qrCol"></div></div>
+      <div class="opt"><h3>안내 카드</h3><div class="seg" id="cardCol"><button type="button" data-v="light" aria-pressed="true">흰색</button><button type="button" data-v="dark">검정</button></div></div>
+      <div class="opt"><h3>QR 가운데 로고</h3>
+        <div class="seg" id="logoSel"><button type="button" data-v="none" aria-pressed="true">없음</button><button type="button" data-v="kt">KT</button><button type="button" data-v="own">직접 올리기</button></div>
+        <input id="logoIn" type="file" accept="image/*" hidden>
+      </div>
+      <div class="opt"><h3>와이파이 비밀번호</h3><label class="toggle"><input type="checkbox" id="showPw" checked> 포스터에 글자로도 적기</label></div>
+      <div class="f wide"><label for="hint">안내 문구</label><input id="hint" placeholder="비워 두면 종류에 맞는 문구가 들어갑니다"></div>
+      <div class="oldlink">프랜차이즈 전용 포스터, 리뷰 안내 포스터, 직접 꾸미기(포스터 스튜디오)는 <a href="https://kt-synergy.com/document/QR_generator/QR-Studio.html">기존 QR 스튜디오</a>에 그대로 있습니다.</div>
+    </div>
+  </details>
+</div>
+
+<aside class="side" id="side">
+  <div class="pv" id="pv"><canvas id="cv" width="1696" height="2399" aria-label="완성 미리보기"></canvas><div class="blank" id="blank"></div></div>
+  <div class="status" id="status"><span class="dot"></span><span class="tx"></span></div>
+  <div class="acts"><button class="btn pri" id="dl" type="button">그림 파일로 받기</button><button class="btn sec" id="pr" type="button">인쇄</button></div>
+  <div class="meta" id="meta">A4 세로 · 인쇄용 고화질</div>
+</aside>
+</main>
+
+<div class="mbar" id="mbar">
+  <button class="mthumb" id="mthumb" type="button" aria-label="크게 보기"><canvas id="mcv" width="88" height="124"></canvas></button>
+  <div class="mtx" id="mtx"><b>미리보기</b><span></span></div>
+  <button class="btn pri" id="mdl" type="button">받기</button>
+</div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="미리보기">
+  <div class="shd"><span>미리보기</span><button class="btn sec" id="shClose" type="button">닫기</button></div>
+  <div class="sbody" id="sbody"></div>
+  <div class="status" id="status2"><span class="dot"></span><span class="tx"></span></div>
+  <div class="acts"><button class="btn pri" id="dl2" type="button">그림 파일로 받기</button><button class="btn sec" id="pr2" type="button">인쇄</button></div>
+</div>
+<script>
+const CATS=["고기·구이", "한식", "해산물", "중식·아시안", "일식", "양식", "치킨·분식·간편식", "주점", "카페·디저트"];
+const TPLS=[["qrt_pork-bbq_photo","삼겹살",0,"p",0,0],["qrt_pork-bbq_illust","삼겹살",0,"i",0,0],["qrt_pork-bbq_minimal","삼겹살",0,"m",0,0],["qrt_pork-bbq_dark","삼겹살",0,"d",0,1],["qrt_hanwoo_photo","한우",0,"p",0,0],["qrt_hanwoo_illust","한우",0,"i",0,0],["qrt_hanwoo_minimal","한우",0,"m",0,0],["qrt_hanwoo_dark","한우",0,"d",0,1],["qrt_galbi_photo","갈비",0,"p",0,0],["qrt_galbi_illust","갈비",0,"i",0,0],["qrt_galbi_minimal","갈비",0,"m",0,0],["qrt_galbi_dark","갈비",0,"d",0,1],["qrt_gopchang_photo","곱창·막창",0,"p",0,0],["qrt_gopchang_illust","곱창·막창",0,"i",0,0],["qrt_gopchang_minimal","곱창·막창",0,"m",0,0],["qrt_gopchang_dark","곱창·막창",0,"d",0,1],["qrt_dakgalbi_photo","닭갈비",0,"p",0,0],["qrt_dakgalbi_illust","닭갈비",0,"i",0,0],["qrt_dakgalbi_minimal","닭갈비",0,"m",0,1],["qrt_dakgalbi_dark","닭갈비",0,"d",0,1],["qrt_duck_photo","오리고기",0,"p",0,0],["qrt_duck_illust","오리고기",0,"i",0,0],["qrt_duck_minimal","오리고기",0,"m",0,0],["qrt_duck_dark","오리고기",0,"d",0,1],["qrt_eel_photo","장어",0,"p",0,0],["qrt_eel_illust","장어",0,"i",0,0],["qrt_eel_minimal","장어",0,"m",0,1],["qrt_eel_dark","장어",0,"d",0,1],["qrt_lamb-skewer_photo","양꼬치",0,"p",0,0],["qrt_lamb-skewer_illust","양꼬치",0,"i",0,0],["qrt_lamb-skewer_minimal","양꼬치",0,"m",0,0],["qrt_lamb-skewer_dark","양꼬치",0,"d",0,1],["qrt_baekban_photo","한식 백반",1,"p",0,0],["qrt_baekban_illust","한식 백반",1,"i",0,0],["qrt_baekban_minimal","한식 백반",1,"m",0,0],["qrt_baekban_dark","한식 백반",1,"d",0,1],["qrt_hanjeongsik_photo","한정식",1,"p",0,0],["qrt_hanjeongsik_illust","한정식",1,"i",0,0],["qrt_hanjeongsik_minimal","한정식",1,"m",0,1],["qrt_hanjeongsik_dark","한정식",1,"d",0,1],["qrt_gukbap_photo","국밥",1,"p",0,0],["qrt_gukbap_illust","국밥",1,"i",0,0],["qrt_gukbap_minimal","국밥",1,"m",0,0],["qrt_gukbap_dark","국밥",1,"d",0,1],["qrt_gamjatang_photo","감자탕·해장국",1,"p",0,0],["qrt_gamjatang_illust","감자탕·해장국",1,"i",0,0],["qrt_gamjatang_minimal","감자탕·해장국",1,"m",0,1],["qrt_gamjatang_dark","감자탕·해장국",1,"d",0,1],["qrt_jjigae_photo","찌개·전골",1,"p",0,0],["qrt_jjigae_illust","찌개·전골",1,"i",0,0],["qrt_jjigae_minimal","찌개·전골",1,"m",0,0],["qrt_jjigae_dark","찌개·전골",1,"d",0,1],["qrt_naengmyeon_photo","냉면",1,"p",0,0],["qrt_naengmyeon_illust","냉면",1,"i",0,0],["qrt_naengmyeon_minimal","냉면",1,"m",0,0],["qrt_naengmyeon_dark","냉면",1,"d",0,0],["qrt_kalguksu_photo","칼국수",1,"p",0,0],["qrt_kalguksu_illust","칼국수",1,"i",0,0],["qrt_kalguksu_minimal","칼국수",1,"m",0,0],["qrt_kalguksu_dark","칼국수",1,"d",0,1],["qrt_jokbal_photo","족발·보쌈",1,"p",0,0],["qrt_jokbal_illust","족발·보쌈",1,"i",0,0],["qrt_jokbal_minimal","족발·보쌈",1,"m",0,0],["qrt_jokbal_dark","족발·보쌈",1,"d",0,1],["qrt_jjimdak_photo","찜닭",1,"p",0,0],["qrt_jjimdak_illust","찜닭",1,"i",0,0],["qrt_jjimdak_minimal","찜닭",1,"m",0,0],["qrt_jjimdak_dark","찜닭",1,"d",0,1],["qrt_agujjim_photo","아구찜·해물찜",1,"p",0,0],["qrt_agujjim_illust","아구찜·해물찜",1,"i",0,0],["qrt_agujjim_minimal","아구찜·해물찜",1,"m",0,0],["qrt_agujjim_dark","아구찜·해물찜",1,"d",0,1],["qrt_jjukkumi_photo","쭈꾸미·낙지",1,"p",0,0],["qrt_jjukkumi_illust","쭈꾸미·낙지",1,"i",0,0],["qrt_jjukkumi_minimal","쭈꾸미·낙지",1,"m",0,1],["qrt_jjukkumi_dark","쭈꾸미·낙지",1,"d",0,1],["qrt_jeon_photo","전·막걸리",1,"p",0,0],["qrt_jeon_illust","전·막걸리",1,"i",0,0],["qrt_jeon_minimal","전·막걸리",1,"m",0,0],["qrt_jeon_dark","전·막걸리",1,"d",0,1],["qrt_juk_photo","죽",1,"p",0,0],["qrt_juk_illust","죽",1,"i",0,0],["qrt_juk_minimal","죽",1,"m",0,0],["qrt_juk_dark","죽",1,"d",0,0],["qrt_shabu_photo","샤브샤브",1,"p",0,0],["qrt_shabu_illust","샤브샤브",1,"i",0,0],["qrt_shabu_minimal","샤브샤브",1,"m",0,0],["qrt_shabu_dark","샤브샤브",1,"d",0,1],["qrt_sashimi_photo","횟집",2,"p",0,0],["qrt_sashimi_illust","횟집",2,"i",0,0],["qrt_sashimi_minimal","횟집",2,"m",0,0],["qrt_sashimi_dark","횟집",2,"d",0,1],["qrt_clam-grill_photo","조개구이",2,"p",0,0],["qrt_clam-grill_illust","조개구이",2,"i",0,0],["qrt_clam-grill_minimal","조개구이",2,"m",0,0],["qrt_clam-grill_dark","조개구이",2,"d",0,1],["qrt_haemultang_photo","해물탕",2,"p",0,0],["qrt_haemultang_illust","해물탕",2,"i",0,0],["qrt_haemultang_minimal","해물탕",2,"m",0,1],["qrt_haemultang_dark","해물탕",2,"d",0,1],["qrt_chinese_photo","중식",3,"p",0,0],["qrt_chinese_illust","중식",3,"i",0,0],["qrt_chinese_minimal","중식",3,"m",0,1],["qrt_chinese_dark","중식",3,"d",0,1],["qrt_malatang_photo","마라탕",3,"p",0,0],["qrt_malatang_illust","마라탕",3,"i",0,0],["qrt_malatang_minimal","마라탕",3,"m",0,1],["qrt_malatang_dark","마라탕",3,"d",0,1],["qrt_pho_photo","쌀국수",3,"p",0,0],["qrt_pho_illust","쌀국수",3,"i",0,0],["qrt_pho_minimal","쌀국수",3,"m",0,0],["qrt_pho_dark","쌀국수",3,"d",0,1],["qrt_thai_photo","태국 음식",3,"p",0,0],["qrt_thai_illust","태국 음식",3,"i",0,0],["qrt_thai_minimal","태국 음식",3,"m",0,0],["qrt_thai_dark","태국 음식",3,"d",0,1],["qrt_indian_photo","인도 커리",3,"p",0,0],["qrt_indian_illust","인도 커리",3,"i",0,0],["qrt_indian_minimal","인도 커리",3,"m",0,0],["qrt_indian_dark","인도 커리",3,"d",0,1],["qrt_sushi_photo","초밥",4,"p",0,0],["qrt_sushi_illust","초밥",4,"i",0,0],["qrt_sushi_minimal","초밥",4,"m",0,0],["qrt_sushi_dark","초밥",4,"d",0,1],["qrt_ramen_photo","라멘",4,"p",0,0],["qrt_ramen_illust","라멘",4,"i",0,0],["qrt_ramen_minimal","라멘",4,"m",0,0],["qrt_ramen_dark","라멘",4,"d",0,1],["qrt_tonkatsu_photo","돈카츠",4,"p",0,0],["qrt_tonkatsu_illust","돈카츠",4,"i",0,0],["qrt_tonkatsu_minimal","돈카츠",4,"m",0,0],["qrt_tonkatsu_dark","돈카츠",4,"d",0,1],["qrt_udon_photo","우동",4,"p",0,0],["qrt_udon_illust","우동",4,"i",0,0],["qrt_udon_minimal","우동",4,"m",0,0],["qrt_udon_dark","우동",4,"d",0,1],["qrt_izakaya_photo","이자카야",4,"p",0,0],["qrt_izakaya_illust","이자카야",4,"i",0,0],["qrt_izakaya_minimal","이자카야",4,"m",0,0],["qrt_izakaya_dark","이자카야",4,"d",0,1],["qrt_pasta_photo","파스타",5,"p",0,0],["qrt_pasta_illust","파스타",5,"i",0,0],["qrt_pasta_minimal","파스타",5,"m",0,0],["qrt_pasta_dark","파스타",5,"d",0,1],["qrt_steak_photo","스테이크",5,"p",0,0],["qrt_steak_illust","스테이크",5,"i",0,0],["qrt_steak_minimal","스테이크",5,"m",0,1],["qrt_steak_dark","스테이크",5,"d",0,1],["qrt_pizza_photo","피자",5,"p",0,0],["qrt_pizza_illust","피자",5,"i",0,0],["qrt_pizza_minimal","피자",5,"m",0,0],["qrt_pizza_dark","피자",5,"d",0,1],["qrt_burger_photo","수제버거",5,"p",0,0],["qrt_burger_illust","수제버거",5,"i",0,0],["qrt_burger_minimal","수제버거",5,"m",0,0],["qrt_burger_dark","수제버거",5,"d",0,1],["qrt_brunch_photo","브런치",5,"p",0,0],["qrt_brunch_illust","브런치",5,"i",0,0],["qrt_brunch_minimal","브런치",5,"m",0,0],["qrt_brunch_dark","브런치",5,"d",0,1],["qrt_salad_photo","샐러드",5,"p",0,0],["qrt_salad_illust","샐러드",5,"i",0,0],["qrt_salad_minimal","샐러드",5,"m",0,0],["qrt_salad_dark","샐러드",5,"d",0,1],["qrt_mexican_photo","멕시칸",5,"p",0,0],["qrt_mexican_illust","멕시칸",5,"i",0,0],["qrt_mexican_minimal","멕시칸",5,"m",0,0],["qrt_mexican_dark","멕시칸",5,"d",0,1],["qrt_chicken_photo","치킨",6,"p",0,0],["qrt_chicken_illust","치킨",6,"i",0,0],["qrt_chicken_minimal","치킨",6,"m",0,0],["qrt_chicken_dark","치킨",6,"d",0,1],["qrt_bunsik_photo","분식",6,"p",0,0],["qrt_bunsik_illust","분식",6,"i",0,0],["qrt_bunsik_minimal","분식",6,"m",0,0],["qrt_bunsik_dark","분식",6,"d",0,1],["qrt_gimbap_photo","김밥",6,"p",0,0],["qrt_gimbap_illust","김밥",6,"i",0,0],["qrt_gimbap_minimal","김밥",6,"m",0,1],["qrt_gimbap_dark","김밥",6,"d",0,1],["qrt_dosirak_photo","도시락",6,"p",0,0],["qrt_dosirak_illust","도시락",6,"i",0,0],["qrt_dosirak_minimal","도시락",6,"m",0,0],["qrt_dosirak_dark","도시락",6,"d",0,0],["qrt_sandwich_photo","샌드위치",6,"p",0,0],["qrt_sandwich_illust","샌드위치",6,"i",0,0],["qrt_sandwich_minimal","샌드위치",6,"m",0,0],["qrt_sandwich_dark","샌드위치",6,"d",0,1],["qrt_pub_photo","호프",7,"p",0,0],["qrt_pub_illust","호프",7,"i",0,0],["qrt_pub_minimal","호프",7,"m",0,0],["qrt_pub_dark","호프",7,"d",0,1],["qrt_pocha_photo","포차",7,"p",0,0],["qrt_pocha_illust","포차",7,"i",0,0],["qrt_pocha_minimal","포차",7,"m",0,1],["qrt_pocha_dark","포차",7,"d",0,1],["qrt_wine-bar_photo","와인바",7,"p",0,0],["qrt_wine-bar_illust","와인바",7,"i",0,0],["qrt_wine-bar_minimal","와인바",7,"m",0,1],["qrt_wine-bar_dark","와인바",7,"d",0,1],["qrt_cocktail-bar_photo","칵테일바",7,"p",0,0],["qrt_cocktail-bar_illust","칵테일바",7,"i",0,0],["qrt_cocktail-bar_minimal","칵테일바",7,"m",0,1],["qrt_cocktail-bar_dark","칵테일바",7,"d",0,1],["qrt_craft-beer_photo","수제맥주",7,"p",0,0],["qrt_craft-beer_illust","수제맥주",7,"i",0,0],["qrt_craft-beer_minimal","수제맥주",7,"m",0,0],["qrt_craft-beer_dark","수제맥주",7,"d",0,1],["qrt_cafe_photo","카페",8,"p",0,0],["qrt_cafe_illust","카페",8,"i",0,0],["qrt_cafe_minimal","카페",8,"m",0,0],["qrt_cafe_dark","카페",8,"d",0,1],["qrt_bakery_photo","베이커리",8,"p",0,0],["qrt_bakery_illust","베이커리",8,"i",0,0],["qrt_bakery_minimal","베이커리",8,"m",0,0],["qrt_bakery_dark","베이커리",8,"d",0,1],["qrt_cake_photo","케이크",8,"p",0,0],["qrt_cake_illust","케이크",8,"i",0,0],["qrt_cake_minimal","케이크",8,"m",0,0],["qrt_cake_dark","케이크",8,"d",0,1],["qrt_bingsu_photo","빙수",8,"p",0,0],["qrt_bingsu_illust","빙수",8,"i",0,0],["qrt_bingsu_minimal","빙수",8,"m",0,0],["qrt_bingsu_dark","빙수",8,"d",0,1],["qrt_ice-cream_photo","아이스크림",8,"p",0,0],["qrt_ice-cream_illust","아이스크림",8,"i",0,0],["qrt_ice-cream_minimal","아이스크림",8,"m",0,0],["qrt_ice-cream_dark","아이스크림",8,"d",0,1],["qrt_donut_photo","도넛",8,"p",0,0],["qrt_donut_illust","도넛",8,"i",0,0],["qrt_donut_minimal","도넛",8,"m",0,0],["qrt_donut_dark","도넛",8,"d",0,1],["qrt_tteok_photo","떡집",8,"p",0,0],["qrt_tteok_illust","떡집",8,"i",0,0],["qrt_tteok_minimal","떡집",8,"m",0,0],["qrt_tteok_dark","떡집",8,"d",0,1],["qrtw_pork-bbq_photo","삼겹살",0,"p",1,0],["qrtw_pork-bbq_illust","삼겹살",0,"i",1,0],["qrtw_pork-bbq_minimal","삼겹살",0,"m",1,0],["qrtw_pork-bbq_dark","삼겹살",0,"d",1,1],["qrtw_cafe_photo","카페",8,"p",1,0],["qrtw_cafe_illust","카페",8,"i",1,0],["qrtw_cafe_minimal","카페",8,"m",1,0],["qrtw_cafe_dark","카페",8,"d",1,1],["qrtw_chicken_photo","치킨",6,"p",1,0],["qrtw_chicken_illust","치킨",6,"i",1,0],["qrtw_chicken_minimal","치킨",6,"m",1,0],["qrtw_chicken_dark","치킨",6,"d",1,1],["qrtw_sushi_photo","초밥",4,"p",1,0],["qrtw_sushi_illust","초밥",4,"i",1,0],["qrtw_sushi_minimal","초밥",4,"m",1,0],["qrtw_sushi_dark","초밥",4,"d",1,1],["qrtw_chinese_photo","중식",3,"p",1,0],["qrtw_chinese_illust","중식",3,"i",1,0],["qrtw_chinese_minimal","중식",3,"m",1,1],["qrtw_chinese_dark","중식",3,"d",1,1],["qrtw_bunsik_photo","분식",6,"p",1,0],["qrtw_bunsik_illust","분식",6,"i",1,0],["qrtw_bunsik_minimal","분식",6,"m",1,0],["qrtw_bunsik_dark","분식",6,"d",1,1],["qrtw_pub_photo","호프",7,"p",1,0],["qrtw_pub_illust","호프",7,"i",1,0],["qrtw_pub_minimal","호프",7,"m",1,0],["qrtw_pub_dark","호프",7,"d",1,1]];
+'use strict';
+/* ───────── 기본 데이터 ───────── */
+const VERSION = 'v1.00';
+const SITE = 'https://kt-synergy.com/';
+const BASE = SITE + 'assets/image/qr_templates2/';
+const LEGACY = n => SITE + 'assets/image/qr_templates/qr_template_' + String(n).padStart(2, '0') + '.png';
+const KT_LOGO = SITE + 'assets/image/CI_BI/kt_icon02.png';
+const TESS_URL = 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
+const W = 1696, H = 2399;               // A4 세로 비율, 새 템플릿 원본 크기
+const STY = { p: '사진', i: '일러스트', m: '미니멀', d: '고급 다크' };
+
+const TYPES = [
+  { k: 'wifi',   t: '와이파이', ic: '<path d="M2 9a15 15 0 0 1 20 0"/><path d="M5 12.5a10 10 0 0 1 14 0"/><path d="M8.5 16a5 5 0 0 1 7 0"/><circle cx="12" cy="19.5" r="1"/>' },
+  { k: 'review', t: '네이버 리뷰', ic: '<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>' },
+  { k: 'map',    t: '길 찾기', ic: '<path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>' },
+  { k: 'url',    t: '웹 주소', ic: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>' },
+  { k: 'vcard',  t: '명함', ic: '<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2.2"/><path d="M5.8 16c.6-1.6 1.8-2.4 3.2-2.4s2.6.8 3.2 2.4"/><path d="M14.5 10h4M14.5 13h3"/>' },
+  { k: 'tel',    t: '전화', ic: '<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/>' },
+  { k: 'sms',    t: '문자', ic: '<path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/>' }
+];
+const CARD = {
+  wifi:   { tag: 'FREE Wi-Fi',   hint: '카메라로 QR을 찍으면 바로 연결돼요' },
+  review: { tag: 'NAVER REVIEW', hint: 'QR을 찍고 리뷰를 남겨 주세요' },
+  map:    { tag: 'MAP',          hint: 'QR을 찍으면 네이버 지도가 열려요' },
+  url:    { tag: 'LINK',         hint: 'QR을 찍으면 바로 열려요' },
+  vcard:  { tag: 'CONTACT',      hint: 'QR을 찍으면 연락처가 저장돼요' },
+  tel:    { tag: 'CALL',         hint: 'QR을 찍으면 바로 전화가 걸려요' },
+  sms:    { tag: 'MESSAGE',      hint: 'QR을 찍으면 문자 창이 열려요' }
+};
+const QR_COLORS = ['#111111', '#1f2a44', '#0b3d2e', '#4a1d1d', '#3b2a1a', '#2e1f47'];
+
+/* 템플릿 목록: 기본 2종 + 새 264장 + 기존 31장 */
+const ITEMS = [
+  { id: 'plain', kind: 'plain', name: '흰 바탕', cat: -2 },
+  { id: 'square', kind: 'square', name: 'QR만 (정사각)', cat: -2 }
+];
+TPLS.forEach(r => ITEMS.push({ id: r[0], kind: 'new', file: r[0], name: r[1], cat: r[2], sty: r[3], wide: !!r[4], dark: !!r[5] }));
+for (let i = 1; i <= 31; i++) ITEMS.push({ id: 'L' + i, kind: 'legacy', n: i, name: '기존 ' + String(i).padStart(2, '0'), cat: -1 });
+
+/* ───────── 상태 ───────── */
+const S = {
+  type: 'wifi', store: '', ssid: '', pw: '', rdest: 'write', place: '', placeId: '', placeCat: 'restaurant',
+  addr: '', url: '', vname: '', vtel: '', vorg: '', vtitle: '', vmail: '', vaddr: '', tel: '', msg: '',
+  tpl: 'plain', qrColor: '#111111', card: 'light', logo: 'none', logoImg: null, showPw: true, hint: '',
+  fcat: 'all', fsty: 'all', q: ''
+};
+const $ = s => document.querySelector(s);
+const josa = (w, a, b) => { const c = (w || '').charCodeAt((w || '').length - 1); return c >= 0xAC00 && c <= 0xD7A3 && (c - 0xAC00) % 28 ? a : b; };
+const $$ = s => [...document.querySelectorAll(s)];
+const autoFilled = new Set();
+
+/* ───────── 1. 유형 ───────── */
+function buildTypes(){
+  $('#types').innerHTML = TYPES.map(t => `<button type="button" data-k="${t.k}" aria-pressed="${t.k === S.type}"><svg viewBox="0 0 24 24">${t.ic}</svg>${t.t}</button>`).join('');
+  $('#types').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    S.type = b.dataset.k; syncType(); schedule();
+  });
+}
+function syncType(){
+  $$('#types button').forEach(b => b.setAttribute('aria-pressed', b.dataset.k === S.type));
+  $$('.fields').forEach(g => {
+    const on = g.dataset.type === S.type;
+    g.classList.toggle('on', on);
+    if (on) g.querySelectorAll('[data-k]').forEach(i => { if (i.value !== (S[i.dataset.k] || '')) i.value = S[i.dataset.k] || ''; });
+  });
+  $('#s2sub').textContent = { wifi: '사진 한 장이면 자동으로 채워요', review: '', map: '', url: '', vcard: '', tel: '', sms: '' }[S.type];
+}
+
+/* ───────── 2. 입력 ───────── */
+function bindFields(){
+  $$('.fields [data-k]').forEach(inp => {
+    inp.addEventListener('input', () => {
+      S[inp.dataset.k] = inp.value;
+      if (autoFilled.has(inp.dataset.k)) { autoFilled.delete(inp.dataset.k); markAuto(); }
+      if (inp.dataset.k === 'place') applyPlace(inp.value);
+      if (inp.dataset.k === 'ssid') renderSsidChips();
+      if (inp.dataset.k === 'store') renderStoreChips();
+      schedule();
+    });
+  });
+  $('#pwEye').addEventListener('click', () => {
+    const i = $('#wPw'); const hide = i.type !== 'password';
+    i.type = hide ? 'password' : 'text'; $('#pwEye').textContent = hide ? '보기' : '가리기';
+  });
+  seg('#rDest', v => {
+    S.rdest = v; $('#rPlaceBox').hidden = v !== 'mine';
+    $('#rDestHelp').textContent = v === 'mine' ? '우리 가게 리뷰 목록이 열립니다. 아래에 가게 주소를 넣어 주세요.' : '어느 가게든 그대로 쓸 수 있습니다. 손님이 가게를 고르고 리뷰를 씁니다.';
+    schedule();
+  });
+  seg('#cardCol', v => { S.card = v; schedule(); });
+  seg('#logoSel', v => {
+    if (v === 'own' && !S.logoImg){ $('#logoIn').click(); return false; }
+    S.logo = v; schedule();
+  });
+  $('#logoIn').addEventListener('change', async e => {
+    const f = e.target.files[0]; if (!f) return;
+    S.logoImg = await fileToImg(f); S.logo = 'own';
+    $$('#logoSel button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === 'own'));
+    schedule();
+  });
+  $('#qrCol').innerHTML = QR_COLORS.map(c => `<button type="button" class="sw" style="background:${c}" data-v="${c}" aria-label="QR 색 ${c}" aria-pressed="${c === S.qrColor}"></button>`).join('');
+  $('#qrCol').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    S.qrColor = b.dataset.v; $$('#qrCol button').forEach(x => x.setAttribute('aria-pressed', x === b)); schedule();
+  });
+  $('#showPw').addEventListener('change', e => { S.showPw = e.target.checked; schedule(); });
+  $('#hint').addEventListener('input', e => { S.hint = e.target.value; schedule(); });
+}
+function seg(sel, cb){
+  $(sel).addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    if (cb(b.dataset.v) === false) return;
+    $$(sel + ' button').forEach(x => x.setAttribute('aria-pressed', x === b));
+  });
+}
+function setField(k, v, auto){
+  S[k] = v;
+  $$(`.fields [data-k="${k}"]`).forEach(i => i.value = v);
+  if (auto) autoFilled.add(k); else autoFilled.delete(k);
+  markAuto();
+}
+function markAuto(){
+  $$('.fields [data-k]').forEach(i => i.classList.toggle('auto', autoFilled.has(i.dataset.k)));
+}
+
+/* 네이버 플레이스 주소 → 가게 번호 */
+function parsePlace(raw){
+  const t = (raw || '').trim();
+  if (!t) return { kind: 'empty' };
+  if (/^\d{5,}$/.test(t)) return { kind: 'id', id: t };
+  let m = t.match(/place\.naver\.com\/([a-zA-Z-]+)\/(\d{5,})/);
+  if (m && m[1] !== 'my') return { kind: 'id', id: m[2], cat: m[1] };
+  m = t.match(/\/place\/(\d{5,})/) || t.match(/[?&](?:place)?id=(\d{5,})/i);
+  if (m) return { kind: 'id', id: m[1] };
+  if (/naver\.me\//i.test(t)) return { kind: 'short' };
+  return { kind: 'unknown' };
+}
+function normCat(c){
+  const ok = ['restaurant', 'cafe', 'hairshop', 'hospital', 'accommodation', 'attraction', 'beauty', 'place'];
+  c = String(c || '').toLowerCase(); return ok.includes(c) ? c : 'restaurant';
+}
+let placeSeq = 0;
+async function applyPlace(raw){
+  const p = parsePlace(raw), help = $('#rPlaceHelp');
+  const seq = ++placeSeq;
+  S.placeId = '';
+  if (p.kind === 'id'){ S.placeId = p.id; if (p.cat) S.placeCat = normCat(p.cat); help.className = 'help ok'; help.textContent = '가게 번호 ' + p.id + ' 를 찾았어요.'; return; }
+  if (p.kind === 'empty'){ help.className = 'help'; help.textContent = '예: map.naver.com/p/entry/place/1234567 · 공유 주소(naver.me)도 됩니다'; return; }
+  if (p.kind === 'unknown'){ help.className = 'help warn'; help.textContent = '네이버 지도 주소가 아닌 것 같아요. 지도에서 가게를 연 뒤 주소창 주소를 붙여 넣어 주세요.'; return; }
+  help.className = 'help'; help.textContent = '공유 주소를 확인하는 중…';
+  let u = raw.trim(); if (!/^https?:\/\//i.test(u)) u = 'https://' + u;
+  const relays = [x => 'https://r.jina.ai/' + x, x => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(x)];
+  let hit = null;
+  for (const mk of relays){
+    try {
+      const ac = new AbortController(); const tm = setTimeout(() => ac.abort(), 9000);
+      const r = await fetch(mk(u), { signal: ac.signal }); clearTimeout(tm);
+      if (r.ok){
+        const txt = await r.text();
+        const pick = s => { if (!s) return null; let m = s.match(/place\.naver\.com\/([a-zA-Z-]+)\/(\d{5,})/); if (m && m[1] !== 'my') return { id: m[2], cat: m[1] }; m = s.match(/\/place\/(\d{5,})/); return m ? { id: m[1] } : null; };
+        hit = pick((txt.match(/URL Source:\s*(\S+)/) || [])[1]) || pick(txt.slice(0, 6000));
+        if (hit) break;
+      }
+    } catch (e) {}
+    if (seq !== placeSeq) return;
+  }
+  if (seq !== placeSeq) return;
+  if (hit){ S.placeId = hit.id; if (hit.cat) S.placeCat = normCat(hit.cat); help.className = 'help ok'; help.textContent = '가게 번호 ' + hit.id + ' 를 찾았어요.'; }
+  else { help.className = 'help warn'; help.textContent = '공유 주소를 풀지 못했어요. 지도에서 가게를 연 뒤 주소창 주소(…/place/숫자)를 붙여 넣어 주세요.'; }
+  schedule();
+}
+
+/* ───────── QR 내용 ───────── */
+const escWifi = s => s.replace(/([\\;,:"])/g, '\\$1');
+const escV = s => s.replace(/([\\;,])/g, '\\$1').replace(/\n/g, '\\n');
+function qrContent(){
+  const t = S.type, v = k => (S[k] || '').trim(), miss = [];
+  let data = '';
+  if (t === 'wifi'){
+    if (!v('ssid')) miss.push('와이파이 이름');
+    const pw = v('pw');
+    data = pw ? `WIFI:T:WPA;S:${escWifi(v('ssid'))};P:${escWifi(pw)};;` : `WIFI:T:nopass;S:${escWifi(v('ssid'))};;`;
+  } else if (t === 'review'){
+    if (S.rdest === 'mine'){
+      if (!S.placeId) miss.push('네이버 지도 가게 주소');
+      data = `https://m.place.naver.com/${normCat(S.placeCat)}/${S.placeId}/review/visitor`;
+    } else data = 'https://m.place.naver.com/my/checkin';
+  } else if (t === 'map'){
+    if (!v('store')) miss.push('가게 이름');
+    data = 'https://map.naver.com/p/search/' + encodeURIComponent((v('store') + ' ' + v('addr')).trim());
+  } else if (t === 'url'){
+    let u = v('url');
+    if (!u) miss.push('웹 주소');
+    else if (!/^[a-z][a-z0-9+.-]*:/i.test(u)) u = 'https://' + u;
+    if (u && !/\./.test(u)) miss.push('올바른 웹 주소');
+    data = u;
+  } else if (t === 'vcard'){
+    if (!v('vname')) miss.push('이름');
+    if (!v('vtel')) miss.push('휴대폰');
+    const L = ['BEGIN:VCARD', 'VERSION:3.0', `N:${escV(v('vname'))};;;;`, `FN:${escV(v('vname'))}`];
+    if (v('vorg')) L.push(`ORG:${escV(v('vorg'))}`);
+    if (v('vtitle')) L.push(`TITLE:${escV(v('vtitle'))}`);
+    L.push(`TEL;TYPE=CELL:${v('vtel')}`);
+    if (v('vmail')) L.push(`EMAIL:${v('vmail')}`);
+    if (v('vaddr')) L.push(`ADR:;;${escV(v('vaddr'))};;;;`);
+    L.push('END:VCARD'); data = L.join('\n');
+  } else if (t === 'tel'){
+    const n = v('tel').replace(/[^\d+]/g, '');
+    if (n.length < 7) miss.push('전화번호');
+    data = 'tel:' + n;
+  } else if (t === 'sms'){
+    const n = v('tel').replace(/[^\d+]/g, '');
+    if (n.length < 7) miss.push('받을 번호');
+    data = `SMSTO:${n}:${v('msg')}`;
+  }
+  return { data, miss };
+}
+function cardText(){
+  const t = S.type, v = k => (S[k] || '').trim();
+  const c = CARD[t]; let title = v('store'), lines = [];
+  if (t === 'wifi'){ if (v('ssid')) lines.push(['와이파이', v('ssid')]); if (S.showPw && v('pw')) lines.push(['비밀번호', v('pw')]); }
+  if (t === 'map' && v('addr')) lines.push(['주소', v('addr')]);
+  if (t === 'vcard'){ title = v('vname') + (v('vtitle') ? ' ' + v('vtitle') : ''); if (v('vorg')) lines.push(['', v('vorg')]); if (v('vtel')) lines.push(['휴대폰', v('vtel')]); }
+  if ((t === 'tel' || t === 'sms') && v('tel')) lines.push([t === 'tel' ? '전화' : '문자', v('tel')]);
+  return { tag: c.tag, title, hint: v('hint') || c.hint, lines };
+}
+
+/* ───────── 그리기 ───────── */
+const imgCache = new Map();
+function loadImg(src){
+  if (imgCache.has(src)) return imgCache.get(src);
+  const p = new Promise((res, rej) => { const im = new Image(); im.crossOrigin = 'anonymous'; im.decoding = 'async'; im.onload = () => res(im); im.onerror = () => { imgCache.delete(src); rej(new Error('그림을 불러오지 못했어요')); }; im.src = src; });
+  imgCache.set(src, p); return p;
+}
+function fileToImg(f){ return new Promise((res, rej) => { const u = URL.createObjectURL(f); const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = u; }); }
+
+function makeQR(data, withLogo){
+  if (typeof qrcode === 'undefined') throw new Error('QR 도구를 불러오지 못했어요. 새로고침해 주세요.');
+  qrcode.stringToBytes = qrcode.stringToBytesFuncs['UTF-8'];
+  const ecl = withLogo ? 'H' : (S.type === 'vcard' ? 'M' : 'Q');
+  const q = qrcode(0, ecl); q.addData(data, 'Byte'); q.make(); return q;
+}
+/* QR을 (x,y) 왼쪽 위 기준 size 크기 안에 그린다. 실제 그린 영역을 돌려준다 */
+async function drawQR(ctx, q, x, y, size, color){
+  const n = q.getModuleCount(), m = Math.floor(size / n), real = m * n;
+  const ox = Math.round(x + (size - real) / 2), oy = Math.round(y + (size - real) / 2);
+  ctx.fillStyle = color;
+  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c)) ctx.fillRect(ox + c * m, oy + r * m, m, m);
+  if (S.logo !== 'none'){
+    const ls = Math.round(real * 0.22), lx = ox + (real - ls) / 2, ly = oy + (real - ls) / 2;
+    ctx.fillStyle = '#ffffff'; rrect(ctx, lx - m, ly - m, ls + 2 * m, ls + 2 * m, m * 1.5); ctx.fill();
+    try {
+      const im = S.logo === 'kt' ? await loadImg(KT_LOGO) : S.logoImg;
+      if (im){ const r = Math.min(ls / im.width, ls / im.height); const w = im.width * r, h = im.height * r; ctx.drawImage(im, lx + (ls - w) / 2, ly + (ls - h) / 2, w, h); }
+    } catch (e) {}
+  }
+  return { x: ox, y: oy, s: real, m };
+}
+function rrect(ctx, x, y, w, h, r, keep){ if (!keep) ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+const FONT = "'Pretendard Variable', Pretendard, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif";
+function fitFont(ctx, text, weight, max, min, width){
+  let s = max; ctx.font = `${weight} ${s}px ${FONT}`;
+  while (s > min && ctx.measureText(text).width > width){ s -= 2; ctx.font = `${weight} ${s}px ${FONT}`; }
+  return s;
+}
+function spaced(ctx, text, cx, y, sp){
+  const chars = [...text]; const w = chars.reduce((a, ch) => a + ctx.measureText(ch).width, 0) + sp * (chars.length - 1);
+  let x = cx - w / 2; ctx.textAlign = 'left';
+  for (const ch of chars){ ctx.fillText(ch, x, y); x += ctx.measureText(ch).width + sp; }
+  ctx.textAlign = 'center';
+}
+function wrap(ctx, text, width, maxLines){
+  const words = text.split(/\s+/); const out = []; let line = '';
+  for (const w of words){ const t = line ? line + ' ' + w : w; if (ctx.measureText(t).width > width && line){ out.push(line); line = w; } else line = t; }
+  if (line) out.push(line); return out.slice(0, maxLines);
+}
+
+/* 안내 카드: 가운데 (cx, cy), 배율 k */
+async function drawCard(ctx, q, cx, cy, k){
+  const T = cardText(), dark = S.card === 'dark';
+  const CW = 780 * k, pad = 50 * k, inner = CW - pad * 2, QS = 470 * k;
+  const n = q.getModuleCount(), quiet = Math.ceil(QS / n * 4);
+  ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+  // 높이 계산
+  const tagH = 30 * k, gap = 22 * k;
+  let titleSize = 0; if (T.title) titleSize = fitFont(ctx, T.title, 800, 72 * k, 40 * k, inner);
+  ctx.font = `500 ${30 * k}px ${FONT}`; const hintLines = wrap(ctx, T.hint, inner, 2);
+  const lineH = 48 * k;
+  let h = pad + tagH + (T.title ? gap + titleSize * 1.15 : 0) + quiet + QS + quiet + hintLines.length * 40 * k + (T.lines.length ? gap + T.lines.length * lineH : 0) + pad * 0.9;
+  const x = cx - CW / 2, y = cy - h / 2;
+  // 카드
+  ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.30)'; ctx.shadowBlur = 60 * k; ctx.shadowOffsetY = 20 * k;
+  ctx.fillStyle = dark ? '#121316' : '#ffffff'; rrect(ctx, x, y, CW, h, 40 * k); ctx.fill(); ctx.restore();
+  let yy = y + pad;
+  ctx.fillStyle = dark ? '#8f98a8' : '#8a8f98'; ctx.font = `700 ${24 * k}px ${FONT}`; spaced(ctx, T.tag, cx, yy + 22 * k, 6 * k);
+  yy += tagH;
+  if (T.title){ yy += gap; ctx.fillStyle = dark ? '#ffffff' : '#111111'; ctx.font = `800 ${titleSize}px ${FONT}`; ctx.fillText(T.title, cx, yy + titleSize * 0.92); yy += titleSize * 1.15; }
+  yy += quiet;
+  const qx = cx - QS / 2;
+  if (dark){ ctx.fillStyle = '#ffffff'; rrect(ctx, qx - quiet * 0.8, yy - quiet * 0.8, QS + quiet * 1.6, QS + quiet * 1.6, 18 * k); ctx.fill(); }
+  const qr = await drawQR(ctx, q, qx, yy, QS, S.qrColor);
+  yy += QS + quiet;
+  ctx.fillStyle = dark ? '#d5d9e0' : '#3a3d44'; ctx.font = `500 ${30 * k}px ${FONT}`;
+  for (const l of hintLines){ ctx.fillText(l, cx, yy + 30 * k); yy += 40 * k; }
+  if (T.lines.length){
+    yy += gap;
+    ctx.strokeStyle = dark ? '#2a2d35' : '#e6e3dd'; ctx.lineWidth = 2 * k; ctx.beginPath(); ctx.moveTo(x + pad, yy - gap / 2); ctx.lineTo(x + CW - pad, yy - gap / 2); ctx.stroke();
+    for (const [lab, val] of T.lines){
+      ctx.font = `500 ${26 * k}px ${FONT}`; const lw = lab ? ctx.measureText(lab).width + 18 * k : 0;
+      const vs = fitFont(ctx, val, 700, 36 * k, 22 * k, inner - lw);
+      ctx.font = `700 ${vs}px ${FONT}`; const vw = ctx.measureText(val).width;
+      const sx = cx - (lw + vw) / 2; ctx.textAlign = 'left';
+      if (lab){ ctx.font = `500 ${26 * k}px ${FONT}`; ctx.fillStyle = dark ? '#8f98a8' : '#8a8f98'; ctx.fillText(lab, sx, yy + 34 * k); }
+      ctx.font = `700 ${vs}px ${FONT}`; ctx.fillStyle = dark ? '#ffffff' : '#111111'; ctx.fillText(val, sx + lw, yy + 34 * k);
+      ctx.textAlign = 'center'; yy += lineH;
+    }
+  }
+  return qr;
+}
+
+async function drawLegacy(ctx, q, it){
+  const im = await loadImg(LEGACY(it.n));
+  ctx.drawImage(im, 0, 0, W, H);
+  const k = W / 1240;
+  ctx.save(); ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.rect(0, 0, W, H);
+  rrect(ctx, 96 * k, 32 * k, 1046 * k, 1688 * k, 64 * k, true); ctx.fill('evenodd'); ctx.restore();
+  const bx = 419 * k, by = 1187 * k, bs = 402 * k, pad = 26 * k;
+  ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.25)'; ctx.shadowBlur = 30 * k; ctx.fillStyle = '#ffffff'; rrect(ctx, bx, by, bs, bs, 16 * k); ctx.fill(); ctx.restore();
+  const qr = await drawQR(ctx, q, bx + pad, by + pad, bs - pad * 2, S.qrColor);
+  const T = cardText();
+  const txt = T.lines.length ? T.lines.map(l => (l[0] ? l[0] + ' ' : '') + l[1]).join('    ') : T.hint;
+  const fs = fitFont(ctx, txt, 700, 30 * k, 18 * k, 900 * k);
+  ctx.font = `700 ${fs}px ${FONT}`; const tw = ctx.measureText(txt).width;
+  const py = by + bs + 22 * k;
+  ctx.fillStyle = 'rgba(0,0,0,.72)'; rrect(ctx, W / 2 - tw / 2 - 24 * k, py, tw + 48 * k, fs + 28 * k, (fs + 28 * k) / 2); ctx.fill();
+  ctx.fillStyle = '#ffffff'; ctx.textAlign = 'center'; ctx.fillText(txt, W / 2, py + fs + 6 * k);
+  return qr;
+}
+
+const cv = $('#cv'), ctx = cv.getContext('2d');
+let renderSeq = 0, lastOK = false, timer = null;
+function schedule(){ clearTimeout(timer); timer = setTimeout(render, 90); }
+async function render(){
+  const seq = ++renderSeq;
+  const it = ITEMS.find(i => i.id === S.tpl) || ITEMS[0];
+  const { data, miss } = qrContent();
+  const square = it.kind === 'square';
+  const cw = square ? 1200 : W, ch = square ? 1200 : H;
+  // 다른 캔버스에 그린 뒤 한 번에 옮겨 깜빡임을 막는다
+  const off = document.createElement('canvas'); off.width = cw; off.height = ch;
+  const c = off.getContext('2d');
+  let qr = null, err = '';
+  try {
+    await document.fonts.load(`800 40px 'Pretendard Variable'`).catch(() => {});
+    const q = makeQR(miss.length ? 'https://kt-synergy.com' : data, S.logo !== 'none');
+    if (square){
+      c.fillStyle = '#ffffff'; c.fillRect(0, 0, cw, ch);
+      qr = await drawQR(c, q, 120, 120, 960, S.qrColor);
+    } else if (it.kind === 'legacy'){
+      qr = await drawLegacy(c, q, it);
+    } else {
+      if (it.kind === 'plain'){ c.fillStyle = '#f3f1ec'; c.fillRect(0, 0, cw, ch); }
+      else { const im = await loadImg(BASE + 'full/' + it.file + '.webp'); c.drawImage(im, 0, 0, cw, ch); }
+      const k = it.kind === 'plain' ? 1.3 : (it.wide ? 1.18 : 1.05);
+      qr = await drawCard(c, q, cw / 2, ch / 2 + (it.kind === 'plain' ? 0 : 2), k);
+    }
+  } catch (e){ err = e.message || '그리는 중 문제가 생겼어요'; }
+  if (seq !== renderSeq) return;
+  cv.width = cw; cv.height = ch; ctx.drawImage(off, 0, 0);
+  thumbMobile();
+  // 상태
+  const blank = $('#blank');
+  if (err){ setStatus('bad', err); blank.innerHTML = `<div><b>그림을 불러오지 못했어요</b>인터넷 연결을 확인한 뒤 다시 골라 주세요.</div>`; blank.hidden = false; lastOK = false; }
+  else if (miss.length){ setStatus('bad', miss.join(', ') + josa(miss[miss.length - 1], '을', '를') + ' 넣어 주세요.'); blank.innerHTML = `<div><b>${miss[0]}${josa(miss[0], '을', '를')} 넣으면</b>여기에 완성된 모습이 나와요.</div>`; blank.hidden = false; lastOK = false; }
+  else {
+    blank.hidden = true; lastOK = true;
+    const ok = verify(c, qr, data);
+    if (!ok) setStatus('warn', 'QR이 잘 안 읽힐 수 있어요. 가운데 로고를 빼거나 QR 색을 더 진하게 바꿔 보세요.');
+    else if (autoFilled.size) setStatus('warn', '사진에서 읽은 값이 들어 있어요(노란 칸). 스티커와 한 글자씩 맞춰 본 뒤 받으세요.');
+    else setStatus('ok', 'QR을 직접 읽어서 내용이 맞는 것까지 확인했어요.');
+  }
+  ['#dl', '#pr', '#mdl', '#dl2', '#pr2'].forEach(s => $(s).disabled = !lastOK);
+  $('#meta').textContent = square ? '정사각 1200×1200 · QR만' : 'A4 세로 · 인쇄용 고화질 (' + cw + '×' + ch + ')';
+}
+/* 그린 QR을 다시 읽어 내용이 같은지 확인 */
+function verify(c, qr, data){
+  if (typeof jsQR === 'undefined' || !qr) return true;
+  try {
+    const p = qr.m * 4, x = Math.max(0, qr.x - p), y = Math.max(0, qr.y - p), s = qr.s + p * 2;
+    const tmp = document.createElement('canvas'), ts = Math.min(640, s); tmp.width = tmp.height = ts;
+    const t = tmp.getContext('2d'); t.fillStyle = '#fff'; t.fillRect(0, 0, ts, ts); t.drawImage(c.canvas, x, y, s, s, 0, 0, ts, ts);
+    const d = t.getImageData(0, 0, ts, ts); const r = jsQR(d.data, ts, ts, { inversionAttempts: 'dontInvert' });
+    return !!r && r.data === data;
+  } catch (e){ return true; }
+}
+function setStatus(kind, text){
+  ['#status', '#status2'].forEach(s => { const el = $(s); el.className = 'status ' + kind; el.querySelector('.tx').textContent = text; });
+  $('#mtx').innerHTML = `<b>${kind === 'ok' ? '준비됐어요' : kind === 'warn' ? '확인해 주세요' : '아직이에요'}</b><span>${text}</span>`;
+}
+function thumbMobile(){
+  const m = $('#mcv'), mc = m.getContext('2d'); mc.fillStyle = '#15171d'; mc.fillRect(0, 0, m.width, m.height);
+  const r = Math.min(m.width / cv.width, m.height / cv.height); const w = cv.width * r, h = cv.height * r;
+  mc.drawImage(cv, (m.width - w) / 2, (m.height - h) / 2, w, h);
+}
+
+/* ───────── 받기 · 인쇄 ───────── */
+function fileName(){
+  const T = cardText(); const base = (T.title || TYPES.find(t => t.k === S.type).t).replace(/[\\/:*?"<>|]/g, '').trim().slice(0, 30) || 'QR';
+  return `QR포스터_${base}.png`;
+}
+function download(){
+  if (!lastOK) return;
+  cv.toBlob(b => {
+    const u = URL.createObjectURL(b); const a = document.createElement('a'); a.href = u; a.download = fileName();
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 4000);
+  }, 'image/png');
+}
+function printIt(){
+  if (!lastOK) return;
+  const url = cv.toDataURL('image/png'), sq = cv.width === cv.height;
+  const w = window.open('', '_blank'); if (!w){ alertMsg('팝업이 막혀 있어요. 그림 파일로 받아서 인쇄해 주세요.'); return; }
+  w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${fileName()}</title><style>@page{size:A4 portrait;margin:${sq ? '20mm' : '0'}}html,body{margin:0;height:100%}body{display:flex;align-items:center;justify-content:center}img{${sq ? 'width:150mm' : 'width:210mm;height:297mm;object-fit:cover'}}</style></head><body><img src="${url}" onload="setTimeout(function(){print()},250)"></body></html>`);
+  w.document.close();
+}
+function alertMsg(t){ setStatus('warn', t); }
+
+/* ───────── 3. 그림 고르기 ───────── */
+function buildFilters(){
+  const cats = [['all', '전체'], ['base', '기본']].concat(CATS.map((c, i) => [String(i), c])).concat([['legacy', '기존 템플릿']]);
+  $('#catRow').innerHTML = cats.map(([v, t]) => `<button type="button" class="chip" data-v="${v}" aria-pressed="${v === S.fcat}">${t}</button>`).join('');
+  const sts = [['all', '모든 스타일'], ['p', '사진'], ['i', '일러스트'], ['m', '미니멀'], ['d', '고급 다크'], ['w', '가운데 넓게']];
+  $('#styRow').innerHTML = sts.map(([v, t]) => `<button type="button" class="chip" data-v="${v}" aria-pressed="${v === S.fsty}">${t}</button>`).join('');
+  $('#catRow').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; S.fcat = b.dataset.v; $$('#catRow .chip').forEach(x => x.setAttribute('aria-pressed', x === b)); buildGrid(); });
+  $('#styRow').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; S.fsty = b.dataset.v; $$('#styRow .chip').forEach(x => x.setAttribute('aria-pressed', x === b)); buildGrid(); });
+  $('#q').addEventListener('input', e => { S.q = e.target.value.trim(); buildGrid(); });
+}
+function visible(){
+  return ITEMS.filter(it => {
+    if (S.fcat === 'base' && it.cat !== -2) return false;
+    if (S.fcat === 'legacy' && it.cat !== -1) return false;
+    if (/^\d+$/.test(S.fcat) && it.cat !== +S.fcat) return false;
+    if (S.fsty !== 'all'){
+      if (it.kind !== 'new') return false;
+      if (S.fsty === 'w' ? !it.wide : it.sty !== S.fsty) return false;
+    }
+    if (S.q){
+      const hay = it.name + ' ' + (it.cat >= 0 ? CATS[it.cat] : (it.cat === -1 ? '기존' : '기본 흰'));
+      if (!hay.includes(S.q)) return false;
+    }
+    return true;
+  });
+}
+const CK = '<span class="ck"><svg viewBox="0 0 12 12"><path d="M2.5 6.3l2.3 2.3 4.7-5"/></svg></span>';
+function buildGrid(){
+  const list = visible(), g = $('#grid');
+  $('#cnt').textContent = list.length + '장';
+  if (!list.length){ g.innerHTML = '<div class="empty">맞는 그림이 없어요. 다른 업종이나 스타일을 골라 보세요.</div>'; return; }
+  g.innerHTML = list.map(it => {
+    let inner;
+    if (it.kind === 'plain') inner = `<div class="ph"><div><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><rect x="9" y="9" width="6" height="6"/></svg><br>흰 바탕 포스터</div></div>`;
+    else if (it.kind === 'square') inner = `<div class="ph"><div><svg viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6"/><rect x="14" y="4" width="6" height="6"/><rect x="4" y="14" width="6" height="6"/><path d="M14 14h2v2h-2zM18 18h2v2h-2zM14 18h2"/></svg><br>QR만 받기</div></div>`;
+    else if (it.kind === 'legacy') inner = `<img loading="lazy" decoding="async" src="${BASE}thumb/legacy_${String(it.n).padStart(2, '0')}.webp" alt="${it.name}"><span class="nm">${it.name}</span>`;
+    else inner = `<img loading="lazy" decoding="async" src="${BASE}thumb/${it.file}.webp" alt="${it.name} ${STY[it.sty]}"><span class="nm">${it.name} <i>· ${STY[it.sty]}${it.wide ? ' · 넓게' : ''}</i></span>`;
+    return `<button type="button" class="tile" data-id="${it.id}" aria-pressed="${it.id === S.tpl}">${inner}${CK}</button>`;
+  }).join('');
+}
+function bindGrid(){
+  $('#grid').addEventListener('click', e => {
+    const b = e.target.closest('.tile'); if (!b) return;
+    S.tpl = b.dataset.id; $$('#grid .tile').forEach(x => x.setAttribute('aria-pressed', x === b));
+    const it = ITEMS.find(i => i.id === S.tpl);
+    if (it && it.kind === 'new') loadImg(BASE + 'full/' + it.file + '.webp').catch(() => {});
+    schedule();
+  });
+}
+
+/* ───────── 사진으로 채우기 (QR 먼저, 안 되면 글자 읽기) ───────── */
+let tessP = null, workerKE = null, workerE = null;
+function loadScript(src){ return new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => rej(new Error('글자 읽기 도구를 불러오지 못했어요')); document.head.appendChild(s); }); }
+async function getWorkers(){
+  if (!tessP) tessP = loadScript(TESS_URL);
+  await tessP;
+  if (!workerKE) workerKE = await Tesseract.createWorker(['kor', 'eng'], 1);
+  if (!workerE) workerE = await Tesseract.createWorker('eng', 1);
+  return [workerKE, workerE];
+}
+function ocrMsg(html, warn){ const m = $('#ocrMsg'); m.className = 'ocrmsg on' + (warn ? ' warn' : ''); m.innerHTML = html; }
+function canvasFrom(img, maxSide, rot){
+  const r = Math.min(1, maxSide / Math.max(img.width, img.height));
+  const w = Math.round(img.width * r), h = Math.round(img.height * r);
+  const c = document.createElement('canvas'); const sw = rot % 180 ? h : w, sh = rot % 180 ? w : h;
+  c.width = sw; c.height = sh; const x = c.getContext('2d', { willReadFrequently: true });
+  x.translate(sw / 2, sh / 2); x.rotate(rot * Math.PI / 180); x.drawImage(img, -w / 2, -h / 2, w, h); return c;
+}
+async function findQR(img){
+  if ('BarcodeDetector' in window){
+    try { const bd = new BarcodeDetector({ formats: ['qr_code'] }); const r = await bd.detect(img); if (r && r[0]) return r[0].rawValue; } catch (e) {}
+  }
+  if (typeof jsQR === 'undefined') return null;
+  for (const side of [1000, 1600, 700, 2200]){
+    const c = canvasFrom(img, side, 0), d = c.getContext('2d').getImageData(0, 0, c.width, c.height);
+    const r = jsQR(d.data, c.width, c.height, { inversionAttempts: 'attemptBoth' });
+    if (r) return r.data;
+  }
+  return null;
+}
+function parseWifiQR(s){
+  if (!/^WIFI:/i.test(s)) return null;
+  const get = k => { const m = s.match(new RegExp('[:;]' + k + ':((?:\\\\.|[^;])*)', 'i')); return m ? m[1].replace(/\\(.)/g, '$1') : ''; };
+  return { ssid: get('S'), pw: get('P') };
+}
+const LABEL_PW = /(P\/?W|PASS(WORD)?|비밀\s*번호|비번|암호\s*키|암호|KEY|WPA)/i;
+const LABEL_SSID = /(SSID|무선\s*랜|네트워크|와이파이|Wi-?Fi\s*이름)/i;
+function fixSsid(s){
+  s = s.replace(/[|“”"'`,]/g, '').trim();
+  s = s.replace(/^K\s*T[\s_]*[G6]\s*[iIl1|]\s*[G6]\s*[AaHh4]/, 'KT_GiGA').replace(/^KT_GiGA[\s_]*/, 'KT_GiGA_');
+  s = s.replace(/_(2|5)\s*[G6]\s*_?/i, '_$1G_').replace(/W\s*[a@]\s*v\s*e\s*2/i, 'Wave2').replace(/Wave2[\s_]*/, 'Wave2_');
+  s = s.replace(/\s+/g, '_').replace(/_+/g, '_').replace(/_$/, '');
+  return s;
+}
+const looksSsid = t => /^(KT|SK|U\+|LG|iptime|olleh|Galaxy|AndroidHotspot|ipTIME|SO070)/i.test(t) || (/_/.test(t) && t.length >= 6);
+function ssidIn(text){
+  // 줄 안에서 와이파이 이름이 시작되는 곳부터 이어 붙인다 (낱말이 쪼개져 읽혀도 하나로)
+  const m = text.match(/(KT|SK[_ ]|U\+|iptime|olleh|Galaxy|AndroidHotspot|SO070)[\s\S]*$/i) || text.match(/(?:SSID|ID)\s*[:：]?\s*(\S[\s\S]*)$/i);
+  if (!m) return null;
+  let s = (m[0].replace(/^(?:SSID|ID)\s*[:：]?\s*/i, '')).split(/\s+/).filter(w => /^[\w+.\-]+$/.test(w)).join(' ');
+  s = fixSsid(s);
+  const kt = s.match(/^KT_GiGA_(2G|5G)_(Wave2_)?[0-9A-Z]{4}/);
+  if (kt) return kt[0];
+  s = s.split('_').length > 1 ? s : s.split(' ')[0];
+  return s.length >= 4 ? s : null;
+}
+function linesOf(res){
+  const out = [];
+  for (const b of (res.data.blocks || [])) for (const p of b.paragraphs) for (const l of p.lines) out.push({ text: l.text.trim(), bbox: l.bbox, conf: l.confidence, words: l.words.map(w => ({ text: w.text, bbox: w.bbox, conf: w.confidence })) });
+  return out;
+}
+function scoreLines(L){
+  let s = 0; for (const l of L){ if (LABEL_PW.test(l.text)) s += 2; if (LABEL_SSID.test(l.text)) s += 1; if (l.words.some(w => looksSsid(w.text))) s += 2; }
+  return s + L.reduce((a, l) => a + l.conf, 0) / Math.max(1, L.length) / 50;
+}
+function gray(c){
+  const x = c.getContext('2d', { willReadFrequently: true }), d = x.getImageData(0, 0, c.width, c.height), a = d.data;
+  let lo = 255, hi = 0; const g = new Uint8ClampedArray(a.length / 4);
+  for (let i = 0, j = 0; i < a.length; i += 4, j++){ const v = (a[i] * 299 + a[i + 1] * 587 + a[i + 2] * 114) / 1000; g[j] = v; }
+  const hist = new Array(256).fill(0); g.forEach(v => hist[v | 0]++);
+  let acc = 0; const n = g.length; for (let v = 0; v < 256; v++){ acc += hist[v]; if (acc > n * .02){ lo = v; break; } }
+  acc = 0; for (let v = 255; v >= 0; v--){ acc += hist[v]; if (acc > n * .02){ hi = v; break; } }
+  const k = 255 / Math.max(1, hi - lo);
+  for (let i = 0, j = 0; i < a.length; i += 4, j++){ const v = Math.max(0, Math.min(255, (g[j] - lo) * k)); a[i] = a[i + 1] = a[i + 2] = v; }
+  x.putImageData(d, 0, 0); return c;
+}
+function crop(src, bb, scale, padX, padY){
+  const x0 = Math.max(0, bb.x0 - padX), y0 = Math.max(0, bb.y0 - padY), x1 = Math.min(src.width, bb.x1 + padX), y1 = Math.min(src.height, bb.y1 + padY);
+  const c = document.createElement('canvas'); c.width = Math.round((x1 - x0) * scale); c.height = Math.round((y1 - y0) * scale);
+  const x = c.getContext('2d', { willReadFrequently: true }); x.imageSmoothingQuality = 'high'; x.drawImage(src, x0, y0, x1 - x0, y1 - y0, 0, 0, c.width, c.height);
+  return gray(c);
+}
+async function readPhoto(file){
+  const img = await fileToImg(file);
+  ocrMsg('사진에서 QR을 찾는 중…');
+  const q = await findQR(img);
+  if (q){
+    const w = parseWifiQR(q);
+    if (w && w.ssid){
+      setField('ssid', w.ssid, false); setField('pw', w.pw, false); renderSsidChips([]);
+      ocrMsg('사진 속 QR에서 와이파이 정보를 <b>정확히</b> 읽었어요. 가게 이름만 넣으면 됩니다.');
+      schedule(); return;
+    }
+    ocrMsg('사진에 QR이 있지만 와이파이 QR이 아니에요. 글자를 읽어 볼게요…', true);
+  }
+  ocrMsg('글자를 읽는 중… 처음 한 번은 도구를 받느라 10~20초쯤 걸려요.');
+  const [wKE, wE] = await getWorkers();
+  // 1) 방향 찾기: 네 방향 중 표시 글귀가 가장 많이 잡히는 쪽
+  let best = null;
+  for (const rot of [0, 90, 270, 180]){
+    const c = canvasFrom(img, 1600, rot);
+    const r = await wKE.recognize(c, {}, { blocks: true });
+    const L = linesOf(r), sc = scoreLines(L);
+    if (!best || sc > best.sc) best = { rot, c, L, sc };
+    if (sc >= 5) break;
+  }
+  const L = best.L;
+  // 2) 와이파이 정보가 있는 줄들을 크게 잘라 다시 읽기
+  const isKey = l => LABEL_PW.test(l.text) || LABEL_SSID.test(l.text) || l.words.some(w => looksSsid(w.text));
+  const keyIdx = new Set();
+  L.forEach((l, i) => { if (isKey(l)) keyIdx.add(i); });
+  // 표시 글귀를 못 읽은 바로 위·아래 줄(예: 비밀번호 줄)도 함께 넣는다
+  [...keyIdx].forEach(i => [i - 1, i + 1].forEach(j => {
+    if (j < 0 || j >= L.length || keyIdx.has(j)) return;
+    const a = L[i].bbox, b = L[j].bbox, lh = a.y1 - a.y0;
+    if (Math.abs((b.y0 + b.y1) / 2 - (a.y0 + a.y1) / 2) < lh * 1.8) keyIdx.add(j);
+  }));
+  const key = [...keyIdx].sort((a, b) => a - b).map(i => L[i]);
+  let lines2 = [];
+  if (key.length){
+    const hi = canvasFrom(img, 3000, best.rot), r = hi.width / best.c.width;
+    const bb = key.reduce((a, l) => ({ x0: Math.min(a.x0, l.bbox.x0), y0: Math.min(a.y0, l.bbox.y0), x1: Math.max(a.x1, l.bbox.x1), y1: Math.max(a.y1, l.bbox.y1) }), { x0: 1e9, y0: 1e9, x1: 0, y1: 0 });
+    const lh = key.reduce((a, l) => a + (l.bbox.y1 - l.bbox.y0), 0) / key.length * r;
+    const sc = Math.max(1, Math.min(4, 60 / Math.max(8, lh)));
+    const big = { x0: bb.x0 * r, y0: bb.y0 * r, x1: bb.x1 * r, y1: bb.y1 * r };
+    const c2 = crop(hi, big, sc, lh * 1.2, lh * 0.8);
+    await wE.setParameters({ tessedit_pageseg_mode: '6', tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-.@!#$%&*+:/' });
+    const r2 = await wE.recognize(c2, {}, { blocks: true });
+    lines2 = linesOf(r2).map(l => ({ ...l, src: c2 }));
+    // 3) 비밀번호·와이파이 이름 낱말은 한 번 더 크게 읽기
+    const ALL = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-.@!#$%&*+';
+    // KT 공유기 스티커는 글자 폭이 일정하고 비밀번호가 10자리라, 와이파이 이름 줄로 글자 폭을 재서 비밀번호 칸만 잘라 읽는다
+    let pitch = 0;
+    for (const l of lines2){
+      const s = ssidIn(l.text); if (!s || !/^KT_GiGA_/.test(s)) continue;
+      const i0 = l.words.findIndex(w => /K\s*T/.test(w.text)); if (i0 < 0) continue;
+      const kx = l.words[i0].text.indexOf('K'), w0 = l.words[i0];
+      const x0 = w0.bbox.x0 + (w0.bbox.x1 - w0.bbox.x0) * Math.max(0, kx) / Math.max(1, w0.text.length);
+      const last = l.words[l.words.length - 1];
+      pitch = (last.bbox.x1 - x0) / s.length; break;
+    }
+    for (const l of lines2){
+      for (const w of l.words){
+        const t = w.text.replace(/[|]/g, '');
+        if (t.length < 6 || (!/[0-9]/.test(t) && !/_/.test(t))) continue;
+        // 바코드가 붙어 읽힌 경우: 소문자·숫자 뒤에 대문자 덩어리가 오면 그 앞까지만 다시 읽는다
+        let bb = w.bbox, wl = ALL;
+        const cut = t.search(/[A-Z\\]{3,}/);
+        if (pitch && !ssidIn(l.text) && /[a-z]/.test(t) && (bb.x1 - bb.x0) > pitch * 10.8){
+          bb = { x0: bb.x0, y0: bb.y0, x1: Math.round(bb.x0 + pitch * 10.5), y1: bb.y1 };
+          wl = 'abcdefghijklmnopqrstuvwxyz0123456789';
+        } else if (cut >= 6 && /[a-z]/.test(t.slice(0, cut)) && !/_/.test(t)){
+          const x1 = bb.x0 + (bb.x1 - bb.x0) * cut / t.length;
+          bb = { x0: bb.x0, y0: bb.y0, x1: Math.round(x1), y1: bb.y1 };
+          wl = 'abcdefghijklmnopqrstuvwxyz0123456789';
+        } else if (!/[A-Z]/.test(t) && !/_/.test(t)) wl = 'abcdefghijklmnopqrstuvwxyz0123456789';
+        await wE.setParameters({ tessedit_pageseg_mode: '7', tessedit_char_whitelist: wl });
+        const r3 = await wE.recognize(crop(l.src, bb, 2, 10, 10));
+        const t3 = r3.data.text.trim().replace(/\s+/g, '');
+        if (t3 && t3.length >= 6 && (r3.data.confidence >= w.conf - 5 || bb !== w.bbox)) w.text = t3;
+      }
+      l.text = l.words.map(w => w.text).join(' ');
+    }
+    await wE.setParameters({ tessedit_pageseg_mode: '3', tessedit_char_whitelist: '' });
+  }
+  applyOcr(L, lines2);
+}
+function applyOcr(L1, L2){
+  const ssids = [], pws = [];
+  const pwTok = t => {
+    t = t.replace(/^(P\/?W|PASS(WORD)?|KEY)[:：]?/i, '').replace(/[|:：]/g, '');
+    return t.length >= 6 && t.length <= 32 && /[0-9]/.test(t) && /[A-Za-z]/.test(t) && !/_/.test(t) && !/^\d[\d-]+$/.test(t) ? t : null;
+  };
+  // 크게 다시 읽은 결과(2차)를 믿고, 거기서 못 찾았을 때만 1차 결과를 쓴다
+  for (const l of L2){ const s = ssidIn(l.text); if (s) ssids.push(s); }
+  if (!ssids.length) for (const l of L1){ const s = ssidIn(l.text); if (s) ssids.push(s); }
+  // 비밀번호: (2차) 와이파이 이름이 없는 줄의 글자·숫자 섞인 낱말 → (1차) 표시 글귀 뒤 낱말 → 아무 데서나 8~20자
+  for (const l of L2){ if (ssidIn(l.text)) continue; for (const w of l.words){ const t = pwTok(w.text); if (t) pws.push(t); } }
+  for (const l of L1){ if (!LABEL_PW.test(l.text) || ssidIn(l.text)) continue; for (const w of l.words){ const t = pwTok(w.text); if (t) pws.push(t); } }
+  if (!pws.length) for (const l of L1) for (const w of l.words){ const t = w.text; if (/^(?=.*\d)(?=.*[a-z])[A-Za-z0-9]{8,20}$/.test(t)) pws.push(t); }
+  // KT 2.4G/5G 짝 맞추기
+  const uniq = [...new Set(ssids.filter(s => s.length >= 6))];
+  const kt = uniq.find(s => /^KT_GiGA_(2G|5G)_/.test(s));
+  if (kt){ const other = kt.includes('_2G_') ? kt.replace('_2G_', '_5G_') : kt.replace('_5G_', '_2G_'); if (!uniq.includes(other)) uniq.push(other); }
+  uniq.sort((a, b) => (/_2G_|2\.4/.test(b) ? 1 : 0) - (/_2G_|2\.4/.test(a) ? 1 : 0));
+  // KT 이름 끝 네 글자는 2.4G·5G가 같다 → 여러 번 읽힌 것 중 많이 나온 쪽으로 맞춘다
+  const votes = {}; ssids.filter(s => /^KT_GiGA_/.test(s)).forEach(s => { const k = s.split('_').pop(); votes[k] = (votes[k] || 0) + 1; });
+  const ranked = Object.entries(votes).sort((a, b) => b[1] - a[1]);
+  const sufMismatch = ranked.length > 1 && ranked[0][1] === ranked[1][1];
+  if (ranked.length > 1 && !sufMismatch){
+    const best = ranked[0][0];
+    for (let i = 0; i < uniq.length; i++) if (/^KT_GiGA_/.test(uniq[i])) uniq[i] = uniq[i].replace(/[^_]+$/, best);
+    uniq.splice(0, uniq.length, ...new Set(uniq));
+  }
+  // 가게 이름 후보: 한글 줄
+  const stores = [...new Set(L1.filter(l => l.conf >= 70).map(l => l.text.replace(/[^가-힣A-Za-z0-9 &·.-]/g, ' ').replace(/\s+/g, ' ').trim())
+    .filter(t => /[가-힣]{2,}/.test(t) && t.length <= 24 && !LABEL_PW.test(t) && !LABEL_SSID.test(t) && !/(전용|시연|현장|고객센터|문의|무선|인터넷|비밀|와이파이)/.test(t) && !/\d{3,}-\d{3,}/.test(t)))].slice(0, 6);
+  if (uniq[0]) setField('ssid', uniq[0], true);
+  if (pws[0]) setField('pw', pws[0], true);
+  renderSsidChips(uniq); renderStoreChips(stores);
+  const got = [uniq[0] && '와이파이 이름', pws[0] && '비밀번호'].filter(Boolean);
+  if (!got.length){ ocrMsg('글자를 읽지 못했어요. 스티커가 화면에 크게, 반듯하게 나오도록 다시 찍어 보세요. 직접 넣어도 됩니다.', true); schedule(); return; }
+  let msg = `사진에서 <b>${got.join(', ')}</b>${josa(got[got.length - 1], '을', '를')} 읽어 노란 칸에 넣었어요. <b>스티커와 한 글자씩 맞춰 봐 주세요</b> (0과 O, 1과 l, 8과 B를 자주 헷갈립니다).`;
+  if (sufMismatch) msg += '<br>2.4G와 5G 이름의 끝 네 글자가 서로 다르게 읽혔어요. 끝자리를 꼭 확인해 주세요.';
+  if (!pws[0]) msg += '<br>비밀번호는 읽지 못했어요. 직접 넣어 주세요.';
+  if (stores.length) msg += '<br>사진에 보이는 글귀 중 가게 이름이 있으면 가게 이름 칸 아래에서 눌러 넣으세요.';
+  msg += ' <button type="button" class="btn sec" id="ocrOk" style="margin-left:6px;padding:6px 10px">다 맞아요</button>';
+  ocrMsg(msg, true);
+  $('#ocrOk').addEventListener('click', () => { autoFilled.clear(); markAuto(); ocrMsg('확인 고맙습니다. 이제 그림을 고르고 받으면 됩니다.'); schedule(); });
+  schedule();
+}
+let ssidOpts = [], storeOpts = [];
+function renderSsidChips(list){
+  if (list) ssidOpts = list;
+  $('#ssidChips').innerHTML = ssidOpts.length > 1 ? ssidOpts.map(s => `<button type="button" class="chip" data-v="${s}" aria-pressed="${s === S.ssid}">${/_5G_/.test(s) ? '5G · ' : /_2G_/.test(s) ? '2.4G · ' : ''}${s}</button>`).join('') : '';
+}
+function renderStoreChips(list){
+  if (list) storeOpts = list;
+  $('#storeChips').innerHTML = storeOpts.map(s => `<button type="button" class="chip" data-v="${s}" aria-pressed="${s === S.store}">${s}</button>`).join('');
+}
+
+/* ───────── 시작 ───────── */
+function init(){
+  $('#ver').textContent = VERSION;
+  buildTypes(); bindFields(); syncType(); buildFilters(); buildGrid(); bindGrid();
+  $('#photoIn').addEventListener('change', async e => {
+    const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+    try { await readPhoto(f); } catch (err){ ocrMsg('사진을 읽다가 문제가 생겼어요: ' + (err.message || err) + ' — 직접 넣어 주세요.', true); }
+  });
+  $('#ssidChips').addEventListener('click', e => { const b = e.target.closest('.chip'); if (!b) return; setField('ssid', b.dataset.v, autoFilled.has('ssid')); renderSsidChips(); schedule(); });
+  $('#storeChips').addEventListener('click', e => { const b = e.target.closest('.chip'); if (!b) return; setField('store', b.dataset.v, false); renderStoreChips(); schedule(); });
+  ['#dl', '#dl2', '#mdl'].forEach(s => $(s).addEventListener('click', download));
+  ['#pr', '#pr2'].forEach(s => $(s).addEventListener('click', printIt));
+  $('#mthumb').addEventListener('click', openSheet);
+  $('#shClose').addEventListener('click', () => $('#sheet').classList.remove('on'));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') $('#sheet').classList.remove('on'); });
+  render();
+}
+function openSheet(){
+  const b = $('#sbody'); b.innerHTML = ''; const c = document.createElement('canvas');
+  const r = Math.min(1, 1100 / cv.height); c.width = Math.round(cv.width * r); c.height = Math.round(cv.height * r);
+  c.getContext('2d').drawImage(cv, 0, 0, c.width, c.height); b.appendChild(c); $('#sheet').classList.add('on');
+}
+init();
+</script>
+</body>
+</html>
