@@ -16,7 +16,8 @@
 <meta property="og:image:height" content="630">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
-/* 공유 진단서 보기 r1.00 — 밑그림 v4.00의 카톡 공유 링크(?k=)를 연다. 이 파일에는 진단서 내용이 없다. 링크는 만든 날부터 120일 동안 열린다 */
+/* 공유 진단서 보기 r1.00 — 밑그림 v4.00의 카톡 공유 링크(?k=)를 연다. 이 파일에는 진단서 내용이 없다. 링크는 만든 날부터 120일 동안 열린다
+   r1.01 (2026-10-30): 아래 줄에 저작권 표시 */
 :root{--ink:#201E1D;--sub:#6E6E73;--faint:#86868B;--accent:#EC3013}
 *{box-sizing:border-box}
 html,body{margin:0}
@@ -30,6 +31,7 @@ body{background:#F4F2EE;color:var(--ink);font-family:"Pretendard Variable",Prete
 #f{display:block;width:100%;height:100vh;border:0;background:#F4F2EE}
 .foot{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;justify-content:center;padding:18px 16px 34px;font-size:12.5px;line-height:1.6;color:var(--faint);text-align:center}
 .foot .ver{font-size:11px;color:#aaa}
+.foot .copy{font-size:11px;color:#aaa;letter-spacing:.02em}   /* r1.01 */
 .foot button{font:inherit;font-size:12.5px;font-weight:600;color:var(--ink);background:#fff;border:1px solid #D9D6D0;border-radius:999px;padding:5px 14px;cursor:pointer}
 [hidden]{display:none!important}
 @media print{.foot{display:none}}
@@ -38,7 +40,7 @@ body{background:#F4F2EE;color:var(--ink);font-family:"Pretendard Variable",Prete
 <body>
 <div class="wait" id="wait"><div><b><span class="dot"></span><span id="wt">매장 진단서를 여는 중</span></b><p id="wp">잠시만 기다려 주세요.</p></div></div>
 <iframe id="f" title="매장 진단서" sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-modals" scrolling="no" hidden></iframe>
-<div class="foot" id="foot" hidden><span id="ft"></span><button type="button" id="pr">인쇄</button><span class="ver">r1.00</span></div>
+<div class="foot" id="foot" hidden><span id="ft"></span><button type="button" id="pr">인쇄</button><span class="copy">© 2026 KT Corporation</span><span class="ver">r1.01</span></div>
 <script>
 (() => {
   'use strict';

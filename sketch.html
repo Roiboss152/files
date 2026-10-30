@@ -14,7 +14,8 @@
    잠김·밀려남·코드 잠금·옛 화면 안내를 문지기가 준 말 그대로 보여 주고, 그때는 기억해 둔 코드를 지우지 않는다(관리자가 풀면 그대로 들어온다)
    v1.03 (2026-10-07, 문지기 v1.25와 함께): 주소 끝에 ?test 를 붙이면 테스트 페이지 — 비공개 저장소 test 칸의 본문을 받는다(관리자만).
    입구와 본문 머리에 '테스트'를 빨갛게 붙여 실제 화면과 헷갈리지 않게 한다
-   v1.04 (2026-10-08): 직원과 대리점이 같이 쓰게 되어 안내의 'TF 관리자' → '관리자' */
+   v1.04 (2026-10-08): 직원과 대리점이 같이 쓰게 되어 안내의 'TF 관리자' → '관리자'
+   v1.05 (2026-10-30): 카드 아래 저작권 표시 한 줄 */
 :root{--paper:#fff;--panel:#F5F5F7;--ink:#201E1D;--sub:#6E6E73;--faint:#86868B;--accent:#EC3013;--accent-ink:#AE1800}
 *{box-sizing:border-box}
 html,body{margin:0;height:100%}
@@ -40,12 +41,13 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .msg.err{color:var(--accent-ink);font-weight:600}
 .note{margin:14px 0 0;font-size:11.5px;line-height:1.55;color:var(--faint)}
 .ver.test{color:var(--accent);font-weight:700}   /* v1.03: 테스트 페이지 */
+.copy{margin:16px 0 0;font-size:11px;color:var(--faint);letter-spacing:.02em}   /* v1.05 */
 .name .ai{color:#E8331C;font-size:.56em;font-weight:800;letter-spacing:.02em;margin-left:5px;vertical-align:.5em}   /* v1.01: AI는 빨갛게, 작게 */
 </style>
 </head>
 <body>
 <main class="card">
-  <div class="top"><div class="name">밑그림<span class="ai">AI</span></div><div class="ver" id="ver">입구 v1.04</div></div>
+  <div class="top"><div class="name">밑그림<span class="ai">AI</span></div><div class="ver" id="ver">입구 v1.05</div></div>
   <div class="tag"><span class="en">SKETCH</span><em>밑</em>천이 되는 <em>그림</em></div>
   <form id="f" autocomplete="off">
     <input id="c" type="password" placeholder="승인 코드" aria-label="승인 코드" autocomplete="off" spellcheck="false" required>
@@ -53,6 +55,7 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
   </form>
   <p class="msg" id="m" role="status" aria-live="polite"></p>
   <p class="note">승인 코드는 관리자가 한 사람씩 발급합니다. 코드를 다른 사람과 나눠 쓰지 마세요 — 화면과 인쇄물에 이름이 남고, 코드 하나에 기기는 3대까지입니다.</p>
+  <p class="copy">© 2026 KT Corporation · 인천지사 시너지영업3팀</p>
 </main>
 <script>
 (() => {
