@@ -1,0 +1,32 @@
+{
+ "pen_circle": {
+  "file": "pen_circle.jpg",
+  "n": 23,
+  "cols": 6,
+  "cw": 420,
+  "ch": 397,
+  "fps": 23.976023976023978,
+  "peak": 13,
+  "boil": [
+   8,
+   11,
+   13
+  ],
+  "crop4k": [
+   1488,
+   672,
+   845,
+   799
+  ]
+ },
+ "stamp_grunge": {
+  "file": "stamp_grunge.jpg",
+  "w": 512,
+  "h": 512
+ },
+ "counter_old": {
+  "file": "counter_old.jpg",
+  "w": 1920,
+  "h": 1080
+ }
+}
