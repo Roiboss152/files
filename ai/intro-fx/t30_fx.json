@@ -1,0 +1,32 @@
+{
+ "board_chalk": {
+  "file": "board_chalk.jpg",
+  "w": 1920,
+  "h": 1080
+ },
+ "chalk_grain": {
+  "file": "chalk_grain.png",
+  "w": 512,
+  "h": 512
+ },
+ "chalk_line": {
+  "file": "chalk_line.jpg",
+  "n": 32,
+  "cols": 4,
+  "cw": 720,
+  "ch": 46,
+  "fps": 23.976023976023978,
+  "peak": 4,
+  "boil": [
+   4
+  ]
+ },
+ "bokeh_amber": {
+  "file": "bokeh_amber.jpg",
+  "n": 72,
+  "cols": 6,
+  "cw": 480,
+  "ch": 230,
+  "fps": 12
+ }
+}
