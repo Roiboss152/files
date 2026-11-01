@@ -154,11 +154,17 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
   function eduMode(){
     $('f').style.display = 'none'; $('nt').hidden = true; $('edu').hidden = false;   // form 은 display:flex 라 hidden 이 안 먹는다
     const es = (t, err) => { $('em').textContent = t || ''; $('em').className = 'msg' + (err ? ' err' : ''); };
-    fetch(GATE + '/pub/edu', { cache: 'no-store' }).then((r) => r.json()).then((j) => {
-      if (!j || !j.open) { es('지금은 실습 시간이 아닙니다. 발표 화면의 안내를 기다려 주세요.', true); $('eb').disabled = true; $('eshot').disabled = true; return; }
+    /* 실습이 아직 안 열렸으면 단추를 잠가 두고 10초마다 다시 본다 — 발표자가 열면 새로 고치지 않아도 바로 쓸 수 있게 */
+    let waitT = 0;
+    const check = () => fetch(GATE + '/pub/edu', { cache: 'no-store' }).then((r) => r.json()).then((j) => {
+      const open = Boolean(j && j.open);
+      $('eb').disabled = !open; $('eshot').disabled = !open;
+      if (!open) { es('아직 실습이 열리지 않았습니다. 발표자가 실습을 열면 이 화면에서 바로 쓰실 수 있습니다(새로 고치지 않으셔도 됩니다).', true); clearTimeout(waitT); waitT = setTimeout(check, 10000); return; }
+      if ($('em').classList.contains('err')) es('');
       if (j.cap) $('ecap').textContent = j.cap;
       if (j.until && j.until !== '23:59') $('eend').textContent = j.until + '에';
-    }).catch(() => es('문지기 서버에 연결하지 못했습니다.', true));
+    }).catch(() => { es('문지기 서버에 연결하지 못했습니다. 잠시 뒤 다시 봅니다.', true); clearTimeout(waitT); waitT = setTimeout(check, 10000); });
+    check();
     $('eshot').onclick = () => $('efile').click();
     $('efile').onchange = async () => {
       const f = $('efile').files && $('efile').files[0]; if (!f) return;
