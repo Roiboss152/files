@@ -49,6 +49,10 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .edu .lead{margin:0 0 10px;font-size:12.5px;color:var(--sub)}
 .edu .shot{width:100%;margin:4px 0 10px;background:#fff;color:var(--ink);border:1px solid rgba(32,30,29,.16);box-shadow:none}
 .edu .ef{display:grid;gap:8px}
+.edu .ef[hidden]{display:none}
+.edu .pick{display:grid;gap:10px;margin:6px 0 4px}
+.edu .pick[hidden]{display:none}
+.edu .big{width:100%;padding:18px;font-size:17px;font-weight:800;background:var(--accent)}
 .edu .ef input{width:100%}
 .edu .ef button{width:100%}
 .edu .why{margin:14px 0 0;padding:12px 14px;border-radius:12px;background:rgba(233,233,236,.7);font-size:12px;line-height:1.65;color:var(--sub)}
@@ -67,10 +71,14 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
   <p class="msg" id="m" role="status" aria-live="polite"></p>
   <section class="edu" id="edu" hidden>
     <h2>오늘 강의 실습으로 들어가기</h2>
-    <p class="lead">소속·이름·전화번호를 넣으시면 밑그림 화면의 명함에 그대로 나옵니다.</p>
-    <button type="button" class="shot" id="eshot">명함 사진으로 채우기</button>
+    <p class="lead" id="elead">명함을 찍으시면 소속·이름·전화번호가 저절로 채워지고, 밑그림 화면의 명함에 그대로 나옵니다.</p>
+    <div class="pick" id="epick">
+      <button type="button" class="big" id="eshot">명함 사진 찍기</button>
+      <button type="button" class="shot" id="ehand">명함이 없어요 · 직접 입력</button>
+    </div>
     <input type="file" id="efile" accept="image/*" capture="environment" hidden>
-    <form class="ef" id="ef" autocomplete="off">
+    <form class="ef" id="ef" autocomplete="off" hidden>
+      <button type="button" class="shot" id="eagain" hidden>명함 다시 찍기</button>
       <input id="et" placeholder="소속 (예: KT 부산지사 시너지영업2팀)" maxlength="40" required>
       <input id="en" placeholder="이름" maxlength="20" required>
       <input id="ep" placeholder="전화번호 (010-0000-0000)" maxlength="15" inputmode="tel" required>
@@ -158,17 +166,20 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
     let waitT = 0;
     const check = () => fetch(GATE + '/pub/edu', { cache: 'no-store' }).then((r) => r.json()).then((j) => {
       const open = Boolean(j && j.open);
-      $('eb').disabled = !open; $('eshot').disabled = !open;
+      $('eb').disabled = !open; $('eshot').disabled = !open; $('ehand').disabled = !open; $('eagain').disabled = !open;
       if (!open) { es('아직 실습이 열리지 않았습니다. 발표자가 실습을 열면 이 화면에서 바로 쓰실 수 있습니다(새로 고치지 않으셔도 됩니다).', true); clearTimeout(waitT); waitT = setTimeout(check, 10000); return; }
       if ($('em').classList.contains('err')) es('');
       if (j.cap) $('ecap').textContent = j.cap;
       if (j.until && j.until !== '23:59') $('eend').textContent = j.until + '에';
     }).catch(() => { es('문지기 서버에 연결하지 못했습니다. 잠시 뒤 다시 봅니다.', true); clearTimeout(waitT); waitT = setTimeout(check, 10000); });
     check();
+    const showForm = (again) => { $('epick').hidden = true; $('ef').hidden = false; $('eagain').hidden = !again; };
     $('eshot').onclick = () => $('efile').click();
+    $('eagain').onclick = () => $('efile').click();
+    $('ehand').onclick = () => { showForm(false); es(''); setTimeout(() => $('et').focus(), 50); };
     $('efile').onchange = async () => {
       const f = $('efile').files && $('efile').files[0]; if (!f) return;
-      es('명함을 읽는 중…'); $('eshot').disabled = true;
+      es('명함을 읽는 중…'); $('eshot').disabled = true; $('eagain').disabled = true;
       try {
         const img = await new Promise((ok, no) => { const u = URL.createObjectURL(f), im = new Image(); im.onload = () => { URL.revokeObjectURL(u); ok(im); }; im.onerror = no; im.src = u; });
         const k = Math.min(1, 1400 / Math.max(img.naturalWidth, img.naturalHeight)), cv = document.createElement('canvas');
@@ -177,10 +188,11 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
         const r = await fetch(GATE + '/pub/edu/ocr', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-TF-Dev': DEV }, body: JSON.stringify({ img: cv.toDataURL('image/jpeg', 0.85) }) });
         const j = await r.json().catch(() => null);
         if (!r.ok || !j) throw new Error((j && j.error) || '명함을 읽지 못했습니다. 직접 넣어 주세요.');
+        showForm(true);
         if (j.team) $('et').value = j.team; if (j.name) $('en').value = j.name; if (j.phone) $('ep').value = j.phone;
         es(j.empty ? '명함 글자를 찾지 못했습니다. 직접 넣어 주세요.' : '읽은 내용이 맞는지 확인하고, 다르면 고친 뒤 들어가 주세요.', j.empty);
-      } catch (e) { es((e && e.message) || '명함을 읽지 못했습니다. 직접 넣어 주세요.', true); }
-      $('eshot').disabled = false; $('efile').value = '';
+      } catch (e) { showForm(true); es((e && e.message) || '명함을 읽지 못했습니다. 직접 넣어 주세요.', true); }
+      $('eshot').disabled = false; $('eagain').disabled = false; $('efile').value = '';
     };
     $('ef').addEventListener('submit', async (e) => {
       e.preventDefault(); $('eb').disabled = true; es('들어가는 중…');
