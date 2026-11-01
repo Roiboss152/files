@@ -152,7 +152,7 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
   /* v1.06: 강의 실습 입장(#edu) */
   const EDU = /^#edu\b/.test(location.hash);
   function eduMode(){
-    $('f').hidden = true; $('nt').hidden = true; $('edu').hidden = false;
+    $('f').style.display = 'none'; $('nt').hidden = true; $('edu').hidden = false;   // form 은 display:flex 라 hidden 이 안 먹는다
     const es = (t, err) => { $('em').textContent = t || ''; $('em').className = 'msg' + (err ? ' err' : ''); };
     fetch(GATE + '/pub/edu', { cache: 'no-store' }).then((r) => r.json()).then((j) => {
       if (!j || !j.open) { es('지금은 실습 시간이 아닙니다. 발표 화면의 안내를 기다려 주세요.', true); $('eb').disabled = true; $('eshot').disabled = true; return; }
@@ -184,7 +184,7 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
         if (!r.ok || !j || !j.code) throw new Error((j && j.error) || '들어가지 못했습니다.');
         keep(j.code, j.name);
         try { history.replaceState(null, '', location.pathname + location.search); } catch (_) {}
-        $('edu').hidden = true; $('f').hidden = false; $('nt').hidden = false;
+        $('edu').hidden = true; $('f').style.display = ''; $('nt').hidden = false;
         enter(j.code, true);
       } catch (e2) { es((e2 && e2.message) || String(e2), true); $('eb').disabled = false; }
     });
