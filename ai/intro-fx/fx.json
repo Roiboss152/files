@@ -1,0 +1,36 @@
+{
+ "ink_drop": {
+  "file": "ink_drop.jpg",
+  "n": 100,
+  "cols": 22,
+  "cw": 360,
+  "ch": 360,
+  "fps": 29.97,
+  "bw": 0.8064516129032258,
+  "bh": 0.6303763440860215
+ },
+ "ink_wipe": {
+  "file": "ink_wipe.jpg",
+  "n": 98,
+  "cols": 12,
+  "cw": 640,
+  "ch": 360,
+  "fps": 30
+ },
+ "steam": {
+  "file": "steam.jpg",
+  "n": 76,
+  "cols": 12,
+  "cw": 640,
+  "ch": 200,
+  "fps": 15
+ },
+ "brush": {
+  "file": "brush.jpg",
+  "n": 212,
+  "cols": 17,
+  "cw": 480,
+  "ch": 156,
+  "fps": 29.97
+ }
+}
