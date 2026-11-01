@@ -17,7 +17,8 @@
    v1.04 (2026-10-08): 직원과 대리점이 같이 쓰게 되어 안내의 'TF 관리자' → '관리자'
    v1.05 (2026-10-30): 카드 아래 저작권 표시 한 줄
    v1.06 (2026-11-02, 문지기 v1.58과 함께): 주소 끝이 #edu 면 강의 실습 입장 — 소속·이름·전화번호(또는 명함 사진)로 들어온다
-   v1.07 (2026-11-02): 명함 읽기를 휴대폰 안의 Tesseract.js로(사진이 밖으로 나가지 않음, AI 횟수 안 씀) */
+   v1.07 (2026-11-02): 명함 읽기를 휴대폰 안의 Tesseract.js로
+   v1.08 (2026-11-02, 사용자 요청): 명함 사진 읽기는 뺌 — 소속·이름·전화번호 직접 입력만 */
 :root{--paper:#fff;--panel:#F5F5F7;--ink:#201E1D;--sub:#6E6E73;--faint:#86868B;--accent:#EC3013;--accent-ink:#AE1800}
 *{box-sizing:border-box}
 html,body{margin:0;height:100%}
@@ -63,7 +64,7 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 </head>
 <body>
 <main class="card">
-  <div class="top"><div class="name">밑그림<span class="ai">AI</span></div><div class="ver" id="ver">입구 v1.07</div></div>
+  <div class="top"><div class="name">밑그림<span class="ai">AI</span></div><div class="ver" id="ver">입구 v1.08</div></div>
   <div class="tag"><span class="en">SKETCH</span><em>밑</em>천이 되는 <em>그림</em></div>
   <form id="f" autocomplete="off">
     <input id="c" type="password" placeholder="승인 코드" aria-label="승인 코드" autocomplete="off" spellcheck="false" required>
@@ -72,14 +73,8 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
   <p class="msg" id="m" role="status" aria-live="polite"></p>
   <section class="edu" id="edu" hidden>
     <h2>오늘 강의 실습으로 들어가기</h2>
-    <p class="lead" id="elead">명함을 찍으시면 소속·이름·전화번호가 저절로 채워지고, 밑그림 화면의 명함에 그대로 나옵니다.</p>
-    <div class="pick" id="epick">
-      <button type="button" class="big" id="eshot">명함 사진 찍기</button>
-      <button type="button" class="shot" id="ehand">명함이 없어요 · 직접 입력</button>
-    </div>
-    <input type="file" id="efile" accept="image/*" capture="environment" hidden>
-    <form class="ef" id="ef" autocomplete="off" hidden>
-      <button type="button" class="shot" id="eagain" hidden>명함 다시 찍기</button>
+    <p class="lead" id="elead">소속·이름·전화번호를 넣으시면 밑그림 화면의 명함에 그대로 나옵니다.</p>
+    <form class="ef" id="ef" autocomplete="off">
       <input id="et" placeholder="소속 (예: KT 부산지사 시너지영업2팀)" maxlength="40" required>
       <input id="en" placeholder="이름" maxlength="20" required>
       <input id="ep" placeholder="전화번호 (010-0000-0000)" maxlength="15" inputmode="tel" required>
@@ -167,63 +162,13 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
     let waitT = 0;
     const check = () => fetch(GATE + '/pub/edu', { cache: 'no-store' }).then((r) => r.json()).then((j) => {
       const open = Boolean(j && j.open);
-      $('eb').disabled = !open; $('eshot').disabled = !open; $('ehand').disabled = !open; $('eagain').disabled = !open;
+      $('eb').disabled = !open;
       if (!open) { es('아직 실습이 열리지 않았습니다. 발표자가 실습을 열면 이 화면에서 바로 쓰실 수 있습니다(새로 고치지 않으셔도 됩니다).', true); clearTimeout(waitT); waitT = setTimeout(check, 10000); return; }
       if ($('em').classList.contains('err')) es('');
       if (j.cap) $('ecap').textContent = j.cap;
       if (j.until && j.until !== '23:59') $('eend').textContent = j.until + '에';
     }).catch(() => { es('문지기 서버에 연결하지 못했습니다. 잠시 뒤 다시 봅니다.', true); clearTimeout(waitT); waitT = setTimeout(check, 10000); });
     check();
-    const showForm = (again) => { $('epick').hidden = true; $('ef').hidden = false; $('eagain').hidden = !again; };
-    $('eshot').onclick = () => { $('efile').click(); try { getWorker().catch(() => {}); } catch (_) {} };   // 찍는 동안 읽는 도구를 미리 받는다
-    $('eagain').onclick = () => $('efile').click();
-    $('ehand').onclick = () => { showForm(false); es(''); setTimeout(() => $('et').focus(), 50); };
-    /* 명함 글자 읽기 — 휴대폰 안에서 도는 Tesseract.js(QR 스튜디오와 같은 판). 사진은 휴대폰 밖으로 나가지 않는다 */
-    let tessP = null, worker = null;
-    const getWorker = async () => {
-      if (!tessP) tessP = new Promise((ok, no) => { const sc = document.createElement('script'); sc.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js'; sc.onload = ok; sc.onerror = () => no(new Error('글자 읽기 도구를 불러오지 못했습니다. 직접 넣어 주세요.')); document.head.appendChild(sc); });
-      await tessP; if (!worker) worker = await Tesseract.createWorker(['kor', 'eng'], 1); return worker;
-    };
-    const TITLE = /(대표이사|대표|이사|상무|전무|부장|차장|과장|대리|주임|사원|팀장|지점장|센터장|매니저|실장|선임|책임|수석|위원|본부장|지사장|Manager|Director)/g;
-    const NOTNAME = /(주식회사|지사|본부|센터|지점|영업|시너지|고객|주소|전화|휴대|팩스|메일|케이티|그룹|사업|부문|담당|서울|인천|부산|대구|광주|대전|울산|경기)/;
-    function parseCard(lines){
-      const L = lines.map((x) => ({ t: String(x.text || '').replace(/\s+/g, ' ').trim(), h: x.bbox ? (x.bbox.y1 - x.bbox.y0) : 0 })).filter((x) => x.t);
-      const all = L.map((x) => x.t).join('\n');
-      const fix = (v) => v.replace(/[Oo]/g, '0').replace(/[Il|]/g, '1');
-      let phone = '';
-      const mob = /(?:^|[^0-9])(0\s*1\s*[016789])[\s.\-)]*(\d{3,4})[\s.\-]*(\d{4})(?!\d)/;
-      for (const x of L) { const m = mob.exec(fix(x.t)); if (m) { phone = `${m[1].replace(/\s/g, '')}-${m[2]}-${m[3]}`; break; } }
-      if (!phone) { const m = /(0\d{1,2})[\s.\-)]+(\d{3,4})[\s.\-]+(\d{4})/.exec(fix(all)); if (m) phone = `${m[1]}-${m[2]}-${m[3]}`; }
-      let name = '', nh = 0;
-      L.forEach((x) => {
-        if (/@|\d{3}/.test(x.t) || NOTNAME.test(x.t)) return;
-        const toks = x.t.replace(TITLE, ' ').match(/[가-힣]{2,4}/g) || [];
-        const tk = toks.find((w) => w.length >= 2 && w.length <= 4);
-        if (tk && x.h >= nh) { name = tk; nh = x.h; }
-      });
-      const teamL = L.filter((x) => /(지사|본부|팀|센터|지점|사업|주식회사|㈜|\(주\)|KT|kt|케이티|그룹|부문|실$|부$)/.test(x.t) && !/@|\d{2,}-\d|로\s?\d|길\s?\d|동\s?\d/.test(x.t))
-        .map((x) => x.t.replace(TITLE, '').replace(/[^가-힣A-Za-z0-9()㈜ ]/g, ' ').replace(/\s+/g, ' ').trim()).filter((t) => t && t !== name);
-      const team = teamL.slice(0, 2).join(' ').slice(0, 40);
-      return { team, name, phone };
-    }
-    $('efile').onchange = async () => {
-      const f = $('efile').files && $('efile').files[0]; if (!f) return;
-      es('명함 글자를 읽는 중… (처음에는 읽는 도구를 받느라 10~20초 걸릴 수 있습니다)'); $('eshot').disabled = true; $('eagain').disabled = true;
-      try {
-        const wk = getWorker();
-        const img = await new Promise((ok, no) => { const u = URL.createObjectURL(f), im = new Image(); im.onload = () => { URL.revokeObjectURL(u); ok(im); }; im.onerror = no; im.src = u; });
-        const k = Math.min(1, 1800 / Math.max(img.naturalWidth, img.naturalHeight)), cv = document.createElement('canvas');
-        cv.width = Math.round(img.naturalWidth * k); cv.height = Math.round(img.naturalHeight * k);
-        const x = cv.getContext('2d', { willReadFrequently: true }); x.filter = 'grayscale(1) contrast(1.35)'; x.drawImage(img, 0, 0, cv.width, cv.height);
-        const r = await (await wk).recognize(cv);
-        const got = parseCard((r && r.data && r.data.lines) || []);
-        showForm(true);
-        if (got.team) $('et').value = got.team; if (got.name) $('en').value = got.name; if (got.phone) $('ep').value = got.phone;
-        const n = [got.team, got.name, got.phone].filter(Boolean).length;
-        es(!n ? '명함 글자를 찾지 못했습니다. 직접 넣어 주세요.' : n < 3 ? '읽은 것만 채웠습니다. 빈 칸을 채우고, 틀린 글자는 고친 뒤 들어가 주세요.' : '읽은 내용이 맞는지 확인하고, 틀린 글자는 고친 뒤 들어가 주세요.', !n);
-      } catch (e) { showForm(true); es((e && e.message) || '명함을 읽지 못했습니다. 직접 넣어 주세요.', true); }
-      $('eshot').disabled = false; $('eagain').disabled = false; $('efile').value = '';
-    };
     $('ef').addEventListener('submit', async (e) => {
       e.preventDefault(); $('eb').disabled = true; es('들어가는 중…');
       try {
