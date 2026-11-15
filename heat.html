@@ -7,7 +7,7 @@
 <meta name="format-detection" content="telephone=no">
 <title>겨울 고정비 점검 신청 · KT</title>
 <!--
-  겨울 고정비 점검 신청 페이지 (v1.00, 2026-11-15)
+  겨울 고정비 점검 신청 페이지 (v1.01, 2026-11-15 — 문구 다듬기)
   엘리베이터 게시물 QR이 여는 손님용 페이지 — 홈페이지 다크테마 규칙의 예외(apply.html과 같은 손님용).
   주소: heat.html?d=<단지 코드>&g=<동>   예) heat.html?d=a&g=808  — g를 넣으면 동 칸이 미리 채워지고 '들어온 길'로 적힌다.
   단지는 아래 CFG.sites 에 한 줄씩. 문지기(kt-gate) HEAT_SITES 에도 같은 코드를 넣어야 접수된다.
@@ -50,7 +50,7 @@ input:focus{outline:2px solid var(--ink);outline-offset:-1px}
 .chips button{height:42px;padding:0 14px;border:1px solid #BDBDBD;background:#fff;font:600 15px Pretendard,system-ui,sans-serif;color:var(--txt);border-radius:0}
 .chips button[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:#fff}
 .pol{background:var(--soft);padding:12px 14px;font-size:13.5px;line-height:1.6;margin:6px 0 10px}
-.pol dl{margin:0;display:grid;grid-template-columns:62px 1fr;gap:3px 8px}
+.pol dl{margin:0;display:grid;grid-template-columns:96px 1fr;gap:3px 8px}
 .pol dt{font-weight:700;color:var(--ink)}
 .pol dd{margin:0}
 .agree{display:flex;gap:10px;align-items:flex-start;font-size:15px;margin:10px 0 14px}
@@ -78,19 +78,19 @@ footer{margin-top:28px;font-size:13px;color:var(--mute);border-top:1px solid var
 </head>
 <body>
 <main>
-  <div class="top"><img src="https://kt-synergy.com/ai/KT_CI_BR01.png" alt="KT"><span class="ver">v1.00</span></div>
+  <div class="top"><img src="https://kt-synergy.com/ai/KT_CI_BR01.png" alt="KT"><span class="ver">v1.01</span></div>
 
   <div id="page" hidden>
     <p class="kick"><span data-v="name"></span> · 겨울 고정비 점검</p>
     <h1>우리 집에서 새는 돈,<br>두 군데 찾아 드립니다</h1>
-    <p class="lead">창틀로 새는 난방비, 요금제로 새는 통신비를 한 번에 봐 드립니다.</p>
+    <p class="lead">창틀 틈으로 빠지는 난방비와 요금제에서 더 나가는 통신비를 한 번에 봐 드립니다.</p>
     <div class="live" id="live">신청을 받고 있습니다 · <span data-v="period"></span></div>
 
     <div class="two">
-      <div><span class="n">01</span><div><div class="t">난방비 — 열화상 촬영</div><div class="d">창틀·문틈을 열화상 카메라로 찍어 바람이 새는 자리를 눈으로 보여 드립니다.</div></div></div>
-      <div><span class="n">02</span><div><div class="t">통신비 — 요금 점검</div><div class="d">인터넷·TV·휴대폰 요금을 살펴 매달 나가는 돈을 함께 봐 드립니다.</div></div></div>
+      <div><span class="n">01</span><div><div class="t">난방비 · 열화상 촬영</div><div class="d">창틀·문틈을 열화상 카메라로 찍어 바람이 새는 자리를 눈으로 보여 드립니다.</div></div></div>
+      <div><span class="n">02</span><div><div class="t">통신비 · 요금 점검</div><div class="d">인터넷·TV·휴대폰 요금제를 살펴 매달 더 나가는 돈이 없는지 확인해 드립니다.</div></div></div>
     </div>
-    <p class="cond">무료 · 약 15분 · 신청한 세대만 방문</p>
+    <p class="cond">무료 · 약 15분 · 신청하신 세대만 방문</p>
 
     <figure><img src="https://kt-synergy.com/ai/heat_sample_room.jpg" alt="열화상 사진과 같은 자리의 실제 모습" loading="lazy">
       <figcaption>예시 사진입니다. 파란색일수록 온도가 낮게 보이는 자리입니다.</figcaption></figure>
@@ -114,10 +114,10 @@ footer{margin-top:28px;font-size:13px;color:var(--mute);border-top:1px solid var
       <div class="chips" data-k="net"><button type="button">KT</button><button type="button">SK</button><button type="button">LG</button><button type="button">모름</button></div>
 
       <div class="pol"><dl>
-        <dt>받는 것</dt><dd>동·호수, 이름, 휴대전화, 방문 희망 시간, 인터넷 통신사(고른 경우)</dd>
-        <dt>쓰는 곳</dt><dd>점검 방문 날짜 안내와, 원하시는 경우 통신 요금 상담</dd>
-        <dt>지우는 때</dt><dd>점검·상담이 끝나면 <b><span data-v="destroyDays"></span>일 안에</b> 모두 지웁니다</dd>
-        <dt>거부하면</dt><dd>동의하지 않으셔도 됩니다. 전화로 신청하실 수 있습니다</dd>
+        <dt>받는 정보</dt><dd>동·호수, 이름, 휴대전화, 방문 희망 시간, 인터넷 통신사(고른 경우)</dd>
+        <dt>쓰는 데</dt><dd>점검 방문 날짜 안내와, 원하시는 경우 통신 요금 상담</dd>
+        <dt>지우는 날</dt><dd>점검·상담이 끝나면 <b><span data-v="destroyDays"></span>일 안에</b> 모두 지웁니다</dd>
+        <dt>동의하지 않으면</dt><dd>전화로도 신청하실 수 있습니다</dd>
       </dl></div>
       <label class="agree"><input type="checkbox" name="agree"><span>위 내용을 읽었고 동의합니다. <small>(만 14세 이상)</small></span></label>
       <button class="go" id="go" type="submit">점검 신청하기</button>
@@ -126,15 +126,15 @@ footer{margin-top:28px;font-size:13px;color:var(--mute);border-top:1px solid var
 
     <div class="done" id="done" hidden tabindex="-1">
       <div class="ck">✓</div>
-      <h3>신청됐습니다</h3>
+      <h3>신청이 접수됐습니다</h3>
       <div class="box" id="doneBox"></div>
-      <p>담당 직원이 하루 안에 문자로 방문 날짜를 맞춰 드립니다.</p>
+      <p>담당 직원이 하루 안에 문자로 연락드려 방문 날짜를 정해 드립니다.</p>
       <p>방문은 15분 정도 걸리고, 가장 추운 방 하나와 거실 창을 찍어 드립니다.</p>
       <p style="color:var(--mute)">문의 <span data-v="call"></span></p>
     </div>
 
     <div class="alt">
-      <p>QR 신청이 어려우시면 전화나 문자로 신청하세요.</p>
+      <p>QR로 하기 어려우시면 전화나 문자로 신청하세요.</p>
       <div class="btns"><a id="telA" href="#">전화하기</a><a id="smsA" href="#">문자 보내기</a></div>
     </div>
 
@@ -143,9 +143,9 @@ footer{margin-top:28px;font-size:13px;color:var(--mute);border-top:1px solid var
       <li><b>이용 목적</b>: 열화상 촬영 방문 일정 안내와 통신 요금 상담. 이 밖의 마케팅이나 제3자 제공에는 쓰지 않습니다.</li>
       <li><b>보유·파기</b>: 점검·상담이 끝나면 <span data-v="destroyDays"></span>일 안에 담당자 휴대폰의 신청 메시지와 전달한 메시지, 저장한 연락처를 지웁니다.</li>
       <li><b>전달 경로</b>: 신청 내용은 접수 서버(Cloudflare)를 거쳐 KT 인천지사 담당자의 카카오톡과 휴대폰 알림으로 전달되고, 방문할 KT 인천지사 직원에게 카카오톡으로 다시 전달됩니다. 접수 서버는 신청 내용을 명단으로 저장하지 않으며, 단지·동별 신청 세대 수만 셉니다.</li>
-      <li><b>동의 거부</b>: 동의하지 않으셔도 되며, 이 경우 전화로 신청하실 수 있습니다.</li>
+      <li><b>동의 거부</b>: 동의하지 않으셔도 되며, 그때는 전화로 신청하실 수 있습니다.</li>
       <li><b>신청하신 분의 권리</b>: 열람·정정·삭제·처리정지는 문의처로 요청하시면 지체 없이 처리합니다.</li>
-      <li><b>점검 범위</b>: 열화상 사진으로 온도가 낮게 보이는 자리를 보여 드리는 것이며, 누수나 하자를 판정하지 않습니다.</li>
+      <li><b>점검 범위</b>: 열화상 사진으로 온도가 낮게 보이는 자리를 보여 드릴 뿐, 누수나 하자를 판정하지는 않습니다.</li>
     </ol></details>
 
     <footer><p>관리사무소 협조 · KT 인천지사</p><p>이 페이지는 광고 픽셀이나 분석 도구를 쓰지 않습니다.</p></footer>
@@ -232,7 +232,7 @@ f.addEventListener('submit', async (e) => {
   if (!name) { say('이름을 적어 주세요.'); f.elements.name.focus(); return; }
   if (!/^01[016789]\d{7,8}$/.test(telIn)) { say('휴대전화번호를 다시 확인해 주세요. (예: 010-1234-5678)'); f.elements.tel.focus(); return; }
   if (!pick.when) { say('방문 희망 시간을 골라 주세요.'); return; }
-  if (!f.elements.agree.checked) { say('개인정보 안내를 읽고 동의해 주셔야 신청할 수 있습니다.'); f.elements.agree.focus(); return; }
+  if (!f.elements.agree.checked) { say('개인정보 안내를 읽고 동의해 주셔야 신청하실 수 있습니다.'); f.elements.agree.focus(); return; }
   const go = $('#go'); go.disabled = true; go.textContent = '보내는 중…';
   const ac = new AbortController(), timer = setTimeout(() => ac.abort(), 12000);
   try {
@@ -246,7 +246,7 @@ f.addEventListener('submit', async (e) => {
     $('.alt').hidden = true;
     if (j.total) showLive({ ok: true, t: j.total, g: { ...(cnt && cnt.g || {}), [dong]: j.dong || 1 } });
   } catch (err) {
-    say(err.name === 'AbortError' ? `답이 늦습니다. 번거로우시겠지만 ${CFG.call}로 전화 주세요.` : err.message);
+    say(err.name === 'AbortError' ? `연결이 늦어지고 있습니다. 번거로우시겠지만 ${CFG.call}로 전화 주세요.` : err.message);
     go.disabled = false; go.textContent = '점검 신청하기';
   } finally { clearTimeout(timer); }
 });
