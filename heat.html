@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="format-detection" content="telephone=no">
+<title>겨울 고정비 점검 신청 · KT</title>
+<!--
+  겨울 고정비 점검 신청 페이지 (v1.00, 2026-11-15)
+  엘리베이터 게시물 QR이 여는 손님용 페이지 — 홈페이지 다크테마 규칙의 예외(apply.html과 같은 손님용).
+  주소: heat.html?d=<단지 코드>&g=<동>   예) heat.html?d=a&g=808  — g를 넣으면 동 칸이 미리 채워지고 '들어온 길'로 적힌다.
+  단지는 아래 CFG.sites 에 한 줄씩. 문지기(kt-gate) HEAT_SITES 에도 같은 코드를 넣어야 접수된다.
+  신청 내용은 저장하지 않고 문지기를 거쳐 담당 카톡으로만 간다. 이 페이지에는 분석 도구·log.js 를 넣지 않는다.
+-->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+:root{--ink:#000;--txt:#1A1A1A;--mute:#6D6E71;--line:#D4D4D4;--soft:#F5F5F5;--red:#ED1B23}
+*{box-sizing:border-box}
+html,body{margin:0;background:#fff;color:var(--txt);font:500 16px/1.65 Pretendard,system-ui,-apple-system,sans-serif;word-break:keep-all;-webkit-text-size-adjust:100%}
+main{max-width:520px;margin:0 auto;padding:18px 20px 40px}
+.top{display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;border-bottom:1.5px solid var(--ink)}
+.top img{height:24px;display:block}
+.top .ver{font-size:10px;color:#aaa}
+.kick{margin:22px 0 6px;font-size:14px;font-weight:700;color:var(--red)}
+h1{margin:0 0 10px;font-size:27px;line-height:1.32;font-weight:800;color:var(--ink);letter-spacing:-.02em}
+.lead{margin:0 0 14px;color:var(--mute);font-size:15px}
+.live{background:var(--soft);padding:10px 14px;font-size:15px;margin:0 0 18px}
+.live b{color:var(--red)}
+.two{border-top:1.5px solid var(--ink);border-bottom:1.5px solid var(--ink)}
+.two>div{display:grid;grid-template-columns:34px 1fr;padding:12px 0}
+.two>div+div{border-top:1px solid var(--line)}
+.two .n{font-size:13px;font-weight:700;color:var(--mute);padding-top:2px}
+.two .t{font-size:17px;font-weight:700;color:var(--ink)}
+.two .d{font-size:14.5px;color:var(--txt)}
+.cond{margin:10px 0 0;font-size:15px;font-weight:700;color:var(--ink)}
+figure{margin:20px 0 0}
+figure img{width:100%;display:block}
+figcaption{font-size:13px;color:var(--mute);margin-top:6px}
+.vid{position:relative;width:100%;padding-top:56.25%;background:#000;margin-top:20px}
+.vid iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.vcap{font-size:13px;color:var(--mute);margin-top:6px}
+h2{margin:30px 0 12px;font-size:20px;font-weight:800;color:var(--ink);padding-top:12px;border-top:1.5px solid var(--ink)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+label.f{display:block;margin-bottom:12px}
+label.f span,.lab{display:block;font-size:13.5px;color:var(--mute);margin-bottom:5px}
+input[type=text],input[type=tel]{width:100%;height:48px;border:1px solid #BDBDBD;border-radius:0;padding:0 12px;font:600 17px Pretendard,system-ui,sans-serif;color:var(--ink);background:#fff;-webkit-appearance:none}
+input:focus{outline:2px solid var(--ink);outline-offset:-1px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.chips button{height:42px;padding:0 14px;border:1px solid #BDBDBD;background:#fff;font:600 15px Pretendard,system-ui,sans-serif;color:var(--txt);border-radius:0}
+.chips button[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:#fff}
+.pol{background:var(--soft);padding:12px 14px;font-size:13.5px;line-height:1.6;margin:6px 0 10px}
+.pol dl{margin:0;display:grid;grid-template-columns:62px 1fr;gap:3px 8px}
+.pol dt{font-weight:700;color:var(--ink)}
+.pol dd{margin:0}
+.agree{display:flex;gap:10px;align-items:flex-start;font-size:15px;margin:10px 0 14px}
+.agree input{width:22px;height:22px;margin:1px 0 0;accent-color:#000;flex-shrink:0}
+.go{width:100%;height:56px;border:0;background:var(--red);color:#fff;font:800 18px Pretendard,system-ui,sans-serif;border-radius:0}
+.go[disabled]{opacity:.5}
+.msg{min-height:22px;margin:10px 0 0;font-size:14.5px;color:#AE1800}
+.alt{margin-top:22px;border-top:1px solid var(--line);padding-top:14px}
+.alt p{margin:0 0 10px;font-size:15px}
+.alt .btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.alt a{display:flex;align-items:center;justify-content:center;height:48px;border:1.5px solid var(--ink);color:var(--ink);text-decoration:none;font-weight:700;font-size:16px}
+.done{text-align:center;padding:26px 0 8px}
+.done .ck{width:60px;height:60px;border-radius:50%;border:2px solid var(--ink);margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800}
+.done h3{margin:0 0 12px;font-size:22px;font-weight:800;color:var(--ink)}
+.done .box{border-top:1.5px solid var(--ink);border-bottom:1.5px solid var(--ink);padding:10px 0;margin:0 0 14px;font-size:16px;font-weight:700;color:var(--ink)}
+.done p{text-align:left;font-size:15px;margin:0 0 10px}
+details{margin-top:24px;font-size:13.5px;color:var(--mute)}
+details summary{cursor:pointer;color:var(--txt);font-weight:600}
+details ol{padding-left:18px;margin:8px 0 0}
+details li{margin-bottom:6px}
+footer{margin-top:28px;font-size:13px;color:var(--mute);border-top:1px solid var(--line);padding-top:12px}
+.nosite{padding:60px 0;text-align:center}
+.nosite h1{font-size:22px}
+</style>
+</head>
+<body>
+<main>
+  <div class="top"><img src="https://kt-synergy.com/ai/KT_CI_BR01.png" alt="KT"><span class="ver">v1.00</span></div>
+
+  <div id="page" hidden>
+    <p class="kick"><span data-v="name"></span> · 겨울 고정비 점검</p>
+    <h1>우리 집에서 새는 돈,<br>두 군데 찾아 드립니다</h1>
+    <p class="lead">창틀로 새는 난방비, 요금제로 새는 통신비를 한 번에 봐 드립니다.</p>
+    <div class="live" id="live">신청을 받고 있습니다 · <span data-v="period"></span></div>
+
+    <div class="two">
+      <div><span class="n">01</span><div><div class="t">난방비 — 열화상 촬영</div><div class="d">창틀·문틈을 열화상 카메라로 찍어 바람이 새는 자리를 눈으로 보여 드립니다.</div></div></div>
+      <div><span class="n">02</span><div><div class="t">통신비 — 요금 점검</div><div class="d">인터넷·TV·휴대폰 요금을 살펴 매달 나가는 돈을 함께 봐 드립니다.</div></div></div>
+    </div>
+    <p class="cond">무료 · 약 15분 · 신청한 세대만 방문</p>
+
+    <figure><img src="https://kt-synergy.com/ai/heat_sample_room.jpg" alt="열화상 사진과 같은 자리의 실제 모습" loading="lazy">
+      <figcaption>예시 사진입니다. 파란색일수록 온도가 낮게 보이는 자리입니다.</figcaption></figure>
+
+    <div id="vidWrap" hidden><div class="vid"><iframe id="vid" title="참고 영상" loading="lazy" allow="encrypted-media; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
+      <p class="vcap" id="vcap"></p></div>
+
+    <h2>점검 신청</h2>
+    <form id="f" novalidate>
+      <div class="row">
+        <label class="f"><span>동</span><input type="text" name="dong" inputmode="numeric" maxlength="4" placeholder="808" autocomplete="off"></label>
+        <label class="f"><span>호수</span><input type="text" name="ho" inputmode="numeric" maxlength="5" placeholder="1101" autocomplete="off"></label>
+      </div>
+      <div class="row">
+        <label class="f"><span>이름</span><input type="text" name="name" maxlength="20" autocomplete="name" placeholder="홍길동"></label>
+        <label class="f"><span>휴대전화</span><input type="tel" name="tel" inputmode="tel" maxlength="13" autocomplete="tel" placeholder="010-0000-0000"></label>
+      </div>
+      <span class="lab">방문 희망</span>
+      <div class="chips" data-k="when"><button type="button">평일 낮</button><button type="button">평일 저녁</button><button type="button">토요일</button></div>
+      <span class="lab">지금 쓰는 인터넷 (선택)</span>
+      <div class="chips" data-k="net"><button type="button">KT</button><button type="button">SK</button><button type="button">LG</button><button type="button">모름</button></div>
+
+      <div class="pol"><dl>
+        <dt>받는 것</dt><dd>동·호수, 이름, 휴대전화, 방문 희망 시간, 인터넷 통신사(고른 경우)</dd>
+        <dt>쓰는 곳</dt><dd>점검 방문 날짜 안내와, 원하시는 경우 통신 요금 상담</dd>
+        <dt>지우는 때</dt><dd>점검·상담이 끝나면 <b><span data-v="destroyDays"></span>일 안에</b> 모두 지웁니다</dd>
+        <dt>거부하면</dt><dd>동의하지 않으셔도 됩니다. 전화로 신청하실 수 있습니다</dd>
+      </dl></div>
+      <label class="agree"><input type="checkbox" name="agree"><span>위 내용을 읽었고 동의합니다. <small>(만 14세 이상)</small></span></label>
+      <button class="go" id="go" type="submit">점검 신청하기</button>
+      <p class="msg" id="msg" role="alert" aria-live="polite"></p>
+    </form>
+
+    <div class="done" id="done" hidden tabindex="-1">
+      <div class="ck">✓</div>
+      <h3>신청됐습니다</h3>
+      <div class="box" id="doneBox"></div>
+      <p>담당 직원이 하루 안에 문자로 방문 날짜를 맞춰 드립니다.</p>
+      <p>방문은 15분 정도 걸리고, 가장 추운 방 하나와 거실 창을 찍어 드립니다.</p>
+      <p style="color:var(--mute)">문의 <span data-v="call"></span></p>
+    </div>
+
+    <div class="alt">
+      <p>QR 신청이 어려우시면 전화나 문자로 신청하세요.</p>
+      <div class="btns"><a id="telA" href="#">전화하기</a><a id="smsA" href="#">문자 보내기</a></div>
+    </div>
+
+    <details><summary>개인정보 수집·이용 안내 (전문)</summary><ol>
+      <li><b>수집 항목</b>: 동·호수, 이름, 휴대전화번호, 방문 희망 시간, 인터넷 통신사(고른 경우), 어느 동 게시물에서 들어오셨는지.</li>
+      <li><b>이용 목적</b>: 열화상 촬영 방문 일정 안내와 통신 요금 상담. 이 밖의 마케팅이나 제3자 제공에는 쓰지 않습니다.</li>
+      <li><b>보유·파기</b>: 점검·상담이 끝나면 <span data-v="destroyDays"></span>일 안에 담당자 휴대폰의 신청 메시지와 전달한 메시지, 저장한 연락처를 지웁니다.</li>
+      <li><b>전달 경로</b>: 신청 내용은 접수 서버(Cloudflare)를 거쳐 KT 인천지사 담당자의 카카오톡과 휴대폰 알림으로 전달되고, 방문할 KT 인천지사 직원에게 카카오톡으로 다시 전달됩니다. 접수 서버는 신청 내용을 명단으로 저장하지 않으며, 단지·동별 신청 세대 수만 셉니다.</li>
+      <li><b>동의 거부</b>: 동의하지 않으셔도 되며, 이 경우 전화로 신청하실 수 있습니다.</li>
+      <li><b>신청하신 분의 권리</b>: 열람·정정·삭제·처리정지는 문의처로 요청하시면 지체 없이 처리합니다.</li>
+      <li><b>점검 범위</b>: 열화상 사진으로 온도가 낮게 보이는 자리를 보여 드리는 것이며, 누수나 하자를 판정하지 않습니다.</li>
+    </ol></details>
+
+    <footer><p>관리사무소 협조 · KT 인천지사</p><p>이 페이지는 광고 픽셀이나 분석 도구를 쓰지 않습니다.</p></footer>
+  </div>
+
+  <div class="nosite" id="nosite" hidden><h1>단지 정보가 없습니다</h1><p>엘리베이터 게시물의 QR을 다시 찍어 주세요.</p></div>
+</main>
+
+<noscript><p style="text-align:center">신청하려면 자바스크립트를 켜 주세요.</p></noscript>
+
+<script>
+(function(){
+'use strict';
+/* ── 채울 값 ── 단지를 더하면 문지기(kt-gate) HEAT_SITES 에도 같은 코드로 */
+const CFG = {
+  gate:        'https://kt-gate.roi0925003.workers.dev',
+  call:        '032-772-2299',                 // 전화·문자 신청 번호
+  destroyDays: 30,                             // 점검·상담 끝난 뒤 며칠 안에 지우나
+  showFrom:    5,                              // 단지 전체 신청이 이만큼 넘으면 '지금까지 ○세대'를 보여 준다
+  sites: {
+    a: { name: 'A아파트', period: '11월 23일 ~ 12월 5일', video: 'bfaZCfLuK_c', vcap: '참고 영상 · 열화상으로 본 문틈 바람(만성철물)' },
+    b: { name: 'B아파트', period: '11월 23일 ~ 12월 5일', video: 'bfaZCfLuK_c', vcap: '참고 영상 · 열화상으로 본 문틈 바람(만성철물)' }
+  }
+};
+const $ = (s, r) => (r || document).querySelector(s);
+const $$ = (s, r) => [...(r || document).querySelectorAll(s)];
+const q = new URLSearchParams(location.search);
+const code = String(q.get('d') || '').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 12);
+const site = CFG.sites[code];
+if (!site) { $('#nosite').hidden = false; return; }
+const from = String(q.get('g') || '').replace(/\D/g, '').slice(0, 4);
+$('#page').hidden = false;
+document.title = `${site.name} 겨울 고정비 점검 신청 · KT`;
+const vals = { name: site.name, period: site.period, destroyDays: CFG.destroyDays, call: CFG.call };
+$$('[data-v]').forEach((el) => { el.textContent = vals[el.dataset.v] ?? ''; });
+if (site.video) { $('#vid').src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(site.video)}?rel=0`; $('#vcap').textContent = site.vcap || ''; $('#vidWrap').hidden = false; }
+const f = $('#f');
+if (from) f.elements.dong.value = from;
+
+/* 신청 세대 수 */
+const showLive = (c) => {
+  if (!c || !c.ok) return;
+  const dong = (f.elements.dong.value || from || '').replace(/\D/g, '');
+  const dn = dong && c.g ? Number(c.g[dong]) || 0 : 0;
+  if ((Number(c.t) || 0) < CFG.showFrom) return;
+  $('#live').innerHTML = `지금까지 ${dn ? `<b>${dong}동 ${dn}세대</b> · ` : ''}단지 전체 <b>${c.t}세대</b> 신청 · ${site.period}`;
+};
+let cnt = null;
+fetch(`${CFG.gate}/heat/count?d=${code}`).then((r) => r.json()).then((j) => { cnt = j; showLive(j); }).catch(() => {});
+f.elements.dong.addEventListener('change', () => showLive(cnt));
+
+/* 고르는 단추 */
+const pick = {};
+$$('.chips').forEach((box) => box.addEventListener('click', (e) => {
+  const b = e.target.closest('button'); if (!b) return;
+  const on = b.getAttribute('aria-pressed') === 'true';
+  $$('button', box).forEach((x) => x.setAttribute('aria-pressed', 'false'));
+  if (!on) b.setAttribute('aria-pressed', 'true');
+  pick[box.dataset.k] = on ? '' : b.textContent.trim();
+}));
+$$('.chips button').forEach((b) => b.setAttribute('aria-pressed', 'false'));
+
+/* 전화번호 꼴 */
+f.elements.tel.addEventListener('input', (e) => {
+  const d = e.target.value.replace(/\D/g, '').slice(0, 11);
+  e.target.value = d.length < 4 ? d : d.length < 8 ? `${d.slice(0, 3)}-${d.slice(3)}` : `${d.slice(0, 3)}-${d.slice(3, d.length - 4)}-${d.slice(-4)}`;
+});
+
+/* 전화·문자 */
+const tel = CFG.call.replace(/\D/g, '');
+$('#telA').href = `tel:${tel}`;
+$('#smsA').href = `sms:${tel}${/iPhone|iPad/.test(navigator.userAgent) ? '&' : '?'}body=${encodeURIComponent(`[${site.name} 고정비 점검 신청] 동·호수: `)}`;
+const ping = (kind) => { try { fetch(`${CFG.gate}/heat/call`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ d: code, kind }), keepalive: true }); } catch (_) {} };
+$('#telA').addEventListener('click', () => ping('tel'));
+$('#smsA').addEventListener('click', () => ping('sms'));
+
+/* 신청 */
+const say = (t) => { $('#msg').textContent = t || ''; };
+f.addEventListener('submit', async (e) => {
+  e.preventDefault(); say('');
+  const v = (k) => String(f.elements[k].value || '').trim();
+  const dong = v('dong').replace(/\D/g, ''), ho = v('ho').replace(/\D/g, ''), name = v('name'), telIn = v('tel').replace(/\D/g, '');
+  if (!dong || !ho) { say('동과 호수를 적어 주세요.'); (dong ? f.elements.ho : f.elements.dong).focus(); return; }
+  if (!name) { say('이름을 적어 주세요.'); f.elements.name.focus(); return; }
+  if (!/^01[016789]\d{7,8}$/.test(telIn)) { say('휴대전화번호를 다시 확인해 주세요. (예: 010-1234-5678)'); f.elements.tel.focus(); return; }
+  if (!pick.when) { say('방문 희망 시간을 골라 주세요.'); return; }
+  if (!f.elements.agree.checked) { say('개인정보 안내를 읽고 동의해 주셔야 신청할 수 있습니다.'); f.elements.agree.focus(); return; }
+  const go = $('#go'); go.disabled = true; go.textContent = '보내는 중…';
+  const ac = new AbortController(), timer = setTimeout(() => ac.abort(), 12000);
+  try {
+    const r = await fetch(`${CFG.gate}/heat`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: ac.signal,
+      body: JSON.stringify({ d: code, dong, ho, name, tel: telIn, when: pick.when, net: pick.net || '', from, agree: true }) });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok || !j.ok) throw new Error(j.error || `접수하지 못했습니다. 번거로우시겠지만 ${CFG.call}로 전화 주세요.`);
+    f.hidden = true;
+    $('#doneBox').textContent = `${site.name} ${dong}동 ${ho}호 · ${pick.when}`;
+    $('#done').hidden = false; $('#done').focus();
+    $('.alt').hidden = true;
+    if (j.total) showLive({ ok: true, t: j.total, g: { ...(cnt && cnt.g || {}), [dong]: j.dong || 1 } });
+  } catch (err) {
+    say(err.name === 'AbortError' ? `답이 늦습니다. 번거로우시겠지만 ${CFG.call}로 전화 주세요.` : err.message);
+    go.disabled = false; go.textContent = '점검 신청하기';
+  } finally { clearTimeout(timer); }
+});
+})();
+</script>
+</body>
+</html>
