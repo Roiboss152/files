@@ -6,9 +6,10 @@
 <meta name="robots" content="noindex">
 <meta name="format-detection" content="telephone=no">
 <meta name="theme-color" content="#ffffff">
-<title>하이오더 상담 요청 · 월드센스 × KT</title>
+<title>KT 상담 요청 · 월드센스 × KT</title>
 <!--
-  월드센스 거래처 직원용 하이오더 상담 요청 화면 (v1.01, 2026-11-17 — 문지기와 연결 · 쿠폰 사진 보내기 · 대표 휴대폰 알림 · 문구 다듬기)
+  월드센스 거래처 직원용 KT 상담 요청 화면 (v1.02, 2026-11-20 — 하이오더만이 아니라 로봇·KT 유·무선까지: 앱 이름을 넓히고 대표 화면에 계약 상품 고르기)
+  v1.01 (2026-11-17 — 문지기와 연결 · 쿠폰 사진 보내기 · 대표 휴대폰 알림 · 문구 다듬기)
   - 앱(APK 껍데기)과 아이폰 웹이 같은 이 화면을 띄운다. 화면을 고치면 앱을 다시 깔 필요가 없다.
   - 직원 화면: 처음 한 번 매장 등록 → 상담 요청(오픈 준비 중/영업 중 · 가게명 · 연락처) → 완료 + 커피 쿠폰 안내 · 내 쿠폰함
   - 대표 화면: 주소 끝에 ?admin (또는 #admin)  — 접수 목록·상태·밑그림 바로가기·쿠폰 보냄 · 매장별 현황(아직 안 깐 매장)
@@ -124,6 +125,11 @@ nav.tab button .dot{display:inline-block;min-width:18px;height:18px;border-radiu
 .acts select{padding-right:26px;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23000'/%3E%3C/svg%3E") no-repeat right 9px center}
 .acts .tel{background:var(--ink);color:#fff;border-color:var(--ink)}
 .acts .on{border-color:var(--red);color:var(--red)}
+.prod{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:8px}
+.prod span{font-size:12.5px;color:var(--mute);margin-right:2px}
+.prod button{height:32px;padding:0 10px;border:1px solid #BDBDBD;background:#fff;font-weight:600;font-size:13.5px;border-radius:0;color:var(--txt)}
+.prod button[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:#fff}
+.prod input{flex:1 1 180px;height:34px;border:1px solid #BDBDBD;border-radius:0;padding:0 10px;font:600 14px Pretendard,system-ui,sans-serif}
 table.st{width:100%;border-collapse:collapse;font-size:14.5px;margin-top:6px}
 table.st th{font-size:12.5px;color:var(--mute);font-weight:600;text-align:right;padding:8px 4px;border-bottom:1.5px solid var(--ink)}
 table.st th:first-child,table.st td:first-child{text-align:left}
@@ -149,7 +155,7 @@ input[type=file]{padding:12px 10px;height:auto}
 <div class="demo" id="demoBar" hidden>견본 화면입니다. 실제로 보내지지 않아요 · <a href="#" id="demoSwap"></a></div>
 <main>
   <header class="top">
-    <div class="brand">월드센스 <em>×</em> KT 하이오더<span class="ver">v1.01</span></div>
+    <div class="brand">월드센스 <em>×</em> KT<span class="ver">v1.02</span></div>
     <div class="me" id="me" hidden><b id="meName"></b><button type="button" id="change">매장 바꾸기</button></div>
   </header>
 
@@ -166,8 +172,8 @@ input[type=file]{padding:12px 10px;height:auto}
 
   <!-- ② 상담 요청 -->
   <section id="home" hidden>
-    <h1>하이오더 상담 요청</h1>
-    <p class="lead">손님이 테이블에서 주문하는 태블릿(하이오더)에 관심을 보이면 가게 이름과 연락처만 보내 주세요. 설명과 가격 안내는 KT 담당자가 전화로 드려요.</p>
+    <h1>KT 상담 요청</h1>
+    <p class="lead">손님 가게에 테이블 주문 태블릿(하이오더), 서빙로봇, 인터넷·TV·휴대폰 같은 KT 상품이 필요해 보이면 가게 이름과 연락처만 보내 주세요. 설명과 가격 안내는 KT 담당자가 전화로 드려요.</p>
     <div class="cp" id="cpBand">
       <div class="ic" aria-hidden="true">☕</div>
       <p><b>한 건 보낼 때마다 메가커피 한 잔</b><br>이번 달 선착순 <span id="cpLimit"></span>잔 · <span class="left" id="cpLeft"></span></p>
@@ -180,7 +186,7 @@ input[type=file]{padding:12px 10px;height:auto}
       </div>
       <label class="f"><span class="lab">가게 이름</span><input type="text" name="shop" maxlength="40" placeholder="예) 순대국 ○○집" autocomplete="off"></label>
       <label class="f"><span class="lab">손님 연락처</span><input type="tel" name="tel" inputmode="numeric" maxlength="13" placeholder="010-0000-0000" autocomplete="off"></label>
-      <div class="say">보내기 전에 손님께 이렇게 말씀해 주세요.<br><b>“KT 하이오더 담당자가 전화드릴 거예요.”</b></div>
+      <div class="say">보내기 전에 손님께 이렇게 말씀해 주세요.<br><b>“KT 담당자가 전화드릴 거예요.”</b></div>
       <button class="go" id="go" type="submit">상담 요청 보내기</button>
       <p class="msg" id="msg" role="alert"></p>
     </form>
@@ -254,6 +260,7 @@ input[type=file]{padding:12px 10px;height:auto}
           <button type="button" data-f="off" aria-pressed="false">미설치 매장만</button>
           <button type="button" data-f="hot" aria-pressed="false">많이 보낸 순</button>
         </div>
+        <p class="note" id="prodSum" style="margin:4px 0 0"></p>
         <table class="st"><thead><tr><th>매장</th><th>설치 휴대폰</th><th>요청</th><th>계약</th></tr></thead><tbody id="shops"></tbody></table>
         <p class="note">미설치 매장은 찾아가서 앱 설치를 도와주세요. 다른 매장으로 옮긴 직원은 앱에서 매장을 직접 바꿀 수 있어요.</p>
       </div>
@@ -340,7 +347,7 @@ const DEMO = (() => {
     { id: 'l1', t: now - 12 * 60000, s: 's1', stage: '오픈 준비 중', shop: '순대국 ○○집', tel: '01000001111', st: '새로 온', cp: '' },
     { id: 'l2', t: now - 2 * H, s: 's7', stage: '영업 중', shop: '○○닭갈비', tel: '01000002222', st: '새로 온', cp: '' },
     { id: 'l3', t: now - 26 * H, s: 's1', stage: '오픈 준비 중', shop: '○○포차', tel: '01000003333', st: '상담 중', cp: 'sent' },
-    { id: 'l4', t: now - 50 * H, s: 's4', stage: '영업 중', shop: '○○반점', tel: '01000004444', st: '계약', cp: 'sent' },
+    { id: 'l4', t: now - 50 * H, s: 's4', stage: '영업 중', shop: '○○반점', tel: '01000004444', st: '계약', cp: 'sent', prod: ['하이오더', 'KT 유·무선'], memo: '인터넷+TV' },
     { id: 'l5', t: now - 74 * H, s: 's5', stage: '영업 중', shop: '○○분식', tel: '01000005555', st: '불발', cp: 'sent' },
     { id: 'l6', t: now - 5 * H, s: 's9', stage: '오픈 준비 중', shop: '○○고깃집', tel: '01000006666', st: '상담 중', cp: '' }
   ];
@@ -362,7 +369,7 @@ const DEMO = (() => {
       { shop: '견본 가게', t: now - 30 * H, state: 'ready', name: '메가커피 아메리카노(HOT)', until: '2026-12-31' }
     ] }),
     login: (b) => wait(b.pin ? { ok: true, key: 'demo' } : { ok: false }),
-    admin: () => wait({ ok: true, leads: L, stores: S, dev, limit: CFG.limit, month: L.length, push: 0, vapid: '' }),
+    admin: () => wait({ ok: true, leads: L, stores: S, dev, limit: CFG.limit, month: L.length, prods: ['하이오더', '로봇', 'KT 유·무선'], push: 0, vapid: '' }),
     setLead: (b) => { const x = L.find((y) => y.id === b.id); if (x) Object.assign(x, b.set); return wait({ ok: true }); }
   };
 })();
@@ -397,6 +404,8 @@ const show = (id) => {
 if (IS_ADMIN) {
   show('admin');
   let A = null, lf = 'all', sf = 'all', tab = 'leads';
+  const WIRE = 'KT 유·무선';
+  let PRODS = ['하이오더', '로봇', WIRE];
   const shopName = (id) => (A.stores.find((s) => s.id === id) || {}).n || '알 수 없는 매장';
   const month = (t) => { const d = new Date(t), n = new Date(); return d.getFullYear() === n.getFullYear() && d.getMonth() === n.getMonth(); };
   const render = () => {
@@ -419,8 +428,12 @@ if (IS_ADMIN) {
           <select data-st aria-label="상태">${['새로 온', '상담 중', '계약', '불발'].map((s) => `<option${s === x.st ? ' selected' : ''}>${s}</option>`).join('')}</select>
           <button type="button" data-cp class="${x.cp ? 'on' : ''}">${x.cp === 'sent' ? '쿠폰 보냄 ✓' : x.cp === 'skip' ? '쿠폰 안 보냄' : '쿠폰 보내기'}</button>
         </div>
+        <div class="prod"><span>상품</span>${PRODS.map((p) => `<button type="button" data-prod="${esc(p)}" aria-pressed="${String((x.prod || []).includes(p))}">${esc(p)}</button>`).join('')}
+          ${(x.prod || []).includes(WIRE) ? `<input type="text" data-memo maxlength="60" placeholder="무슨 상품인지 (예: 인터넷+TV)" value="${esc(x.memo || '')}">` : ''}</div>
       </div>`).join('') : '<p class="empty">해당하는 접수가 없어요.</p>';
     /* 매장 */
+    const won = L.filter((x) => x.st === '계약');
+    $('#prodSum').textContent = '계약 상품 · ' + PRODS.map((p) => `${p} ${won.filter((x) => (x.prod || []).includes(p)).length}`).join(' · ') + (won.some((x) => !(x.prod || []).length) ? ` · 상품 미입력 ${won.filter((x) => !(x.prod || []).length).length}` : '');
     const per = {};
     A.stores.forEach((s) => { per[s.id] = { s, dev: A.dev[s.id] || 0, sent: 0, win: 0 }; });
     L.forEach((x) => { if (per[x.s]) { per[x.s].sent++; if (x.st === '계약') per[x.s].win++; } });
@@ -447,7 +460,7 @@ if (IS_ADMIN) {
   };
   const load = async () => {
     const j = await api('admin');
-    if (j.ok) { A = j; $('#pin').hidden = true; $('#adm').hidden = false; render(); return; }
+    if (j.ok) { A = j; if (Array.isArray(j.prods) && j.prods.length) PRODS = j.prods; $('#pin').hidden = true; $('#adm').hidden = false; render(); return; }
     if (j.relogin) { adminKey = ''; store.set('key', ''); $('#adm').hidden = true; $('#pin').hidden = false; }
   };
   const enter = async () => {
@@ -493,6 +506,14 @@ if (IS_ADMIN) {
   const act = async (e) => {
     const row = e.target.closest('[data-id]'); if (!row) return;
     const id = row.dataset.id, x = A.leads.find((y) => y.id === id); if (!x) return;
+    const pb = e.target.closest('[data-prod]');
+    if (pb) {
+      const p = pb.dataset.prod, cur = new Set(x.prod || []);
+      cur.has(p) ? cur.delete(p) : cur.add(p);
+      x.prod = PRODS.filter((q) => cur.has(q));
+      render(); await api('setLead', { id, set: { prod: x.prod } });
+      return;
+    }
     if (e.target.matches('[data-call]') && x.st === '새로 온') { x.st = '상담 중'; api('setLead', { id, set: { st: '상담 중' } }); setTimeout(render, 300); }
     if (e.target.matches('[data-cp]')) {
       if (x.cp) return;
@@ -538,6 +559,10 @@ if (IS_ADMIN) {
   $('#leads').addEventListener('click', act);
   $('#cq').addEventListener('click', act);
   $('#leads').addEventListener('change', async (e) => {
+    if (e.target.matches('[data-memo]')) {
+      const id = e.target.closest('[data-id]').dataset.id, x = A.leads.find((y) => y.id === id);
+      x.memo = e.target.value.trim(); await api('setLead', { id, set: { memo: x.memo } }); return;
+    }
     if (!e.target.matches('[data-st]')) return;
     const id = e.target.closest('[data-id]').dataset.id, x = A.leads.find((y) => y.id === id);
     x.st = e.target.value; await api('setLead', { id, set: { st: x.st } }); render();
