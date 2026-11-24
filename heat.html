@@ -7,7 +7,7 @@
 <meta name="format-detection" content="telephone=no">
 <title>겨울 고정비 점검 신청 · KT</title>
 <!--
-  겨울 고정비 점검 신청 페이지 (v1.01, 2026-11-15 — 문구 다듬기)
+  겨울 고정비 점검 신청 페이지 (v1.02, 2026-11-16 — 인쇄물과 같은 디자인으로: 빨간 탭·번호 네모·모래색 칸, 간격 넓힘)
   엘리베이터 게시물 QR이 여는 손님용 페이지 — 홈페이지 다크테마 규칙의 예외(apply.html과 같은 손님용).
   주소: heat.html?d=<단지 코드>&g=<동>   예) heat.html?d=a&g=808  — g를 넣으면 동 칸이 미리 채워지고 '들어온 길'로 적힌다.
   단지는 아래 CFG.sites 에 한 줄씩. 문지기(kt-gate) HEAT_SITES 에도 같은 코드를 넣어야 접수된다.
@@ -15,70 +15,75 @@
 -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <style>
-:root{--ink:#000;--txt:#1A1A1A;--mute:#6D6E71;--line:#D4D4D4;--soft:#F5F5F5;--red:#ED1B23}
+/* v1.02 — 인쇄물과 같은 디자인: 빨간 탭, 굵은 제목, 번호 네모, 옅은 모래색 칸. 간격 단위 8px */
+:root{--ink:#111;--txt:#222;--mute:#77726B;--line:#D8D3CB;--soft:#F3EFE8;--red:#ED1B23}
 *{box-sizing:border-box}
-html,body{margin:0;background:#fff;color:var(--txt);font:500 16px/1.65 Pretendard,system-ui,-apple-system,sans-serif;word-break:keep-all;-webkit-text-size-adjust:100%}
-main{max-width:520px;margin:0 auto;padding:18px 20px 40px}
-.top{display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;border-bottom:1.5px solid var(--ink)}
+html,body{margin:0;background:#fff;color:var(--txt);font:500 16px/1.7 Pretendard,system-ui,-apple-system,sans-serif;word-break:keep-all;-webkit-text-size-adjust:100%}
+main{max-width:520px;margin:0 auto;padding:0 22px 48px}
+.top{display:flex;justify-content:space-between;align-items:flex-start;height:72px}
+.top .tab{background:var(--red);color:#fff;height:44px;padding:0 16px 11px;display:flex;align-items:flex-end;font-size:10px;font-weight:700;letter-spacing:.22em}
+.top .r{display:flex;align-items:center;gap:10px;padding-top:16px}
 .top img{height:24px;display:block}
 .top .ver{font-size:10px;color:#aaa}
-.kick{margin:22px 0 6px;font-size:14px;font-weight:700;color:var(--red)}
-h1{margin:0 0 10px;font-size:27px;line-height:1.32;font-weight:800;color:var(--ink);letter-spacing:-.02em}
-.lead{margin:0 0 14px;color:var(--mute);font-size:15px}
-.live{background:var(--soft);padding:10px 14px;font-size:15px;margin:0 0 18px}
+.kick{margin:8px 0 12px;font-size:13px;font-weight:700;color:var(--red);letter-spacing:.04em}
+h1{margin:0 0 16px;font-size:31px;line-height:1.26;font-weight:800;color:var(--ink);letter-spacing:-.04em}
+.lead{margin:0 0 24px;color:#4A4743;font-size:16px;line-height:1.7}
+.live{background:var(--soft);border-left:4px solid var(--red);padding:14px 16px;font-size:15px;line-height:1.6;margin:0 0 32px}
 .live b{color:var(--red)}
-.two{border-top:1.5px solid var(--ink);border-bottom:1.5px solid var(--ink)}
-.two>div{display:grid;grid-template-columns:34px 1fr;padding:12px 0}
-.two>div+div{border-top:1px solid var(--line)}
-.two .n{font-size:13px;font-weight:700;color:var(--mute);padding-top:2px}
-.two .t{font-size:17px;font-weight:700;color:var(--ink)}
-.two .d{font-size:14.5px;color:var(--txt)}
-.cond{margin:10px 0 0;font-size:15px;font-weight:700;color:var(--ink)}
-figure{margin:20px 0 0}
+.two{border-top:2px solid var(--ink)}
+.two>div{display:grid;grid-template-columns:40px 1fr;column-gap:14px;padding:18px 0;border-bottom:1px solid var(--line)}
+.two .n{width:40px;height:40px;background:var(--red);color:#fff;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.two .t{font-size:18px;font-weight:800;color:var(--ink);letter-spacing:-.02em;margin-bottom:4px}
+.two .d{font-size:15px;line-height:1.65;color:var(--txt)}
+.cond{margin:16px 0 0;display:flex;flex-wrap:wrap;gap:8px}
+.cond span{background:var(--soft);padding:8px 12px;font-size:14px;font-weight:700;color:var(--ink);line-height:1.3}
+figure{margin:32px 0 0}
 figure img{width:100%;display:block}
-figcaption{font-size:13px;color:var(--mute);margin-top:6px}
-.vid{position:relative;width:100%;padding-top:56.25%;background:#000;margin-top:20px}
+figcaption{font-size:13px;color:var(--mute);margin-top:8px}
+.vid{position:relative;width:100%;padding-top:56.25%;background:#000;margin-top:24px}
 .vid iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
-.vcap{font-size:13px;color:var(--mute);margin-top:6px}
-h2{margin:30px 0 12px;font-size:20px;font-weight:800;color:var(--ink);padding-top:12px;border-top:1.5px solid var(--ink)}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-label.f{display:block;margin-bottom:12px}
-label.f span,.lab{display:block;font-size:13.5px;color:var(--mute);margin-bottom:5px}
-input[type=text],input[type=tel]{width:100%;height:48px;border:1px solid #BDBDBD;border-radius:0;padding:0 12px;font:600 17px Pretendard,system-ui,sans-serif;color:var(--ink);background:#fff;-webkit-appearance:none}
+.vcap{font-size:13px;color:var(--mute);margin-top:8px}
+h2{margin:40px 0 20px;font-size:23px;font-weight:800;color:var(--ink);letter-spacing:-.03em;padding-top:20px;border-top:2px solid var(--ink);display:flex;align-items:center;gap:12px}
+h2::before{content:"";width:14px;height:14px;background:var(--red);flex:none}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+label.f{display:block;margin-bottom:16px}
+label.f span,.lab{display:block;font-size:13.5px;font-weight:600;color:var(--mute);margin-bottom:6px}
+input[type=text],input[type=tel]{width:100%;height:52px;border:1px solid #BDB7AE;border-radius:0;padding:0 14px;font:600 17px Pretendard,system-ui,sans-serif;color:var(--ink);background:#fff;-webkit-appearance:none}
 input:focus{outline:2px solid var(--ink);outline-offset:-1px}
-.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
-.chips button{height:42px;padding:0 14px;border:1px solid #BDBDBD;background:#fff;font:600 15px Pretendard,system-ui,sans-serif;color:var(--txt);border-radius:0}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.chips button{height:46px;padding:0 16px;border:1px solid #BDB7AE;background:#fff;font:600 15px Pretendard,system-ui,sans-serif;color:var(--txt);border-radius:0}
 .chips button[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:#fff}
-.pol{background:var(--soft);padding:12px 14px;font-size:13.5px;line-height:1.6;margin:6px 0 10px}
-.pol dl{margin:0;display:grid;grid-template-columns:96px 1fr;gap:3px 8px}
+.pol{background:var(--soft);padding:16px;font-size:13.5px;line-height:1.65;margin:4px 0 16px}
+.pol dl{margin:0;display:grid;grid-template-columns:96px 1fr;gap:6px 8px}
 .pol dt{font-weight:700;color:var(--ink)}
 .pol dd{margin:0}
-.agree{display:flex;gap:10px;align-items:flex-start;font-size:15px;margin:10px 0 14px}
-.agree input{width:22px;height:22px;margin:1px 0 0;accent-color:#000;flex-shrink:0}
-.go{width:100%;height:56px;border:0;background:var(--red);color:#fff;font:800 18px Pretendard,system-ui,sans-serif;border-radius:0}
+.agree{display:flex;gap:10px;align-items:flex-start;font-size:15px;margin:0 0 20px}
+.agree input{width:22px;height:22px;margin:2px 0 0;accent-color:#111;flex-shrink:0}
+.go{width:100%;height:58px;border:0;background:var(--red);color:#fff;font:800 18px Pretendard,system-ui,sans-serif;border-radius:0;letter-spacing:-.01em}
 .go[disabled]{opacity:.5}
-.msg{min-height:22px;margin:10px 0 0;font-size:14.5px;color:#AE1800}
-.alt{margin-top:22px;border-top:1px solid var(--line);padding-top:14px}
-.alt p{margin:0 0 10px;font-size:15px}
-.alt .btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.alt a{display:flex;align-items:center;justify-content:center;height:48px;border:1.5px solid var(--ink);color:var(--ink);text-decoration:none;font-weight:700;font-size:16px}
-.done{text-align:center;padding:26px 0 8px}
-.done .ck{width:60px;height:60px;border-radius:50%;border:2px solid var(--ink);margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800}
-.done h3{margin:0 0 12px;font-size:22px;font-weight:800;color:var(--ink)}
-.done .box{border-top:1.5px solid var(--ink);border-bottom:1.5px solid var(--ink);padding:10px 0;margin:0 0 14px;font-size:16px;font-weight:700;color:var(--ink)}
-.done p{text-align:left;font-size:15px;margin:0 0 10px}
-details{margin-top:24px;font-size:13.5px;color:var(--mute)}
+.msg{min-height:22px;margin:12px 0 0;font-size:14.5px;color:#AE1800}
+.alt{margin-top:32px;border-top:1px solid var(--line);padding-top:20px}
+.alt p{margin:0 0 12px;font-size:15px}
+.alt .btns{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.alt a{display:flex;align-items:center;justify-content:center;height:50px;border:1.5px solid var(--ink);color:var(--ink);text-decoration:none;font-weight:700;font-size:16px}
+.done{padding:8px 0}
+.done .ck{width:56px;height:56px;background:var(--red);color:#fff;margin:0 0 16px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800}
+.done h3{margin:0 0 16px;font-size:25px;font-weight:800;color:var(--ink);letter-spacing:-.03em}
+.done .box{background:var(--soft);border-left:4px solid var(--red);padding:14px 16px;margin:0 0 20px;font-size:16px;font-weight:700;color:var(--ink)}
+.done p{font-size:15px;margin:0 0 10px}
+details{margin-top:32px;font-size:13.5px;color:var(--mute)}
 details summary{cursor:pointer;color:var(--txt);font-weight:600}
-details ol{padding-left:18px;margin:8px 0 0}
-details li{margin-bottom:6px}
-footer{margin-top:28px;font-size:13px;color:var(--mute);border-top:1px solid var(--line);padding-top:12px}
+details ol{padding-left:18px;margin:10px 0 0}
+details li{margin-bottom:8px}
+footer{margin-top:32px;font-size:13px;color:var(--mute);border-top:1px solid var(--line);padding-top:16px}
+footer p{margin:0 0 4px}
 .nosite{padding:60px 0;text-align:center}
 .nosite h1{font-size:22px}
 </style>
 </head>
 <body>
 <main>
-  <div class="top"><img src="https://kt-synergy.com/ai/KT_CI_BR01.png" alt="KT"><span class="ver">v1.01</span></div>
+  <div class="top"><div class="tab">WINTER CHECK</div><div class="r"><span class="ver">v1.02</span><img src="https://kt-synergy.com/ai/KT_CI_BR01.png" alt="KT"></div></div>
 
   <div id="page" hidden>
     <p class="kick"><span data-v="name"></span> · 겨울 고정비 점검</p>
@@ -90,7 +95,7 @@ footer{margin-top:28px;font-size:13px;color:var(--mute);border-top:1px solid var
       <div><span class="n">01</span><div><div class="t">난방비 · 열화상 촬영</div><div class="d">창틀·문틈을 열화상 카메라로 찍어 바람이 새는 자리를 눈으로 보여 드립니다.</div></div></div>
       <div><span class="n">02</span><div><div class="t">통신비 · 요금 점검</div><div class="d">인터넷·TV·휴대폰 요금제를 살펴 매달 더 나가는 돈이 없는지 확인해 드립니다.</div></div></div>
     </div>
-    <p class="cond">무료 · 약 15분 · 신청하신 세대만 방문</p>
+    <p class="cond"><span>무료</span><span>약 15분</span><span>신청하신 세대만 방문</span></p>
 
     <figure><img src="https://kt-synergy.com/ai/heat_sample_room.jpg" alt="열화상 사진과 같은 자리의 실제 모습" loading="lazy">
       <figcaption>예시 사진입니다. 파란색일수록 온도가 낮게 보이는 자리입니다.</figcaption></figure>
